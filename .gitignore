@@ -1,0 +1,14 @@
+/build
+/bin
+.DS_Store
+.classpath
+.project
+/.gradle
+/.settings
+.jshintrc
+node_modules/
+bower_components/
+.idea
+Edt.iml
+src/main/resources/public/dist/
+src/main/resources/public/temp/
