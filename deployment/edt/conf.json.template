@@ -1,0 +1,18 @@
+    {
+      "name": "fr.cgi~edt~0.1-SNAPSHOT",
+      "config": {
+        "main" : "fr.cgi.edt.Edt",
+        "port" : 8168,
+        "app-name" : "Edt",
+    	"app-address" : "/edt",
+    	"app-icon" : "Edt-large",
+        "host": "${host}",
+        "ssl" : $ssl,
+        "auto-redeploy": false,
+        "userbook-host": "${host}",
+        "integration-mode" : "HTTP",
+        "app-registry.port" : 8012,
+        "mode" : "${mode}",
+        "entcore.port" : 8009
+      }
+    }

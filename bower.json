@@ -1,0 +1,21 @@
+{
+  "name": "edt",
+  "homepage": "",
+  "authors": [
+    "CGI <simon.ledunois@cgi.com>"
+  ],
+  "description": "Gestion d'emplois du temps au sein de l'OPEN-ENT-NG",
+  "main": "",
+  "moduleType": [],
+  "license": "Propriétaire",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "entcore": "git://github.com/entcore/infra-front#dev"
+  }
+}
