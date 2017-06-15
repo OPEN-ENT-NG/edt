@@ -59,7 +59,12 @@ gulp.task('drop-old-files', function () {
         .pipe(clean());
 });
 
-gulp.task('copy-local-libs', ['drop-old-files'], () => {
+gulp.task('drop-old-local-files', function () {
+    return gulp.src(['./src/main/resources/public/temp', './src/main/resources/public/dist'], { read: false })
+        .pipe(clean());
+});
+
+gulp.task('copy-local-libs', ['drop-old-local-files'], () => {
     var ts = gulp.src(paths.infra + '/src/ts/**/*.ts')
         .pipe(gulp.dest('./src/main/resources/public/ts/entcore'));
 
