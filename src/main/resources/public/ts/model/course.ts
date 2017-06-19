@@ -24,7 +24,7 @@ export class Course {
     endMoment: any;
     endMomentDate: string;
     endMomentTime: string;
-    subjectName: string;
+    subjectLabel: string;
 
     constructor (obj: any, startDate?: string, endDate?: string) {
         if (obj instanceof Object) {
@@ -66,7 +66,7 @@ export class Courses {
                 let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
                 for (let i = 0; i < numberWeek; i++) {
                     let c = new Course(course, startMoment.format(), endMoment.format());
-                    c.subjectName = structure.subjects.mapping[course.subjectId];
+                    c.subjectLabel = structure.subjects.mapping[course.subjectId];
                     arr.push(c);
                     startMoment = startMoment.add(7, 'days');
                     endMoment = endMoment.add(7, 'days');
