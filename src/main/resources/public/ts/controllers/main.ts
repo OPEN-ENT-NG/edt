@@ -20,7 +20,7 @@ export let main = ng.controller('EdtController',
         };
 
         model.on('calendar.date-change', async () => {
-            await $scope.structure.courses.sync($scope.structure.id);
+            await $scope.structure.courses.sync($scope.structure);
             $scope.$apply();
         });
 
