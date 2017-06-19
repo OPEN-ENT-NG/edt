@@ -5,6 +5,9 @@
             ng-options="structure as structure.name for structure in structures.all"></select>
 </article>
 <div id="calendar-view" class="twelve row cell">
-    <calendar display-template="calendar-course-item"
-            items="structure.courses.all"></calendar>
+    <calendar
+            display-template="calendar/course-item"
+            items="structure.courses.all">
+
+    </calendar>
 </div>
