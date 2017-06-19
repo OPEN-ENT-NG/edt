@@ -4,7 +4,7 @@
             ng-change="switchStructure()"
             ng-options="structure as structure.name for structure in structures.all"></select>
 </article>
-<div class="twelve row cell" style="margin-top: 70px">
+<div id="calendar-view" class="twelve row cell">
     <calendar display-template="calendar-course-item"
             items="structure.courses.all"></calendar>
 </div>
