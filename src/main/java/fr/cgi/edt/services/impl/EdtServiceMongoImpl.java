@@ -1,8 +1,9 @@
-package fr.cgi.edt.services;
+package fr.cgi.edt.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.cgi.edt.services.EdtService;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.entcore.common.user.UserInfos;
@@ -22,7 +23,7 @@ import fr.wseduc.webutils.Either;
  * MongoDB implementation of the REST service.
  * Methods are usually self-explanatory.
  */
-public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtService{
+public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtService {
 
 	private final String collection;
 	private final MongoDb mongo;
@@ -53,36 +54,6 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 		JsonObject projection = new JsonObject();
 
 		mongo.find(collection, MongoQueryBuilder.build(query), new JsonObject(), projection, MongoDbResult.validResultsHandler(handler));
-	}
-
-	public void getEdt(String id, Handler<Either<String, JsonObject>> handler) {
-		mongo.findOne(collection, MongoQueryBuilder.build(QueryBuilder.start("_id").is(id)), MongoDbResult.validResultHandler(handler));
-	}
-
-	public void updateEdt(String id, JsonObject data, Handler<Either<String, JsonObject>> handler) {
-		String thumbnail = data.getString("thumbnail");
-		data.putString("thumbnail", thumbnail == null ? "" : thumbnail);
-		if(data.containsField("title"))
-			data.putString("name", data.getString("title"));
-		super.update(id, data, handler);
-	}
-
-	public void trashEdt(String id, Handler<Either<String, JsonObject>> handler) {
-		JsonObject data = new JsonObject();
-		data.putNumber("trashed", 1);
-
-		super.update(id, data, handler);
-	}
-
-	public void recoverEdt(String id, Handler<Either<String, JsonObject>> handler) {
-		JsonObject data = new JsonObject();
-		data.putNumber("trashed", 0);
-
-		super.update(id, data, handler);
-	}
-
-	public void deleteEdt(String id, Handler<Either<String, JsonObject>> handler) {
-		super.delete(id, handler);
 	}
 
 }

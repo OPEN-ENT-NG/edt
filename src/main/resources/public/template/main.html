@@ -1,0 +1,10 @@
+<article class="row cell card twelve" ng-if="structures.all.length > 1">
+    <select class="right-magner"
+            ng-model="structure"
+            ng-change="switchStructure()"
+            ng-options="structure as structure.name for structure in structures.all"></select>
+</article>
+<div class="twelve row cell" style="margin-top: 70px">
+    <calendar display-template="calendar-course-item"
+            items="structure.courses.all"></calendar>
+</div>
