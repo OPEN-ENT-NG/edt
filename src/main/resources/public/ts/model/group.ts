@@ -18,6 +18,11 @@ export class Groups {
         this.all = [];
     }
 
+    /**
+     * Synchronize groups belongs to the parameter structure
+     * @param structureId structure id
+     * @returns {Promise<void>}
+     */
     async sync (structureId: string) {
         try {
             let groups = await http.get('/viescolaire/classes?idEtablissement=' + structureId);

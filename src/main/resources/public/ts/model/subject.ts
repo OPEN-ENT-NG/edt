@@ -1,6 +1,7 @@
 import { model } from 'entcore/entcore';
 import http from 'axios';
 import { notify } from 'entcore/entcore';
+import {USER_TYPES} from "./user-types";
 
 export class Subject {
     subjectId: string;
@@ -25,10 +26,17 @@ export class Subjects {
         this.mapping = {};
     }
 
+    /**
+     * Synchronize subjects provides by the structure
+     * @param structureId structure id
+     * @returns {Promise<void>}
+     */
     async sync (structureId: string): Promise<void> {
         if (typeof structureId !== 'string') { return; }
         try {
-            let subjects = await http.get('/directory/timetable/subjects/' + structureId + '?teacherId=' + model.me.userId);
+            let url = `/directory/timetable/subjects/${structureId}`;
+            if (model.me.type === USER_TYPES.teacher) { url += `?teacherId=${model.me.userId}`; }
+            let subjects = await http.get(url);
             subjects.data.forEach((subject) => {
                 this.all.push(new Subject(subject.subjectId, subject.subjectLabel, subject.subjectCode, subject.teacherId));
                 this.mapping[subject.subjectId] = subject.subjectLabel;
