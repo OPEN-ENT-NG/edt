@@ -43,5 +43,11 @@
 	"share.more"										: "Voir la suite",
 	"share.search.title"								: "Rechercher des utilisateurs et des groupes",
 	"share.search.placeholder"							: "Ex : Sabine, Dupont, Enseignants de l'école...",
-	"seemore"											: "Voir la suite"
+	"seemore"											: "Voir la suite",
+    "utils.teachers": "Enseignants",
+    "utils.personnels": "Personnels",
+    "utils.groups": "Classes/Groupes",
+    "utils.structure": "Structures",
+    "edt.calendar.loading": "Emploi du temps en cours de chargement...",
+    "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps"
 }

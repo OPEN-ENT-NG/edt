@@ -1,1 +1,6 @@
-@import './specifics/custom';
+body.edt {
+  @import './specifics/mixins';
+  @import './specifics/utils';
+  @import './specifics/custom';
+  @import './specifics/loader';
+}

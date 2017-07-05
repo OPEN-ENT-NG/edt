@@ -1,13 +1,49 @@
 <article class="row cell card twelve" ng-if="structures.all.length > 1">
-    <select class="right-magner"
-            ng-model="structure"
+    <select ng-model="structure"
             ng-change="switchStructure()"
             ng-options="structure as structure.name for structure in structures.all"></select>
 </article>
-<div id="calendar-view" class="twelve row cell">
-    <calendar
-            display-template="calendar/course-item"
-            items="structure.courses.all">
-
-    </calendar>
+<div class="row">
+    <article class="cell two twelve-mobile" ng-if="isPersonnel()">
+        <div ng-if="structures.length > 1">
+            <label for="structure-list"><i18n>utils.structures</i18n></label>
+            <select ng-model="structure"
+                    id="structure-list"
+                    class="twelve"
+                    ng-change="switchStructure()"
+                    ng-options="structure as structure.name for structure in structures.all"></select>
+        </div>
+        <div>
+            <label for="user-list">
+                <div><i18n>utils.teachers</i18n></div>
+            <select ng-model="params.user"
+                    id="user-list"
+                    class="twelve"
+                    ng-change="params.group = null; getTimetable()"
+                    ng-options="teacher as teacher.displayName for teacher in structure.teachers.all">
+            </select>
+            </label>
+        </div>
+        <div>
+            <label for="group-list"><i18n>utils.groups</i18n></label>
+            <select ng-model="params.group"
+                    id="group-list"
+                    class="twelve"
+                    ng-change="params.user = null; getTimetable()"
+                    ng-options="group as group.name for group in structure.groups.all">
+            </select>
+        </div>
+    </article>
+    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{twelve: !isPersonnel(), ten: isPersonnel()}">
+        <div class="calendar-loader" ng-if="calendarLoader.show">
+            <div>
+                <p><i class="spinner"></i></p>
+                <h4><i18n>edt.calendar.loading</i18n></h4>
+            </div>
+        </div>
+        <calendar
+                display-template="calendar/course-item"
+                items="structure.courses.all">
+        </calendar>
+    </div>
 </div>
