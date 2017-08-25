@@ -13,6 +13,10 @@
         "integration-mode" : "HTTP",
         "app-registry.port" : 8012,
         "mode" : "${mode}",
-        "entcore.port" : 8009
+        "entcore.port" : 8009,
+        "dependencies" : {
+            "fr.openent.viescolaire": "0.4.0",
+            "org.entcore.directory": "1.25.0"
+        }
       }
     }
