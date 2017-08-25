@@ -1,8 +1,5 @@
 {
-  "application.js": "application-9e3551a71c.js",
-  "application.js.map": "application-f409d98aee.js.map",
-  "behaviours.js": "behaviours-2d013f2214.js",
-  "behaviours.js.map": "behaviours-fab9a9ce01.js.map",
-  "ng-app.js": "ng-app-bf5b2ad029.js",
-  "ng-app.js.map": "ng-app-106b6a47a4.js.map"
+  "application.js": "application-4ecf07930a.js",
+  "behaviours.js": "behaviours-c5e82bc049.js",
+  "entcore/ng-app.js": "entcore/ng-app-85a25662ac.js"
 }
