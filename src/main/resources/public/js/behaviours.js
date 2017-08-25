@@ -47,7 +47,7 @@
 	"use strict";
 	var entcore_1 = __webpack_require__(1);
 	var axios_1 = __webpack_require__(6);
-	var underscore_1 = __webpack_require__(50);
+	var underscore_1 = __webpack_require__(76);
 	entcore_1.Behaviours.register('edt', {
 	    rights: {
 	        workflow: {
@@ -109,8 +109,8 @@
 	
 	var utils = __webpack_require__(8);
 	var bind = __webpack_require__(9);
-	var Axios = __webpack_require__(10);
-	var defaults = __webpack_require__(11);
+	var Axios = __webpack_require__(11);
+	var defaults = __webpack_require__(12);
 	
 	/**
 	 * Create an instance of Axios
@@ -143,15 +143,15 @@
 	};
 	
 	// Expose Cancel & CancelToken
-	axios.Cancel = __webpack_require__(29);
-	axios.CancelToken = __webpack_require__(30);
-	axios.isCancel = __webpack_require__(26);
+	axios.Cancel = __webpack_require__(30);
+	axios.CancelToken = __webpack_require__(31);
+	axios.isCancel = __webpack_require__(27);
 	
 	// Expose all/spread
 	axios.all = function all(promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(31);
+	axios.spread = __webpack_require__(32);
 	
 	module.exports = axios;
 	
@@ -166,6 +166,7 @@
 	'use strict';
 	
 	var bind = __webpack_require__(9);
+	var isBuffer = __webpack_require__(10);
 	
 	/*global toString:true*/
 	
@@ -340,13 +341,15 @@
 	 *  typeof document -> undefined
 	 *
 	 * react-native:
-	 *  typeof document.createElement -> undefined
+	 *  navigator.product -> 'ReactNative'
 	 */
 	function isStandardBrowserEnv() {
+	  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+	    return false;
+	  }
 	  return (
 	    typeof window !== 'undefined' &&
-	    typeof document !== 'undefined' &&
-	    typeof document.createElement === 'function'
+	    typeof document !== 'undefined'
 	  );
 	}
 	
@@ -444,6 +447,7 @@
 	module.exports = {
 	  isArray: isArray,
 	  isArrayBuffer: isArrayBuffer,
+	  isBuffer: isBuffer,
 	  isFormData: isFormData,
 	  isArrayBufferView: isArrayBufferView,
 	  isString: isString,
@@ -483,16 +487,43 @@
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports) {
+
+	/*!
+	 * Determine if an object is a Buffer
+	 *
+	 * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+	 * @license  MIT
+	 */
+	
+	// The _isBuffer check is for Safari 5-7 support, because it's missing
+	// Object.prototype.constructor. Remove this eventually
+	module.exports = function (obj) {
+	  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+	}
+	
+	function isBuffer (obj) {
+	  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+	}
+	
+	// For Node v0.10 support. Remove this eventually.
+	function isSlowBuffer (obj) {
+	  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+	}
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var defaults = __webpack_require__(11);
+	var defaults = __webpack_require__(12);
 	var utils = __webpack_require__(8);
-	var InterceptorManager = __webpack_require__(23);
-	var dispatchRequest = __webpack_require__(24);
-	var isAbsoluteURL = __webpack_require__(27);
-	var combineURLs = __webpack_require__(28);
+	var InterceptorManager = __webpack_require__(24);
+	var dispatchRequest = __webpack_require__(25);
+	var isAbsoluteURL = __webpack_require__(28);
+	var combineURLs = __webpack_require__(29);
 	
 	/**
 	 * Create a new instance of Axios
@@ -522,6 +553,7 @@
 	  }
 	
 	  config = utils.merge(defaults, this.defaults, { method: 'get' }, config);
+	  config.method = config.method.toLowerCase();
 	
 	  // Support baseURL config
 	  if (config.baseURL && !isAbsoluteURL(config.url)) {
@@ -548,7 +580,7 @@
 	};
 	
 	// Provide aliases for supported request methods
-	utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+	utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
 	  /*eslint func-names:0*/
 	  Axios.prototype[method] = function(url, config) {
 	    return this.request(utils.merge(config || {}, {
@@ -573,15 +605,14 @@
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 	
 	var utils = __webpack_require__(8);
-	var normalizeHeaderName = __webpack_require__(13);
+	var normalizeHeaderName = __webpack_require__(14);
 	
-	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
 	  'Content-Type': 'application/x-www-form-urlencoded'
 	};
@@ -596,10 +627,10 @@
 	  var adapter;
 	  if (typeof XMLHttpRequest !== 'undefined') {
 	    // For browsers use XHR adapter
-	    adapter = __webpack_require__(14);
+	    adapter = __webpack_require__(15);
 	  } else if (typeof process !== 'undefined') {
 	    // For node use HTTP adapter
-	    adapter = __webpack_require__(14);
+	    adapter = __webpack_require__(15);
 	  }
 	  return adapter;
 	}
@@ -611,6 +642,7 @@
 	    normalizeHeaderName(headers, 'Content-Type');
 	    if (utils.isFormData(data) ||
 	      utils.isArrayBuffer(data) ||
+	      utils.isBuffer(data) ||
 	      utils.isStream(data) ||
 	      utils.isFile(data) ||
 	      utils.isBlob(data)
@@ -634,7 +666,6 @@
 	  transformResponse: [function transformResponse(data) {
 	    /*eslint no-param-reassign:0*/
 	    if (typeof data === 'string') {
-	      data = data.replace(PROTECTION_PREFIX, '');
 	      try {
 	        data = JSON.parse(data);
 	      } catch (e) { /* Ignore */ }
@@ -660,7 +691,7 @@
 	  }
 	};
 	
-	utils.forEach(['delete', 'get', 'head'], function forEachMehtodNoData(method) {
+	utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
 	  defaults.headers[method] = {};
 	});
 	
@@ -670,10 +701,10 @@
 	
 	module.exports = defaults;
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 	// shim for using process in browser
@@ -863,7 +894,7 @@
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -881,18 +912,18 @@
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 	
 	var utils = __webpack_require__(8);
-	var settle = __webpack_require__(15);
-	var buildURL = __webpack_require__(18);
-	var parseHeaders = __webpack_require__(19);
-	var isURLSameOrigin = __webpack_require__(20);
-	var createError = __webpack_require__(16);
-	var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(21);
+	var settle = __webpack_require__(16);
+	var buildURL = __webpack_require__(19);
+	var parseHeaders = __webpack_require__(20);
+	var isURLSameOrigin = __webpack_require__(21);
+	var createError = __webpack_require__(17);
+	var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(22);
 	
 	module.exports = function xhrAdapter(config) {
 	  return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -970,7 +1001,7 @@
 	    request.onerror = function handleError() {
 	      // Real errors are hidden from us by the browser
 	      // onerror should only fire if it's a network error
-	      reject(createError('Network Error', config));
+	      reject(createError('Network Error', config, null, request));
 	
 	      // Clean up request
 	      request = null;
@@ -978,7 +1009,8 @@
 	
 	    // Handle timeout
 	    request.ontimeout = function handleTimeout() {
-	      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED'));
+	      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+	        request));
 	
 	      // Clean up request
 	      request = null;
@@ -988,7 +1020,7 @@
 	    // This is only done if running in a standard browser environment.
 	    // Specifically not if we're in a web worker, or react-native.
 	    if (utils.isStandardBrowserEnv()) {
-	      var cookies = __webpack_require__(22);
+	      var cookies = __webpack_require__(23);
 	
 	      // Add xsrf header
 	      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -1023,7 +1055,9 @@
 	      try {
 	        request.responseType = config.responseType;
 	      } catch (e) {
-	        if (request.responseType !== 'json') {
+	        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+	        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+	        if (config.responseType !== 'json') {
 	          throw e;
 	        }
 	      }
@@ -1062,15 +1096,15 @@
 	  });
 	};
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var createError = __webpack_require__(16);
+	var createError = __webpack_require__(17);
 	
 	/**
 	 * Resolve or reject a Promise based on response status.
@@ -1089,6 +1123,7 @@
 	      'Request failed with status code ' + response.status,
 	      response.config,
 	      null,
+	      response.request,
 	      response
 	    ));
 	  }
@@ -1096,30 +1131,31 @@
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var enhanceError = __webpack_require__(17);
+	var enhanceError = __webpack_require__(18);
 	
 	/**
-	 * Create an Error with the specified message, config, error code, and response.
+	 * Create an Error with the specified message, config, error code, request and response.
 	 *
 	 * @param {string} message The error message.
 	 * @param {Object} config The config.
 	 * @param {string} [code] The error code (for example, 'ECONNABORTED').
-	 @ @param {Object} [response] The response.
+	 * @param {Object} [request] The request.
+	 * @param {Object} [response] The response.
 	 * @returns {Error} The created error.
 	 */
-	module.exports = function createError(message, config, code, response) {
+	module.exports = function createError(message, config, code, request, response) {
 	  var error = new Error(message);
-	  return enhanceError(error, config, code, response);
+	  return enhanceError(error, config, code, request, response);
 	};
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1130,21 +1166,23 @@
 	 * @param {Error} error The error to update.
 	 * @param {Object} config The config.
 	 * @param {string} [code] The error code (for example, 'ECONNABORTED').
-	 @ @param {Object} [response] The response.
+	 * @param {Object} [request] The request.
+	 * @param {Object} [response] The response.
 	 * @returns {Error} The error.
 	 */
-	module.exports = function enhanceError(error, config, code, response) {
+	module.exports = function enhanceError(error, config, code, request, response) {
 	  error.config = config;
 	  if (code) {
 	    error.code = code;
 	  }
+	  error.request = request;
 	  error.response = response;
 	  return error;
 	};
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1218,7 +1256,7 @@
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1261,7 +1299,7 @@
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1335,7 +1373,7 @@
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1377,7 +1415,7 @@
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1436,7 +1474,7 @@
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1494,15 +1532,15 @@
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	var utils = __webpack_require__(8);
-	var transformData = __webpack_require__(25);
-	var isCancel = __webpack_require__(26);
-	var defaults = __webpack_require__(11);
+	var transformData = __webpack_require__(26);
+	var isCancel = __webpack_require__(27);
+	var defaults = __webpack_require__(12);
 	
 	/**
 	 * Throws a `Cancel` if cancellation has been requested.
@@ -1579,7 +1617,7 @@
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1605,7 +1643,7 @@
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1616,7 +1654,7 @@
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1636,7 +1674,7 @@
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1649,12 +1687,14 @@
 	 * @returns {string} The combined URL
 	 */
 	module.exports = function combineURLs(baseURL, relativeURL) {
-	  return baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '');
+	  return relativeURL
+	    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+	    : baseURL;
 	};
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1679,12 +1719,12 @@
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var Cancel = __webpack_require__(29);
+	var Cancel = __webpack_require__(30);
 	
 	/**
 	 * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -1742,7 +1782,7 @@
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1775,7 +1815,6 @@
 
 
 /***/ }),
-/* 32 */,
 /* 33 */,
 /* 34 */,
 /* 35 */,
@@ -1793,7 +1832,33 @@
 /* 47 */,
 /* 48 */,
 /* 49 */,
-/* 50 */
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */
 /***/ (function(module, exports) {
 
 	module.exports = _;
