@@ -16,6 +16,10 @@ export class Teacher {
             }
         }
     }
+
+    toString () {
+        return this.displayName;
+    }
 }
 
 export class Teachers {

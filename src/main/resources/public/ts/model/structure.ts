@@ -1,9 +1,5 @@
-import { model } from 'entcore/entcore';
-import { Courses } from './course';
-import { Subjects } from './subject';
-import { Groups } from './group';
-import { Teachers } from './teacher';
-import { USER_TYPES } from './user-types';
+import { model } from 'entcore';
+import { Courses, Subjects, Groups, Teachers, USER_TYPES } from './index';
 import { Eventer } from 'entcore-toolkit';
 
 export class Structure {
@@ -16,7 +12,7 @@ export class Structure {
     eventer: Eventer = new Eventer();
 
     /**
-     * Structure contructor. Can take an id and a name in parameter
+     * Structure constructor. Can take an id and a name in parameter
      * @param id structure id
      * @param name structure name
      */

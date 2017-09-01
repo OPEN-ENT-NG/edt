@@ -11,7 +11,7 @@ import org.vertx.java.core.shareddata.ConcurrentSharedMap;
 
 public class Edt extends BaseServer {
 
-	public final static String EDT_COLLECTION = "edt";
+	public final static String EDT_COLLECTION = "courses";
 
 	@Override
 	public void start() {

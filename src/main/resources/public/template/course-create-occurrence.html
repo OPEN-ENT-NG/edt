@@ -1,0 +1,141 @@
+<div ng-controller="CreationController" id="occurrences-creation">
+    <h1 class="centered eight row"><i18n>edt.schedule.creation.title</i18n></h1>
+    <lightbox show="addingCourse" on-close="addingCourse = false;">
+        <h3><i18n>edt.schedule.create.occurrence</i18n></h3>
+        <form ng-submit="createCourseOccurrence()">
+            <div class="row vertical-spacing">
+                <div class="three cell">Jour</div>
+                <div class="nine cell">
+                    <select ng-model="courseOccurrence.dayOfWeek" required>
+                        <option ng-repeat="(dayNumber, dayTranslation) in daysOfWeek.days"
+                                value="[[dayNumber]]">
+                            [[daysOfWeek.get(dayNumber)]]
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row vertical-spacing">
+                <div class="three cell"><i18n>edt.utils.start.time</i18n></div>
+                <div class="nine cell"><input type="time" ng-model="courseOccurrence.startTime" required/></div>
+            </div>
+            <div class="row vertical-spacing">
+                <div class="three cell"><i18n>edt.utils.end.time</i18n></div>
+                <div class="nine cell"><input type="time" ng-model="courseOccurrence.endTime" required/></div>
+            </div>
+            <div class="row vertical-spacing">
+                <div class="three cell"><i18n>edt.utils.room</i18n></div>
+                <div class="nine cell"><input ng-model="courseOccurrence.roomLabels[0]" required/></div>
+            </div>
+            <div class="right-magnet">
+                <button><i18n>edt.utils.add</i18n></button>
+            </div>
+        </form>
+    </lightbox>
+
+
+    <stepper classes="'eight eleven-mobile'" on-cancel="cancelCreation()" on-finish="validCreationOccurrence()">
+        <a-step title="translate('edt.creation.step1.title')" next-condition="validateStep1()">
+            <div class="row twelve centered twelve-mobile">
+                <div class="warning" ng-show="!validation.step1">
+                    <h4><i18n>edt.creation.step1.error.title</i18n></h4>
+                    <p><i18n>edt.creation.step1.error.1</i18n>
+                    <ul>
+                        <li ng-if="structures.all.length > 1"><i18n>edt.creation.step1.error.2</i18n></li>
+                        <li><i18n>edt.creation.step1.error.3</i18n></li>
+                        <li><i18n>edt.creation.step1.error.4</i18n></li>
+                        <li><i18n>edt.creation.step1.error.5</i18n></li>
+                    </ul>
+                    </p>
+                </div>
+                <div ng-if="structures.all.length > 1" class="row form-row">
+                    <label for="select-structure" class="cell two twelve-mobile">
+                        Structure
+                    </label>
+                    <div class="cell twelve-mobile ten">
+                        <select ng-model="course.structureId" id="select-structure" required
+                                ng-options="structure.name for structure in structures.all">
+                            <option value="" disabled selected>[[translate('edt.creation.structure.choose')]]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row form-row">
+                    <label for="combo-teacher" class="cell two twelve-mobile">
+                        <i18n>utils.teachers</i18n>
+                    </label>
+                    <div class="cell twelve-mobile ten">
+                        <multi-combo title="[[translate('edt.creation.teachers.choose')]]" id="combo-teacher" combo-model="structure.teachers.all"
+                                     search-on="displayName" order-by="displayName" filtered-model="course.teachers"
+                                     labels="comboLabels"></multi-combo>
+                        <div class="select-blocks">
+                            <div ng-repeat="teacher in course.teachers"
+                                 ng-click="dropTeacher(teacher, course.teachers)">[[teacher.displayName]]</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-row">
+                    <label for="combo-groups" class="cell two twelve-mobile">
+                        <i18n>utils.groups</i18n>
+                    </label>
+                    <div class="cell twelve-mobile ten">
+                        <multi-combo title="[[translate('edt.creation.groups.choose')]]" id="combo-groups" combo-model="structure.groups.all"
+                                     search-on="name" order-by="name" filtered-model="course.groups"
+                                     labels="comboLabels"></multi-combo>
+                        <div class="select-blocks">
+                            <div ng-repeat="group in course.groups"
+                                 ng-click="dropGroup(group)">[[group.name]]</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-row">
+                    <label for="select-subject" class="cell two twelve-mobile">
+                        <i18n>subject</i18n>
+                    </label>
+                    <div class="cell twelve-mobile ten">
+                        <select class="twelve-mobile six" id="select-subject" ng-model="course.subjectId" required
+                                ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all">
+                            <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </a-step>
+        <a-step title="translate('edt.creation.step2.title')" next-condition="validateStep2()">
+            <div class="row">
+                <i18n>from</i18n> <date-picker
+                    ng-model="course.startDate"></date-picker>
+                <i18n>to</i18n> <date-picker
+                    ng-model="course.endDate"></date-picker>
+            </div>
+            <div class="row">
+                <table class="twelve list-view" style="text-align: center">
+                    <thead>
+                    <tr>
+                        <td><i18n>edt.utils.day</i18n></td>
+                        <td><i18n>edt.utils.start.time</i18n></td>
+                        <td><i18n>edt.utils.end.time</i18n></td>
+                        <td><i18n>edt.utils.room</i18n></td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="courseOccurrence in course.courseOccurrences">
+                        <td>[[daysOfWeek.get(courseOccurrence.dayOfWeek)]]</td>
+                        <td>[[courseOccurrence.getFormattedStartTime()]]</td>
+                        <td>[[courseOccurrence.getFormattedEndTime()]]</td>
+                        <td>[[courseOccurrence.roomLabels.length > 0 ? courseOccurrence.roomLabels[0] : '']]</td>
+                        <td class="drop-line" ng-click="dropOccurrence(courseOccurrence)"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button class="twelve"
+                        ng-click="addCourseOccurrence()"><i18n>edt.schedule.create.occurrence</i18n></button>
+            </div>
+        </a-step>
+        <a-step title="translate('edt.creation.step3.title')" next-condition="validateStep3()" on-activation="step3Activation()">
+            <calendar
+                    display-template="calendar/course-item"
+                    items="course.overviewCourses"></calendar>
+        </a-step>
+    </stepper>
+
+</div>

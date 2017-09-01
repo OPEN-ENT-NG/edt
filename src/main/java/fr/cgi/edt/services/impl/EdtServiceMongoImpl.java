@@ -3,6 +3,7 @@ package fr.cgi.edt.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.cgi.edt.EdtMongoHelper;
 import fr.cgi.edt.services.EdtService;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
@@ -34,26 +35,8 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 		this.mongo = MongoDb.getInstance();
 	}
 
-	public void createEdt(UserInfos user, JsonObject data, Handler<Either<String, JsonObject>> handler) {
-		data.putNumber("trashed", 0);
-		data.putString("name", data.getString("title"));
-		super.create(data, user, handler);
+	@Override
+	public void createCourses(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
+		new EdtMongoHelper(this.collection).transaction(courses, handler);
 	}
-
-	public void listEdt(UserInfos user, Handler<Either<String, JsonArray>> handler) {
-		List<DBObject> groups = new ArrayList<>();
-		groups.add(QueryBuilder.start("userId").is(user.getUserId()).get());
-		for (String gpId : user.getGroupsIds()) {
-			groups.add(QueryBuilder.start("groupId").is(gpId).get());
-		}
-
-		QueryBuilder query = new QueryBuilder().or(
-				QueryBuilder.start("owner.userId").is(user.getUserId()).get(),
-				QueryBuilder.start("shared").elemMatch(new QueryBuilder().or(groups.toArray(new DBObject[groups.size()])).get()).get());
-
-		JsonObject projection = new JsonObject();
-
-		mongo.find(collection, MongoQueryBuilder.build(query), new JsonObject(), projection, MongoDbResult.validResultsHandler(handler));
-	}
-
 }

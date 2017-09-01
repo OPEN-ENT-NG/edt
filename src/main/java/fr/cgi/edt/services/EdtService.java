@@ -12,6 +12,5 @@ import fr.wseduc.webutils.Either;
  */
 public interface EdtService {
 
-	public void createEdt(UserInfos user, JsonObject data, Handler<Either<String, JsonObject>> handler);
-	public void listEdt(UserInfos user, Handler<Either<String, JsonArray>> handler);
+	public void createCourses(JsonArray courses, Handler<Either<String, JsonObject>> handler);
 }

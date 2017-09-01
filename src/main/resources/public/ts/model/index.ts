@@ -4,4 +4,8 @@ export * from './course';
 export * from './subject';
 export * from './group';
 export * from './teacher';
+export * from './courseOccurrence';
 export * from './user-types';
+export * from './daysOfWeek';
+export * from './comboLabels';
+export * from './utils';
