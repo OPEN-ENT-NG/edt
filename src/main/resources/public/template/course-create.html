@@ -1,0 +1,53 @@
+<div ng-controller="CreationController">
+    <h1 class="twelve row"><i18n>edt.schedule.creation.title</i18n></h1>
+    <div ng-if="structures.all.length > 1" class="row">
+        <select ng-model="course.structureId" required
+                ng-options="structure.name for structure in structures.all"></select>
+    </div>
+    <div class="row twelve">
+        <multi-combo title="Enseignant" combo-model="structure.teachers.all"
+                     search-on="displayName" order-by="displayName" filtered-model="course.teachers"
+                     labels="comboLabels"></multi-combo>
+        <div class="select-blocks">
+            <div ng-repeat="teacher in course.teachers"
+                 ng-click="dropTeacher(teacher)">[[teacher.displayName]]</div>
+        </div>
+    </div>
+    <div class="row twelve">
+        <multi-combo title="Classes / Groups" combo-model="structure.groups.all"
+                     search-on="name" order-by="name" filtered-model="course.groups"
+                     labels="comboLabels"></multi-combo>
+        <div class="select-blocks">
+            <div ng-repeat="group in course.groups"
+                 ng-click="dropGroup(group)">[[group.name]]</div>
+        </div>
+    </div>
+    <div class="row twelve">
+        <select class="twelve-mobile six" ng-model="course.subjectId" required
+                ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all">
+            <option value="" disabled selected><i18n>subject</i18n></option>
+        </select>
+    </div>
+    <div class="row vertical-spacing">
+        <div class="three cell"><i18n>edt.utils.room</i18n></div>
+        <div class="nine cell"><input ng-model="course.roomLabels[0]" required/></div>
+    </div>
+    <div class="row vertical-spacing">
+        <i18n>from</i18n> <date-picker ng-model="course.startMoment"></date-picker>
+        <input type="time" ng-model="course.startCalendarHour" value="HH:mm" ng-value="getTime(course.startCalendarHour)" />
+    </div>
+    <div class="row vertical-spacing">
+        <i18n>to</i18n> <date-picker ng-model="course.endMoment"></date-picker>
+        <input type="time" ng-model="course.endCalendarHour" value="HH:mm" ng-value="getTime(course.endCalendarHour)" />
+    </div>
+    <div class="row">
+        <div class="right-magnet">
+            <button class="cancel" ng-click="lightbox.hide()">
+                <i18n>edt.utils.cancel</i18n>
+            </button>
+            <button ng-click="saveCourse(course)">
+                <i18n>edt.utils.create</i18n>
+            </button>
+        </div>
+    </div>
+</div>

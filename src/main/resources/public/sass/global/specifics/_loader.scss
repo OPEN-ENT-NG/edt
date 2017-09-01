@@ -1,9 +1,3 @@
-@include keyframes(spinner) {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .calendar-loader {
   display: flex;
   height: 100%;

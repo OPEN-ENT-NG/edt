@@ -1,6 +1,8 @@
 body.edt {
+  @import './specifics/select';
   @import './specifics/mixins';
   @import './specifics/utils';
   @import './specifics/custom';
   @import './specifics/loader';
+  @import './specifics/stepper';
 }

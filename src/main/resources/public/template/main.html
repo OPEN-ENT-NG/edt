@@ -11,7 +11,9 @@
                     id="structure-list"
                     class="twelve"
                     ng-change="switchStructure()"
-                    ng-options="structure as structure.name for structure in structures.all"></select>
+                    ng-options="structure as structure.name for structure in structures.all">
+                <option value="" disabled selected>[[translate('utils.structure.choose.one')]]</option>
+            </select>
         </div>
         <div>
             <label for="user-list">
@@ -21,6 +23,7 @@
                     class="twelve"
                     ng-change="params.group = null; getTimetable()"
                     ng-options="teacher as teacher.displayName for teacher in structure.teachers.all">
+                <option value="" disabled selected>[[translate('utils.teacher.choose.one')]]</option>
             </select>
             </label>
         </div>
@@ -31,7 +34,11 @@
                     class="twelve"
                     ng-change="params.user = null; getTimetable()"
                     ng-options="group as group.name for group in structure.groups.all">
+                <option value="" disabled selected>[[translate('utils.group.choose.one')]]</option>
             </select>
+        </div>
+        <div class="row cell" workflow="edt.create">
+            <button class="twelve" ng-click="createCourseWithOccurrences()"><i18n>edt.schedule.create</i18n></button>
         </div>
     </article>
     <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{twelve: !isPersonnel(), ten: isPersonnel()}">
@@ -42,8 +49,11 @@
             </div>
         </div>
         <calendar
-                display-template="calendar/course-item"
-                items="structure.courses.all">
-        </calendar>
+            display-template="calendar/course-item"
+            items="structure.courses.all">
+    </calendar>
+        <lightbox show="lightbox.display" on-close="lightbox.hide()">
+            <container template="lightbox"></container>
+        </lightbox>
     </div>
 </div>

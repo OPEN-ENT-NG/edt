@@ -9,6 +9,10 @@ export class Group {
         this.id = id;
         this.name = name;
     }
+
+    toString (): string {
+        return this.name;
+    }
 }
 
 export class Groups {

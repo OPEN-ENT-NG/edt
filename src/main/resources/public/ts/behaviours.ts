@@ -1,12 +1,12 @@
-import { Behaviours, model, idiom as lang } from 'entcore/entcore';
+import { Behaviours, model } from 'entcore';
 import http from 'axios';
-import { _ } from 'entcore/libs/underscore/underscore';
+import { _ } from 'underscore';
 
 Behaviours.register('edt', {
     rights: {
         workflow: {
             view: 'fr.cgi.edt.controllers.EdtController|view',
-            create: 'fr.cgi.edt.controllers.EdtController|createEdt'
+            create: 'fr.cgi.edt.controllers.EdtController|create'
         },
         resource: {
             read: {

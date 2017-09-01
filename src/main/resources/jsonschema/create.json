@@ -3,12 +3,30 @@
 	"type": "object",
 	"additionalProperties": false,
 	"properties": {
-		"title": {
-			"type": "string"
+		"classes": {
+			"type": "array"
 		},
-	    "thumbnail": {
-			"type": "string"
-		}
+	    "dayOfWeek": {
+			"type": "number"
+		},
+        "groups": {
+          "type": "array"
+        },
+        "roomLabels": {
+          "type": "array"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "structureId": {
+          "type": "string"
+        },
+        "subjectId": {
+          "type": "string"
+        },
+        "teacherIds": {
+          "type": "array"
+        }
  	},
 	"required": [ "title" ]
 }

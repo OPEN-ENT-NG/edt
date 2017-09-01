@@ -1,11 +1,27 @@
-import { ng, template, model, notify } from 'entcore/entcore';
-import { Structures, USER_TYPES } from '../model';
+import { ng, template, notify, moment, idiom as lang, _ } from 'entcore';
+import { Structures, USER_TYPES, Course } from '../model';
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'model', 'route', '$route', async function ($scope, model, route, $route) {
+    ['$scope', 'model', 'route', '$location', async function ($scope, model, route, $location) {
         $scope.structures = new Structures();
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
+
+        $scope.lightbox = {
+            display: false,
+            show: function () {
+                this.display = true;
+                $scope.safeApply();
+            },
+            hide: function () {
+                this.display = false;
+                $scope.safeApply();
+            },
+            openTemplate(templateName: string) {
+                template.open('lightbox', templateName);
+                $scope.safeApply();
+            }
+        };
 
         $scope.calendarLoader = {
             show: false,
@@ -23,7 +39,7 @@ export let main = ng.controller('EdtController',
          * Synchronize a structure.
          */
         $scope.syncStructure = async () => {
-            $scope.structure.eventer.on('refresh', () => $scope.safeApply());
+            $scope.structure.eventer.once('refresh', () => $scope.safeApply());
             await $scope.structure.sync();
             if ($scope.isTeacher()) {
                 $scope.calendarLoader.display();
@@ -66,6 +82,7 @@ export let main = ng.controller('EdtController',
                 notify.error('');
             } else  {
                 $scope.calendarLoader.display();
+                $scope.structure.courses.all = [];
                 await $scope.structure.courses.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
             }
@@ -94,16 +111,83 @@ export let main = ng.controller('EdtController',
         };
 
         /**
+         * Course creation with occurrences
+         */
+        $scope.createCourseWithOccurrences = () => {
+            $scope.goTo('/create');
+        };
+
+        /**
+         * Course creation without occurrences
+         */
+        $scope.createCourse = () => {
+            $scope.course = new Course({
+                teachers: [],
+                groups: [],
+                roomLabels: []
+            }, model.calendar.newItem.beginning, model.calendar.newItem.end);
+            if ($scope.params.group) $scope.course.groups.push($scope.params.group);
+            if ($scope.params.user) $scope.course.teachers.push($scope.params.user);
+            if ($scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
+            $scope.lightbox.openTemplate('course-create');
+            $scope.lightbox.show();
+        };
+
+        $scope.goTo = (state: string) => {
+            $location.path(state);
+            $scope.safeApply();
+        };
+
+        $scope.translate = (key: string) => lang.translate(key);
+
+        let initTriggers = () => {
+            model.calendar.eventer.off('calendar.create-item');
+            model.calendar.eventer.on('calendar.create-item', () => {
+                if ($location.path() !== '/create') {
+                    $scope.createCourse();
+                }
+            });
+
+            model.calendar.eventer.off('calendar.drop-item');
+            model.calendar.eventer.on('calendar.drop-item', (item) => {
+                console.log('dropped');
+            });
+
+            model.calendar.eventer.off('calendar.resize-item');
+            model.calendar.eventer.on('calendar.resize-item', (item) => {
+                console.log('resized');
+                console.log(item);
+            });
+
+        };
+
+        initTriggers();
+
+        /**
          * Subscriber to directive calendar changes event
          */
-        model.on('calendar.date-change', async () => {
-            await $scope.structure.courses.sync($scope.structure, null, null);
-            $scope.safeApply();
+        $scope.$watch(() => model.calendar, function (oldVal, newVal) {
+            initTriggers();
+            if (moment(oldVal.dayForWeek).format('DD/MM/YYYY') !== moment(newVal.dayForWeek).format('DD/MM/YYYY')) {
+                $scope.getTimetable();
+            }
+
         });
 
         route({
-            main: async () => {
+            main: () => {
                 template.open('main', 'main');
+            },
+            create: () => {
+                $scope.course = new Course({
+                    teachers: [],
+                    groups: [],
+                    courseOccurrences: [],
+                    startDate: new Date(),
+                    endDate: new Date(),
+                });
+                if ($scope.structure && $scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
+                template.open('main', 'course-create-occurrence');
             }
         });
     }]);

@@ -1,7 +1,6 @@
-import { model } from 'entcore/entcore';
+import { model, notify } from 'entcore';
 import http from 'axios';
-import { notify } from 'entcore/entcore';
-import {USER_TYPES} from "./user-types";
+import { USER_TYPES } from "./user-types";
 
 export class Subject {
     subjectId: string;

@@ -6,8 +6,13 @@ import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.SecuredAction;
 
+import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
+import org.vertx.java.core.json.JsonArray;
+import org.vertx.java.core.json.JsonObject;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
@@ -40,5 +45,26 @@ public class EdtController extends MongoDbControllerHelper {
 	@SecuredAction(read_only)
 	public void view(HttpServerRequest request) {
 		renderView(request);
+	}
+
+	@Post("/course")
+	@SecuredAction(modify)
+	@ApiDoc("Create a course with 1 or more occurrences")
+	public void create(final HttpServerRequest request) {
+		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
+			@Override
+			public void handle(JsonArray body) {
+				edtService.createCourses(body, new Handler<Either<String, JsonObject>>() {
+					@Override
+					public void handle(Either<String, JsonObject> result) {
+						if (result.isRight()) {
+							renderJson(request, result.right().getValue());
+						} else {
+							renderError(request);
+						}
+					}
+				});
+			}
+		});
 	}
 }

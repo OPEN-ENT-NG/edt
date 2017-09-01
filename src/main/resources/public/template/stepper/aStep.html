@@ -1,0 +1,27 @@
+<div class="a-step" ng-class="{'disabled': disabled, 'active': active}">
+    <div class="a-step-header" ng-click="goToStep()">
+        <div class="a-step-circle" ng-class="{ 'valid': valid }"></div>
+        <h3 class="a-step-title" ng-bind="title"></h3>
+    </div>
+    <div class="a-step-content">
+        <article>
+            <div class="content twelve row" ng-transclude />
+        </article>
+        <div class="a-step-control row twelve">
+            <div class="right-magnet">
+                <button class="cancel" ng-click="cancelStep()">
+                    <i18n>cancel</i18n>
+                </button>
+                <button ng-if="!first" ng-click="previousStep()">
+                    <i18n>previous</i18n>
+                </button>
+                <button ng-if="!last" ng-click="nextStep()">
+                    <i18n>next</i18n>
+                </button>
+                <button ng-if="last" ng-click="finishStepper()">
+                    <i18n>wizard.finish</i18n>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
