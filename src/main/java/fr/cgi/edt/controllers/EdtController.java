@@ -1,18 +1,24 @@
 package fr.cgi.edt.controllers;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.defaultResponseHandler;
 import fr.cgi.edt.services.EdtService;
+import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
+import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
 import fr.wseduc.rs.*;
+import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
+import org.entcore.common.user.UserInfos;
+import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
+
+import static fr.wseduc.webutils.http.response.DefaultResponseHandler.*;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
@@ -20,6 +26,7 @@ import org.vertx.java.core.json.JsonObject;
 public class EdtController extends MongoDbControllerHelper {
 
 	private final EdtService edtService;
+	private final UserService userService;
 
 	private static final String
 		read_only 			= "edt.view",
@@ -35,6 +42,7 @@ public class EdtController extends MongoDbControllerHelper {
 	public EdtController(String collection) {
 		super(collection);
 		edtService = new EdtServiceMongoImpl(collection);
+		userService = new UserServiceNeo4jImpl();
 	}
 
 	/**
@@ -64,6 +72,18 @@ public class EdtController extends MongoDbControllerHelper {
 						}
 					}
 				});
+			}
+		});
+	}
+
+	@Get("/user/children")
+	@SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+	@ApiDoc("Return information needs by relative profiles")
+	public void getChildrenInformation(final HttpServerRequest request) {
+		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+			@Override
+			public void handle(UserInfos user) {
+				userService.getChildrenInformation(user, arrayResponseHandler(request));
 			}
 		});
 	}
