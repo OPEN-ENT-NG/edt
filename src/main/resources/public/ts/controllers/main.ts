@@ -1,5 +1,5 @@
 import { ng, template, notify, moment, idiom as lang, _ } from 'entcore';
-import { Structures, USER_TYPES, Course } from '../model';
+import { Structures, USER_TYPES, Course, Student, Group } from '../model';
 
 export let main = ng.controller('EdtController',
     ['$scope', 'model', 'route', '$location', async function ($scope, model, route, $location) {
@@ -49,6 +49,14 @@ export let main = ng.controller('EdtController',
                 case USER_TYPES.student : {
                     $scope.params.group = _.findWhere($scope.structure.groups.all, {id: model.me.classes[0]});
                 }
+                break;
+                case USER_TYPES.relative : {
+                    if ($scope.structure.students.all.length > 0) {
+                        let externalClassId = $scope.structure.students.all[0].classes[0];
+                        $scope.params.group = _.findWhere($scope.structure.groups.all, { externalId: externalClassId });
+                        $scope.currentStudent = $scope.structure.students.all[0];
+                    }
+                }
             }
             if (!$scope.isPersonnel()) {
                 $scope.getTimetable();
@@ -82,6 +90,21 @@ export let main = ng.controller('EdtController',
         $scope.isStudent = (): boolean => model.me.type === USER_TYPES.student;
 
         /**
+         * Returns if current user is a relative profile
+         * @returns {boolean}
+         */
+        $scope.isRelative = (): boolean => model.me.type === USER_TYPES.relative;
+
+        /**
+         * Returns student group
+         * @param {Student} user user group
+         * @returns {Group}
+         */
+        $scope.getStudentGroup = (user: Student): Group => {
+            return _.findWhere($scope.structure.groups.all, { externalId: user.classes[0] });
+        };
+
+        /**
          * Get timetable bases on $scope.params object
          * @returns {Promise<void>}
          */
@@ -101,6 +124,10 @@ export let main = ng.controller('EdtController',
             user: null,
             group: null
         };
+
+        if ($scope.isRelative()) {
+            $scope.currentStudent = null;
+        }
 
         $scope.safeApply = (): Promise<any> => {
             return new Promise((resolve, reject) => {

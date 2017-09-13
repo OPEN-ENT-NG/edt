@@ -4,6 +4,7 @@ export * from './course';
 export * from './subject';
 export * from './group';
 export * from './teacher';
+export * from './student';
 export * from './courseOccurrence';
 export * from './user-types';
 export * from './daysOfWeek';

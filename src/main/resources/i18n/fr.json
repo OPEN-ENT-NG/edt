@@ -56,6 +56,7 @@
   "edt.calendar.loading": "Emploi du temps en cours de chargement...",
   "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps",
 
+  "edt.timetable.of": "Emploi du temps de ",
   "edt.schedule.creation.title": "Création manuelle d'un cours",
   "edt.schedule.create.occurrence": "Ajouter une occurrence",
   "edt.schedule.occurrence.creation": "Création des occurrences",
@@ -90,5 +91,6 @@
   "edt.creation.structure.choose": "Choisissez la structure",
   "edt.creation.subject.choose": "Choisissez la matière",
   "edt.creation.teachers.choose": "Choisissez un/des enseignant(s)",
-  "edt.creation.groups.choose": "Choisissez un(e)/des groupes(s)/classe(s)"
+  "edt.creation.groups.choose": "Choisissez un(e)/des groupes(s)/classe(s)",
+  "edt.student.choose": "Choisissez votre enfant"
 }
