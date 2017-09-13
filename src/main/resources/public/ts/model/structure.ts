@@ -22,7 +22,7 @@ export class Structure {
         this.subjects = new Subjects();
         this.groups = new Groups();
         this.courses = new Courses();
-        if (model.me.type === USER_TYPES.personnel) {
+        if (model.me.type !== USER_TYPES.teacher) {
             this.teachers = new Teachers();
         }
     }
@@ -37,13 +37,13 @@ export class Structure {
             let syncedCollections = {
                 subjects: false,
                 groups: false,
-                teachers: model.me.type !== USER_TYPES.personnel
+                teachers: model.me.type === USER_TYPES.teacher
             };
 
             let endSync = () => {
                 let _b: boolean = syncedCollections.subjects
                 && syncedCollections.groups
-                && (model.me.type === USER_TYPES.personnel) ? syncedCollections.teachers : true;
+                && syncedCollections.teachers;
                 if (_b) {
                     resolve();
                     this.eventer.trigger('refresh');
@@ -52,7 +52,7 @@ export class Structure {
 
             this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; endSync(); });
             this.groups.sync(this.id).then(() => { syncedCollections.groups = true; endSync(); });
-            if (model.me.type === USER_TYPES.personnel) {
+            if (model.me.type !== USER_TYPES.teacher) {
                 this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
             }
         });

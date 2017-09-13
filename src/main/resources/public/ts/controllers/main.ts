@@ -41,10 +41,17 @@ export let main = ng.controller('EdtController',
         $scope.syncStructure = async () => {
             $scope.structure.eventer.once('refresh', () => $scope.safeApply());
             await $scope.structure.sync();
-            if ($scope.isTeacher()) {
-                $scope.calendarLoader.display();
-                await $scope.structure.courses.sync($scope.structure, null, null);
-                $scope.calendarLoader.hide();
+            switch (model.me.type) {
+                case USER_TYPES.teacher : {
+                    $scope.params.user = model.me.userId;
+                }
+                break;
+                case USER_TYPES.student : {
+                    $scope.params.group = _.findWhere($scope.structure.groups.all, {id: model.me.classes[0]});
+                }
+            }
+            if (!$scope.isPersonnel()) {
+                $scope.getTimetable();
             } else {
                 $scope.safeApply();
             }
@@ -57,20 +64,22 @@ export let main = ng.controller('EdtController',
         };
 
         /**
-         * Return if current user is a personnel
+         * Returns if current user is a personnel
          * @returns {boolean}
          */
-        $scope.isPersonnel = (): boolean => {
-            return model.me.type == USER_TYPES.personnel;
-        };
+        $scope.isPersonnel = (): boolean => model.me.type == USER_TYPES.personnel;
 
         /**
-         * Return if current user is a teacher
+         * Returns if current user is a teacher
          * @returns {boolean}
          */
-        $scope.isTeacher = (): boolean => {
-            return model.me.type === USER_TYPES.teacher;
-        };
+        $scope.isTeacher = (): boolean => model.me.type === USER_TYPES.teacher;
+
+        /**
+         * Returns if current user is a student
+         * @returns {boolean}
+         */
+        $scope.isStudent = (): boolean => model.me.type === USER_TYPES.student;
 
         /**
          * Get timetable bases on $scope.params object
@@ -89,7 +98,7 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.params = {
-            user: $scope.isPersonnel() ? null : model.me,
+            user: null,
             group: null
         };
 
