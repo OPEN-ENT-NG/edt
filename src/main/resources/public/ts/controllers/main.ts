@@ -120,6 +120,12 @@ export let main = ng.controller('EdtController',
             }
         };
 
+        $scope.getTeacherTimetable = () => {
+            $scope.params.group = null;
+            $scope.params.user = model.me.userId;
+            $scope.getTimetable();
+        };
+
         $scope.params = {
             user: null,
             group: null

@@ -34,7 +34,6 @@ export class Subjects {
         if (typeof structureId !== 'string') { return; }
         try {
             let url = `/directory/timetable/subjects/${structureId}`;
-            if (model.me.type === USER_TYPES.teacher) { url += `?teacherId=${model.me.userId}`; }
             let subjects = await http.get(url);
             subjects.data.forEach((subject) => {
                 this.all.push(new Subject(subject.subjectId, subject.subjectLabel, subject.subjectCode, subject.teacherId));

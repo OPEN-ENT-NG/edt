@@ -4,20 +4,32 @@
             ng-options="structure as structure.name for structure in structures.all"></select>
 </article>
 <div class="row">
-    <article class="row twelve" ng-if="isRelative() && structure.students.all.length > 0">
-        <h4 ng-if="structure.students.all.length === 1"><i18n>edt.timetable.of</i18n> [[currentStudent.displayName]]</h4>
-        <div ng-if="structure.students.all.length > 1">
+    <article class="row twelve" ng-if="isRelative() || isTeacher()">
+        <div ng-if="isTeacher()">
             <h4>
-                <i18n>edt.timetable.of</i18n>
-                <select id="students-list"
-                        ng-model="currentStudent"
-                        ng-change="params.group = getStudentGroup(currentStudent); getTimetable();"
-                        ng-options="student as student.displayName for student in structure.students.all">
-                    <option value="" disabled selected>[[translate('edt.student.choose')]]</option>
+                <i18n>edt.timetable.of.group</i18n>
+                <select ng-model="params.group"
+                        ng-change="params.user = null; getTimetable()"
+                        ng-options="group as group.name for group in structure.groups.all">
+                    <option value="" disabled selected>[[translate('utils.group.choose.one')]]</option>
                 </select>
+                <i class="refused-icon" ng-click="getTeacherTimetable()"></i>
             </h4>
         </div>
-
+        <div ng-if="isRelative() && structure.students.all.length > 0">
+            <h4 ng-if="structure.students.all.length === 1"><i18n>edt.timetable.of</i18n> [[currentStudent.displayName]]</h4>
+            <div ng-if="structure.students.all.length > 1">
+                <h4>
+                    <i18n>edt.timetable.of</i18n>
+                    <select id="students-list"
+                            ng-model="currentStudent"
+                            ng-change="params.group = getStudentGroup(currentStudent); getTimetable();"
+                            ng-options="student as student.displayName for student in structure.students.all">
+                        <option value="" disabled selected>[[translate('edt.student.choose')]]</option>
+                    </select>
+                </h4>
+            </div>
+        </div>
     </article>
     <article class="cell two twelve-mobile" ng-if="isPersonnel()">
         <div ng-if="structures.length > 1">
