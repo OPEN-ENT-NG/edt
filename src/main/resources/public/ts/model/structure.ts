@@ -23,9 +23,7 @@ export class Structure {
         this.subjects = new Subjects();
         this.groups = new Groups();
         this.courses = new Courses();
-        if (model.me.type !== USER_TYPES.teacher) {
-            this.teachers = new Teachers();
-        }
+        this.teachers = new Teachers();
         if (model.me.type === USER_TYPES.relative) {
             this.students = new Students();
         }
@@ -41,7 +39,7 @@ export class Structure {
             let syncedCollections = {
                 subjects: false,
                 groups: false,
-                teachers: model.me.type === USER_TYPES.teacher,
+                teachers: false,
                 students: model.me.type !== USER_TYPES.relative
             };
 
@@ -58,9 +56,7 @@ export class Structure {
 
             this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; endSync(); });
             this.groups.sync(this.id).then(() => { syncedCollections.groups = true; endSync(); });
-            if (model.me.type !== USER_TYPES.teacher) {
-                this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
-            }
+            this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
             if (model.me.type === USER_TYPES.relative) {
                 this.students.sync().then(() => { syncedCollections.students = true; endSync(); });
             }
