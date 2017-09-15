@@ -1,5 +1,6 @@
 import { model, moment, _, notify } from 'entcore';
 import http from 'axios';
+import { Mix } from 'entcore-toolkit';
 import { USER_TYPES, Structure, Teacher, Group, CourseOccurrence, Utils} from './index';
 
 const colors = ['cyan', 'green', 'orange', 'pink', 'yellow', 'purple', 'grey'];
@@ -91,9 +92,11 @@ export class Course {
 
 export class Courses {
     all: Course[];
+    origin: Course[];
 
     constructor () {
         this.all = [];
+        this.origin = [];
     }
 
     /**
@@ -114,6 +117,7 @@ export class Courses {
         let courses = await http.get(uri);
         if (courses.data.length > 0) {
             this.all = Utils.formatCourses(courses.data, structure);
+            this.origin = Mix.castArrayAs(Course, courses.data);
         }
         return;
     }
@@ -143,7 +147,14 @@ export class Courses {
         } catch (e) {
             notify.error('edt.notify.create.err')
         }
+    }
 
-
+    async update (courses: Course[]): Promise<void> {
+        try {
+            await http.put('/edt/course', courses);
+            return;
+        } catch (e) {
+            notify.error('edt.notify.update.err');
+        }
     }
 }

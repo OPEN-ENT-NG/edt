@@ -99,4 +99,42 @@ export class Utils {
         });
         return arr;
     }
+
+    /**
+     * Return if start date is less greater than end date.
+     * @param startDate start date
+     * @param endDate end date
+     * @returns {boolean}
+     */
+    static isLessGreaterThan (startDate: any, endDate: any): boolean {
+        return moment(endDate).diff(moment(startDate)) > 0;
+    }
+
+    /**
+     * Return if start date is much greater then end date
+     * @param startDate start date
+     * @param endDate end date
+     * @returns {boolean}
+     */
+    static isMuchGreaterThan (startDate: any, endDate: any): boolean {
+        return moment(endDate).diff(moment(startDate)) < 0;
+    }
+
+    /**
+     * Returns if the specified day is in the period provide in parameter
+     * @param {number} dayOfWeek day of week
+     * @param startPeriod period start date
+     * @param endPeriod period end date
+     * @returns {boolean}
+     */
+    static hasOneOrMoreDayInPeriod (dayOfWeek: number, startPeriod: any, endPeriod: any): boolean {
+        let bool = true;
+        let periodDayNumber = Math.abs(moment(endPeriod).diff(moment(startPeriod), 'days'));
+        let numberOfWeek = periodDayNumber % 7;
+        if (numberOfWeek === 0) {
+            bool = dayOfWeek >= moment(startPeriod).day()
+                && dayOfWeek <= moment(endPeriod).day();
+        }
+        return bool;
+    }
 }

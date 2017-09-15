@@ -55,6 +55,19 @@ public class EdtController extends MongoDbControllerHelper {
 		renderView(request);
 	}
 
+	private Handler<Either<String, JsonObject>> getServiceHandler (final HttpServerRequest request) {
+		return new Handler<Either<String, JsonObject>>() {
+			@Override
+			public void handle(Either<String, JsonObject> result) {
+				if (result.isRight()) {
+					renderJson(request, result.right().getValue());
+				} else {
+					renderError(request);
+				}
+			}
+		};
+	}
+
 	@Post("/course")
 	@SecuredAction(modify)
 	@ApiDoc("Create a course with 1 or more occurrences")
@@ -62,16 +75,19 @@ public class EdtController extends MongoDbControllerHelper {
 		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
 			@Override
 			public void handle(JsonArray body) {
-				edtService.createCourses(body, new Handler<Either<String, JsonObject>>() {
-					@Override
-					public void handle(Either<String, JsonObject> result) {
-						if (result.isRight()) {
-							renderJson(request, result.right().getValue());
-						} else {
-							renderError(request);
-						}
-					}
-				});
+				edtService.create(body, getServiceHandler(request));
+			}
+		});
+	}
+
+	@Put("/course")
+	@SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+	@ApiDoc("Update course")
+	public void update (final HttpServerRequest request) {
+		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
+			@Override
+			public void handle(JsonArray body) {
+				edtService.update(body, getServiceHandler(request));
 			}
 		});
 	}

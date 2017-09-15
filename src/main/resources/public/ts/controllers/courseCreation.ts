@@ -93,7 +93,11 @@ export let creationController = ng.controller('CreationController',
          * @returns {Promise<void>} Returns a promise
          */
         $scope.saveCourse = async (course: Course): Promise<void>  => {
-            await course.save();
+            if (course._id) {
+                // await $scope.
+            } else {
+                await course.save();
+            }
             $scope.lightbox.hide();
             delete $scope.course;
             $scope.getTimetable();
