@@ -27,16 +27,19 @@ import fr.wseduc.webutils.Either;
 public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtService {
 
 	private final String collection;
-	private final MongoDb mongo;
 
 	public EdtServiceMongoImpl(final String collection) {
 		super(collection);
 		this.collection = collection;
-		this.mongo = MongoDb.getInstance();
 	}
 
 	@Override
-	public void createCourses(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
+	public void create(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
+		new EdtMongoHelper(this.collection).transaction(courses, handler);
+	}
+
+	@Override
+	public void update(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
 		new EdtMongoHelper(this.collection).transaction(courses, handler);
 	}
 }

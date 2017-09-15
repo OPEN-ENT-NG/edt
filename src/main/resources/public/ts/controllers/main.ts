@@ -1,5 +1,5 @@
-import { ng, template, notify, moment, idiom as lang, _ } from 'entcore';
-import { Structures, USER_TYPES, Course, Student, Group } from '../model';
+import { ng, template, notify, moment, idiom as lang, _, Behaviours } from 'entcore';
+import { Structures, USER_TYPES, Course, Student, Group, Utils } from '../model';
 
 export let main = ng.controller('EdtController',
     ['$scope', 'model', 'route', '$location', async function ($scope, model, route, $location) {
@@ -163,16 +163,19 @@ export let main = ng.controller('EdtController',
          * Course creation without occurrences
          */
         $scope.createCourse = () => {
-            $scope.course = new Course({
-                teachers: [],
-                groups: [],
-                roomLabels: []
-            }, model.calendar.newItem.beginning, model.calendar.newItem.end);
-            if ($scope.params.group) $scope.course.groups.push($scope.params.group);
-            if ($scope.params.user) $scope.course.teachers.push($scope.params.user);
-            if ($scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
-            $scope.lightbox.openTemplate('course-create');
-            $scope.lightbox.show();
+            const edtRights = Behaviours.applicationsBehaviours.edt.rights;
+            if (model.me.hasWorkflow(edtRights.workflow.create)) {
+                $scope.course = new Course({
+                    teachers: [],
+                    groups: [],
+                    roomLabels: []
+                }, model.calendar.newItem.beginning, model.calendar.newItem.end);
+                if ($scope.params.group) $scope.course.groups.push($scope.params.group);
+                if ($scope.params.user) $scope.course.teachers.push($scope.params.user);
+                if ($scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
+                $scope.lightbox.openTemplate('course-create');
+                $scope.lightbox.show();
+            }
         };
 
         $scope.goTo = (state: string) => {
@@ -181,6 +184,45 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.translate = (key: string) => lang.translate(key);
+
+        $scope.calendarUpdateItem = (item) => {
+            // let newCourses = [];
+            // let oldCourse = _.findWhere($scope.structure.courses.origin, { _id: item._id });
+            // if (Utils.hasOneOrMoreDayInPeriod(item.beginning.day(), moment(oldCourse.startDate), item.beginning)) {
+            //
+            // } else {
+            //     let newCourse = new Course(item, item.beginning, item.end);
+            //     delete newCourse._id;
+            //     newCourses.push(newCourse);
+            //     let courseToUpdate = new Course(oldCourse);
+            //     courseToUpdate.startDate = item.end.format('YYYY-MM-DDTHH:mm:ss');
+            //     newCourses.push(courseToUpdate);
+            // }
+            // console.log(newCourses);
+            // if (newCourses.length > 0) {
+            //     $scope.structure.courses.update(newCourses);
+            // }
+            // console.log(item);
+            // console.log(oldCourse);
+            $scope.lightbox.openTemplate('course-create');
+            $scope.course = new Course(item, item.beginning, item.end);
+            $scope.course.teachers = [];
+            for (let i = 0; i < $scope.course.teacherIds.length; i++) {
+                $scope.course.teachers.push(_.findWhere($scope.structure.teachers.all, { id: $scope.course.teacherIds[i] }));
+            }
+            $scope.course.groups = [];
+            for (let i = 0; i < $scope.course.groups.length; i++) {
+                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, { name: $scope.course.groups[i] }));
+            }
+            for (let i = 0; i < $scope.course.classes.length; i++) {
+                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, { name: $scope.course.classes[i] }));
+            }
+            $scope.lightbox.show();
+        };
+
+        $scope.calendarDropItem = (item) => {
+           $scope.calendarUpdateItem(item);
+        };
 
         let initTriggers = () => {
             model.calendar.eventer.off('calendar.create-item');
@@ -193,12 +235,12 @@ export let main = ng.controller('EdtController',
             model.calendar.eventer.off('calendar.drop-item');
             model.calendar.eventer.on('calendar.drop-item', (item) => {
                 console.log('dropped');
+                $scope.calendarDropItem(item);
             });
 
             model.calendar.eventer.off('calendar.resize-item');
             model.calendar.eventer.on('calendar.resize-item', (item) => {
                 console.log('resized');
-                console.log(item);
             });
 
         };

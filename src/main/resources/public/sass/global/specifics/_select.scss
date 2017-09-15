@@ -8,6 +8,7 @@ select {
   outline: none;
   min-width: 150px;
   border: solid 1px $solid-grey;
+  color: $darkest-grey;
 
   &:hover {
     border-color: $primary;

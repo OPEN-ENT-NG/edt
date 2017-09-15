@@ -2,6 +2,7 @@ package fr.cgi.edt;
 
 import com.mongodb.QueryBuilder;
 import fr.wseduc.mongodb.MongoQueryBuilder;
+import fr.wseduc.mongodb.MongoUpdateBuilder;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.vertx.java.core.Handler;
@@ -49,19 +50,33 @@ public class EdtMongoHelper extends MongoDbCrudService {
 	public void transaction(final JsonArray values, final Handler<Either<String, JsonObject>> handler) {
 		final ArrayList<String> ids = new ArrayList<>();
 		final Boolean[] onError = {false};
-		for (int i = 0; i < values.size(); i++) {
-			mongo.save(collection, (JsonObject) values.get(i), new Handler<Message<JsonObject>>() {
-				@Override
-				public void handle(Message<JsonObject> result) {
-					if ("ok".equals(result.body().getString("status"))) {
-						ids.add(result.body().getString("_id"));
-					} else {
-						onError[0] = true;
-						ids.add("err");
-					}
-					checkTransactionStatus(onError[0], values.size(), ids, handler);
+		JsonObject obj;
+
+		Handler<Message<JsonObject>> transactionHandler = new Handler<Message<JsonObject>>() {
+			@Override
+			public void handle(Message<JsonObject> result) {
+				if ("ok".equals(result.body().getString("status"))) {
+					ids.add(result.body().getString("_id"));
+				} else {
+					onError[0] = true;
+					ids.add("err");
 				}
-			});
+				checkTransactionStatus(onError[0], values.size(), ids, handler);
+			}
+		};
+
+		for (int i = 0; i < values.size(); i++) {
+			obj = values.get(i);
+			if (!obj.containsField("_id")) {
+				mongo.save(collection, obj, transactionHandler);
+			} else {
+				QueryBuilder query = QueryBuilder.start("_id").is(obj.getString("_id"));
+				MongoUpdateBuilder modifier = new MongoUpdateBuilder();
+				for (String attr: obj.getFieldNames()) {
+					modifier.set(attr, obj.getValue(attr));
+				}
+				mongo.update(collection, MongoQueryBuilder.build(query), modifier.build(), transactionHandler);
+			}
 		}
 	}
 }

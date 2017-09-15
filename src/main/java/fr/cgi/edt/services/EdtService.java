@@ -1,16 +1,26 @@
 package fr.cgi.edt.services;
 
-import org.entcore.common.user.UserInfos;
+import fr.wseduc.webutils.Either;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
-
-import fr.wseduc.webutils.Either;
 
 /**
  * Generic REST service for Edt.
  */
 public interface EdtService {
 
-	public void createCourses(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+	/**
+	 * Create courses
+	 * @param courses JsonArray containing courses
+	 * @param handler handler
+	 */
+	public void create(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+
+	/**
+	 * Updates courses
+	 * @param courses JsonArray containing courses
+	 * @param handler handler
+	 */
+	public void update(JsonArray courses, Handler<Either<String, JsonObject>> handler);
 }
