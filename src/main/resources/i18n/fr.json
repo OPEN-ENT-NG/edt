@@ -1,22 +1,17 @@
 {
   "edt.title"					: "Edt",
-
   "edt.notify.saved"				: "La donnée a été sauvegardée",
   "edt.notify.modified"			: "La donnée a été modifiée",
   "edt.notify.deleted"			: "La donnée a été supprimée",
   "edt.notify.shared"			: "La donnée a été partagée",
   "edt.notify.trashed"			: "La donnée a été mise à la corbeille",
-
   "edt.mine"						: "Mes edt",
   "edt.shared"					: "Edt partagés avec moi",
   "edt.trash"					: "Corbeille",
-
   "edt.manager"					: "Gestion",
   "edt.contrib"					: "Contribution",
   "edt.read"						: "Lecture",
-
   "unsetImage"										: "Supprimer l'image",
-
   "group.Teacher"										: "Tous les enseignants du groupe {0}.",
   "group.Personnel"									: "Tous les personnels du groupe {0}.",
   "group.Student"										: "Tous les élèves du groupe {0}.",
@@ -29,13 +24,11 @@
   "group.class.Personnel"								: "Tous les personnels de la classe {0}.",
   "group.class.Student"								: "Tous les élèves de la classe {0}.",
   "group.class.Relative"								: "Tous les parents de la classe {0}.",
-
   "title"												: "Titre",
   "from"												: "Du",
   "to": "au",
   "date"												: "Date",
   "subject": "Matière",
-
   "loading"											: "Chargement",
   "import.file"										: "Importer",
   "share.users" 										: "Utilisateurs",
@@ -54,8 +47,6 @@
   "utils.structure": "Structures",
   "utils.structure.choose.one": "Choisissez une structure",
   "edt.calendar.loading": "Emploi du temps en cours de chargement...",
-  "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps",
-
   "edt.timetable.of": "Emploi du temps de ",
   "edt.timetable.of.group": "Emploi du temps de la classe ",
   "edt.schedule.creation.title": "Création manuelle d'un cours",
@@ -77,22 +68,22 @@
   "edt.utils.day.5": "Vendredi",
   "edt.utils.day.6": "Samedi",
   "edt.utils.day.7": "Dimanche",
-  "edt.notify.create.err": "Erreur lors de la création du cours",
-  "edt.notify.update.err": "Erreur lors de la mise à jour du cours",
   "edt.creation.step1.title": "Configuration",
   "edt.creation.step2.title": "Création des occurrences",
   "edt.creation.step3.title": "Récapitulatif",
-
   "edt.creation.step1.error.title": "Passage à l'étape suivante impossible",
   "edt.creation.step1.error.1": "La création d'un cours nécessite au minimum :",
   "edt.creation.step1.error.2": "1 structure",
   "edt.creation.step1.error.3": "1 enseignant",
   "edt.creation.step1.error.4": "1 groupe / classe",
   "edt.creation.step1.error.5": "1 matière",
-
   "edt.creation.structure.choose": "Choisissez la structure",
   "edt.creation.subject.choose": "Choisissez la matière",
   "edt.creation.teachers.choose": "Choisissez un/des enseignant(s)",
   "edt.creation.groups.choose": "Choisissez un(e)/des groupes(s)/classe(s)",
-  "edt.student.choose": "Choisissez votre enfant"
+  "edt.student.choose": "Choisissez votre enfant",
+  "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps",
+  "edt.notify.create.err": "E002 : Erreur lors de la création du cours",
+  "edt.notify.update.err": "E003 : Erreur lors de la mise à jours du cours",
+  "edt.notify.update.params.err": "E004 : Erreur lors de la mise à jour du cours"
 }

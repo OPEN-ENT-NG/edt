@@ -1,4 +1,4 @@
-import { moment, model, me, Behaviours } from 'entcore';
+import { moment, model, me, Behaviours, _ } from 'entcore';
 import { Course, Structure } from './index';
 
 export class Utils {
@@ -83,8 +83,10 @@ export class Utils {
             if (!model.me.hasWorkflow(edtRights.workflow.create)) course.locked = true;
             if (numberWeek > 0) {
                 let startMoment = moment(course.startDate);
-                let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
-                for (let i = 0; i < numberWeek; i++) {
+                // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
+                let endMoment = moment(course.startDate);
+                endMoment.hour(moment(course.endDate).hour()).minute(moment(course.endDate).minute());
+                for (let i = 0; i < numberWeek + 1; i++) {
                     let c = new Course(course, startMoment.format(), endMoment.format());
                     c.subjectLabel = structure.subjects.mapping[course.subjectId];
                     arr.push(c);
@@ -127,7 +129,7 @@ export class Utils {
      * @param endPeriod period end date
      * @returns {boolean}
      */
-    static hasOneOrMoreDayInPeriod (dayOfWeek: number, startPeriod: any, endPeriod: any): boolean {
+    static hasOneOrMoreOccurrenceDayInPeriod (dayOfWeek: number, startPeriod: any, endPeriod: any): boolean {
         let bool = true;
         let periodDayNumber = Math.abs(moment(endPeriod).diff(moment(startPeriod), 'days'));
         let numberOfWeek = periodDayNumber % 7;
@@ -136,5 +138,57 @@ export class Utils {
                 && dayOfWeek <= moment(endPeriod).day();
         }
         return bool;
+    }
+
+    static cleanCourseForSave (course: Course): any {
+        let _c = Course.prototype.toJSON.call(course);
+        _c.classes = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
+        _c.groups = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+        _c.dayOfWeek = moment(course.startMoment).day();
+        _c.startDate = course.startMoment.format('YYYY-MM-DDTHH:mm:ss');
+        _c.endDate = course.endMoment.format('YYYY-MM-DDTHH:mm:ss');
+        delete _c['$$haskey'];
+        return _c;
+    }
+
+    /**
+     * Return date based on previous date and previous date day of week and also greater than middleDate
+     * @param previousDate previous date
+     * @returns {any} next date
+     */
+    static getNextCourseDay (previousDate: any, multiplier: number = 1): any {
+        previousDate.add(7 * multiplier, 'days');
+        return previousDate;
+    }
+
+    static equalsDate (firstDate: any, secondDate: any): boolean {
+        return moment(firstDate).diff(moment(secondDate), 'minutes') === 0;
+    }
+
+    /**
+     * Split original course in multiple courses to update new occurrence.
+     * @param {Course} originalCourse Original course
+     * @param {Course} newOccurrence New occurrence
+     * @returns {Course[]} New courses array to update
+     */
+    static splitCourseForUpdate (newOccurrence: Course, originalCourse: Course): Course[] {
+        let courseToSave = [];
+        if (this.equalsDate(newOccurrence.originalStartMoment, originalCourse.startMoment)) {
+            courseToSave.push(this.cleanCourseForSave(newOccurrence));
+            let _c = new Course(originalCourse, this.getNextCourseDay(originalCourse.startMoment), originalCourse.endMoment);
+            courseToSave.push(this.cleanCourseForSave(_c));
+        } else if (this.equalsDate(newOccurrence.originalEndMoment, originalCourse.endMoment)) {
+            let _c = new Course(originalCourse, originalCourse.startMoment, this.getNextCourseDay(originalCourse.endMoment, -1));
+            courseToSave.push(this.cleanCourseForSave(_c));
+            courseToSave.push(this.cleanCourseForSave(newOccurrence));
+        } else {
+            let _start = new Course(originalCourse, originalCourse.startMoment, this.getNextCourseDay(newOccurrence.originalEndMoment, -1));
+            courseToSave.push(this.cleanCourseForSave(_start));
+            courseToSave.push(this.cleanCourseForSave(newOccurrence));
+            let _end = new Course(originalCourse, this.getNextCourseDay(newOccurrence.originalStartMoment), originalCourse.endMoment);
+            delete _end._id;
+            courseToSave.push(this.cleanCourseForSave(_end));
+        }
+        return courseToSave;
     }
 }

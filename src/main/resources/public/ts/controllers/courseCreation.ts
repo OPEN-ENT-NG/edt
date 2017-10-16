@@ -1,4 +1,4 @@
-import { ng, _, model, moment } from 'entcore';
+import { ng, _, model, moment, notify } from 'entcore';
 import { DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course } from '../model';
 
 export let creationController = ng.controller('CreationController',
@@ -94,7 +94,19 @@ export let creationController = ng.controller('CreationController',
          */
         $scope.saveCourse = async (course: Course): Promise<void>  => {
             if (course._id) {
-                // await $scope.
+                let coursesToSave = [];
+                let occurrences = _.where($scope.structure.courses.all, {_id: course._id});
+                if (occurrences.length === 0) {
+                    notify.error('edt.notify.update.err');
+                    return;
+                } else if (occurrences.length === 1) {
+                    coursesToSave.push(Utils.cleanCourseForSave(course));
+                } else {
+                    let originalCourse = _.findWhere($scope.structure.courses.origin, { _id: course._id });
+                    delete course._id;
+                    coursesToSave = Utils.splitCourseForUpdate(course, new Course(originalCourse, originalCourse.startDate, originalCourse.endDate));
+                }
+                await $scope.structure.courses.update(coursesToSave);
             } else {
                 await course.save();
             }
