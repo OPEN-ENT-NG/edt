@@ -7,6 +7,7 @@ const colors = ['cyan', 'green', 'orange', 'pink', 'yellow', 'purple', 'grey'];
 
 export class Course {
     _id: string;
+    _occurenceId?: string;
     structureId: string;
     startDate: string | object;
     endDate: string | object;
@@ -29,6 +30,8 @@ export class Course {
     subjectLabel: string;
     courseOccurrences: CourseOccurrence[];
     teachers: Teacher[];
+    originalStartMoment?: any;
+    originalEndMoment?: any;
 
     constructor (obj: object, startDate?: string | object, endDate?: string | object) {
         if (obj instanceof Object) {
@@ -75,7 +78,7 @@ export class Course {
     }
 
     toJSON () {
-        return {
+        let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
             teacherIds: this.teacherIds,
@@ -86,7 +89,11 @@ export class Course {
             roomLabels: this.roomLabels,
             dayOfWeek: this.dayOfWeek,
             manual: true
+        };
+        if (this._id) {
+            o._id = this._id;
         }
+        return o;
     }
 }
 
@@ -108,8 +115,8 @@ export class Courses {
      */
     async sync(structure: Structure, teacher: Teacher | null, group: Group | null): Promise<void> {
         if (teacher === null && group === null) return;
-        let firstDate = moment(model.calendar.dayForWeek).format('YYYY-MM-DD');
-        let endDate = moment(model.calendar.dayForWeek).add(6, 'day').format('YYYY-MM-DD');
+        let firstDate = moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD');
+        let endDate = moment(model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0).format('YYYY-MM-DD');
         let filter = '';
         if (group === null) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
         if (teacher === null && group !== null) filter += `group=${group.name}`;

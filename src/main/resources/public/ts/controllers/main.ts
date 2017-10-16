@@ -186,26 +186,14 @@ export let main = ng.controller('EdtController',
         $scope.translate = (key: string) => lang.translate(key);
 
         $scope.calendarUpdateItem = (item) => {
-            // let newCourses = [];
-            // let oldCourse = _.findWhere($scope.structure.courses.origin, { _id: item._id });
-            // if (Utils.hasOneOrMoreDayInPeriod(item.beginning.day(), moment(oldCourse.startDate), item.beginning)) {
-            //
-            // } else {
-            //     let newCourse = new Course(item, item.beginning, item.end);
-            //     delete newCourse._id;
-            //     newCourses.push(newCourse);
-            //     let courseToUpdate = new Course(oldCourse);
-            //     courseToUpdate.startDate = item.end.format('YYYY-MM-DDTHH:mm:ss');
-            //     newCourses.push(courseToUpdate);
-            // }
-            // console.log(newCourses);
-            // if (newCourses.length > 0) {
-            //     $scope.structure.courses.update(newCourses);
-            // }
-            // console.log(item);
-            // console.log(oldCourse);
             $scope.lightbox.openTemplate('course-create');
+            let o = {
+                originalStartMoment: item.startMoment,
+                originalEndMoment: item.endMoment
+            };
             $scope.course = new Course(item, item.beginning, item.end);
+            $scope.course.originalStartMoment = o.originalStartMoment;
+            $scope.course.originalEndMoment = o.originalEndMoment;
             $scope.course.teachers = [];
             for (let i = 0; i < $scope.course.teacherIds.length; i++) {
                 $scope.course.teachers.push(_.findWhere($scope.structure.teachers.all, { id: $scope.course.teacherIds[i] }));
@@ -224,6 +212,10 @@ export let main = ng.controller('EdtController',
            $scope.calendarUpdateItem(item);
         };
 
+        $scope.calendarResizedItem = (item) => {
+            $scope.calendarUpdateItem(item);
+        };
+
         let initTriggers = () => {
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
@@ -234,13 +226,12 @@ export let main = ng.controller('EdtController',
 
             model.calendar.eventer.off('calendar.drop-item');
             model.calendar.eventer.on('calendar.drop-item', (item) => {
-                console.log('dropped');
                 $scope.calendarDropItem(item);
             });
 
             model.calendar.eventer.off('calendar.resize-item');
             model.calendar.eventer.on('calendar.resize-item', (item) => {
-                console.log('resized');
+                $scope.calendarResizedItem(item);
             });
 
         };
