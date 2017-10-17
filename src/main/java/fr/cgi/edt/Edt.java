@@ -11,51 +11,51 @@ import org.vertx.java.core.shareddata.ConcurrentSharedMap;
 
 public class Edt extends BaseServer {
 
-	public final static String EDT_COLLECTION = "courses";
+    public final static String EDT_COLLECTION = "courses";
 
-	@Override
-	public void start() {
-		super.start();
+    @Override
+    public void start() {
+        super.start();
 
-		addController(new EdtController(EDT_COLLECTION));
-		MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
-		setDefaultResourceFilter(new ShareAndOwner());
+        addController(new EdtController(EDT_COLLECTION));
+        MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
+        setDefaultResourceFilter(new ShareAndOwner());
 
-		vertx.setTimer(1000, new Handler<Long>() {
-			@Override
-			public void handle(Long aLong) {
-				if (!validDependencies()) {
-					ConcurrentSharedMap<String, String> deploymentsIdMap = vertx.sharedData().getMap("deploymentsId");
-					container.undeployModule(deploymentsIdMap.get("fr.cgi.edt"));
-				}
-			}
-		});
-	}
+        vertx.setTimer(1000, new Handler<Long>() {
+            @Override
+            public void handle(Long aLong) {
+                if (!validDependencies()) {
+                    ConcurrentSharedMap<String, String> deploymentsIdMap = vertx.sharedData().getMap("deploymentsId");
+                    container.undeployModule(deploymentsIdMap.get("fr.cgi.edt"));
+                }
+            }
+        });
+    }
 
-	private boolean validDependencies () {
-		Boolean isValid = true;
-		if ("prod".equals(config.getString("mode"))) {
-			JsonObject dependencies = config.getObject("dependencies");
-			final ConcurrentSharedMap<Object, Object> versionMap = vertx.sharedData().getMap("versions");
-			for (String mod : dependencies.getFieldNames()) {
-				if (!isMajor(versionMap.get(mod).toString(), dependencies.getString(mod))) {
-					log.error(mod + " minor version. Please upgrade " + mod + " version to " + dependencies.getString(mod) + " and upper");
-					isValid = false;
-				}
-			}
-		}
-		return isValid;
-	}
+    private boolean validDependencies () {
+        Boolean isValid = true;
+        if ("prod".equals(config.getString("mode"))) {
+            JsonObject dependencies = config.getObject("dependencies");
+            final ConcurrentSharedMap<Object, Object> versionMap = vertx.sharedData().getMap("versions");
+            for (String mod : dependencies.getFieldNames()) {
+                if (!isMajor(versionMap.get(mod).toString(), dependencies.getString(mod))) {
+                    log.error(mod + " minor version. Please upgrade " + mod + " version to " + dependencies.getString(mod) + " and upper");
+                    isValid = false;
+                }
+            }
+        }
+        return isValid;
+    }
 
-	private boolean isMajor (String currentVersion, String expectedVersion) {
-		Boolean isMajor = true;
-		String[] splittedCurrentVersion = currentVersion.split("[\\.|-]");
-		String[] splittedExpectedVersion = expectedVersion.split("[\\.|-]");
-		for (int i = 0; i < splittedCurrentVersion.length; i++) {
-			if ("SNAPSHOT".equals(splittedCurrentVersion[i])) { splittedCurrentVersion[i] = "0"; }
-			isMajor = (isMajor && (Integer.parseInt(splittedCurrentVersion[i]) >= Integer.parseInt(splittedExpectedVersion[i])));
-		}
-		return isMajor;
-	}
+    private boolean isMajor (String currentVersion, String expectedVersion) {
+        Boolean isMajor = true;
+        String[] splittedCurrentVersion = currentVersion.split("[\\.|-]");
+        String[] splittedExpectedVersion = expectedVersion.split("[\\.|-]");
+        for (int i = 0; i < splittedCurrentVersion.length; i++) {
+            if ("SNAPSHOT".equals(splittedCurrentVersion[i])) { splittedCurrentVersion[i] = "0"; }
+            isMajor = (isMajor && (Integer.parseInt(splittedCurrentVersion[i]) >= Integer.parseInt(splittedExpectedVersion[i])));
+        }
+        return isMajor;
+    }
 
 }

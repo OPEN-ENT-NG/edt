@@ -25,7 +25,7 @@ export class Utils {
         return {
             CLASS: 0,
             FUNCTIONAL_GROUP: 1,
-        }
+        };
     }
 
     /**

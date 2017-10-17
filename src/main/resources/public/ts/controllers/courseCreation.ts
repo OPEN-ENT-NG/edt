@@ -162,6 +162,6 @@ export let creationController = ng.controller('CreationController',
             }
             $scope.course.overviewCourses = Utils.formatCourses($scope.course.overviewCourses, $scope.structure);
             console.log($scope.course.overviewCourses);
-        }
+        };
     }]
 );

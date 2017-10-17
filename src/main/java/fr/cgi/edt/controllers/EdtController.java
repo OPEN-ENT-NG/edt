@@ -27,83 +27,80 @@ import static fr.wseduc.webutils.http.response.DefaultResponseHandler.*;
  */
 public class EdtController extends MongoDbControllerHelper {
 
-	private final EdtService edtService;
-	private final UserService userService;
+    private final EdtService edtService;
+    private final UserService userService;
 
-	private static final String
-		read_only 			= "edt.view",
-		modify 				= "edt.create",
-		manage_ressource	= "edt.manager",
-		contrib_ressource	= "edt.contrib",
-		view_ressource		= "edt.read";
+    private static final String
+            read_only 			= "edt.view",
+            modify 				= "edt.create";
 
-	/**
-	 * Creates a new controller.
-	 * @param collection Name of the collection stored in the mongoDB database.
-	 */
-	public EdtController(String collection) {
-		super(collection);
-		edtService = new EdtServiceMongoImpl(collection);
-		userService = new UserServiceNeo4jImpl();
-	}
+    /**
+     * Creates a new controller.
+     * @param collection Name of the collection stored in the mongoDB database.
+     */
+    public EdtController(String collection) {
+        super(collection);
+        edtService = new EdtServiceMongoImpl(collection);
+        userService = new UserServiceNeo4jImpl();
+    }
 
-	/**
-	 * Displays the home view.
-	 * @param request Client request
-	 */
-	@Get("")
-	@SecuredAction(read_only)
-	public void view(HttpServerRequest request) {
-		renderView(request);
-	}
+    /**
+     * Displays the home view.
+     * @param request Client request
+     */
+    @Get("")
+    @SecuredAction(read_only)
+    public void view(HttpServerRequest request) {
+        renderView(request);
+    }
 
-	private Handler<Either<String, JsonObject>> getServiceHandler (final HttpServerRequest request) {
-		return new Handler<Either<String, JsonObject>>() {
-			@Override
-			public void handle(Either<String, JsonObject> result) {
-				if (result.isRight()) {
-					renderJson(request, result.right().getValue());
-				} else {
-					renderError(request);
-				}
-			}
-		};
-	}
+    private Handler<Either<String, JsonObject>> getServiceHandler (final HttpServerRequest request) {
+        return new Handler<Either<String, JsonObject>>() {
+            @Override
+            public void handle(Either<String, JsonObject> result) {
+                if (result.isRight()) {
+                    renderJson(request, result.right().getValue());
+                } else {
+                    renderError(request);
+                }
+            }
+        };
+    }
 
-	@Post("/course")
-	@SecuredAction(modify)
-	@ApiDoc("Create a course with 1 or more occurrences")
-	public void create(final HttpServerRequest request) {
-		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
-			@Override
-			public void handle(JsonArray body) {
-				edtService.create(body, getServiceHandler(request));
-			}
-		});
-	}
+    @Post("/course")
+    @SecuredAction(modify)
+    @ApiDoc("Create a course with 1 or more occurrences")
+    public void create(final HttpServerRequest request) {
+        RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
+            @Override
+            public void handle(JsonArray body) {
+                edtService.create(body, getServiceHandler(request));
+            }
+        });
+    }
 
-	@Put("/course")
-	@SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Put("/course")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
-	@ApiDoc("Update course")
-	public void update (final HttpServerRequest request) {
-		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
-			@Override
-			public void handle(JsonArray body) {
-				edtService.update(body, getServiceHandler(request));
-			}
-		});
-	}
+    @ApiDoc("Update course")
+    public void update (final HttpServerRequest request) {
+        RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
+            @Override
+            public void handle(JsonArray body) {
+                edtService.update(body, getServiceHandler(request));
+            }
+        });
+    }
 
-	@Get("/user/children")
-	@SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-	@ApiDoc("Return information needs by relative profiles")
-	public void getChildrenInformation(final HttpServerRequest request) {
-		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-			@Override
-			public void handle(UserInfos user) {
-				userService.getChildrenInformation(user, arrayResponseHandler(request));
-			}
-		});
-	}
+    @Get("/user/children")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Return information needs by relative profiles")
+    public void getChildrenInformation(final HttpServerRequest request) {
+        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
+            @Override
+            public void handle(UserInfos user) {
+                userService.getChildrenInformation(user, arrayResponseHandler(request));
+            }
+        });
+    }
 }

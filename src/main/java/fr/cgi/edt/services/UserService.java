@@ -11,5 +11,5 @@ public interface UserService {
 	 * @param user current
 	 * @param handler handler returning data
 	 */
-	public void getChildrenInformation(UserInfos user, Handler<Either<String, JsonArray>> handler);
+    void getChildrenInformation(UserInfos user, Handler<Either<String, JsonArray>> handler);
 }
