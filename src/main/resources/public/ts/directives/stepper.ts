@@ -59,9 +59,9 @@ export let stepper = ng.directive('stepper', () => {
                         $(steps[currentStep]).attr('active', true);
                     }
                 });
-            }
+            };
         }
-    }
+    };
 });
 
 /**
@@ -128,5 +128,5 @@ export let aStep = ng.directive('aStep', () => {
                 if (scope.active && typeof scope.onActivation === 'function') scope.onActivation();
             });
         }
-    }
+    };
 });

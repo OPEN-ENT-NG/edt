@@ -10,17 +10,17 @@ import org.vertx.java.core.json.JsonObject;
  */
 public interface EdtService {
 
-	/**
-	 * Create courses
-	 * @param courses JsonArray containing courses
-	 * @param handler handler
-	 */
-	public void create(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+    /**
+     * Create courses
+     * @param courses JsonArray containing courses
+     * @param handler handler
+     */
+    void create(JsonArray courses, Handler<Either<String, JsonObject>> handler);
 
-	/**
-	 * Updates courses
-	 * @param courses JsonArray containing courses
-	 * @param handler handler
-	 */
-	public void update(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+    /**
+     * Updates courses
+     * @param courses JsonArray containing courses
+     * @param handler handler
+     */
+    void update(JsonArray courses, Handler<Either<String, JsonObject>> handler);
 }

@@ -152,7 +152,7 @@ export class Courses {
             await http.post('/edt/course', courses);
             return;
         } catch (e) {
-            notify.error('edt.notify.create.err')
+            notify.error('edt.notify.create.err');
         }
     }
 

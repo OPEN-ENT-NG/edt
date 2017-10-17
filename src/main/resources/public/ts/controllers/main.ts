@@ -76,7 +76,7 @@ export let main = ng.controller('EdtController',
          * Returns if current user is a personnel
          * @returns {boolean}
          */
-        $scope.isPersonnel = (): boolean => model.me.type == USER_TYPES.personnel;
+        $scope.isPersonnel = (): boolean => model.me.type === USER_TYPES.personnel;
 
         /**
          * Returns if current user is a teacher
