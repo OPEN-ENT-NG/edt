@@ -3,12 +3,9 @@ package fr.cgi.edt.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.cgi.edt.EdtMongoHelper;
+import fr.cgi.edt.utils.EdtMongoHelper;
 import fr.cgi.edt.services.EdtService;
-import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
-import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonArray;
 import org.vertx.java.core.json.JsonObject;
 

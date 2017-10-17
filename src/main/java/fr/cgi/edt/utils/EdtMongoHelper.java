@@ -1,4 +1,4 @@
-package fr.cgi.edt;
+package fr.cgi.edt.utils;
 
 import com.mongodb.QueryBuilder;
 import fr.wseduc.mongodb.MongoQueryBuilder;

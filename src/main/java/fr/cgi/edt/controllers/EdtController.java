@@ -1,5 +1,6 @@
 package fr.cgi.edt.controllers;
 
+import fr.cgi.edt.security.ManageCourseWorkflowAction;
 import fr.cgi.edt.services.EdtService;
 import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
@@ -10,6 +11,7 @@ import fr.wseduc.security.SecuredAction;
 
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
+import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
@@ -81,7 +83,8 @@ public class EdtController extends MongoDbControllerHelper {
 	}
 
 	@Put("/course")
-	@SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+	@SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
 	@ApiDoc("Update course")
 	public void update (final HttpServerRequest request) {
 		RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
