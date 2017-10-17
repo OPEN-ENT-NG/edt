@@ -1,5 +1,5 @@
 import { ng, template, notify, moment, idiom as lang, _, Behaviours } from 'entcore';
-import { Structures, USER_TYPES, Course, Student, Group, Utils } from '../model';
+import { Structures, USER_TYPES, Course, Student, Group, Structure } from '../model';
 
 export let main = ng.controller('EdtController',
     ['$scope', 'model', 'route', '$location', async function ($scope, model, route, $location) {
@@ -38,7 +38,8 @@ export let main = ng.controller('EdtController',
         /**
          * Synchronize a structure.
          */
-        $scope.syncStructure = async () => {
+        $scope.syncStructure = async (structure: Structure) => {
+            $scope.structure = structure;
             $scope.structure.eventer.once('refresh', () => $scope.safeApply());
             await $scope.structure.sync();
             switch (model.me.type) {
@@ -65,10 +66,10 @@ export let main = ng.controller('EdtController',
             }
         };
 
-        $scope.syncStructure();
+        $scope.syncStructure($scope.structure);
 
-        $scope.switchStructure = () => {
-            $scope.syncStructure();
+        $scope.switchStructure = (structure: Structure) => {
+            $scope.syncStructure(structure);
         };
 
         /**

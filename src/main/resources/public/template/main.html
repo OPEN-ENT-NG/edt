@@ -1,10 +1,10 @@
-<article class="row cell card twelve" ng-if="structures.all.length > 1">
-    <select ng-model="structure"
-            ng-change="switchStructure()"
-            ng-options="structure as structure.name for structure in structures.all"></select>
-</article>
 <div class="row">
     <article class="row twelve" ng-if="isRelative() || isTeacher()">
+        <div ng-if="structures.all.length > 1">
+            <select ng-model="structure"
+                    ng-change="switchStructure(structure)"
+                    ng-options="structure as structure.name for structure in structures.all"></select>
+        </div>
         <div ng-if="isTeacher()">
             <h4>
                 <i18n>edt.timetable.of.group</i18n>
@@ -32,12 +32,12 @@
         </div>
     </article>
     <article class="cell two twelve-mobile" ng-if="isPersonnel()">
-        <div ng-if="structures.length > 1">
+        <div ng-if="structures.all.length > 1">
             <label for="structure-list"><i18n>utils.structures</i18n></label>
             <select ng-model="structure"
                     id="structure-list"
                     class="twelve"
-                    ng-change="switchStructure()"
+                    ng-change="switchStructure(structure)"
                     ng-options="structure as structure.name for structure in structures.all">
                 <option value="" disabled selected>[[translate('utils.structure.choose.one')]]</option>
             </select>
