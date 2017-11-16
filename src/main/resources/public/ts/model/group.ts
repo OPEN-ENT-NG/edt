@@ -29,7 +29,7 @@ export class Groups {
      */
     async sync (structureId: string) {
         try {
-            let groups = await http.get('/viescolaire/evaluations/classes?idEtablissement=' + structureId);
+            let groups = await http.get('/viescolaire/classes?idEtablissement=' + structureId);
             this.all = Mix.castArrayAs(Group, groups.data);
         } catch (e) {
             throw e;

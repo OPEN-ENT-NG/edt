@@ -1,12 +1,15 @@
-import { Behaviours, model } from 'entcore';
+import { Behaviours, _ } from 'entcore';
 import http from 'axios';
-import { _ } from 'underscore';
+
+import { SETTINGS_SNIPPLET } from './snipplets';
+import { Exclusion, Exclusions } from './model';
 
 Behaviours.register('edt', {
     rights: {
         workflow: {
             view: 'fr.cgi.edt.controllers.EdtController|view',
-            create: 'fr.cgi.edt.controllers.EdtController|create'
+            create: 'fr.cgi.edt.controllers.EdtController|create',
+            manage: 'fr.cgi.edt.controllers.EdtController|createExclusion'
         },
         resource: {
             read: {
@@ -34,5 +37,12 @@ Behaviours.register('edt', {
             });
             callback(this.resources);
         }.bind(this));
+    },
+    model: {
+        Exclusion: Exclusion,
+        Exclusions: Exclusions
+    },
+    sniplets: {
+        settings: SETTINGS_SNIPPLET
     }
 });

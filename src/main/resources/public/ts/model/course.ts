@@ -147,7 +147,7 @@ export class Courses {
                 occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
                 occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
                 occurrence.manual = true;
-                courses.push(occurrence);
+                courses.push(Utils.cleanCourseForSave(occurrence));
             }
             await http.post('/edt/course', courses);
             return;
