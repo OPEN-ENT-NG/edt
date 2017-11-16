@@ -11,7 +11,12 @@ import org.vertx.java.core.shareddata.ConcurrentSharedMap;
 
 public class Edt extends BaseServer {
 
-    public final static String EDT_COLLECTION = "courses";
+    private final static String EDT_COLLECTION = "courses";
+    public final static String EDT_SCHEMA = "edt";
+    public final static String EXCLUSION_TABLE = "period_exclusion";
+    public final static String EXCLUSION_TYPE_TABLE = "exclusion_type";
+
+    public final static String EXCLUSION_JSON_SCHEMA = "exclusion";
 
     @Override
     public void start() {

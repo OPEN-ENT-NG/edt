@@ -1,0 +1,107 @@
+<div class="edt-settings">
+    <lightbox show="display.DropLightbox" on-close="display.DropLightbox = false;">
+        <div class="vertical-spacing horizontal-spacing row">
+            <i18n>edt.settings.exclusion.deletion</i18n> "[[current.exclusion.description]]" ?
+        </div>
+        <div class="row">
+            <div class="right-magnet">
+                <button class="cancel" ng-click="cancelDeletion()">
+                    <i18n>edt.utils.cancel</i18n>
+                </button>
+                <button ng-click="validDeletion(current.exclusion)">
+                    <i18n>edt.utils.delete</i18n>
+                </button>
+            </div>
+        </div>
+    </lightbox>
+    <article class="row" ng-show="display.exclusionForm">
+        <div class="loader" ng-if="current.exclusion.loading">
+            <div>
+                <p><i class="spinner"></i></p>
+                <h4><i18n>edt.settings.exclusion.loading</i18n></h4>
+            </div>
+        </div>
+        <form ng-submit="createExclusion()">
+            <h3><i18n>edt.settings.exclusion.add</i18n></h3>
+            <div class="row">
+                <label class="cell two twelve-mobile">
+                    <i18n>edt.settings.exclusion.description</i18n>
+                </label>
+                <input ng-model="current.exclusion.description" class="cell four twelve-mobile">
+            </div>
+            <div class="row">
+                <label class="cell two twelve-mobile">
+                    <i18n>edt.settings.exclusion.start_date</i18n>
+                </label>
+                <date-picker class="cell" ng-model="current.exclusion.start_date"></date-picker>
+            </div>
+            <div class="row">
+                <label class="cell two twelve-mobile">
+                    <i18n>edt.settings.exclusion.end_date</i18n>
+                </label>
+                <date-picker class="cell" ng-model="current.exclusion.end_date"></date-picker>
+            </div>
+            <div class="row">
+                <button class="right-magnet" ng-disabled="!currentExclusionValidation()">
+                    <i18n>edt.utils.save</i18n>
+                </button>
+                <a class="button cancel right-magnet" ng-click="cancelExclusionForm()">
+                    <i18n>edt.utils.cancel</i18n>
+                </a>
+            </div>
+        </form>
+    </article>
+    <article class="row">
+        <h3 class="row">
+            <i18n>edt.settings.exclusion.title</i18n>
+            <button ng-click="addExclusion()" class="right-magnet">
+                <i18n>edt.settings.exclusion.add</i18n>
+            </button>
+        </h3>
+        <table class="twelve">
+            <thead>
+            <tr>
+                <th>
+                    <a ng-click="sort.type = 'start_date'; sort.reverse=!sort.reverse">
+                        <i18n>edt.settings.exclusion.start_date</i18n>
+                        <i class="up-open" ng-show="sort.type === 'start_date' && !sort.reverse"></i>
+                        <i class="down-open" ng-show="sort.type === 'start_date' && sort.reverse"></i>
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="sort.type = 'end_date'; sort.reverse=!sort.reverse">
+                        <i18n>edt.settings.exclusion.end_date</i18n>
+                        <i class="up-open" ng-show="sort.type === 'end_date' && !sort.reverse"></i>
+                        <i class="down-open" ng-show="sort.type === 'end_date' && sort.reverse"></i>
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="sort.type = 'description'; sort.reverse=!sort.reverse">
+                        <i18n>edt.settings.exclusion.description</i18n>
+                        <i class="up-open" ng-show="sort.type === 'description' && !sort.reverse"></i>
+                        <i class="down-open" ng-show="sort.type === 'description' && sort.reverse"></i>
+                    </a>
+                </th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="exclusion in exclusions.all | orderBy:sort.type:sort.reverse">
+                <td>[[formatDate(exclusion.start_date)]]</td>
+                <td>[[formatDate(exclusion.end_date)]]</td>
+                <td>[[exclusion.description]]</td>
+                <td>
+                    <dots-menu>
+                        <opt ng-click="openExclusionForm(exclusion)">
+                            <i class="edit horizontal-spacing"></i><i18n>edt.utils.modify</i18n>
+                        </opt>
+                        <opt ng-click="dropExclusion(exclusion)">
+                            <i class="trash horizontal-spacing"></i><i18n>edt.utils.delete</i18n>
+                        </opt>
+                    </dots-menu>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </article>
+</div>

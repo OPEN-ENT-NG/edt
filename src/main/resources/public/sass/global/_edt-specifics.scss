@@ -1,8 +1,23 @@
+@import './specifics/mixins';
+
 body.edt {
   @import './specifics/select';
-  @import './specifics/mixins';
   @import './specifics/utils';
   @import './specifics/custom';
-  @import './specifics/loader';
+
   @import './specifics/stepper';
+}
+
+.edt-settings {
+  @import './specifics/loader';
+
+  table {
+    th {
+      i::before {
+        font-size: 10px !important;
+        margin-left: 5px;
+        position: absolute;
+      }
+    }
+  }
 }

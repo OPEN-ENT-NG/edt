@@ -57,6 +57,9 @@
   "edt.utils.create": "Créer",
   "edt.utils.add": "Ajouter",
   "edt.utils.cancel": "Annuler",
+  "edt.utils.save": "Sauvegarder",
+  "edt.utils.modify": "Modifier",
+  "edt.utils.delete": "Supprimer",
   "edt.utils.day": "Jour",
   "edt.utils.start.time": "Heure de début",
   "edt.utils.end.time": "Heure de fin",
@@ -85,5 +88,15 @@
   "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps",
   "edt.notify.create.err": "E002 : Erreur lors de la création du cours",
   "edt.notify.update.err": "E003 : Erreur lors de la mise à jours du cours",
-  "edt.notify.update.params.err": "E004 : Erreur lors de la mise à jour du cours"
+  "edt.notify.update.params.err": "E004 : Erreur lors de la mise à jour du cours",
+  "edt.notify.exclusion.update.err" : "E005 : Erreur lors de la mise à jour de l'exclusion",
+  "edt.notify.exclusion.delete.err" : "E006 : Erreur lors de la suppression de l'exclusion",
+  "edt.notify.exclusion.create.err" : "E007 : Erreur lors de la création de l'exclusion",
+  "edt.settings.exclusion.add": "Ajouter une exclusion",
+  "edt.settings.exclusion.loading": "Exclusion en cours de sauvegarde",
+  "edt.settings.exclusion.deletion": "Êtes vous sûr de vouloir supprimer l'exclusion",
+  "edt.settings.exclusion.description": "Description",
+  "edt.settings.exclusion.start_date": "Date de début",
+  "edt.settings.exclusion.end_date": "Date de Fin",
+  "edt.settings.exclusion.title": "Exclusion de périodes"
 }
