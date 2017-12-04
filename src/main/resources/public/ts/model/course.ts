@@ -64,8 +64,8 @@ export class Course {
         try {
             let arr = [];
             this.teacherIds = Utils.getValues(this.teachers, 'id');
-            this.startDate = Utils.getOccurrenceStartDate(this.startMoment, this.startCalendarHour, this.startMoment.day());
-            this.endDate = Utils.getOccurrenceEndDate(this.endMoment, this.endCalendarHour, this.endMoment.day());
+            this.startDate = moment(this.startMoment).format('YYYY-MM-DDTHH:mm:ss');
+            this.endDate = moment(this.endMoment).format('YYYY-MM-DDTHH:mm:ss');
             this.classes = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
             this.groups = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
             arr.push(this.toJSON());
@@ -73,6 +73,7 @@ export class Course {
             return;
         } catch (e) {
             notify.error('edt.notify.create.err');
+            console.error(e);
             throw e;
         }
     }
@@ -142,8 +143,7 @@ export class Courses {
                 occurrence.structureId = course.structureId;
                 occurrence.subjectId = course.subjectId;
                 occurrence.teacherIds = Utils.getValues(course.teachers, 'id');
-                occurrence.classes = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-                occurrence.groups = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+                occurrence.groups = course.groups;
                 occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
                 occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
                 occurrence.manual = true;
@@ -153,6 +153,8 @@ export class Courses {
             return;
         } catch (e) {
             notify.error('edt.notify.create.err');
+            console.error(e);
+            throw e;
         }
     }
 
