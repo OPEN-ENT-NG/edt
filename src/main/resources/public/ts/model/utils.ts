@@ -145,8 +145,8 @@ export class Utils {
         _c.classes = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
         _c.groups = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
         _c.dayOfWeek = moment(course.startMoment).day();
-        _c.startDate = course.startMoment.format('YYYY-MM-DDTHH:mm:ss');
-        _c.endDate = course.endMoment.format('YYYY-MM-DDTHH:mm:ss');
+        _c.startDate = course.startMoment ? course.startMoment.format('YYYY-MM-DDTHH:mm:ss') : course.startDate;
+        _c.endDate = course.endMoment ? course.endMoment.format('YYYY-MM-DDTHH:mm:ss') : course.endDate;
         delete _c['$$haskey'];
         return _c;
     }

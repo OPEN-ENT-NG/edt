@@ -1,8 +1,8 @@
-import { ng, template, notify, moment, idiom as lang, _, Behaviours } from 'entcore';
+import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
 import { Structures, USER_TYPES, Course, Student, Group, Structure } from '../model';
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'model', 'route', '$location', async function ($scope, model, route, $location) {
+    ['$scope', 'route', '$location', async function ($scope, route, $location) {
         $scope.structures = new Structures();
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
