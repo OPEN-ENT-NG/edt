@@ -17,3 +17,4 @@ src/main/resources/view/
 src/main/resources/public/ts/entcore
 src/main/resources/public/template/entcore
 rev-manifest.json
+coverage/

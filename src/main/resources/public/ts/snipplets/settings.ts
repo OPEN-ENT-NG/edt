@@ -2,7 +2,6 @@ import { Behaviours, moment } from 'entcore';
 import { Mix } from 'entcore-toolkit';
 import { Exclusion } from '../model';
 
-console.log('settings snipplet');
 export const SETTINGS_SNIPPLET = {
     hidden: true,
     controller: {
