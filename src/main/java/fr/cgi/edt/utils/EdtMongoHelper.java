@@ -19,7 +19,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         super(collection);
     }
 
-    private void checkTransactionStatus (Boolean onError, Integer valuesSize, List<String> ids, Handler<Either<String, JsonObject>> handler) {
+    public void checkTransactionStatus (Boolean onError, Integer valuesSize, List<String> ids, Handler<Either<String, JsonObject>> handler) {
         if (valuesSize == ids.size()) {
             if (onError) {
                 rollBack(ids, handler);
