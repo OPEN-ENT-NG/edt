@@ -64,6 +64,7 @@ dependencies {
   provided "io.vertx:vertx-platform:$vertxVersion"
   testCompile "junit:junit:$junitVersion"
   testCompile "io.vertx:testtools:$toolsVersion"
+  testCompile "org.mockito:mockito-core:2.+"
 }
 
 // This sets up the classpath for the script itself
