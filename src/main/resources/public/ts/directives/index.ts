@@ -1,1 +1,1 @@
-export * from './stepper';
+import "./switch";

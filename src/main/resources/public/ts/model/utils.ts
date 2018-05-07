@@ -69,6 +69,11 @@ export class Utils {
         return overviewDate.format('YYYY-MM-DDTHH:mm:ss');
     }
 
+    static mapStartMomentWithDayOfWeek(startMoment: moment, dayOfWeek: number): moment {
+        let diff = dayOfWeek - startMoment.day();
+        return startMoment.add('days', diff);
+    }
+
     /**
      * Format courses to display them in the calendar directive
      * @param courses courses
@@ -79,6 +84,7 @@ export class Utils {
         const arr = [];
         const edtRights = Behaviours.applicationsBehaviours.edt.rights;
         courses.forEach((course) => {
+            course.startDate = this.mapStartMomentWithDayOfWeek(moment(course.startDate), course.dayOfWeek);
             let numberWeek = Math.floor(moment(course.endDate).diff(course.startDate, 'days') / 7);
             if (!model.me.hasWorkflow(edtRights.workflow.create)) course.locked = true;
             if (numberWeek > 0) {
@@ -140,15 +146,27 @@ export class Utils {
         return bool;
     }
 
-    static cleanCourseForSave (course: Course): any {
+    static cleanCourseForSave(course: Course): any {
         let _c = Course.prototype.toJSON.call(course);
-        _c.classes = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-        _c.groups = Utils.getValues(_.where(course.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
-        _c.dayOfWeek = moment(course.startMoment).day();
+        _c.classes = Utils.getValues(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
+        _c.groups = Utils.getValues(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+        _c.dayOfWeek = course.dayOfWeek;
         _c.startDate = course.startMoment ? course.startMoment.format('YYYY-MM-DDTHH:mm:ss') : course.startDate;
         _c.endDate = course.endMoment ? course.endMoment.format('YYYY-MM-DDTHH:mm:ss') : course.endDate;
         delete _c['$$haskey'];
         return _c;
+    }
+
+    static cleanCourseValuesWithFirstOccurence(course: Course): any {
+        if(!course || !course.courseOccurrences || !course.courseOccurrences.length)
+            return course;
+        let occ = course.courseOccurrences[0];
+
+        course.dayOfWeek = occ.dayOfWeek;
+        course.roomLabels = occ.roomLabels;
+        course.startMoment = course.startDate = moment(occ.startTime);
+        course.endMoment = course.endDate = moment(occ.endTime);
+        return course;
     }
 
     /**

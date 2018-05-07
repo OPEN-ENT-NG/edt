@@ -1,12 +1,13 @@
 import { ng, routes } from 'entcore';
-import { main, creationController } from './controllers';
-import { stepper, aStep } from './directives';
+import * as controllers from './controllers';
+import * as directives from './directives';
 
-ng.controllers.push(main);
-ng.controllers.push(creationController);
-
-ng.directives.push(stepper);
-ng.directives.push(aStep);
+for (let controller in controllers) {
+    ng.controllers.push(controllers[controller]);
+}
+for (let directive in directives) {
+    ng.directives.push(directives[directive]);
+}
 
 routes.define(($routeProvider) => {
     $routeProvider

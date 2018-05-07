@@ -65,7 +65,7 @@
             </select>
         </div>
         <div class="row cell" workflow="edt.create">
-            <button class="twelve" ng-click="createCourseWithOccurrences()"><i18n>edt.schedule.create</i18n></button>
+            <button class="twelve" ng-click="createCourse()"><i18n>edt.schedule.create</i18n></button>
         </div>
     </article>
     <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{twelve: !isPersonnel(), ten: isPersonnel()}">
@@ -79,8 +79,5 @@
                 display-template="calendar/course-item"
                 items="structure.courses.all">
         </calendar>
-        <lightbox show="lightbox.display" on-close="lightbox.hide()">
-            <container template="lightbox"></container>
-        </lightbox>
     </div>
 </div>
