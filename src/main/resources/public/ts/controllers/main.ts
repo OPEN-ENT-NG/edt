@@ -7,22 +7,6 @@ export let main = ng.controller('EdtController',
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
 
-        $scope.lightbox = {
-            display: false,
-            show: function () {
-                this.display = true;
-                $scope.safeApply();
-            },
-            hide: function () {
-                this.display = false;
-                $scope.safeApply();
-            },
-            openTemplate(templateName: string) {
-                template.open('lightbox', templateName);
-                $scope.safeApply();
-            }
-        };
-
         $scope.calendarLoader = {
             show: false,
             display: () => {
@@ -129,7 +113,9 @@ export let main = ng.controller('EdtController',
 
         $scope.params = {
             user: null,
-            group: null
+            group: null,
+            updateItem: null,
+            dateFromCalendar: null
         };
 
         if ($scope.isRelative()) {
@@ -154,28 +140,12 @@ export let main = ng.controller('EdtController',
         };
 
         /**
-         * Course creation with occurrences
-         */
-        $scope.createCourseWithOccurrences = () => {
-            $scope.goTo('/create');
-        };
-
-        /**
-         * Course creation without occurrences
+         * Course creation
          */
         $scope.createCourse = () => {
             const edtRights = Behaviours.applicationsBehaviours.edt.rights;
             if (model.me.hasWorkflow(edtRights.workflow.create)) {
-                $scope.course = new Course({
-                    teachers: [],
-                    groups: [],
-                    roomLabels: []
-                }, model.calendar.newItem.beginning, model.calendar.newItem.end);
-                if ($scope.params.group) $scope.course.groups.push($scope.params.group);
-                if ($scope.params.user) $scope.course.teachers.push($scope.params.user);
-                if ($scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
-                $scope.lightbox.openTemplate('course-create');
-                $scope.lightbox.show();
+                $scope.goTo('/create');
             }
         };
 
@@ -187,26 +157,8 @@ export let main = ng.controller('EdtController',
         $scope.translate = (key: string) => lang.translate(key);
 
         $scope.calendarUpdateItem = (item) => {
-            $scope.lightbox.openTemplate('course-create');
-            let o = {
-                originalStartMoment: item.startMoment,
-                originalEndMoment: item.endMoment
-            };
-            $scope.course = new Course(item, item.beginning, item.end);
-            $scope.course.originalStartMoment = o.originalStartMoment;
-            $scope.course.originalEndMoment = o.originalEndMoment;
-            $scope.course.teachers = [];
-            for (let i = 0; i < $scope.course.teacherIds.length; i++) {
-                $scope.course.teachers.push(_.findWhere($scope.structure.teachers.all, { id: $scope.course.teacherIds[i] }));
-            }
-            $scope.course.groups = [];
-            for (let i = 0; i < $scope.course.groups.length; i++) {
-                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, { name: $scope.course.groups[i] }));
-            }
-            for (let i = 0; i < $scope.course.classes.length; i++) {
-                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, { name: $scope.course.classes[i] }));
-            }
-            $scope.lightbox.show();
+            $scope.params.updateItem =item;
+            $scope.goTo('/create');
         };
 
         $scope.calendarDropItem = (item) => {
@@ -255,15 +207,31 @@ export let main = ng.controller('EdtController',
                 template.open('main', 'main');
             },
             create: () => {
-                $scope.course = new Course({
-                    teachers: [],
-                    groups: [],
-                    courseOccurrences: [],
-                    startDate: new Date(),
-                    endDate: new Date(),
-                });
-                if ($scope.structure && $scope.structures.all.length === 1) $scope.course.structureId = $scope.structure.id;
-                template.open('main', 'course-create-occurrence');
+                let startDate = new Date();
+                let endDate = new Date();
+                if (model && model.calendar && model.calendar.newItem) {
+                    let dateFromCalendar = model.calendar.newItem;
+                    if (dateFromCalendar.beginning)
+                        startDate = dateFromCalendar.beginning = dateFromCalendar.beginning;
+                    if (dateFromCalendar.end)
+                        endDate = dateFromCalendar.end = dateFromCalendar.end;
+                    $scope.params.dateFromCalendar = dateFromCalendar;
+                }
+                if ($scope.params.updateItem) {
+                    $scope.course = new Course($scope.params.updateItem);
+                }
+                else {
+                    $scope.course = new Course({
+                        teachers: [],
+                        groups: [],
+                        courseOccurrences: [],
+                        startDate: startDate,
+                        endDate: endDate,
+                    }, startDate, endDate);
+                    if ($scope.structure && $scope.structures.all.length === 1)
+                        $scope.course.structureId = $scope.structure.id;
+                }
+                template.open('main', 'course-create');
             }
         });
     }]);

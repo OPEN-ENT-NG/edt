@@ -4,13 +4,13 @@ body.edt {
   @import './specifics/select';
   @import './specifics/utils';
   @import './specifics/custom';
-
-  @import './specifics/stepper';
+  @import './specifics/switch';
 }
 
 .edt-settings {
   @import './specifics/loader';
 
+  @import './specifics/switch';
   table {
     th {
       i::before {

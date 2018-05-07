@@ -5,13 +5,74 @@ export let creationController = ng.controller('CreationController',
     ['$scope', function ($scope) {
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
+        $scope.courseOccurrenceForm = new CourseOccurrence(); //Init courseOccurence needed for the table form
+        $scope.isAnUpdate = false;
+        $scope.is_recurrent = false;
 
-        $scope.validation = {
-            step1: true,
-            step2: true
-        };
+        /**
+         * Init Courses
+         */
 
-        $scope.addingCourse = false;
+        if ($scope.params.updateItem) {
+            /**
+             * Init Form with data form an update
+             */
+            $scope.isAnUpdate = true;
+
+            let item = $scope.params.updateItem;
+            $scope.params.updateItem = null;
+
+            $scope.course.courseOccurrences = [];
+            $scope.course.teachers = [];
+            for (let i = 0; i < $scope.course.teacherIds.length; i++) {
+                $scope.course.teachers.push(_.findWhere($scope.structure.teachers.all, {id: $scope.course.teacherIds[i]}));
+            }
+            let groups = $scope.course.groups;
+            $scope.course.groups = [];
+            for (let i = 0; i < groups.length; i++) {
+                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, {name: groups[i]}));
+            }
+            for (let i = 0; i < $scope.course.classes.length; i++) {
+                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, {name: $scope.course.classes[i]}));
+            }
+            $scope.is_recurrent = moment(item.endDate).diff(item.startDate, 'days') != 0;
+            if ($scope.is_recurrent) {
+                if (item.dayOfWeek && item.startDate && item.endDate) {
+                    $scope.course.courseOccurrences = [
+                        new CourseOccurrence(
+                            item["dayOfWeek"],
+                            item["roomLabels"][0],
+                            new Date(item.startDate),
+                            new Date(item.endDate)
+                        )
+                    ];
+                }
+            }
+            else {
+                $scope.courseOccurrenceForm.startTime = moment(item.startDate).seconds(0).millisecond(0).toDate();
+                $scope.courseOccurrenceForm.endTime = moment(item.endDate).seconds(0).millisecond(0).toDate();
+                $scope.courseOccurrenceForm.dayOfWeek = moment(item.startDate).day();
+                $scope.courseOccurrenceForm.roomLabels = item["roomLabels"];
+            }
+        }
+        else {
+            if ($scope.params.group)
+                $scope.course.groups.push($scope.params.group);
+
+            if ($scope.params.user)
+                $scope.course.teachers.push($scope.params.user);
+
+            if ($scope.structures.all.length === 1)
+                $scope.course.structureId = $scope.structure.id;
+        }
+
+        if ($scope.params.dateFromCalendar) {
+            let dateFromCalendar = $scope.params.dateFromCalendar;
+            $scope.params.dateFromCalendar = null;
+            $scope.courseOccurrenceForm.startTime = dateFromCalendar.beginning.seconds(0).millisecond(0).toDate();
+            $scope.courseOccurrenceForm.endTime = dateFromCalendar.end.seconds(0).millisecond(0).toDate();
+            $scope.courseOccurrenceForm.dayOfWeek = dateFromCalendar.beginning.day();
+        }
 
         /**
          * Drop a teacher in teachers list
@@ -30,22 +91,6 @@ export let creationController = ng.controller('CreationController',
         };
 
         /**
-         * Close lightbox and delete the course.
-         */
-        $scope.closeCreateWindow = (): void => {
-            delete $scope.course;
-            $scope.goTo('/');
-        };
-
-        /**
-         * Adding a course occurrence. Create a new course Occurrence and open the lightbox.
-         */
-        $scope.addCourseOccurrence =  (): void => {
-            $scope.courseOccurrence = new CourseOccurrence();
-            $scope.addingCourse = true;
-        };
-
-        /**
          * Drop a course occurrence from the table
          * @param {CourseOccurrence} occurrence Course occurrence to drop.
          */
@@ -56,19 +101,10 @@ export let creationController = ng.controller('CreationController',
         /**
          * Create a course occurrence
          */
-        $scope.createCourseOccurrence = (): void => {
-            $scope.course.courseOccurrences.push($scope.courseOccurrence);
-            $scope.addingCourse = false;
-        };
-
-        /**
-         * Validating course creation with occurrences.
-         * @returns {Promise<void>} Returns a Promise
-         */
-        $scope.validCreationOccurrence = async (): Promise<void> => {
-            await $scope.structure.courses.create($scope.course);
-            $scope.goTo('/');
-            $scope.getTimetable();
+        $scope.submit_CourseOccurrence_Form = (): void => {
+            $scope.changeDate();
+            $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
+            $scope.courseOccurrenceForm = new CourseOccurrence();
         };
 
         /**
@@ -88,80 +124,93 @@ export let creationController = ng.controller('CreationController',
         };
 
         /**
+         *
+         */
+        $scope.changeDate = () => {
+            let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
+                startTime = moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
+                endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
+                endTime = moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
+
+            if (!$scope.is_recurrent)
+                endDate = startDate;
+
+            $scope.course.startMoment = moment(startDate + 'T' + startTime);
+            $scope.course.endMoment = moment(endDate + 'T' + endTime);
+            $scope.courseOccurrenceForm.startTime = $scope.course.startDate = ($scope.course.startMoment.toDate());
+            $scope.courseOccurrenceForm.endTime = $scope.course.endDate = ($scope.course.endMoment.toDate());
+        };
+
+        /**
          * Save course based on parameter
          * @param {Course} course course to save
          * @returns {Promise<void>} Returns a promise
          */
         $scope.saveCourse = async (course: Course): Promise<void>  => {
+            $scope.form_is_not_valid = !$scope.isValidForm();
+
+            if (!$scope.is_recurrent) {
+                $scope.course.courseOccurrences = [];
+                $scope.courseOccurrenceForm.dayOfWeek = moment($scope.course.startDate).day();
+                $scope.submit_CourseOccurrence_Form();
+            }
             if (course._id) {
                 let coursesToSave = [];
-                let occurrences = _.where($scope.structure.courses.all, {_id: course._id});
-                if (occurrences.length === 0) {
+                if (course.courseOccurrences.length === 0) {
                     notify.error('edt.notify.update.err');
                     return;
-                } else if (occurrences.length === 1) {
+                } else if (course.courseOccurrences.length === 1) {
+                    course = Utils.cleanCourseValuesWithFirstOccurence(course);
                     coursesToSave.push(Utils.cleanCourseForSave(course));
                 } else {
-                    let originalCourse = _.findWhere($scope.structure.courses.origin, { _id: course._id });
-                    delete course._id;
-                    coursesToSave = Utils.splitCourseForUpdate(course, new Course(originalCourse, originalCourse.startDate, originalCourse.endDate));
+                    /**
+                     * course va contenir une seule occurence pour mettre à jour le cours
+                     * NewCourses va contenir 1 ou plusieurs occurence(s) qui seront des créations du ou des nouveau(x) cours
+                     */
+                    let newCourses = _.clone(course);
+                    newCourses.courseOccurrences = _.map(course.courseOccurrences, _.clone);
+                    delete newCourses._id; // provoque la création
+                    newCourses.courseOccurrences.shift(); // la première occurence sera dans la mise a jour
+                    course.courseOccurrences = [course.courseOccurrences[0]]; // on enlève les occurences qui seront créées via newCourses
+                    course = Utils.cleanCourseValuesWithFirstOccurence(course);
+                    coursesToSave.push(Utils.cleanCourseForSave(course));
+                    // not working coursesToSave.push(Utils.cleanCourseForSave(newCourses));
+                    await $scope.structure.courses.create(newCourses);
+
                 }
                 await $scope.structure.courses.update(coursesToSave);
             } else {
-                await course.save();
+                await $scope.structure.courses.create(course);
             }
-            $scope.lightbox.hide();
             delete $scope.course;
+            $scope.goTo('/');
             $scope.getTimetable();
-        };
-
-        /**
-         * Function that validate form before step 2 activation
-         * @returns {boolean} step 1 validation state
-         */
-        $scope.validateStep1 = () => {
-            $scope.validation.step1 = $scope.course.teachers.length > 0
-                && $scope.course.groups.length > 0
-                && $scope.course.subjectId !== undefined;
-            return $scope.validation.step1;
-        };
-
-        /**
-         * Function that validate form before step 3 activation
-         * @returns {boolean} step 2 validation state
-         */
-        $scope.validateStep2 = () => {
-            return ($scope.validation.step2 = $scope.course.courseOccurrences.length > 0);
-        };
-
-        /**
-         * Function that validate form before finishing stepper
-         * @returns {boolean} step 3 validation state
-         */
-        $scope.validateStep3 = () => {
-            return true;
         };
 
         /**
          * Function triggered on step 3 activation
          */
-        $scope.step3Activation = () => {
-            console.log('step3 activation');
-            $scope.course.overviewCourses = [];
-            for (let i = 0; i < $scope.course.courseOccurrences.length; i++) {
-                let occurrence = $scope.course.courseOccurrences[i];
-                occurrence.structureId = $scope.course.structureId;
-                occurrence.subjectId = $scope.course.subjectId;
-                occurrence.teacherIds = Utils.getValues($scope.course.teachers, 'id');
-                occurrence.classes = Utils.getValues(_.where($scope.course.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-                occurrence.groups = Utils.getValues(_.where($scope.course.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
-                occurrence.startDate = Utils.getOccurrenceDateForOverview($scope.course.startDate, occurrence.startTime, occurrence.dayOfWeek);
-                occurrence.endDate = Utils.getOccurrenceDateForOverview($scope.course.startDate, occurrence.endTime, occurrence.dayOfWeek);
-                occurrence.dayOfWeek = parseInt(occurrence.dayOfWeek);
-                $scope.course.overviewCourses.push(new Course(occurrence, occurrence.startDate, occurrence.endDate));
-            }
-            $scope.course.overviewCourses = Utils.formatCourses($scope.course.overviewCourses, $scope.structure);
-            console.log($scope.course.overviewCourses);
+        $scope.isValidForm = () => {
+
+            return $scope.course
+                && $scope.course.teachers
+                && $scope.course.groups
+                && $scope.course.teachers.length > 0
+                && $scope.course.groups.length > 0
+                && $scope.course.subjectId !== undefined
+                && (
+                    (
+                        $scope.is_recurrent
+                        && $scope.course.courseOccurrences
+                        && $scope.course.courseOccurrences.length > 0
+                    )
+                    ||
+                    (
+                        !$scope.is_recurrent
+                        && isNaN($scope.courseOccurrenceForm.startTime._d)
+                        && isNaN($scope.courseOccurrenceForm.endTime._d)
+                    )
+                );
         };
     }]
 );

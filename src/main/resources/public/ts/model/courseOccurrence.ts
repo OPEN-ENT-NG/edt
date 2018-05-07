@@ -9,13 +9,15 @@ export class CourseOccurrence {
     constructor (dayOfWeek: number = 1, roomLabel: string = '', startTime?: Date, endTime?: Date) {
         this.dayOfWeek = dayOfWeek;
         this.roomLabels = [roomLabel];
+        let start = moment();
+        start = start.add((15 - (start.minute() % 15)), "minutes");
         if (!startTime) {
-            let d = moment().seconds(0).milliseconds(0).format('x');
+            let d = start.seconds(0).milliseconds(0).format('x');
             this.startTime = new Date();
             this.startTime.setTime(d);
         } else this.startTime = startTime;
         if (!endTime) {
-            let d = moment().seconds(0).milliseconds(0).add(1, 'hours').format('x');
+            let d = start.seconds(0).milliseconds(0).add(1, 'hours').format('x');
             this.endTime = new Date();
             this.endTime.setTime(d);
         } else this.endTime = endTime;

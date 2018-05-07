@@ -41,6 +41,7 @@ export class Course {
         }
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.is_periodic = false;
+
         if (startDate) {
             this.startMoment = moment(startDate);
             this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
@@ -68,6 +69,7 @@ export class Course {
             this.endDate = moment(this.endMoment).format('YYYY-MM-DDTHH:mm:ss');
             this.classes = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
             this.groups = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+            this.startDate = Utils.mapStartMomentWithDayOfWeek(this.startDate, this.dayOfWeek);
             arr.push(this.toJSON());
             await http.post('/edt/course', arr);
             return;
