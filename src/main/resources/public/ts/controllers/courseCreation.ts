@@ -1,5 +1,6 @@
 import { ng, _, model, moment, notify } from 'entcore';
 import { DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course } from '../model';
+import {Mix} from "entcore-toolkit";
 
 export let creationController = ng.controller('CreationController',
     ['$scope', function ($scope) {
@@ -215,6 +216,22 @@ export let creationController = ng.controller('CreationController',
                         && isNaN($scope.courseOccurrenceForm.endTime._d)
                     )
                 );
+        };
+$scope.canDelete = (course: Course) => {
+    let now = moment().format("YYYY-MM-DDTHH:mm:ssZ");
+return $scope.isAnUpdate &&
+    ( course.startDate >= moment() || ($scope.is_recurrent && course.startDate < moment() && now < course.endDate )
+    )
+};
+
+        $scope.dropCourse = async (course: Course ) => {
+            if( $scope.canDelete(course) ) {
+                await course.delete();
+                delete $scope.course;
+                $scope.goTo('/');
+                $scope.getTimetable();
+            }
+
         };
     }]
 );
