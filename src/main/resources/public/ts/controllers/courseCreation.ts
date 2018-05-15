@@ -47,6 +47,10 @@ export let creationController = ng.controller('CreationController',
                         )
                     ];
                 }
+                $scope.courseOccurrenceForm.startTime =  moment(item.beginning).seconds(0).millisecond(0).toDate();
+                $scope.courseOccurrenceForm.endTime =moment( item.end).seconds(0).millisecond(0).toDate();
+                $scope.courseOccurrenceForm.dayOfWeek = moment(item.beginning).day();
+                $scope.courseOccurrenceForm.roomLabels = item["roomLabels"][0];
             }
             else {
                 $scope.courseOccurrenceForm.startTime = moment(item.startDate).seconds(0).millisecond(0).toDate();
