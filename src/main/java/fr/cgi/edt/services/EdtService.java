@@ -23,4 +23,11 @@ public interface EdtService {
      * @param handler handler
      */
     void update(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * delete course
+     * @param id
+     * @param handler
+     */
+    void delete(String id,  Handler<Either<String, JsonObject>> handler  );
 }

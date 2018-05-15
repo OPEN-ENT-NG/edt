@@ -80,6 +80,14 @@ export class Course {
         }
     }
 
+    async delete () {
+        try {
+            await http.delete(`/edt/course/${this._id}`);
+        } catch (e) {
+            notify.error('edt.notify.delete.err');
+        }
+    }
+
     toJSON () {
         let o: any = {
             structureId: this.structureId,

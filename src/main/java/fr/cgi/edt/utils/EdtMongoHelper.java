@@ -13,6 +13,9 @@ import org.vertx.java.core.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
+
+
 public class EdtMongoHelper extends MongoDbCrudService {
 
     public EdtMongoHelper(String collection) {
@@ -78,4 +81,32 @@ public class EdtMongoHelper extends MongoDbCrudService {
             }
         }
     }
+
+     public void deleteElement(final JsonObject matches,  final Handler<Either<String, JsonObject>> handler )   {
+         mongo.delete(collection, matches, new Handler<Message<JsonObject>>() {
+             @Override
+             public void handle(Message<JsonObject> result) {
+                 if ("ok".equals(result.body().getString("status"))){
+                     handler.handle(new Either.Right<String, JsonObject>(matches));
+                 }else{
+                     handler.handle(new Either.Left<String, JsonObject>("An error occurred when deleting data"));
+                 }
+             }
+         });
+     }
+
+     public void updateElement(final JsonObject element, final Handler<Either<String, JsonObject>> handler  ) {
+         final JsonObject matches = new JsonObject().putString("_id", element.getString("_id"));
+         mongo.update(collection, matches, element, new Handler<Message<JsonObject>>() {
+             @Override
+             public void handle(Message<JsonObject> result) {
+                 if ("ok".equals(result.body().getString("status"))){
+                     handler.handle(new Either.Right<String, JsonObject>(matches));
+                 }else{
+                     handler.handle(new Either.Left<String, JsonObject>("An error occurred when updating data"));
+                 }
+             }
+         });
+     }
+
 }

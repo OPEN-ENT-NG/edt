@@ -88,6 +88,7 @@
   "edt.timetable.params.err": "E001 : Une erreur est survenue lors du chargement de l'emploi du temps",
   "edt.notify.create.err": "E002 : Erreur lors de la création du cours",
   "edt.notify.update.err": "E003 : Erreur lors de la mise à jours du cours",
+  "edt.notify.delete.err":"Erreur lors de la suppression du cours",
   "edt.notify.update.params.err": "E004 : Erreur lors de la mise à jour du cours",
   "edt.notify.exclusion.update.err" : "E005 : Erreur lors de la mise à jour de l'exclusion",
   "edt.notify.exclusion.delete.err" : "E006 : Erreur lors de la suppression de l'exclusion",

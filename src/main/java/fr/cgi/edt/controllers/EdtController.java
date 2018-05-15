@@ -171,4 +171,20 @@ public class EdtController extends MongoDbControllerHelper {
             badRequest(request);
         }
     }
+
+
+    @Delete("/course/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageSettingsWorkflowAction.class)
+    @ApiDoc("Delete a course")
+    public void delete (final HttpServerRequest request) {
+        try {
+            String id = request.params().get("id");
+            edtService.delete(id, notEmptyResponseHandler(request));
+        } catch (ClassCastException e) {
+            log.error("");
+            badRequest(request);
+        }
+    }
+
 }

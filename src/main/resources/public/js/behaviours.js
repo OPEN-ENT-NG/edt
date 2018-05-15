@@ -2776,6 +2776,26 @@
 	            });
 	        });
 	    };
+	    Course.prototype.delete = function () {
+	        return __awaiter(this, void 0, void 0, function () {
+	            var e_2;
+	            return __generator(this, function (_a) {
+	                switch (_a.label) {
+	                    case 0:
+	                        _a.trys.push([0, 2, , 3]);
+	                        return [4 /*yield*/, axios_1.default.delete("/edt/course/" + this._id)];
+	                    case 1:
+	                        _a.sent();
+	                        return [3 /*break*/, 3];
+	                    case 2:
+	                        e_2 = _a.sent();
+	                        entcore_1.notify.error('edt.notify.delete.err');
+	                        return [3 /*break*/, 3];
+	                    case 3: return [2 /*return*/];
+	                }
+	            });
+	        });
+	    };
 	    Course.prototype.toJSON = function () {
 	        var o = {
 	            structureId: this.structureId,
@@ -2844,7 +2864,7 @@
 	     */
 	    Courses.prototype.create = function (course) {
 	        return __awaiter(this, void 0, void 0, function () {
-	            var courses, occurrence, i, e_2;
+	            var courses, occurrence, i, e_3;
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
@@ -2866,10 +2886,10 @@
 	                        _a.sent();
 	                        return [2 /*return*/];
 	                    case 2:
-	                        e_2 = _a.sent();
+	                        e_3 = _a.sent();
 	                        entcore_1.notify.error('edt.notify.create.err');
-	                        console.error(e_2);
-	                        throw e_2;
+	                        console.error(e_3);
+	                        throw e_3;
 	                    case 3: return [2 /*return*/];
 	                }
 	            });
@@ -2877,7 +2897,7 @@
 	    };
 	    Courses.prototype.update = function (courses) {
 	        return __awaiter(this, void 0, void 0, function () {
-	            var e_3;
+	            var e_4;
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
@@ -2887,7 +2907,7 @@
 	                        _a.sent();
 	                        return [2 /*return*/];
 	                    case 2:
-	                        e_3 = _a.sent();
+	                        e_4 = _a.sent();
 	                        entcore_1.notify.error('edt.notify.update.err');
 	                        return [3 /*break*/, 3];
 	                    case 3: return [2 /*return*/];
@@ -4689,7 +4709,7 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
-	                        return [4 /*yield*/, axios_1.default.get('/competences/user/list?profile=Teacher&structureId=' + structure.id)];
+	                        return [4 /*yield*/, axios_1.default.get('/viescolaire/user/list?profile=Teacher&structureId=' + structure.id)];
 	                    case 1:
 	                        teachers = _a.sent();
 	                        this.all = entcore_toolkit_1.Mix.castArrayAs(Teacher, teachers.data);
