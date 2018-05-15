@@ -5,6 +5,11 @@ body.edt {
   @import './specifics/utils';
   @import './specifics/custom';
   @import './specifics/switch';
+
+  .sm-margin-right {
+    margin-right: 10px !important;
+  }
+
 }
 
 .edt-settings {

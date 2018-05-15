@@ -123,7 +123,7 @@ export let main = ng.controller('EdtController',
         }
 
         $scope.safeApply = (): Promise<any> => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 let phase = $scope.$root.$$phase;
                 if (phase === '$apply' || phase === '$digest') {
                     if (resolve && (typeof(resolve) === 'function')) {
@@ -212,12 +212,13 @@ export let main = ng.controller('EdtController',
                 if (model && model.calendar && model.calendar.newItem) {
                     let dateFromCalendar = model.calendar.newItem;
                     if (dateFromCalendar.beginning)
-                        startDate = dateFromCalendar.beginning = dateFromCalendar.beginning;
+                        startDate = dateFromCalendar.beginning;
                     if (dateFromCalendar.end)
-                        endDate = dateFromCalendar.end = dateFromCalendar.end;
+                        endDate = dateFromCalendar.end ;
                     $scope.params.dateFromCalendar = dateFromCalendar;
                 }
                 if ($scope.params.updateItem) {
+
                     $scope.course = new Course($scope.params.updateItem);
                 }
                 else {

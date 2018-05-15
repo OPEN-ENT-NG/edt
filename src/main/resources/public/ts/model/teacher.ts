@@ -36,7 +36,7 @@ export class Teachers {
      */
     async sync (structure: Structure) {
         try {
-            let teachers = await http.get('/competences/user/list?profile=Teacher&structureId=' + structure.id);
+            let teachers = await http.get('/viescolaire/user/list?profile=Teacher&structureId=' + structure.id);
             this.all = Mix.castArrayAs(Teacher, teachers.data);
         } catch (e) {
             throw e;
