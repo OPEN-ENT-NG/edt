@@ -30,6 +30,7 @@ export class Course {
     subjectLabel: string;
     courseOccurrences: CourseOccurrence[];
     teachers: Teacher[];
+    everyTwoWeek: boolean;
     originalStartMoment?: any;
     originalEndMoment?: any;
 
@@ -41,7 +42,7 @@ export class Course {
         }
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.is_periodic = false;
-
+        this.everyTwoWeek = false;
         if (startDate) {
             this.startMoment = moment(startDate);
             this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
@@ -99,7 +100,8 @@ export class Course {
             startDate: this.startDate,
             roomLabels: this.roomLabels,
             dayOfWeek: this.dayOfWeek,
-            manual: true
+            manual: true,
+            everyWeek: this.everyTwoWeek
         };
         if (this._id) {
             o._id = this._id;

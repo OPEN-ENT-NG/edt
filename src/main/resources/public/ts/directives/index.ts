@@ -1,1 +1,1 @@
-import "./switch";
+export * from "./switch";
