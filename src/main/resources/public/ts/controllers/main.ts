@@ -102,6 +102,7 @@ export let main = ng.controller('EdtController',
                 $scope.structure.courses.all = [];
                 await $scope.structure.courses.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
+                $scope.safeApply();
             }
         };
 
@@ -133,7 +134,7 @@ export let main = ng.controller('EdtController',
                     if (resolve && (typeof(resolve) === 'function')) {
                         $scope.$apply(resolve);
                     } else {
-                        $scope.$apply()();
+                        $scope.$apply();
                     }
                 }
             });
@@ -191,16 +192,18 @@ export let main = ng.controller('EdtController',
 
         initTriggers();
 
+
         /**
          * Subscriber to directive calendar changes event
          */
-        $scope.$watch(() => model.calendar, function (oldVal, newVal) {
-            initTriggers();
-            if (moment(oldVal.dayForWeek).format('DD/MM/YYYY') !== moment(newVal.dayForWeek).format('DD/MM/YYYY')) {
-                $scope.getTimetable();
+        $scope.$watch( () => {return  model.calendar.dayForWeek}, function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                initTriggers();
+                if (moment(oldValue).format('DD/MM/YYYY') !== moment(newValue).format('DD/MM/YYYY')) {
+                    $scope.getTimetable();
+                }
             }
-
-        });
+        }, true); 
 
         route({
             main: () => {
