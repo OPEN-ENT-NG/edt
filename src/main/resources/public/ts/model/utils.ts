@@ -55,9 +55,9 @@ export class Utils {
 
     static getOccurrenceEndDate(date: string | object, time: Date, dayOfWeek: number): string {
         let occurrenceEndDate = this.getOccurrenceDate(date, time, dayOfWeek);
-        if (moment(date).diff(occurrenceEndDate) < 0) {
+        /*if (moment(date).diff(occurrenceEndDate) < 0) {
             occurrenceEndDate.add('days', -7);
-        }
+        }*/
         return occurrenceEndDate.format('YYYY-MM-DDTHH:mm:ss');
     }
 
@@ -92,7 +92,7 @@ export class Utils {
                 // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
                 let endMoment = moment(course.startDate);
                 endMoment.hour(moment(course.endDate).hour()).minute(moment(course.endDate).minute());
-                for (let i = 0; i < numberWeek + 1; i++) {
+                for (let i = 0; i < numberWeek; i++) {
                     let c = new Course(course, startMoment.format(), endMoment.format());
                     c.subjectLabel = structure.subjects.mapping[course.subjectId];
                     arr.push(c);
