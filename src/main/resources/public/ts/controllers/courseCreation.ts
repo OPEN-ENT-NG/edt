@@ -144,6 +144,16 @@ export let creationController = ng.controller('CreationController',
             $scope.course.endMoment = moment(endDate + 'T' + endTime);
             $scope.courseOccurrenceForm.startTime = $scope.course.startDate = ($scope.course.startMoment.toDate());
             $scope.courseOccurrenceForm.endTime = $scope.course.endDate = ($scope.course.endMoment.toDate());
+
+
+            $scope.course.courseOccurrences = _.map($scope.course.courseOccurrences, (item)=> {
+                let startTime = moment(item.startTime).format("HH:mm:ss"),
+                    endTime = moment(item.endTime).format("HH:mm:ss");
+                item.startMoment = moment(startDate + 'T' + startTime);
+                item.endMoment = moment(endDate + 'T' + endTime);
+                return item;
+            });
+
         };
 
         /**
