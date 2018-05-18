@@ -170,6 +170,19 @@ export let main = ng.controller('EdtController',
             $scope.calendarUpdateItem(item);
         };
 
+
+        $scope.nextWeek = async () =>{
+            let next = moment(model.calendar.firstDay).add(7, 'day');
+            model.calendar.setDate(next);
+            $scope.safeApply()
+        };
+
+        $scope.previousWeek = async () =>{
+            let prev = moment(model.calendar.firstDay).subtract(7, 'day');
+            model.calendar.setDate(prev);
+            $scope.safeApply()
+
+        };
         let initTriggers = () => {
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
