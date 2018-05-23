@@ -2722,6 +2722,7 @@
 	        }
 	        this.color = colors[Math.floor(Math.random() * colors.length)];
 	        this.is_periodic = false;
+	        this.everyTwoWeek = false;
 	        if (startDate) {
 	            this.startMoment = entcore_1.moment(startDate);
 	            this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
@@ -2807,7 +2808,8 @@
 	            startDate: this.startDate,
 	            roomLabels: this.roomLabels,
 	            dayOfWeek: this.dayOfWeek,
-	            manual: true
+	            manual: true,
+	            everyWeek: this.everyTwoWeek
 	        };
 	        if (this._id) {
 	            o._id = this._id;
@@ -2835,14 +2837,14 @@
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
-	                        if (teacher === null && group === null)
+	                        firstDate = index_1.Utils.getFirstCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+	                        endDate = index_1.Utils.getLastCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+	                        if (!structure || !teacher && !group || !firstDate || !endDate)
 	                            return [2 /*return*/];
-	                        firstDate = entcore_1.moment(entcore_1.model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD');
-	                        endDate = entcore_1.moment(entcore_1.model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0).format('YYYY-MM-DD');
 	                        filter = '';
-	                        if (group === null)
+	                        if (!group)
 	                            filter += "teacherId=" + (entcore_1.model.me.type === index_1.USER_TYPES.personnel ? teacher.id : entcore_1.model.me.userId);
-	                        if (teacher === null && group !== null)
+	                        if (!teacher && !!group)
 	                            filter += "group=" + group.name;
 	                        uri = "/directory/timetable/courses/" + structure.id + "/" + firstDate + "/" + endDate + "?" + filter;
 	                        return [4 /*yield*/, axios_1.default.get(uri)];
@@ -5145,9 +5147,9 @@
 	    };
 	    Utils.getOccurrenceEndDate = function (date, time, dayOfWeek) {
 	        var occurrenceEndDate = this.getOccurrenceDate(date, time, dayOfWeek);
-	        if (entcore_1.moment(date).diff(occurrenceEndDate) < 0) {
+	        /*if (moment(date).diff(occurrenceEndDate) < 0) {
 	            occurrenceEndDate.add('days', -7);
-	        }
+	        }*/
 	        return occurrenceEndDate.format('YYYY-MM-DDTHH:mm:ss');
 	    };
 	    Utils.getOccurrenceDateForOverview = function (date, time, dayOfWeek) {
@@ -5181,7 +5183,7 @@
 	                // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
 	                var endMoment = entcore_1.moment(course.startDate);
 	                endMoment.hour(entcore_1.moment(course.endDate).hour()).minute(entcore_1.moment(course.endDate).minute());
-	                for (var i = 0; i < numberWeek + 1; i++) {
+	                for (var i = 0; i < numberWeek; i++) {
 	                    var c = new index_1.Course(course, startMoment.format(), endMoment.format());
 	                    c.subjectLabel = structure.subjects.mapping[course.subjectId];
 	                    arr.push(c);
@@ -5292,6 +5294,12 @@
 	            courseToSave.push(this.cleanCourseForSave(_end));
 	        }
 	        return courseToSave;
+	    };
+	    Utils.getFirstCalendarDay = function () {
+	        return entcore_1.model.calendar.firstDay;
+	    };
+	    Utils.getLastCalendarDay = function () {
+	        return entcore_1.moment(entcore_1.model.calendar.firstDay).add(1, entcore_1.model.calendar.increment + 's');
 	    };
 	    return Utils;
 	}());

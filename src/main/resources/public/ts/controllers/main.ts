@@ -170,19 +170,17 @@ export let main = ng.controller('EdtController',
             $scope.calendarUpdateItem(item);
         };
 
-
-        $scope.nextWeek = async () =>{
-            let next = moment(model.calendar.firstDay).add(7, 'day');
-            model.calendar.setDate(next);
-            $scope.safeApply()
+        $scope.nextWeek = () => {
+          model.calendar.next();
+          $scope.getTimetable();
+          $scope.safeApply();
+        };
+        $scope.previousWeek = () => {
+            model.calendar.previous();
+            $scope.getTimetable();
+            $scope.safeApply();
         };
 
-        $scope.previousWeek = async () =>{
-            let prev = moment(model.calendar.firstDay).subtract(7, 'day');
-            model.calendar.setDate(prev);
-            $scope.safeApply()
-
-        };
         let initTriggers = () => {
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
@@ -195,7 +193,6 @@ export let main = ng.controller('EdtController',
             model.calendar.eventer.on('calendar.drop-item', (item) => {
                 $scope.calendarDropItem(item);
             });
-
             model.calendar.eventer.off('calendar.resize-item');
             model.calendar.eventer.on('calendar.resize-item', (item) => {
                 $scope.calendarResizedItem(item);
@@ -204,7 +201,6 @@ export let main = ng.controller('EdtController',
         };
 
         initTriggers();
-
 
         /**
          * Subscriber to directive calendar changes event
@@ -216,7 +212,14 @@ export let main = ng.controller('EdtController',
                     $scope.getTimetable();
                 }
             }
-        }, true); 
+        }, true);
+
+        $scope.$watch( () => {return  model.calendar.increment}, function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                initTriggers();
+                $scope.getTimetable();
+            }
+        }, true);
 
         route({
             main: () => {
