@@ -127,12 +127,12 @@ export class Courses {
      * @returns {Promise<void>} Returns a promise.
      */
     async sync(structure: Structure, teacher: Teacher | null, group: Group | null): Promise<void> {
-        if (teacher === null && group === null) return;
-        let firstDate = moment(model.calendar.dayForWeek).hour(0).minute(0).format('YYYY-MM-DD');
-        let endDate = moment(model.calendar.dayForWeek).add(7, 'day').hour(0).minute(0).format('YYYY-MM-DD');
+        let firstDate = Utils.getFirstCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+        let endDate = Utils.getLastCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+        if (!structure || !teacher  && !group || !firstDate || !endDate ) return;
         let filter = '';
-        if (group === null) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
-        if (teacher === null && group !== null) filter += `group=${group.name}`;
+        if (!group ) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
+        if (!teacher  && !!group ) filter += `group=${group.name}`;
         let uri = `/directory/timetable/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
         let courses = await http.get(uri);
         if (courses.data.length > 0) {

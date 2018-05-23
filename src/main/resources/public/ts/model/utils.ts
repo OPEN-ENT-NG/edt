@@ -209,4 +209,12 @@ export class Utils {
         }
         return courseToSave;
     }
+
+    static getFirstCalendarDay () :moment {
+        return model.calendar.firstDay;
+}
+
+    static getLastCalendarDay () :moment {
+        return moment(model.calendar.firstDay).add(1, model.calendar.increment+'s');
+    }
 }

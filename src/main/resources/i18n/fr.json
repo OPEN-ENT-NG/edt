@@ -100,5 +100,9 @@
   "edt.settings.exclusion.description": "Description",
   "edt.settings.exclusion.start_date": "Date de début",
   "edt.settings.exclusion.end_date": "Date de Fin",
-  "edt.settings.exclusion.title": "Exclusion de périodes"
+  "edt.settings.exclusion.title": "Exclusion de périodes",
+  "calendar.mode.day":"Jour",
+  "calendar.mode.week":"Semaine",
+  "calendar.mode.month":"Mois"
+
 }
