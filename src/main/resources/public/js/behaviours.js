@@ -4622,7 +4622,7 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
-	                        return [4 /*yield*/, axios_1.default.get('/viescolaire/classes?idEtablissement=' + structureId)];
+	                        return [4 /*yield*/, axios_1.default.get('/competences/classes?idEtablissement=' + structureId)];
 	                    case 1:
 	                        groups = _a.sent();
 	                        this.all = entcore_toolkit_1.Mix.castArrayAs(Group, groups.data);
@@ -4713,7 +4713,7 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
-	                        return [4 /*yield*/, axios_1.default.get('/viescolaire/user/list?profile=Teacher&structureId=' + structure.id)];
+	                        return [4 /*yield*/, axios_1.default.get('/competences/user/list?profile=Teacher&structureId=' + structure.id)];
 	                    case 1:
 	                        teachers = _a.sent();
 	                        this.all = entcore_toolkit_1.Mix.castArrayAs(Teacher, teachers.data);

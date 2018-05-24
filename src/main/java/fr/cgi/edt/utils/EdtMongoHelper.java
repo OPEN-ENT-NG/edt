@@ -5,10 +5,10 @@ import fr.wseduc.mongodb.MongoQueryBuilder;
 import fr.wseduc.mongodb.MongoUpdateBuilder;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.MongoDbCrudService;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
             if (onError) {
                 rollBack(ids, handler);
             } else {
-                JsonObject res = new JsonObject().putNumber("status", 200);
+                JsonObject res = new JsonObject().put("status", 200);
                 handler.handle(new Either.Right<String, JsonObject>(res));
             }
         }
@@ -68,13 +68,13 @@ public class EdtMongoHelper extends MongoDbCrudService {
         };
 
         for (int i = 0; i < values.size(); i++) {
-            obj = values.get(i);
-            if (!obj.containsField("_id")) {
+            obj = values.getJsonObject(i);
+            if (!obj.containsKey("_id")) {
                 mongo.save(collection, obj, transactionHandler);
             } else {
                 QueryBuilder query = QueryBuilder.start("_id").is(obj.getString("_id"));
                 MongoUpdateBuilder modifier = new MongoUpdateBuilder();
-                for (String attr: obj.getFieldNames()) {
+                for (String attr: obj.fieldNames()) {
                     modifier.set(attr, obj.getValue(attr));
                 }
                 mongo.update(collection, MongoQueryBuilder.build(query), modifier.build(), transactionHandler);
@@ -96,7 +96,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
      }
 
      public void updateElement(final JsonObject element, final Handler<Either<String, JsonObject>> handler  ) {
-         final JsonObject matches = new JsonObject().putString("_id", element.getString("_id"));
+         final JsonObject matches = new JsonObject().put("_id", element.getString("_id"));
          mongo.update(collection, matches, element, new Handler<Message<JsonObject>>() {
              @Override
              public void handle(Message<JsonObject> result) {
