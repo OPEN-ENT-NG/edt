@@ -5,9 +5,9 @@ import fr.wseduc.webutils.Either;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
 import org.entcore.common.user.UserInfos;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class UserServiceNeo4jImpl implements UserService {
     @Override
@@ -16,6 +16,6 @@ public class UserServiceNeo4jImpl implements UserService {
                 "return distinct u.id as id, u.firstName as firstName, u.lastName as lastName, " +
                 "u.displayName as displayName, u.classes as classes, collect(s.id) as structures";
 
-        Neo4j.getInstance().execute(query, new JsonObject().putString("userId", user.getUserId()), Neo4jResult.validResultHandler(handler));
+        Neo4j.getInstance().execute(query, new JsonObject().put("userId", user.getUserId()), Neo4jResult.validResultHandler(handler));
     }
 }

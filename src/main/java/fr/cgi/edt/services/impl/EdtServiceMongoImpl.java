@@ -4,12 +4,12 @@ import fr.cgi.edt.utils.EdtMongoHelper;
 import fr.cgi.edt.services.EdtService;
 import fr.wseduc.webutils.Either;
 import org.entcore.common.service.impl.MongoDbCrudService;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.logging.Logger;
-import org.vertx.java.core.logging.impl.LoggerFactory;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,12 +46,12 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     @Override
     public void delete(final String id, final Handler<Either<String, JsonObject>> handler) {
 
-        final JsonObject matches = new JsonObject().putString("_id", id);
+        final JsonObject matches = new JsonObject().put("_id", id);
         mongo.findOne(this.collection, matches , new Handler<Message<JsonObject>>() {
             @Override
             public void handle(Message<JsonObject> result) {
                 if ("ok".equals(result.body().getString("status"))) {
-                    JsonObject course = result.body().getObject("result");
+                    JsonObject course = result.body().getJsonObject("result");
                     JsonObject coursePropreties = getCourseProperties(course);
                     if(coursePropreties.getBoolean("toDelete")) {
                         new EdtMongoHelper(collection).deleteElement(matches, handler);
@@ -60,7 +60,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                         String now = formatterDate.format(new Date());
                         String endTime =  coursePropreties.getString("endTime");
                         new EdtMongoHelper(collection)
-                                .updateElement(course.putString("endDate", now+'T'+endTime ), handler);
+                                .updateElement(course.put("endDate", now+'T'+endTime ), handler);
                     }else {
                         LOGGER.error("can't delete this course");
                         handler.handle(new Either.Left<String, JsonObject>("can't delete this course"));
@@ -80,18 +80,18 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm");
         Date now = new Date() ;
         JsonObject courseProperties  = new JsonObject()
-                .putBoolean("toDelete", false)
-                .putBoolean("toUpdate", false);
+                .put("toDelete", false)
+                .put("toUpdate", false);
         try{
             startDate = formatter.parse( course.getString("startDate") );
             endDate = formatter.parse( course.getString("endDate") );
             boolean isRecurence = 0 != TimeUnit.DAYS.convert(
                     endDate.getTime() -startDate.getTime(), TimeUnit.MILLISECONDS);
             if (now.before(startDate)) {
-                courseProperties.putBoolean("toDelete", true);
+                courseProperties.put("toDelete", true);
             }else if(isRecurence && startDate.before(now) && endDate.after(now) ){
-                courseProperties.putBoolean("toUpdate", true)
-                .putString("endTime",formatterTime.format(endDate));
+                courseProperties.put("toUpdate", true)
+                .put("endTime",formatterTime.format(endDate));
 
             }
 

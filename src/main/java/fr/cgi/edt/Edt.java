@@ -1,13 +1,13 @@
 package fr.cgi.edt;
 
+import io.vertx.core.shareddata.LocalMap;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
 import org.entcore.common.mongodb.MongoDbConf;
 
 import fr.cgi.edt.controllers.EdtController;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.core.shareddata.ConcurrentSharedMap;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 
 public class Edt extends BaseServer {
 
@@ -19,7 +19,7 @@ public class Edt extends BaseServer {
     public final static String EXCLUSION_JSON_SCHEMA = "exclusion";
 
     @Override
-    public void start() {
+    public void start() throws Exception {
         super.start();
 
         addController(new EdtController(EDT_COLLECTION));
@@ -30,8 +30,8 @@ public class Edt extends BaseServer {
             @Override
             public void handle(Long aLong) {
                 if (!validDependencies()) {
-                    ConcurrentSharedMap<String, String> deploymentsIdMap = vertx.sharedData().getMap("deploymentsId");
-                    container.undeployModule(deploymentsIdMap.get("fr.cgi.edt"));
+                    LocalMap<String, String> deploymentsIdMap = vertx.sharedData().getLocalMap("deploymentsId");
+                    vertx.undeploy(deploymentsIdMap.get("fr.cgi.edt"));
                 }
             }
         });
@@ -40,9 +40,9 @@ public class Edt extends BaseServer {
     private boolean validDependencies () {
         Boolean isValid = true;
         if ("prod".equals(config.getString("mode"))) {
-            JsonObject dependencies = config.getObject("dependencies");
-            final ConcurrentSharedMap<Object, Object> versionMap = vertx.sharedData().getMap("versions");
-            for (String mod : dependencies.getFieldNames()) {
+            JsonObject dependencies = config.getJsonObject("dependencies");
+            final LocalMap<Object, Object> versionMap = vertx.sharedData().getLocalMap("versions");
+            for (String mod : dependencies.fieldNames()) {
                 if (!isMajor(versionMap.get(mod).toString(), dependencies.getString(mod))) {
                     log.error(mod + " minor version. Please upgrade " + mod + " version to " + dependencies.getString(mod) + " and upper");
                     isValid = false;
