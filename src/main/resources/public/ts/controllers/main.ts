@@ -6,7 +6,9 @@ export let main = ng.controller('EdtController',
         $scope.structures = new Structures();
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
-
+        $scope.display = {
+            showQuarterHours : true
+        };
         $scope.calendarLoader = {
             show: false,
             display: () => {
@@ -170,16 +172,6 @@ export let main = ng.controller('EdtController',
             $scope.calendarUpdateItem(item);
         };
 
-        $scope.nextWeek = () => {
-          model.calendar.next();
-          $scope.getTimetable();
-          $scope.safeApply();
-        };
-        $scope.previousWeek = () => {
-            model.calendar.previous();
-            $scope.getTimetable();
-            $scope.safeApply();
-        };
 
         let initTriggers = () => {
             model.calendar.eventer.off('calendar.create-item');
@@ -205,7 +197,7 @@ export let main = ng.controller('EdtController',
         /**
          * Subscriber to directive calendar changes event
          */
-        $scope.$watch( () => {return  model.calendar.dayForWeek}, function (newValue, oldValue) {
+        $scope.$watch( () => {return  model.calendar.firstDay}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 initTriggers();
                 if (moment(oldValue).format('DD/MM/YYYY') !== moment(newValue).format('DD/MM/YYYY')) {

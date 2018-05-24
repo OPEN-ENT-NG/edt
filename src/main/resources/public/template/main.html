@@ -75,17 +75,14 @@
                 <h4><i18n>edt.calendar.loading</i18n></h4>
             </div>
         </div>
-        <div class="row">
-            <button ng-click="previousWeek()"><</button>
-            <button class="right-magnet" ng-click="nextWeek()">></button>
-
-        </div>
         <calendar
                 enable-display-modes="true"
                 display-template="calendar/course-item"
                 display-month-template="calendar/course-item"
                 item-tooltip-template="calendar/course-tooltip"
-                items="structure.courses.all">
+                items="structure.courses.all"
+                show-quarter-hours="true"
+                show-next-previous-button="true">
         </calendar>
     </div>
 </div>
