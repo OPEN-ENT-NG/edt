@@ -127,8 +127,10 @@ export class Courses {
      * @returns {Promise<void>} Returns a promise.
      */
     async sync(structure: Structure, teacher: Teacher | null, group: Group | null): Promise<void> {
-        let firstDate = Utils.getFirstCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
-        let endDate = Utils.getLastCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+        let firstDate = Utils.getFirstCalendarDay();
+         firstDate = moment(firstDate).format('YYYY-MM-DD');
+        let endDate = Utils.getLastCalendarDay();
+        endDate = moment(endDate).format('YYYY-MM-DD');
         if (!structure || !teacher  && !group || !firstDate || !endDate ) return;
         let filter = '';
         if (!group ) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;

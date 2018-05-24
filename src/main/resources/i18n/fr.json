@@ -103,6 +103,7 @@
   "edt.settings.exclusion.title": "Exclusion de périodes",
   "calendar.mode.day":"Jour",
   "calendar.mode.week":"Semaine",
-  "calendar.mode.month":"Mois"
+  "calendar.mode.month":"Mois",
+  "edt.show.quarter.hours":"Afficher les quarts d'heure"
 
 }

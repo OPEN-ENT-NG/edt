@@ -2837,8 +2837,10 @@
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
-	                        firstDate = index_1.Utils.getFirstCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
-	                        endDate = index_1.Utils.getLastCalendarDay().hour(0).minute(0).format('YYYY-MM-DD');
+	                        firstDate = index_1.Utils.getFirstCalendarDay();
+	                        firstDate = entcore_1.moment(firstDate).format('YYYY-MM-DD');
+	                        endDate = index_1.Utils.getLastCalendarDay();
+	                        endDate = entcore_1.moment(endDate).format('YYYY-MM-DD');
 	                        if (!structure || !teacher && !group || !firstDate || !endDate)
 	                            return [2 /*return*/];
 	                        filter = '';
