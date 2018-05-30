@@ -1,7 +1,17 @@
-<article class="schedule-item-content">
-    <div class="cell twelve ellipsis">[[item.subjectLabel]]</div>
+<article class="tooltip-cours " >
+    <div class="header cell twelve ellipsis [[item.color]]">[[item.subjectLabel]]</div>
+    <div>
+        <span>
+            [[item.startMomentTime]] - [[item.endMomentTime]]
+        </span>
+
+    </div>
+    <div>
+        <span ng-repeat="teacher in item.teachers">[[teacher.displayName]] </span>
+    </div>
     <em class="metadata">
         <span ng-repeat="className in item.classes">[[className]]</span>
         <span ng-repeat="groupName in item.groups">[[groupName]]</span>
     </em>
+    <span ng-repeat="roomLabel in item.roomLabels">[[roomLabel]] </span>
 </article>

@@ -10,6 +10,15 @@ body.edt {
     margin-right: 10px !important;
   }
 
+  .tooltip-cours {
+    padding: 11px;
+    text-align: center;
+    .header {
+      color: white;
+      border-radius: 9px;
+      padding: 1px 6px;
+    }
+  }
 }
 
 .edt-settings {
@@ -26,3 +35,4 @@ body.edt {
     }
   }
 }
+

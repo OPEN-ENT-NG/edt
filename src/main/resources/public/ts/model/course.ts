@@ -140,6 +140,9 @@ export class Courses {
         if (courses.data.length > 0) {
             this.all = Utils.formatCourses(courses.data, structure);
             this.origin = Mix.castArrayAs(Course, courses.data);
+            this.all.map((cours) => {
+                cours.teachers = _.map(cours.teacherIds, (ids) => { return _.findWhere(structure.teachers.all, {id: ids}); });
+            });
         }
         return;
     }
