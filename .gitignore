@@ -12,6 +12,7 @@ bower_components/
 Edt.iml
 src/main/resources/public/dist/
 src/main/resources/public/temp/
+src/main/ressources/public/js/*
 src/main/ressources/public/js/
 src/main/resources/view/
 src/main/resources/public/ts/entcore
