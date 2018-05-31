@@ -13,5 +13,5 @@
         <span ng-repeat="className in item.classes">[[className]]</span>
         <span ng-repeat="groupName in item.groups">[[groupName]]</span>
     </em>
-    <span ng-repeat="roomLabel in item.roomLabels">[[roomLabel]] </span>
+    <div ng-if = "item.roomLabels && item.roomLabels != [''] && item.roomLabels.length > 0"> <i18n>edt.utils.room</i18n>: <span ng-repeat="roomLabel in item.roomLabels">[[roomLabel]] </span> </div>
 </article>

@@ -47,13 +47,13 @@ export class Course {
             this.startMoment = moment(startDate);
             this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
             this.startMomentDate = this.startMoment.format('DD/MM/YYYY');
-            this.startMomentTime = this.startMoment.format('hh:mm');
+            this.startMomentTime = this.startMoment.format('HH:mm');
         }
         if (endDate) {
             this.endMoment = moment(endDate);
             this.endCalendarHour = this.endMoment.seconds(0).millisecond(0).toDate();
             this.endMomentDate = this.endMoment.format('DD/MM/YYYY');
-            this.endMomentTime = this.endMoment.format('hh:mm');
+            this.endMomentTime = this.endMoment.format('HH:mm');
         }
     }
 
