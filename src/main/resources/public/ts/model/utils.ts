@@ -92,7 +92,7 @@ export class Utils {
                 // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
                 let endMoment = moment(course.startDate);
                 endMoment.hour(moment(course.endDate).hour()).minute(moment(course.endDate).minute());
-                for (let i = 0; i < numberWeek; i++) {
+                for (let i = 0; i < numberWeek+1; i++) {
                     let c = new Course(course, startMoment.format(), endMoment.format());
                     c.subjectLabel = structure.subjects.mapping[course.subjectId];
                     arr.push(c);
