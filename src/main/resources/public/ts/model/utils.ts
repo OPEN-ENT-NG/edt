@@ -74,39 +74,7 @@ export class Utils {
         return startMoment.add('days', diff);
     }
 
-    /**
-     * Format courses to display them in the calendar directive
-     * @param courses courses
-     * @param structure structure
-     * @returns {Array} Returns an array containing Course object.
-     */
-    static formatCourses (courses: any[], structure: Structure): Course[] {
-        const arr = [];
-        const edtRights = Behaviours.applicationsBehaviours.edt.rights;
-        courses.forEach((course) => {
-            course.startDate = this.mapStartMomentWithDayOfWeek(moment(course.startDate), course.dayOfWeek);
-            let numberWeek = Math.floor(moment(course.endDate).diff(course.startDate, 'days') / 7);
-            if (!model.me.hasWorkflow(edtRights.workflow.create)) course.locked = true;
-            if (numberWeek > 0) {
-                let startMoment = moment(course.startDate);
-                // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
-                let endMoment = moment(course.startDate);
-                endMoment.hour(moment(course.endDate).hour()).minute(moment(course.endDate).minute());
-                for (let i = 0; i < numberWeek+1; i++) {
-                    let c = new Course(course, startMoment.format(), endMoment.format());
-                    c.subjectLabel = structure.subjects.mapping[course.subjectId];
-                    arr.push(c);
-                    startMoment = startMoment.add('days', 7);
-                    endMoment = endMoment.add('days', 7);
-                }
-            } else {
-                let c = new Course(course, moment(course.startDate).format(), moment(course.endDate).format());
-                c.subjectLabel = structure.subjects.mapping[course.subjectId];
-                arr.push(c);
-            }
-        });
-        return arr;
-    }
+
 
     /**
      * Return if start date is less greater than end date.
