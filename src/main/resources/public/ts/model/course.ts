@@ -33,16 +33,14 @@ export class Course {
     everyTwoWeek: boolean;
     originalStartMoment?: any;
     originalEndMoment?: any;
-
+    start?:string|Date;
+    end?: string|Date;
     constructor (obj: object, startDate?: string | object, endDate?: string | object) {
         if (obj instanceof Object) {
             for (let key in obj) {
                 this[key] = obj[key];
             }
         }
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.is_periodic = false;
-        this.everyTwoWeek = false;
         if (startDate) {
             this.startMoment = moment(startDate);
             this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
@@ -128,21 +126,25 @@ export class Courses {
      */
     async sync(structure: Structure, teacher: Teacher | null, group: Group | null): Promise<void> {
         let firstDate = Utils.getFirstCalendarDay();
-         firstDate = moment(firstDate).format('YYYY-MM-DD');
+        firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
         endDate = moment(endDate).format('YYYY-MM-DD');
         if (!structure || !teacher  && !group || !firstDate || !endDate ) return;
         let filter = '';
         if (!group ) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
         if (!teacher  && !!group ) filter += `group=${group.name}`;
-        let uri = `/directory/timetable/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
+        let uri = `/viescolaire/mongo/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
         let courses = await http.get(uri);
         if (courses.data.length > 0) {
-            this.all = Utils.formatCourses(courses.data, structure);
-            this.origin = Mix.castArrayAs(Course, courses.data);
-            this.all.map((cours) => {
-                cours.teachers = _.map(cours.teacherIds, (ids) => { return _.findWhere(structure.teachers.all, {id: ids}); });
+            this.all = courses.data.map((course) => {
+                let MyCourse = new Course(course, course.startDate, course.endDate);
+                MyCourse.subjectLabel = structure.subjects.mapping[course.subjectId];
+                MyCourse.teachers = _.map(course.teacherIds,
+                    (ids) => { return _.findWhere(structure.teachers.all, {id: ids});
+                    });
+                return MyCourse;
             });
+            this.origin = Mix.castArrayAs(Course, courses.data);
         }
         return;
     }
