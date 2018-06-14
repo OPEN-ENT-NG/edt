@@ -133,7 +133,7 @@ export class Courses {
         let filter = '';
         if (!group ) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
         if (!teacher  && !!group ) filter += `group=${group.name}`;
-        let uri = `/viescolaire/mongo/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
+        let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
         let courses = await http.get(uri);
         if (courses.data.length > 0) {
             this.all = courses.data.map((course) => {
