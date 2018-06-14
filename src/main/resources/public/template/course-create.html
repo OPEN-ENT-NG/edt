@@ -71,7 +71,7 @@
                     </label>
                 </div>
             </div>
-            <div class="row row-form">
+            <div class="row row-form" ng-if="is_recurrent">
                 <label class="cell row-form two twelve-mobile">
                     <i18n>edt.every.tow.weeks</i18n>*
                 </label>
@@ -110,9 +110,9 @@
                         <div class="cell twelve-mobile ten">
 
                             <i18n>from</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.startDate"></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.startCourse" ></date-picker>
                             <i18n>to</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.endDate"></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.endCourse"></date-picker>
                         </div>
                     </div>
 

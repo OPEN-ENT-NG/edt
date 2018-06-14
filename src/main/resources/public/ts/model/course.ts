@@ -1,9 +1,9 @@
-import { model, moment, _, notify } from 'entcore';
+import { model, moment, _, notify, Behaviours } from 'entcore';
 import http from 'axios';
 import { Mix } from 'entcore-toolkit';
 import { USER_TYPES, Structure, Teacher, Group, CourseOccurrence, Utils} from './index';
 
-const colors = ['cyan', 'green', 'orange', 'pink', 'yellow', 'purple', 'grey'];
+
 
 export class Course {
     _id: string;
@@ -19,6 +19,7 @@ export class Course {
     groups: string[];
     color: string;
     is_periodic: boolean;
+    is_recurrent: boolean;
     startMoment: any;
     startMomentDate: string;
     startMomentTime: string;
@@ -33,14 +34,16 @@ export class Course {
     everyTwoWeek: boolean;
     originalStartMoment?: any;
     originalEndMoment?: any;
-    start?:string|Date;
-    end?: string|Date;
+    startCourse:string|Date;
+    endCourse: string|Date;
+    locked:boolean;
     constructor (obj: object, startDate?: string | object, endDate?: string | object) {
         if (obj instanceof Object) {
             for (let key in obj) {
                 this[key] = obj[key];
             }
         }
+        if (!model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.create)) this.locked = true;
         if (startDate) {
             this.startMoment = moment(startDate);
             this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
@@ -94,12 +97,12 @@ export class Course {
             teacherIds: this.teacherIds,
             classes: this.classes,
             groups: this.groups,
-            endDate: this.endDate,
-            startDate: this.startDate,
+            endDate: this.endCourse,
+            startDate: this.startCourse,
             roomLabels: this.roomLabels,
             dayOfWeek: this.dayOfWeek,
             manual: true,
-            everyWeek: this.everyTwoWeek
+            everyTwoWeek: this.everyTwoWeek
         };
         if (this._id) {
             o._id = this._id;
@@ -137,12 +140,12 @@ export class Courses {
         let courses = await http.get(uri);
         if (courses.data.length > 0) {
             this.all = courses.data.map((course) => {
-                let MyCourse = new Course(course, course.startDate, course.endDate);
-                MyCourse.subjectLabel = structure.subjects.mapping[course.subjectId];
-                MyCourse.teachers = _.map(course.teacherIds,
+                course = new Course(course, course.startDate, course.endDate);
+                course.subjectLabel = structure.subjects.mapping[course.subjectId];
+                course.teachers = _.map(course.teacherIds,
                     (ids) => { return _.findWhere(structure.teachers.all, {id: ids});
                     });
-                return MyCourse;
+                return course;
             });
             this.origin = Mix.castArrayAs(Course, courses.data);
         }
@@ -163,9 +166,10 @@ export class Courses {
                 occurrence.subjectId = course.subjectId;
                 occurrence.teacherIds = Utils.getValues(course.teachers, 'id');
                 occurrence.groups = course.groups;
-                occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
-                occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
+                occurrence.startDate = Utils.getOccurrenceStartDate(course.startCourse, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
+                occurrence.endDate = Utils.getOccurrenceEndDate(course.endCourse, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
                 occurrence.manual = true;
+                occurrence.everyTwoWeek = course.everyTwoWeek;
                 courses.push(Utils.cleanCourseForSave(occurrence));
             }
             await http.post('/edt/course', courses);

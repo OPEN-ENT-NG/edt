@@ -121,6 +121,7 @@ export class Utils {
         _c.dayOfWeek = course.dayOfWeek;
         _c.startDate = course.startMoment ? course.startMoment.format('YYYY-MM-DDTHH:mm:ss') : course.startDate;
         _c.endDate = course.endMoment ? course.endMoment.format('YYYY-MM-DDTHH:mm:ss') : course.endDate;
+
         delete _c['$$haskey'];
         return _c;
     }
@@ -134,6 +135,7 @@ export class Utils {
         course.roomLabels = occ.roomLabels;
         course.startMoment = course.startDate = moment(occ.startTime);
         course.endMoment = course.endDate = moment(occ.endTime);
+
         return course;
     }
 
