@@ -2727,13 +2727,13 @@
 	            this.startMoment = entcore_1.moment(startDate);
 	            this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
 	            this.startMomentDate = this.startMoment.format('DD/MM/YYYY');
-	            this.startMomentTime = this.startMoment.format('hh:mm');
+	            this.startMomentTime = this.startMoment.format('HH:mm');
 	        }
 	        if (endDate) {
 	            this.endMoment = entcore_1.moment(endDate);
 	            this.endCalendarHour = this.endMoment.seconds(0).millisecond(0).toDate();
 	            this.endMomentDate = this.endMoment.format('DD/MM/YYYY');
-	            this.endMomentTime = this.endMoment.format('hh:mm');
+	            this.endMomentTime = this.endMoment.format('HH:mm');
 	        }
 	    }
 	    Course.prototype.save = function () {
@@ -2855,6 +2855,9 @@
 	                        if (courses.data.length > 0) {
 	                            this.all = index_1.Utils.formatCourses(courses.data, structure);
 	                            this.origin = entcore_toolkit_1.Mix.castArrayAs(Course, courses.data);
+	                            this.all.map(function (cours) {
+	                                cours.teachers = entcore_1._.map(cours.teacherIds, function (ids) { return entcore_1._.findWhere(structure.teachers.all, { id: ids }); });
+	                            });
 	                        }
 	                        return [2 /*return*/];
 	                }
@@ -4622,7 +4625,7 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
-	                        return [4 /*yield*/, axios_1.default.get('/competences/classes?idEtablissement=' + structureId)];
+	                        return [4 /*yield*/, axios_1.default.get('/viescolaire/classes?idEtablissement=' + structureId)];
 	                    case 1:
 	                        groups = _a.sent();
 	                        this.all = entcore_toolkit_1.Mix.castArrayAs(Group, groups.data);
@@ -4713,7 +4716,7 @@
 	                switch (_a.label) {
 	                    case 0:
 	                        _a.trys.push([0, 2, , 3]);
-	                        return [4 /*yield*/, axios_1.default.get('/competences/user/list?profile=Teacher&structureId=' + structure.id)];
+	                        return [4 /*yield*/, axios_1.default.get('/viescolaire/user/list?profile=Teacher&structureId=' + structure.id)];
 	                    case 1:
 	                        teachers = _a.sent();
 	                        this.all = entcore_toolkit_1.Mix.castArrayAs(Teacher, teachers.data);
@@ -5185,7 +5188,7 @@
 	                // let endMoment = moment(course.endDate).add(moment(course.startDate).diff(course.endDate, 'days'), 'days');
 	                var endMoment = entcore_1.moment(course.startDate);
 	                endMoment.hour(entcore_1.moment(course.endDate).hour()).minute(entcore_1.moment(course.endDate).minute());
-	                for (var i = 0; i < numberWeek; i++) {
+	                for (var i = 0; i < numberWeek + 1; i++) {
 	                    var c = new index_1.Course(course, startMoment.format(), endMoment.format());
 	                    c.subjectLabel = structure.subjects.mapping[course.subjectId];
 	                    arr.push(c);
