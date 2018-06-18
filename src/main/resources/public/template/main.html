@@ -43,26 +43,26 @@
             </select>
         </div>
         <div>
-            <label for="user-list">
-                <div><i18n>utils.teachers</i18n></div>
-                <select ng-model="params.user"
-                        id="user-list"
-                        class="twelve"
-                        ng-change="params.group = null; getTimetable()"
-                        ng-options="teacher as teacher.displayName for teacher in structure.teachers.all">
-                    <option value="" disabled selected>[[translate('utils.teacher.choose.one')]]</option>
-                </select>
-            </label>
+            <div class="cell twelve-mobile twelve">
+                <multi-combo  class="twelve" title="[[translate('utils.teachers')]]" id="user-list" combo-model="structure.teachers.all"
+                              search-on="displayName" order-by="displayName" filtered-model="params.user"
+                              labels="comboLabels"  ></multi-combo>
+                <div class="select-blocks">
+                    <div ng-repeat="teacher in params.user"
+                         ng-click="dropTeacher(teacher)">[[teacher.displayName]]</div>
+                </div>
+            </div>
         </div>
         <div>
-            <label for="group-list"><i18n>utils.groups</i18n></label>
-            <select ng-model="params.group"
-                    id="group-list"
-                    class="twelve"
-                    ng-change="params.user = null; getTimetable()"
-                    ng-options="group as group.name for group in structure.groups.all">
-                <option value="" disabled selected>[[translate('utils.group.choose.one')]]</option>
-            </select>
+            <div class="cell twelve-mobile twelve">
+                <multi-combo  class="twelve" title="[[translate('utils.groups')]]" id="group-list" combo-model="structure.groups.all"
+                              search-on="name" order-by="type_groupe" filtered-model="params.group"
+                              labels="comboLabels"  ></multi-combo>
+                <div class="select-blocks">
+                    <div ng-repeat="group in params.group" class="[[group.color]]"
+                         ng-click="dropGroup(group)">[[group.name]]</div>
+                </div>
+            </div>
         </div>
         <div class="row cell" workflow="edt.create">
             <button class="twelve" ng-click="createCourse()"><i18n>edt.schedule.create</i18n></button>

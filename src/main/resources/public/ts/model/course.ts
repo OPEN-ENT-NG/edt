@@ -127,15 +127,17 @@ export class Courses {
      * @param group group. Can be null. If null, teacher needs to be provide.
      * @returns {Promise<void>} Returns a promise.
      */
-    async sync(structure: Structure, teacher: Teacher | null, group: Group | null): Promise<void> {
+    async sync(structure: Structure, teacher , group   ): Promise<void> {
         let firstDate = Utils.getFirstCalendarDay();
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
         endDate = moment(endDate).format('YYYY-MM-DD');
-        if (!structure || !teacher  && !group || !firstDate || !endDate ) return;
+        if (!structure ||  teacher.length <=0  &&  group.length<=0 || !firstDate || !endDate ) return;
         let filter = '';
-        if (!group ) filter += `teacherId=${model.me.type === USER_TYPES.personnel ? teacher.id : model.me.userId}`;
-        if (!teacher  && !!group ) filter += `group=${group.name}`;
+        if (group.length <= 0 )
+            filter += model.me.type === USER_TYPES.personnel ? this.getFilterTeacher(teacher): 'teacherId='+model.me.userId;
+        if (teacher.length <= 0  && group.length > 0 )
+            filter += this.getFilterGroup(group);
         let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
         let courses = await http.get(uri);
         if (courses.data.length > 0) {
@@ -152,6 +154,27 @@ export class Courses {
         return;
     }
 
+    getFilterTeacher = (table) => {
+        let filter  ='';
+        let name = 'teacherId=';
+        for(let i=0; i<table.length; i++){
+            filter +=  `${name}${table[i].id}`;
+            if(i !== table.length-1)
+                filter+='&';
+        }
+        return filter
+    };
+
+    getFilterGroup = (table) => {
+        let filter  ='';
+        let name = 'group=';
+        for(let i=0; i<table.length; i++){
+            filter +=  `${name}${table[i].name}`;
+            if(i !== table.length-1)
+                filter+='&';
+        }
+        return filter
+    };
     /**
      * Create course with occurrences
      * @param {Course} course course to Create

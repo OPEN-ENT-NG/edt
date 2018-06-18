@@ -1,9 +1,15 @@
 import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
-import { Structures, USER_TYPES, Course, Student, Group, Structure } from '../model';
+import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher} from '../model';
 
 export let main = ng.controller('EdtController',
     ['$scope', 'route', '$location', async function ($scope, route, $location) {
         $scope.structures = new Structures();
+        $scope.params = {
+            user: [],
+            group: [],
+            updateItem: null,
+            dateFromCalendar: null
+        };
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
         $scope.display = {
@@ -30,17 +36,20 @@ export let main = ng.controller('EdtController',
             await $scope.structure.sync();
             switch (model.me.type) {
                 case USER_TYPES.teacher : {
-                    $scope.params.user = model.me.userId;
+                    $scope.params.user = [model.me.userId];
                 }
                 break;
                 case USER_TYPES.student : {
-                    $scope.params.group = _.findWhere($scope.structure.groups.all, {id: model.me.classes[0]});
+                    $scope.params.group = _.map(model.me.classes, (groupid) => {
+                       return _.findWhere($scope.structure.groups.all, {id: groupid});
+                    });
                 }
                 break;
                 case USER_TYPES.relative : {
                     if ($scope.structure.students.all.length > 0) {
-                        let externalClassId = $scope.structure.students.all[0].classes[0];
-                        $scope.params.group = _.findWhere($scope.structure.groups.all, { externalId: externalClassId });
+                        $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
+                            return _.findWhere($scope.structure.groups.all, {id: groupid});
+                        });
                         $scope.currentStudent = $scope.structure.students.all[0];
                     }
                 }
@@ -96,8 +105,8 @@ export let main = ng.controller('EdtController',
          * @returns {Promise<void>}
          */
         $scope.getTimetable = async () => {
-            if ($scope.params.user !== null
-                && $scope.params.group !== null) {
+            if ($scope.params.user  && $scope.params.user.length > 0
+                && $scope.params.group && $scope.params.group.length > 0) {
                 notify.error('');
             } else  {
                 $scope.calendarLoader.display();
@@ -109,16 +118,9 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.getTeacherTimetable = () => {
-            $scope.params.group = null;
-            $scope.params.user = model.me.userId;
+            $scope.params.group = [];
+            $scope.params.user = [model.me.userId ];
             $scope.getTimetable();
-        };
-
-        $scope.params = {
-            user: null,
-            group: null,
-            updateItem: null,
-            dateFromCalendar: null
         };
 
         if ($scope.isRelative()) {
@@ -141,7 +143,17 @@ export let main = ng.controller('EdtController',
                 }
             });
         };
+        $scope.dropTeacher = (teacher: Teacher): void => {
+            $scope.params.user = _.without($scope.params.user, teacher);
+        };
 
+        /**
+         * Drop a group in groups list
+         * @param {Group} group Group to drop
+         */
+        $scope.dropGroup = (group: Group): void => {
+            $scope.params.group = _.without($scope.params.group, group);
+        };
         /**
          * Course creation
          */
@@ -206,13 +218,28 @@ export let main = ng.controller('EdtController',
             }
         }, true);
 
+
         $scope.$watch( () => {return  model.calendar.increment}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 initTriggers();
                 $scope.getTimetable();
             }
         }, true);
-
+        $scope.$watch( () => {return  $scope.params.user}, function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+               if(newValue.length >0) $scope.params.group = [];
+                $scope.getTimetable();
+            }
+        }, true);
+        $scope.$watch( () => {return  $scope.params.group}, async function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                if(newValue.length > 0)  $scope.params.user = [];
+                $scope.getTimetable();
+            }
+        }, true);
+        $scope.getColorClasse = (classeName) =>  {
+            _.findWhere($scope.structure.courses.all,{})
+        };
         route({
             main: () => {
                 template.open('main', 'main');
