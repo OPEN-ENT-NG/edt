@@ -1,9 +1,12 @@
 import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
 import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher} from '../model';
 
+
+
 export let main = ng.controller('EdtController',
     ['$scope', 'route', '$location', async function ($scope, route, $location) {
         $scope.structures = new Structures();
+        $scope.draggedItem ;
         $scope.params = {
             user: [],
             group: [],
@@ -38,13 +41,13 @@ export let main = ng.controller('EdtController',
                 case USER_TYPES.teacher : {
                     $scope.params.user = [model.me.userId];
                 }
-                break;
+                    break;
                 case USER_TYPES.student : {
                     $scope.params.group = _.map(model.me.classes, (groupid) => {
-                       return _.findWhere($scope.structure.groups.all, {id: groupid});
+                        return _.findWhere($scope.structure.groups.all, {id: groupid});
                     });
                 }
-                break;
+                    break;
                 case USER_TYPES.relative : {
                     if ($scope.structure.students.all.length > 0) {
                         $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
@@ -114,6 +117,8 @@ export let main = ng.controller('EdtController',
                 await $scope.structure.courses.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
                 $scope.safeApply();
+                initTriggers();
+
             }
         };
 
@@ -177,12 +182,13 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.calendarDropItem = (item) => {
-           $scope.calendarUpdateItem(item);
+            $scope.calendarUpdateItem(item);
         };
 
         $scope.calendarResizedItem = (item) => {
             $scope.calendarUpdateItem(item);
         };
+
 
 
         let initTriggers = () => {
@@ -192,16 +198,145 @@ export let main = ng.controller('EdtController',
                     $scope.createCourse();
                 }
             });
+            let $dragging = null;
+            let topPositionnement=0;
+            let $mouseInitial={};
+            let $positionSchedule={
+                top : null,
+                left :null
+            };
+            let $positionShadowSchedule = {
+                top : null,
+                left :null
+            };
+            let $initialCss = null ;
+            $('.timeslot').removeClass( 'selecting-timeslot' );
+            let initVar = () => {
+                $dragging = null;
+                $mouseInitial={};
+                $positionShadowSchedule = {
+                    top : null,
+                    left :null
+                };
+                $positionSchedule={
+                    top : null,
+                    left :null};
+                $initialCss = null ;
+            };
 
-            model.calendar.eventer.off('calendar.drop-item');
-            model.calendar.eventer.on('calendar.drop-item', (item) => {
-                $scope.calendarDropItem(item);
+
+            $(document.body).on("mousemove", function(e) {
+                if ($dragging) {
+                    $positionSchedule = {
+                        top: e.pageY - $dragging.height()/2,
+                        left: e.pageX - $dragging.width()/2
+                    };
+                    $dragging.offset($positionSchedule);
+                }
             });
-            model.calendar.eventer.off('calendar.resize-item');
-            model.calendar.eventer.on('calendar.resize-item', (item) => {
-                $scope.calendarResizedItem(item);
+            $('.timeslot')
+                .on("mousemove",(e) => drag(e) )
+                .mouseenter((e) => drag(e) );
+
+            $('hr').on('mouseover', (e) => drag(e) );
+            $('.schedule-item').css('cursor','move')
+                .mousedown((e)=>{
+                $dragging = $(e.currentTarget);
+                $('.timeslot').addClass( 'selecting-timeslot' );
+                $mouseInitial = {
+                    x: e.pageX,
+                    y: e.pageY
+                };
+                $(document).mousedown((e) => {return false;})
             });
 
+
+
+
+            $(document.body).on("mouseup", function (e) {
+                $('.timeslot').removeClass( 'selecting-timeslot' );
+                drop(e);
+                initVar();
+            });
+            let drag = (e) => {
+                if($dragging){
+                    $('.selected-timeslot').remove();
+                    let curr = $(e.currentTarget);
+                    $positionSchedule = {
+                        top: e.pageY - $dragging.height()/2,
+                        left: e.pageX - $dragging.width()/2
+                    };
+                    let currDivHr = curr.children('hr');
+                    let notFound = true;
+                    let i:number = 0;
+                    let prev = curr;
+                    let next  ;
+                    while ( notFound && i < currDivHr.length  ){
+                        next = $(currDivHr)[i];
+                        if(!($(prev).offset().top <= e.pageY && e.pageY > $(next).offset().top  ))
+                            notFound = false;
+                        prev = next;
+                        i++
+                    }
+                    let top = Math.floor($dragging.height()/2);
+                    for(let z= 0; z <= 5 ; z++){
+                        if ( ((top + z) % 10) === 0 )
+                        {
+                            top = top + z;
+                            break;
+                        }
+                        else if(((top - z) % 10) === 0){
+                            top = top - z;
+                            break;
+                        }
+                    }
+                    topPositionnement = getTopPositionnement();
+                    if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
+                         $(prev).before(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                    }else if( i >= currDivHr.length && notFound === true ){
+                         $(next).after(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                    }else{
+                         $(prev).append(`<div class="selected-timeslot"  style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                    }
+                }
+            };
+            let getTopPositionnement = () => {
+                let top = Math.floor($dragging.height()/2);
+                for(let z= 0; z <= 5 ; z++){
+                    if ( ((top + z) % 10) === 0 )
+                    {
+                        top = top + z;
+                        break;
+                    }
+                    else if(((top - z) % 10) === 0){
+                        top = top - z;
+                        break;
+                    }
+                }
+                return top;
+            };
+            let getCalendarAttributes=( selectedTimeslot )=>{
+                let day;
+
+                let indexHr = $(selectedTimeslot).prev('hr').index();
+               let dayOfweek = $(selectedTimeslot).parents('div.day').index();
+               day = model.calendar.days.all[dayOfweek];
+               let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
+               let startCourse = (day.date.hour(timeslot.beginning).minute(0).second(0)).subtract(15 * (indexHr+1)  ,'minutes').add( 15 * (topPositionnement /10),'minutes' );
+               let endCourse = ( day.date.hour(timeslot.end).minute(0).second(0)).subtract(15 * (indexHr+1)  ,'minutes').add( 15 * (topPositionnement /10),'minutes' );
+               console.log(startCourse, endCourse);
+               $scope.calendarUpdateItem($scope.draggedItem);
+            };
+            let drop = (e) => {
+                if($dragging ){
+                    let selected_timeslot  = $('.selected-timeslot');
+                    $positionShadowSchedule = selected_timeslot.offset();
+                    getCalendarAttributes(selected_timeslot);
+                    $dragging.offset($positionShadowSchedule);
+                    selected_timeslot.remove();
+                    $(document).unbind("mousedown");
+                }
+            }
         };
 
         initTriggers();
@@ -211,7 +346,6 @@ export let main = ng.controller('EdtController',
          */
         $scope.$watch( () => {return  model.calendar.firstDay}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
-                initTriggers();
                 if (moment(oldValue).format('DD/MM/YYYY') !== moment(newValue).format('DD/MM/YYYY')) {
                     $scope.getTimetable();
                 }
@@ -221,13 +355,13 @@ export let main = ng.controller('EdtController',
 
         $scope.$watch( () => {return  model.calendar.increment}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
-                initTriggers();
+
                 $scope.getTimetable();
             }
         }, true);
         $scope.$watch( () => {return  $scope.params.user}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
-               if(newValue.length >0) $scope.params.group = [];
+                if(newValue.length >0) $scope.params.group = [];
                 $scope.getTimetable();
             }
         }, true);
@@ -237,12 +371,10 @@ export let main = ng.controller('EdtController',
                 $scope.getTimetable();
             }
         }, true);
-        $scope.getColorClasse = (classeName) =>  {
-            _.findWhere($scope.structure.courses.all,{})
-        };
         route({
             main: () => {
                 template.open('main', 'main');
+                $scope.getTimetable();
             },
             create: () => {
                 let startDate = new Date();
