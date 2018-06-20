@@ -143,6 +143,7 @@ export class Courses {
         if (courses.data.length > 0) {
             this.all = courses.data.map((course) => {
                 course = new Course(course, course.startDate, course.endDate);
+                course.locked = true;
                 course.subjectLabel = structure.subjects.mapping[course.subjectId];
                 course.teachers = _.map(course.teacherIds,
                     (ids) => { return _.findWhere(structure.teachers.all, {id: ids});
