@@ -1,4 +1,4 @@
-<div ng-controller="CreationController" id="occurrences-creation">
+<div ng-controller="CreationController as child" id="occurrences-creation">
     <h1 class="centered eight row">
         <i18n ng-if="isAnUpdate">edt.schedule.update</i18n>
         <i18n ng-if="!isAnUpdate">edt.schedule.create</i18n>
@@ -110,12 +110,14 @@
                         <div class="cell twelve-mobile ten">
 
                             <i18n>from</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.startCourse" ></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.startDate" ></date-picker>
                             <i18n>to</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.endCourse"></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.endDate"></date-picker>
                         </div>
                     </div>
-
+                    <div ng-if="!validDate" class="warning  ">
+                        <i18n>edt.erreur.date.debut.date.fin.not.valid</i18n>
+                    </div>
                     <div class="row form-row">
                         <table class="twelve list-view" style="text-align: center">
                             <thead>

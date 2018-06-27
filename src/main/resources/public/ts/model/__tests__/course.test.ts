@@ -26,7 +26,7 @@ describe('[Course] Courses', () => {
         mock.onGet(`/directory/timetable/courses/${global.structureId}/${firstDate}/${endDate}?teacherId=${global.teacherId}`)
             .reply(200, data);
 
-        await courses.sync(new Structure(global.structureId), new Teacher({ id: global.teacherId }), null);
+        await courses.sync(new Structure(global.structureId), [], []);
         expect(courses.origin.length).toBe(2);
     });
 });

@@ -96,6 +96,9 @@ export class Utils {
         return moment(endDate).diff(moment(startDate)) < 0;
     }
 
+    static isRecurent (startDate: any, endDate: any): boolean {
+        return moment(endDate).diff(startDate, 'days') != 0;
+    }
     /**
      * Returns if the specified day is in the period provide in parameter
      * @param {number} dayOfWeek day of week
@@ -125,7 +128,22 @@ export class Utils {
         delete _c['$$haskey'];
         return _c;
     }
-
+    static safeApply = ($scope): Promise<any> => {
+        return new Promise((resolve) => {
+            let phase = $scope.$root.$$phase;
+            if (phase === '$apply' || phase === '$digest') {
+                if (resolve && (typeof(resolve) === 'function')) {
+                    resolve();
+                }
+            } else {
+                if (resolve && (typeof(resolve) === 'function')) {
+                    $scope.$apply(resolve);
+                } else {
+                    $scope.$apply();
+                }
+            }
+        });
+    };
     static cleanCourseValuesWithFirstOccurence(course: Course): any {
         if(!course || !course.courseOccurrences || !course.courseOccurrences.length)
             return course;

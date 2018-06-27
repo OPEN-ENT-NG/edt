@@ -104,6 +104,6 @@
   "calendar.mode.day":"Jour",
   "calendar.mode.week":"Semaine",
   "calendar.mode.month":"Mois",
-  "edt.show.quarter.hours":"Afficher les quarts d'heure"
-
+  "edt.show.quarter.hours":"Afficher les quarts d'heure",
+  "edt.erreur.date.debut.date.fin.not.valid":"La date de début doit être inférieure à la date de fin."
 }

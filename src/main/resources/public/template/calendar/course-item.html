@@ -1,6 +1,7 @@
-<div  class="schedule-item-content  [[item.color]]" ng-mousedown="draggedItem = item;">
+<div class="schedule-item-content [[item.color]]" data-id="[[item._id]]"  >
 
-    <div class="cell twelve ellipsis">[[item.subjectLabel]] <i class="edit sm-margin-right right-magnet" ng-click="calendarUpdateItem(item)" ></i> </div>
+    <div class="cell eleven ellipsis" >[[item.subjectLabel]] </div> <div class="one cell edit-icone" data-id="[[item._id]]"><i class="edit sm-margin-right right-magnet"  ></i> </div>
+
     <em class="metadata">
         <span ng-repeat="className in item.classes">[[className]]</span>
         <span ng-repeat="groupName in item.groups">[[groupName]]</span>
