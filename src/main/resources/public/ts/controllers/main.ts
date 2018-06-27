@@ -1,12 +1,11 @@
 import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
-import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher} from '../model';
+import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher, Utils} from '../model';
 
 
-
-export let main = ng.controller('EdtController',
-    ['$scope', 'route', '$location', async function ($scope, route, $location) {
+export var main = ng.controller('EdtController',
+    ['$scope', 'route', '$location','$rootScope', async  ($scope, route, $location, $rootScope) => {
         $scope.structures = new Structures();
-        $scope.draggedItem ;
+
         $scope.params = {
             user: [],
             group: [],
@@ -22,11 +21,11 @@ export let main = ng.controller('EdtController',
             show: false,
             display: () => {
                 $scope.calendarLoader.show = true;
-                $scope.safeApply();
+                Utils.safeApply($scope);
             },
             hide: () => {
                 $scope.calendarLoader.show = false;
-                $scope.safeApply();
+                Utils.safeApply($scope);
             }
         };
 
@@ -35,7 +34,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.syncStructure = async (structure: Structure) => {
             $scope.structure = structure;
-            $scope.structure.eventer.once('refresh', () => $scope.safeApply());
+            $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync();
             switch (model.me.type) {
                 case USER_TYPES.teacher : {
@@ -60,7 +59,7 @@ export let main = ng.controller('EdtController',
             if (!$scope.isPersonnel()) {
                 $scope.getTimetable();
             } else {
-                $scope.safeApply();
+                Utils.safeApply($scope);
             }
         };
 
@@ -116,15 +115,14 @@ export let main = ng.controller('EdtController',
                 $scope.structure.courses.all = [];
                 await $scope.structure.courses.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
-                $scope.safeApply();
+                await   Utils.safeApply($scope);
                 initTriggers();
-
             }
         };
 
         $scope.getTeacherTimetable = () => {
             $scope.params.group = [];
-            $scope.params.user = [model.me.userId ];
+            $scope.params.user = [model.me.userId];
             $scope.getTimetable();
         };
 
@@ -132,22 +130,7 @@ export let main = ng.controller('EdtController',
             $scope.currentStudent = null;
         }
 
-        $scope.safeApply = (): Promise<any> => {
-            return new Promise((resolve) => {
-                let phase = $scope.$root.$$phase;
-                if (phase === '$apply' || phase === '$digest') {
-                    if (resolve && (typeof(resolve) === 'function')) {
-                        resolve();
-                    }
-                } else {
-                    if (resolve && (typeof(resolve) === 'function')) {
-                        $scope.$apply(resolve);
-                    } else {
-                        $scope.$apply();
-                    }
-                }
-            });
-        };
+
         $scope.dropTeacher = (teacher: Teacher): void => {
             $scope.params.user = _.without($scope.params.user, teacher);
         };
@@ -171,24 +154,19 @@ export let main = ng.controller('EdtController',
 
         $scope.goTo = (state: string) => {
             $location.path(state);
-            $scope.safeApply();
+            Utils.safeApply($scope);
         };
 
         $scope.translate = (key: string) => lang.translate(key);
 
-        $scope.calendarUpdateItem = (item) => {
-            $scope.params.updateItem =item;
-            $scope.goTo('/create');
+        $scope.calendarUpdateItem = (itemId, start?, end?) => {
+            if(itemId) {
+                $scope.params.updateItem = itemId;
+                let url = `/edit/${itemId}`;
+                if(start && end) url += `/${start.format('x')}/${end.format('x')}`;
+                $scope.goTo(url);
+            }
         };
-
-        $scope.calendarDropItem = (item) => {
-            $scope.calendarUpdateItem(item);
-        };
-
-        $scope.calendarResizedItem = (item) => {
-            $scope.calendarUpdateItem(item);
-        };
-
 
 
         let initTriggers = () => {
@@ -200,7 +178,6 @@ export let main = ng.controller('EdtController',
             });
             let $dragging = null;
             let topPositionnement=0;
-            let $mouseInitial={};
             let $positionSchedule={
                 top : null,
                 left :null
@@ -209,11 +186,10 @@ export let main = ng.controller('EdtController',
                 top : null,
                 left :null
             };
-            let $initialCss = null ;
-            $('.timeslot').removeClass( 'selecting-timeslot' );
+            let timeslots= $('.timeslot');
+            timeslots.removeClass( 'selecting-timeslot' );
             let initVar = () => {
                 $dragging = null;
-                $mouseInitial={};
                 $positionShadowSchedule = {
                     top : null,
                     left :null
@@ -221,7 +197,7 @@ export let main = ng.controller('EdtController',
                 $positionSchedule={
                     top : null,
                     left :null};
-                $initialCss = null ;
+                timeslots.removeClass( 'selecting-timeslot' );
             };
 
 
@@ -234,25 +210,27 @@ export let main = ng.controller('EdtController',
                     $dragging.offset($positionSchedule);
                 }
             });
-            $('.timeslot')
+            timeslots
                 .on("mousemove",(e) => drag(e) )
                 .mouseenter((e) => drag(e) );
 
             $('hr').on('mouseover', (e) => drag(e) );
             $('.schedule-item').css('cursor','move')
                 .mousedown((e)=>{
-                $dragging = $(e.currentTarget);
-                $('.timeslot').addClass( 'selecting-timeslot' );
-                $mouseInitial = {
-                    x: e.pageX,
-                    y: e.pageY
-                };
-                $(document).mousedown((e) => {return false;})
+                    $dragging = $(e.currentTarget);
+
+                    $('.timeslot').addClass( 'selecting-timeslot' );
+
+                    $(document).mousedown((e) => {return false;})
+                });
+            $('div.edit-icone')
+                .css('cursor','pointer')
+                .mousedown((e) => {
+                e.stopPropagation();
+                $scope.calendarUpdateItem($(e.currentTarget).data('id'));
             });
-
-
-
-
+            $('.previous-timeslots').mousedown((e)=> {initTriggers()});
+            $('.next-timeslots').mousedown((e)=> {initTriggers()});
             $(document.body).on("mouseup", function (e) {
                 $('.timeslot').removeClass( 'selecting-timeslot' );
                 drop(e);
@@ -292,11 +270,11 @@ export let main = ng.controller('EdtController',
                     }
                     topPositionnement = getTopPositionnement();
                     if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
-                         $(prev).before(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                        $(prev).before(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
                     }else if( i >= currDivHr.length && notFound === true ){
-                         $(next).after(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                        $(next).after(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
                     }else{
-                         $(prev).append(`<div class="selected-timeslot"  style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                        $(prev).append(`<div class="selected-timeslot"  style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
                     }
                 }
             };
@@ -315,31 +293,36 @@ export let main = ng.controller('EdtController',
                 }
                 return top;
             };
-            let getCalendarAttributes=( selectedTimeslot )=>{
-                let day;
-
-                let indexHr = $(selectedTimeslot).prev('hr').index();
-               let dayOfweek = $(selectedTimeslot).parents('div.day').index();
-               day = model.calendar.days.all[dayOfweek];
-               let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
-               let startCourse = (day.date.hour(timeslot.beginning).minute(0).second(0)).subtract(15 * (indexHr+1)  ,'minutes').add( 15 * (topPositionnement /10),'minutes' );
-               let endCourse = ( day.date.hour(timeslot.end).minute(0).second(0)).subtract(15 * (indexHr+1)  ,'minutes').add( 15 * (topPositionnement /10),'minutes' );
-               console.log(startCourse, endCourse);
-               $scope.calendarUpdateItem($scope.draggedItem);
+            let getCalendarAttributes=( selectedTimeslot, selectedSchedule )=>{
+                if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
+                    let day;
+                    let indexHr = $(selectedTimeslot).prev('hr').index();
+                    let dayOfweek = $(selectedTimeslot).parents('div.day').index();
+                    day = model.calendar.days.all[dayOfweek];
+                    let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
+                    let startCourse = moment(model.calendar.firstDay);
+                    startCourse = startCourse.day(dayOfweek).hour(timeslot.beginning).minute(0).second(0);
+                    startCourse = startCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
+                    let endCourse = moment(model.calendar.firstDay);
+                    endCourse = endCourse.day(dayOfweek).hour(timeslot.end).minute(0).second(0);
+                    endCourse = endCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
+                    console.log(startCourse, endCourse);
+                    $scope.calendarUpdateItem($($(selectedSchedule).find('.schedule-item-content')).data('id'), startCourse, endCourse);
+                }
             };
             let drop = (e) => {
                 if($dragging ){
                     let selected_timeslot  = $('.selected-timeslot');
                     $positionShadowSchedule = selected_timeslot.offset();
-                    getCalendarAttributes(selected_timeslot);
+                    getCalendarAttributes(selected_timeslot, $dragging);
                     $dragging.offset($positionShadowSchedule);
                     selected_timeslot.remove();
                     $(document).unbind("mousedown");
+                    initVar()
                 }
             }
         };
 
-        initTriggers();
 
         /**
          * Subscriber to directive calendar changes event
@@ -361,7 +344,7 @@ export let main = ng.controller('EdtController',
         }, true);
         $scope.$watch( () => {return  $scope.params.user}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
-                if(newValue.length >0) $scope.params.group = [];
+                if(newValue.length > 0) $scope.params.group = [];
                 $scope.getTimetable();
             }
         }, true);
@@ -372,9 +355,12 @@ export let main = ng.controller('EdtController',
             }
         }, true);
         route({
-            main: () => {
-                template.open('main', 'main');
-                $scope.getTimetable();
+            main:  () => {
+                 $scope.getTimetable();
+                 template.open('main', 'main');
+                Utils.safeApply($scope);
+                setTimeout(function(){  initTriggers(); }, 1500);
+
             },
             create: () => {
                 let startDate = new Date();
@@ -387,22 +373,23 @@ export let main = ng.controller('EdtController',
                         endDate = dateFromCalendar.end ;
                     $scope.params.dateFromCalendar = dateFromCalendar;
                 }
-                if ($scope.params.updateItem) {
+                $scope.course = new Course({
+                    teachers: [],
+                    groups: [],
+                    courseOccurrences: [],
+                    startDate: startDate,
+                    endDate: endDate,
+                }, startDate, endDate);
+                if ($scope.structure && $scope.structures.all.length === 1)
+                    $scope.course.structureId = $scope.structure.id;
 
-                    $scope.course = new Course($scope.params.updateItem);
-                }
-                else {
-                    $scope.course = new Course({
-                        teachers: [],
-                        groups: [],
-                        courseOccurrences: [],
-                        startDate: startDate,
-                        endDate: endDate,
-                    }, startDate, endDate);
-                    if ($scope.structure && $scope.structures.all.length === 1)
-                        $scope.course.structureId = $scope.structure.id;
-                }
                 template.open('main', 'course-create');
+            },
+            edit: async  (params) => {
+                $rootScope.course =  new Course({});
+                await $rootScope.course.sync( params.idCourse );
+                template.open('main', 'course-create');
+                Utils.safeApply($scope);
             }
         });
     }]);

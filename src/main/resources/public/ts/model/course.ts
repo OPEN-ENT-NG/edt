@@ -14,7 +14,7 @@ export class Course {
     dayOfWeek: number;
     teacherIds: string[];
     subjectId: string;
-    roomLabels: string[];
+    roomLabels: string[] = [];
     classes: string[];
     groups: string[];
     color: string;
@@ -43,6 +43,7 @@ export class Course {
                 this[key] = obj[key];
             }
         }
+
         if (!model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.create)) this.locked = true;
         if (startDate) {
             this.startMoment = moment(startDate);
@@ -81,7 +82,16 @@ export class Course {
             throw e;
         }
     }
-
+    async sync (id) {
+        try {
+           let  { data } =  await http.get(`/viescolaire/common/course/${id}`);
+            data.endCourse = data.endDate;
+            data.startCourse = data.startDate;
+            Mix.extend(this, Mix.castAs(Course, new Course(data, data.startDate, data.endDate)));
+        } catch (e) {
+            notify.error('edt.notify.sync.err');
+        }
+    }
     async delete () {
         try {
             await http.delete(`/edt/course/${this._id}`);
@@ -127,7 +137,7 @@ export class Courses {
      * @param group group. Can be null. If null, teacher needs to be provide.
      * @returns {Promise<void>} Returns a promise.
      */
-    async sync(structure: Structure, teacher , group   ): Promise<void> {
+    async sync(structure: Structure, teacher: Array<Teacher> = [] , group: Array<Group> = []  ): Promise<void> {
         let firstDate = Utils.getFirstCalendarDay();
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();

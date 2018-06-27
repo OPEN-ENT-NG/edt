@@ -20,6 +20,9 @@ body.edt {
       height: 100%;
     }
   }
+  #group-list-teacher{
+    display: contents;
+  }
  .selected-timeslot{
     position : relative;
     &::after {

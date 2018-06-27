@@ -1,4 +1,4 @@
-import { ng, routes } from 'entcore';
+import {model, ng, routes, Behaviours } from 'entcore';
 import * as controllers from './controllers';
 import * as directives from './directives';
 
@@ -13,11 +13,20 @@ routes.define(($routeProvider) => {
     $routeProvider
         .when('/', {
             action: 'main'
-        })
-        .when('/create', {
-            action: 'create'
-        })
-        .otherwise({
-            redirectTo: '/'
         });
+
+    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.create)) {
+        $routeProvider.when('/create', {
+            action: 'create'
+        });
+    }
+    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+        $routeProvider
+            .when ('/edit/:idCourse/:start?/:end?',  {
+                action: 'edit'
+            });
+    }
+    $routeProvider.otherwise({
+        redirectTo: '/'
+    });
 });
