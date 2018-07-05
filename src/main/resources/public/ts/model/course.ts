@@ -67,11 +67,11 @@ export class Course {
     async create () {
         try {
             let arr = [];
-            this.teacherIds = Utils.getValues(this.teachers, 'id');
+            this.teacherIds = _.pluck(this.teachers, 'id');
             this.startDate = moment(this.startMoment).format('YYYY-MM-DDTHH:mm:ss');
             this.endDate = moment(this.endMoment).format('YYYY-MM-DDTHH:mm:ss');
-            this.classes = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-            this.groups = Utils.getValues(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+            this.classes = _.pluck(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
+            this.groups = _.pluck(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
             this.startDate = Utils.mapStartMomentWithDayOfWeek(this.startDate, this.dayOfWeek);
             arr.push(this.toJSON());
             await http.post('/edt/course', arr);
@@ -198,10 +198,10 @@ export class Courses {
                 occurrence = course.courseOccurrences[i].toJSON();
                 occurrence.structureId = course.structureId;
                 occurrence.subjectId = course.subjectId;
-                occurrence.teacherIds = Utils.getValues(course.teachers, 'id');
+                occurrence.teacherIds = _.pluck(course.teachers, 'id');
                 occurrence.groups = course.groups;
-                occurrence.startDate = Utils.getOccurrenceStartDate(course.startCourse, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
-                occurrence.endDate = Utils.getOccurrenceEndDate(course.endCourse, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
+                occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
+                occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
                 occurrence.manual = true;
                 occurrence.everyTwoWeek = course.everyTwoWeek;
                 courses.push(Utils.cleanCourseForSave(occurrence));

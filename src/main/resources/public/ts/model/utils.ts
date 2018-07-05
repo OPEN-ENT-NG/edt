@@ -3,19 +3,7 @@ import { Course, Structure } from './index';
 
 export class Utils {
 
-    /**
-     * Returns values based on value in parameter.
-     * @param {any[]} values values values containing objects
-     * @param {string} valueName valueName
-     * @returns {string[]} tring array containg names
-     */
-    static getValues (values: any[], valueName: string): string[] {
-        let list: string[] = [];
-        for (let i = 0; i < values.length; i++) {
-            list.push(values[i][valueName]);
-        }
-        return list;
-    }
+
 
     /**
      * Returns a map containing class and functional groups type ids
@@ -37,7 +25,7 @@ export class Utils {
      */
     static getOccurrenceDate(date: string | object, time: Date, dayOfWeek: number): any {
         let occurrenceDate = moment(date),
-        occurrenceDay: number = parseInt(occurrenceDate.day());
+            occurrenceDay: number = parseInt(occurrenceDate.day());
         if (occurrenceDay !== dayOfWeek) {
             let nextDay: number = occurrenceDay > dayOfWeek ?
                 dayOfWeek + 7 - occurrenceDay :
@@ -119,8 +107,9 @@ export class Utils {
 
     static cleanCourseForSave(course: Course): any {
         let _c = Course.prototype.toJSON.call(course);
-        _c.classes = Utils.getValues(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-        _c.groups = Utils.getValues(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+        _c.classes = _.pluck(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
+        _c.groups = _.pluck(_.where(course.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
+        _c.teacherIds = _.pluck(course.teachers, 'id' );
         _c.dayOfWeek = course.dayOfWeek;
         _c.startDate = course.startMoment ? course.startMoment.format('YYYY-MM-DDTHH:mm:ss') : course.startDate;
         _c.endDate = course.endMoment ? course.endMoment.format('YYYY-MM-DDTHH:mm:ss') : course.endDate;
@@ -128,21 +117,17 @@ export class Utils {
         delete _c['$$haskey'];
         return _c;
     }
-    static safeApply = ($scope): Promise<any> => {
-        return new Promise((resolve) => {
-            let phase = $scope.$root.$$phase;
-            if (phase === '$apply' || phase === '$digest') {
-                if (resolve && (typeof(resolve) === 'function')) {
-                    resolve();
-                }
-            } else {
-                if (resolve && (typeof(resolve) === 'function')) {
-                    $scope.$apply(resolve);
-                } else {
-                    $scope.$apply();
-                }
+
+    static safeApply($scope: any): any {
+        if ( $scope.$root ) {
+            let phase = $scope.$root.$$phase ;
+            if ( phase !== '$apply' && phase !== '$digest') {
+                $scope.$apply();
             }
-        });
+        } else {
+            setTimeout(()=>{Utils.safeApply($scope); }, 2000);
+        }
+
     };
     static cleanCourseValuesWithFirstOccurence(course: Course): any {
         if(!course || !course.courseOccurrences || !course.courseOccurrences.length)
@@ -200,7 +185,7 @@ export class Utils {
 
     static getFirstCalendarDay () :moment {
         return model.calendar.firstDay;
-}
+    }
 
     static getLastCalendarDay () :moment {
         return moment(model.calendar.firstDay).add(1, model.calendar.increment+'s');

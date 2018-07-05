@@ -2,10 +2,9 @@ import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } fro
 import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher, Utils} from '../model';
 
 
-export var main = ng.controller('EdtController',
-    ['$scope', 'route', '$location','$rootScope', async  ($scope, route, $location, $rootScope) => {
+export let main = ng.controller('EdtController',
+    ['$scope', 'route', '$location', async  ($scope, route, $location ) => {
         $scope.structures = new Structures();
-
         $scope.params = {
             user: [],
             group: [],
@@ -228,6 +227,7 @@ export var main = ng.controller('EdtController',
                 .mousedown((e) => {
                 e.stopPropagation();
                 $scope.calendarUpdateItem($(e.currentTarget).data('id'));
+                $(e.currentTarget).unbind('mousedown');
             });
             $('.previous-timeslots').mousedown((e)=> {initTriggers()});
             $('.next-timeslots').mousedown((e)=> {initTriggers()});
@@ -306,7 +306,6 @@ export var main = ng.controller('EdtController',
                     let endCourse = moment(model.calendar.firstDay);
                     endCourse = endCourse.day(dayOfweek).hour(timeslot.end).minute(0).second(0);
                     endCourse = endCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
-                    console.log(startCourse, endCourse);
                     $scope.calendarUpdateItem($($(selectedSchedule).find('.schedule-item-content')).data('id'), startCourse, endCourse);
                 }
             };
@@ -384,10 +383,11 @@ export var main = ng.controller('EdtController',
                     $scope.course.structureId = $scope.structure.id;
 
                 template.open('main', 'course-create');
+                Utils.safeApply($scope);
             },
             edit: async  (params) => {
-                $rootScope.course =  new Course({});
-                await $rootScope.course.sync( params.idCourse );
+                $scope.course =  new Course({});
+                await $scope.course.sync( params.idCourse );
                 template.open('main', 'course-create');
                 Utils.safeApply($scope);
             }
