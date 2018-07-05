@@ -4,7 +4,7 @@ body.edt {
   @import './specifics/select';
   @import './specifics/utils';
   @import './specifics/custom';
-  @import './specifics/switch';
+
 
   div.selecting-timeslot{
     position : relative;
@@ -90,12 +90,17 @@ body.edt {
     background: $grey !important;
     color : $white !important;
   }
+  span.tick:before {
+    height: 20px !important;
+    width: 20px;
+    margin-top: 0px !important;
+  }
 }
 
 .edt-settings {
   @import './specifics/loader';
 
-  @import './specifics/switch';
+
   table {
     th {
       i::before {

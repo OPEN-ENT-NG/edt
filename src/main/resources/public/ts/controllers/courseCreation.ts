@@ -2,13 +2,13 @@ import { ng, _, model, moment, notify } from 'entcore';
 import { DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course } from '../model';
 
 export let creationController = ng.controller('CreationController',
-    ['$scope', '$location','$rootScope','$routeParams', function ($scope, $location, $rootScope, $routeParams) {
+    ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
+
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
         $scope.courseOccurrenceForm = new CourseOccurrence(); //Init courseOccurrence needed for the table form
         $scope.isAnUpdate = false;
         $scope.is_recurrent = false;
-        $scope.course  =$rootScope.course;
         /**
          * Init Courses
          */
@@ -23,15 +23,18 @@ export let creationController = ng.controller('CreationController',
             $scope.course.courseOccurrences = [];
             $scope.course.teachers = [];
             for (let i = 0; i < $scope.course.teacherIds.length; i++) {
-                $scope.course.teachers.push(_.findWhere($scope.structure.teachers.all, {id: $scope.course.teacherIds[i]}));
+                let teacher = _.findWhere($scope.structure.teachers.all, {id: $scope.course.teacherIds[i]});
+                if(teacher) $scope.course.teachers.push(teacher);
             }
             let groups = $scope.course.groups;
             $scope.course.groups = [];
             for (let i = 0; i < groups.length; i++) {
-                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, {name: groups[i]}));
+               let group = _.findWhere($scope.structure.groups.all, {name: groups[i]});
+               if(group) $scope.course.groups.push(group);
             }
             for (let i = 0; i < $scope.course.classes.length; i++) {
-                $scope.course.groups.push(_.findWhere($scope.structure.groups.all, {name: $scope.course.classes[i]}));
+                let classe = _.findWhere($scope.structure.groups.all, {name: $scope.course.classes[i]});
+               if(classe) $scope.course.groups.push(classe);
             }
 
             if ($scope.is_recurrent) {
@@ -53,7 +56,7 @@ export let creationController = ng.controller('CreationController',
             }
             else{
                 $scope.courseOccurrenceForm.startTime =  moment( $scope.course.beginning).seconds(0).millisecond(0).toDate();
-                $scope.courseOccurrenceForm.endTime =moment($scope.course.end).seconds(0).millisecond(0).toDate();
+                $scope.courseOccurrenceForm.endTime = moment( $scope.course.end).seconds(0).millisecond(0).toDate();
                 $scope.courseOccurrenceForm.dayOfWeek = moment( $scope.course.beginning).day();
             }
 
@@ -116,8 +119,9 @@ export let creationController = ng.controller('CreationController',
          * Function canceling course creation
          */
         $scope.cancelCreation = () => {
-            $scope.goTo('/');
             delete $scope.course;
+            $scope.goTo('/');
+
         };
 
         /**
@@ -214,7 +218,6 @@ export let creationController = ng.controller('CreationController',
             }
             delete $scope.course;
             $scope.goTo('/');
-            $scope.getTimetable();
         };
 
         /**
@@ -253,7 +256,7 @@ export let creationController = ng.controller('CreationController',
         $scope.dropCourse = async (course: Course ) => {
             if( $scope.canDelete(course) ) {
                 await course.delete();
-                delete $scope.course;
+                delete  $scope.course;
                 $scope.goTo('/');
                 $scope.getTimetable();
             }
