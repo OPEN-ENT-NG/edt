@@ -55,8 +55,13 @@ export let creationController = ng.controller('CreationController',
                 $scope.courseOccurrenceForm.dayOfWeek = moment( $routeParams.start, 'x').day();
             }
             else{
-                $scope.courseOccurrenceForm.startTime =  moment( $scope.course.beginning).seconds(0).millisecond(0).toDate();
-                $scope.courseOccurrenceForm.endTime = moment( $scope.course.end).seconds(0).millisecond(0).toDate();
+                let start =  moment( $scope.course.beginning).seconds(0).millisecond(0);
+                start = start.add((15 - (start.minute() % 15)), "minutes");
+
+                $scope.courseOccurrenceForm.startTime =  start.toDate();
+                let end = start.seconds(0).milliseconds(0).add(1, 'hours').format('x');
+                $scope.courseOccurrenceForm.endTime = new Date();
+                $scope.courseOccurrenceForm.endTime.setTime(end);
                 $scope.courseOccurrenceForm.dayOfWeek = moment( $scope.course.beginning).day();
             }
 
