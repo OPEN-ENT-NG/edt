@@ -1,5 +1,6 @@
 {
   "edt.title": "Edt",
+  "edt.fullTitle": "Emploi du temps",
   "edt.notify.saved": "La donnée a été sauvegardée",
   "edt.notify.modified": "La donnée a été modifiée",
   "edt.notify.deleted": "La donnée a été supprimée",
@@ -63,6 +64,7 @@
   "edt.type.recurrent": "Récurrent",
   "edt.utils.configuration": "Configuration",
   "edt.utils.type": "type",
+  "edt.utils.display_mode": "Mode d'affichage",
   "edt.utils.create": "Créer",
   "edt.utils.add": "Ajouter",
   "edt.utils.cancel": "Annuler",
