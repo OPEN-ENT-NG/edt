@@ -1,2 +1,2 @@
 export * from './main';
-export * from './courseCreation';
+export * from './manageCourse';

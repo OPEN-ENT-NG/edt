@@ -27,7 +27,6 @@ export const SETTINGS_SNIPPLET = {
             this.openExclusionForm(new Behaviours.applicationsBehaviours.edt.model.Exclusion(this.structure.id));
         },
         openExclusionForm: function (exclusion: Exclusion) {
-            console.log('opening');
             this.current.exclusion = exclusion;
             if (exclusion.id) {
                 this.current.tmpExclusion = new Exclusion();
