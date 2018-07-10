@@ -1,7 +1,7 @@
 import { ng, _, model, moment, notify } from 'entcore';
 import { DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course } from '../model';
 
-export let creationController = ng.controller('CreationController',
+export let manageCourseCtrl = ng.controller('manageCourseCtrl',
     ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
 
         $scope.daysOfWeek = DAYS_OF_WEEK;

@@ -389,13 +389,13 @@ export let main = ng.controller('EdtController',
                 if ($scope.structure && $scope.structures.all.length === 1)
                     $scope.course.structureId = $scope.structure.id;
 
-                template.open('main', 'course-create');
+                template.open('main', 'manage-course');
                 Utils.safeApply($scope);
             },
             edit: async  (params) => {
                 $scope.course =  new Course({});
                 await $scope.course.sync( params.idCourse );
-                template.open('main', 'course-create');
+                template.open('main', 'manage-course');
                 Utils.safeApply($scope);
             }
         });
