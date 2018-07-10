@@ -374,14 +374,19 @@ export let main = ng.controller('EdtController',
                 if (model && model.calendar && model.calendar.newItem) {
                     let dateFromCalendar = model.calendar.newItem;
                     if (dateFromCalendar.beginning)
-                        startDate = dateFromCalendar.beginning;
+                        startDate =  dateFromCalendar.beginning.minutes(0);
+                        startDate =  moment(startDate).add((15 - (dateFromCalendar.beginning.minute() % 15)), "minutes");
+                        startDate =  moment(startDate).subtract(2 , "hour");
                     if (dateFromCalendar.end)
-                        endDate = dateFromCalendar.end ;
-                    $scope.params.dateFromCalendar = dateFromCalendar;
+                        endDate = dateFromCalendar.end.minutes(0);
+                        endDate =  moment(endDate).add((15 - (dateFromCalendar.end.minute() % 15)), "minutes");
+                    endDate = moment( endDate).subtract(2, 'hour');
+                    $scope.params.dateFromCalendar = {beginning : startDate, end : endDate};
+                    delete model.calendar.newItem
                 }
                 $scope.course = new Course({
-                    teachers: [],
-                    groups: [],
+                    teachers: _.clone($scope.params.user),
+                    groups: _.clone($scope.params.group),
                     courseOccurrences: [],
                     startDate: startDate,
                     endDate: endDate,
