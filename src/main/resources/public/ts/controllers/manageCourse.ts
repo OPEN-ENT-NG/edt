@@ -236,12 +236,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.teachers.length > 0
                 && $scope.course.groups.length > 0
                 && $scope.course.subjectId !== undefined
-                && $scope.validDate
                 && (
                     (
                         $scope.is_recurrent
                         && $scope.course.courseOccurrences
                         && $scope.course.courseOccurrences.length > 0
+                        && $scope.validDate
                     )
                     ||
                     (
