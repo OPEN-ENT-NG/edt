@@ -200,7 +200,7 @@ export class Courses {
                 occurrence = course.courseOccurrences[i].toJSON();
                 occurrence.structureId = course.structureId;
                 occurrence.subjectId = course.subjectId;
-                occurrence.teacherIds = _.pluck(course.teachers, 'id');
+                occurrence.teachers = course.teachers;
                 occurrence.groups = course.groups;
                 occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
                 occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
