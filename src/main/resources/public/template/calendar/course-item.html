@@ -1,6 +1,11 @@
 <div class="schedule-item-content [[item.color]]" data-id="[[item._id]]"  >
-
-    <div class="cell eleven ellipsis" >[[item.subjectLabel]] </div> <div class="one cell edit-icone" data-id="[[item._id]]"><i class="edit sm-margin-right right-magnet"  ></i> </div>
+    <div ng-if="isPersonnel()">
+        <div class="cell eleven ellipsis" >[[item.subjectLabel]] </div>
+        <div class="one cell edit-icone" data-id="[[item._id]]" ><i class="edit sm-margin-right right-magnet"  ></i> </div>
+    </div>
+    <div ng-if="!isPersonnel()">
+        <div class="cell twelve ellipsis" >[[item.subjectLabel]] </div>
+    </div>
 
     <em class="metadata">
         <span ng-repeat="className in item.classes">[[className]]</span>

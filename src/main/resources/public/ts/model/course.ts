@@ -180,9 +180,11 @@ export class Courses {
         let filter  ='';
         let name = 'group=';
         for(let i=0; i<table.length; i++){
+            if(table[i]){
             filter +=  `${name}${table[i].name}`;
             if(i !== table.length-1)
                 filter+='&';
+            }
         }
         return filter
     };
