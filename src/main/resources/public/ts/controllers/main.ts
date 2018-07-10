@@ -169,7 +169,7 @@ export let main = ng.controller('EdtController',
 
 
         let initTriggers = () => {
-            if ( $scope.isTeacher || $scope.isStudent())
+            if ( $scope.isTeacher() || $scope.isStudent())
                 return ;
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
@@ -353,6 +353,11 @@ export let main = ng.controller('EdtController',
             if (newValue !== oldValue) {
                 if(newValue.length > 0)  $scope.params.user = [];
                 $scope.getTimetable();
+            }
+        }, true);
+        $scope.$watch( () => {return model.calendar.timeSlots.all}, async function (newValue, oldValue) {
+            if (newValue !== oldValue) {
+                setTimeout(function(){  initTriggers(); }, 1500);
             }
         }, true);
         route({
