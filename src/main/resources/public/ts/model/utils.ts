@@ -16,6 +16,9 @@ export class Utils {
         };
     }
 
+    static isValidDate (start , end ) : boolean {
+        return moment(start).diff(moment(end)) < 0;
+    };
 
 
     /**
