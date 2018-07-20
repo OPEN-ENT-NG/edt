@@ -1,5 +1,5 @@
 import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
-import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher, Utils} from '../model';
+import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher, Utils, UtilDragAndDrop} from '../model';
 
 
 export let main = ng.controller('EdtController',
@@ -56,7 +56,7 @@ export let main = ng.controller('EdtController',
                 }
             }
             if (!$scope.isPersonnel()) {
-                $scope.getTimetable();
+                $scope.syncCourses();
             } else {
                 Utils.safeApply($scope);
             }
@@ -105,7 +105,7 @@ export let main = ng.controller('EdtController',
          * Get timetable bases on $scope.params object
          * @returns {Promise<void>}
          */
-        $scope.getTimetable = async () => {
+        $scope.syncCourses = async () => {
             if ($scope.params.user  && $scope.params.user.length > 0
                 && $scope.params.group && $scope.params.group.length > 0) {
                 notify.error('');
@@ -122,7 +122,7 @@ export let main = ng.controller('EdtController',
         $scope.getTeacherTimetable = () => {
             $scope.params.group = [];
             $scope.params.user = [model.me.userId];
-            $scope.getTimetable();
+            $scope.syncCourses();
         };
 
         if ($scope.isRelative()) {
@@ -177,151 +177,55 @@ export let main = ng.controller('EdtController',
                     $scope.createCourse();
                 }
             });
+            // --Start -- Calendar Drag and Drop
             let $dragging = null;
-            let topPositionnement=0;
-            let $positionSchedule={
-                top : null,
-                left :null
-            };
-            let $positionShadowSchedule = {
-                top : null,
-                left :null
-            };
-            let timeslots= $('.timeslot');
-            timeslots.removeClass( 'selecting-timeslot' );
+            let topPositionnement = 0;
+
+            let $timeslots= $('calendar .timeslot');
+            $timeslots.removeClass( 'selecting-timeslot' );
             let initVar = () => {
                 $dragging = null;
-                $positionShadowSchedule = {
-                    top : null,
-                    left :null
-                };
-                $positionSchedule={
-                    top : null,
-                    left :null};
-                timeslots.removeClass( 'selecting-timeslot' );
+                topPositionnement = 0;
+                $timeslots.removeClass( 'selecting-timeslot' );
             };
 
-
-            $(document.body).on("mousemove", function(e) {
-                if ($dragging) {
-                    $positionSchedule = {
-                        top: e.pageY - $dragging.height()/2,
-                        left: e.pageX - $dragging.width()/2
-                    };
-                    $dragging.offset($positionSchedule);
-                }
-            });
-            timeslots
-                .on("mousemove",(e) => drag(e) )
-                .mouseenter((e) => drag(e) );
-
-            $('hr').on('mouseover', (e) => drag(e) );
-            $('.schedule-item').css('cursor','move')
-                .mousedown((e)=>{
-                    $dragging = $(e.currentTarget);
-
-                    $('.timeslot').addClass( 'selecting-timeslot' );
-
-                    $(document).mousedown((e) => {return false;})
+            $('calendar .schedule-item')
+                .css('cursor','move')
+                .mousedown((e)=>  {
+                    $dragging = UtilDragAndDrop.takeSchedule(e,$timeslots);
+                    let calendar = $('calendar');
+                    calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                    calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
                 });
-            $('div.edit-icone')
+
+            $timeslots
+                .mousemove((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging))
+                .mouseenter((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
+
+            $('calendar hr')
+                .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
+
+            $('calendar div.edit-icone')
                 .css('cursor','pointer')
                 .mousedown((e) => {
-                e.stopPropagation();
-                $scope.calendarUpdateItem($(e.currentTarget).data('id'));
-                $(e.currentTarget).unbind('mousedown');
-            });
-            $('.previous-timeslots').mousedown((e)=> {initTriggers()});
-            $('.next-timeslots').mousedown((e)=> {initTriggers()});
-            $(document.body).on("mouseup", function (e) {
-                $('.timeslot').removeClass( 'selecting-timeslot' );
-                drop(e);
-                initVar();
-            });
-            let drag = (e) => {
+                    e.stopPropagation();
+                    $scope.calendarUpdateItem($(e.currentTarget).data('id'));
+                    $(e.currentTarget).unbind('mousedown');
+                });
+
+            $('calendar')
+                .mouseup(  (e) => {
                 if($dragging){
-                    $('.selected-timeslot').remove();
-                    let curr = $(e.currentTarget);
-                    $positionSchedule = {
-                        top: e.pageY - $dragging.height()/2,
-                        left: e.pageX - $dragging.width()/2
-                    };
-                    let currDivHr = curr.children('hr');
-                    let notFound = true;
-                    let i:number = 0;
-                    let prev = curr;
-                    let next  ;
-                    while ( notFound && i < currDivHr.length  ){
-                        next = $(currDivHr)[i];
-                        if(!($(prev).offset().top <= e.pageY && e.pageY > $(next).offset().top  ))
-                            notFound = false;
-                        prev = next;
-                        i++
-                    }
-                    let top = Math.floor($dragging.height()/2);
-                    for(let z= 0; z <= 5 ; z++){
-                        if ( ((top + z) % 10) === 0 )
-                        {
-                            top = top + z;
-                            break;
-                        }
-                        else if(((top - z) % 10) === 0){
-                            top = top - z;
-                            break;
-                        }
-                    }
-                    topPositionnement = getTopPositionnement();
-                    if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
-                        $(prev).before(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
-                    }else if( i >= currDivHr.length && notFound === true ){
-                        $(next).after(`<div class="selected-timeslot" style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
-                    }else{
-                        $(prev).append(`<div class="selected-timeslot"  style="height: ${$dragging.height()}px; top:-${topPositionnement}px;"></div>`);
-                    }
+                    $('.timeslot').removeClass( 'selecting-timeslot' );
+                    let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement);
+                    $scope.calendarUpdateItem(coursItem.itemId, coursItem.start, coursItem.end);
+                    initVar();
                 }
-            };
-            let getTopPositionnement = () => {
-                let top = Math.floor($dragging.height()/2);
-                for(let z= 0; z <= 5 ; z++){
-                    if ( ((top + z) % 10) === 0 )
-                    {
-                        top = top + z;
-                        break;
-                    }
-                    else if(((top - z) % 10) === 0){
-                        top = top - z;
-                        break;
-                    }
-                }
-                return top;
-            };
-            let getCalendarAttributes=( selectedTimeslot, selectedSchedule )=>{
-                if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
-                    let day;
-                    let indexHr = $(selectedTimeslot).prev('hr').index();
-                    let dayOfweek = $(selectedTimeslot).parents('div.day').index();
-                    day = model.calendar.days.all[dayOfweek];
-                    let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
-                    let startCourse = moment(model.calendar.firstDay);
-                    startCourse = startCourse.day(dayOfweek).hour(timeslot.beginning).minute(0).second(0);
-                    startCourse = startCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
-                    let endCourse = moment(model.calendar.firstDay);
-                    endCourse = endCourse.day(dayOfweek).hour(timeslot.end).minute(0).second(0);
-                    endCourse = endCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
-                    $scope.calendarUpdateItem($($(selectedSchedule).find('.schedule-item-content')).data('id'), startCourse, endCourse);
-                }
-            };
-            let drop = (e) => {
-                if($dragging ){
-                    let selected_timeslot  = $('.selected-timeslot');
-                    $positionShadowSchedule = selected_timeslot.offset();
-                    getCalendarAttributes(selected_timeslot, $dragging);
-                    $dragging.offset($positionShadowSchedule);
-                    selected_timeslot.remove();
-                    $(document).unbind("mousedown");
-                    initVar()
-                }
-            }
+            });
+
+            $('calendar .previous-timeslots').mousedown((e)=> {initTriggers()});
+            $('calendar .next-timeslots').mousedown((e)=> {initTriggers()});
+            // --End -- Calendar Drag and Drop
         };
 
 
@@ -331,7 +235,7 @@ export let main = ng.controller('EdtController',
         $scope.$watch( () => {return  model.calendar.firstDay}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 if (moment(oldValue).format('DD/MM/YYYY') !== moment(newValue).format('DD/MM/YYYY')) {
-                    $scope.getTimetable();
+                    $scope.syncCourses();
                 }
             }
         }, true);
@@ -340,19 +244,19 @@ export let main = ng.controller('EdtController',
         $scope.$watch( () => {return  model.calendar.increment}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
 
-                $scope.getTimetable();
+                $scope.syncCourses();
             }
         }, true);
         $scope.$watch( () => {return  $scope.params.user}, function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 if(newValue.length > 0) $scope.params.group = [];
-                $scope.getTimetable();
+                $scope.syncCourses();
             }
         }, true);
         $scope.$watch( () => {return  $scope.params.group}, async function (newValue, oldValue) {
             if (newValue !== oldValue) {
                 if(newValue.length > 0)  $scope.params.user = [];
-                $scope.getTimetable();
+                $scope.syncCourses();
             }
         }, true);
         $scope.$watch( () => {return model.calendar.timeSlots.all}, async function (newValue, oldValue) {
@@ -362,8 +266,8 @@ export let main = ng.controller('EdtController',
         }, true);
         route({
             main:  () => {
-                 $scope.getTimetable();
-                 template.open('main', 'main');
+                $scope.syncCourses();
+                template.open('main', 'main');
                 Utils.safeApply($scope);
                 setTimeout(function(){  initTriggers(); }, 1500);
 

@@ -16,6 +16,8 @@ export class Utils {
         };
     }
 
+
+
     /**
      * Get format occurrence date based on a date, a time and a day of week
      * @param {string | Date} date date
