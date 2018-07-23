@@ -1,5 +1,5 @@
 <article class="tooltip-cours " >
-    <div class="header cell twelve ellipsis [[item.color]]">[[item.subjectLabel]]</div>
+    <div class="header cell twelve ellipsis [[item.color]]">[[item.course.subjectLabel]]</div>
     <div>
         <span>
             [[item.startMomentTime]] - [[item.endMomentTime]]
@@ -7,11 +7,13 @@
 
     </div>
     <div>
-        <span ng-repeat="teacher in item.teachers">[[teacher.displayName]] </span>
+        <span ng-repeat="teacher in item.course.teachers">[[teacher.displayName]] </span>
     </div>
     <em class="metadata">
-        <span ng-repeat="className in item.classes">[[className]]</span>
-        <span ng-repeat="groupName in item.groups">[[groupName]]</span>
+        <span ng-repeat="className in item.course.classes">[[className]]</span>
+        <span ng-repeat="groupName in item.course.groups">[[groupName]]</span>
     </em>
-    <div ng-if = "item.roomLabels && item.roomLabels != [''] && item.roomLabels.length > 0"> <i18n>edt.utils.room</i18n>: <span ng-repeat="roomLabel in item.roomLabels">[[roomLabel]] </span> </div>
+    <div ng-if = "item.course.roomLabels && item.course.roomLabels != [''] && item.course.roomLabels.length > 0">
+        <i18n>edt.utils.room</i18n>: <span ng-repeat="roomLabel in item.course.roomLabels">[[roomLabel]] </span>
+    </div>
 </article>

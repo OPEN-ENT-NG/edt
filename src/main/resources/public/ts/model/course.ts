@@ -1,80 +1,59 @@
 import { model, moment, _, notify, Behaviours } from 'entcore';
 import http from 'axios';
 import { Mix } from 'entcore-toolkit';
-import { USER_TYPES, Structure, Teacher, Group, CourseOccurrence, Utils} from './index';
+import {CourseOccurrence, Group, Teacher, Utils} from './index';
+import {Structure} from "./structure";
 
 
 
 export class Course {
     _id: string;
-    _occurenceId?: string;
-    structureId: string;
-    startDate: string | object;
-    endDate: string | object;
-    dayOfWeek: number;
-    teacherIds: string[];
-    subjectId: string;
+    classes: string[] = [];
+    groups: string[] | Group [] = [];
+    teachers: Teacher [] = [];
+    subjectLabel : string = '' ;
+
+    dayOfWeek: number = null;
+    endDate:string | object = undefined;
+    startDate: string | object = undefined;
+
+    everyTwoWeek:boolean = undefined;
+    structureId: string = undefined;
+    teacherIds: string[]= [];
+    subjectId: string = '';
     roomLabels: string[] = [];
-    classes: string[];
-    groups: string[];
-    color: string;
-    is_periodic: boolean;
-    is_recurrent: boolean;
-    startMoment: any;
-    startMomentDate: string;
-    startMomentTime: string;
-    startCalendarHour: Date;
-    endCalendarHour: Date;
-    endMoment: any;
-    endMomentDate: string;
-    endMomentTime: string;
-    subjectLabel: string;
-    courseOccurrences: CourseOccurrence[];
-    teachers: Teacher[];
-    everyTwoWeek: boolean;
-    originalStartMoment?: any;
-    originalEndMoment?: any;
-    startCourse:string|Date;
-    endCourse: string|Date;
-    locked:boolean;
-    constructor (obj: object, startDate?: string | object, endDate?: string | object) {
-        if (obj instanceof Object) {
+    courseOccurrences : CourseOccurrence[] = [];
+    created: string = '';
+    modified: string = '';
+
+    is_recurrent:boolean = undefined;
+    canDelete:boolean;
+
+    constructor (obj?: object) {
+        if (obj && obj instanceof Object) {
             for (let key in obj) {
                 this[key] = obj[key];
             }
-        }
-
-        if (!model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.create)) this.locked = true;
-        if (startDate) {
-            this.startMoment = moment(startDate);
-            this.startCalendarHour = this.startMoment.seconds(0).millisecond(0).toDate();
-            this.startMomentDate = this.startMoment.format('DD/MM/YYYY');
-            this.startMomentTime = this.startMoment.format('HH:mm');
-        }
-        if (endDate) {
-            this.endMoment = moment(endDate);
-            this.endCalendarHour = this.endMoment.seconds(0).millisecond(0).toDate();
-            this.endMomentDate = this.endMoment.format('DD/MM/YYYY');
-            this.endMomentTime = this.endMoment.format('HH:mm');
+            this.is_recurrent = this.isRecurrent();
         }
     }
 
     async save () {
-        await this.create();
-        return;
-    }
+        if (this._id) await this.update();
+        else await this.create();
 
+    }
+    async update () {
+        try {
+            await http.put('/edt/course', [this.toJSON()]);
+            return;
+        } catch (e) {
+            notify.error('edt.notify.update.err');
+        }
+    }
     async create () {
         try {
-            let arr = [];
-            this.teacherIds = _.pluck(this.teachers, 'id');
-            this.startDate = moment(this.startMoment).format('YYYY-MM-DDTHH:mm:ss');
-            this.endDate = moment(this.endMoment).format('YYYY-MM-DDTHH:mm:ss');
-            this.classes = _.pluck(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name');
-            this.groups = _.pluck(_.where(this.groups, { type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name');
-            this.startDate = Utils.mapStartMomentWithDayOfWeek(this.startDate, this.dayOfWeek);
-            arr.push(this.toJSON());
-            await http.post('/edt/course', arr);
+            await http.post('/edt/course', [this.toJSON()]);
             return;
         } catch (e) {
             notify.error('edt.notify.create.err');
@@ -82,16 +61,29 @@ export class Course {
             throw e;
         }
     }
-    async sync (id) {
+    async sync (id, structure?: Structure) {
         try {
            let  { data } =  await http.get(`/viescolaire/common/course/${id}`);
-            data.endCourse = data.endDate;
-            data.startCourse = data.startDate;
-            Mix.extend(this, Mix.castAs(Course, new Course(data, data.startDate, data.endDate)));
+           Mix.extend(this, Mix.castAs(Course, new Course(data)));
+           this.canDelete = this.canIDeleteCourse();
+           if(structure) this.mapWithStructure(structure);
+
         } catch (e) {
             notify.error('edt.notify.sync.err');
         }
     }
+    async mapWithStructure  (structure : Structure) {
+        this.teachers = _.map(this.teacherIds,(id) => {
+            let teacher = _.findWhere(structure.teachers.all, {id: id});
+            if(teacher) return teacher;
+        });
+        this.groups = _.map( _.union(this.groups, this.classes), (groupName) => {
+            if( typeof(groupName) === 'string'){
+              let group = _.findWhere(structure.groups.all, {name: groupName});
+              if(group) return group;
+            }
+        });
+    };
     async delete () {
         try {
             await http.delete(`/edt/course/${this._id}`);
@@ -104,110 +96,62 @@ export class Course {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
-            teacherIds: this.teacherIds,
-            classes: this.classes,
-            groups: this.groups,
-            endDate: this.endCourse,
-            startDate: this.startCourse,
+            teacherIds: _.pluck(this.teachers, 'id' ),
+            classes : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
+            groups : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name'),
+            endDate: moment( this.endDate).format('YYYY-MM-DDTHH:mm:ss'),
             roomLabels: this.roomLabels,
-            dayOfWeek: this.dayOfWeek,
+            dayOfWeek: this.is_recurrent ?parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
             everyTwoWeek: this.everyTwoWeek
         };
+       if( this.is_recurrent )
+            o.startDate =   moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
+        o.startDate = moment(this.startDate).format('YYYY-MM-DDTHH:mm:ss');
         if (this._id) {
             o._id = this._id;
         }
         return o;
     }
+    getCourseForEachOccurrence ():Courses {
+        let courses = new Courses();
+        for(let i = 0; i < this.courseOccurrences.length ; i++){
+           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i]);
+            if (i!==0)
+                delete newCourse._id;
+            courses.all.push(newCourse.toJSON());
+        }
+        return courses
+    }
+    syncCourseWithOccurrence (occurrence: CourseOccurrence) :Course {
+        this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
+        this.roomLabels = occurrence.roomLabels;
+        this.startDate = moment(occurrence.startTime);
+        this.endDate = moment(occurrence.endTime);
+        return this;
+    }
+    isRecurrent (): boolean {
+        return moment(this.endDate).diff(moment(this.startDate), 'days') != 0;
+    }
+    canIDeleteCourse () :boolean {
+        let now = moment();
+        return (!this.isRecurrent() && moment(this.startDate).isAfter( now ))
+            ||  (this.isRecurrent() && moment( this.endDate).isAfter(now) )
+    };
 }
 
 export class Courses {
     all: Course[];
-    origin: Course[];
 
     constructor () {
         this.all = [];
-        this.origin = [];
     }
-
-    /**
-     * Synchronize courses.
-     * @param structure structure
-     * @param teacher teacher. Can be null. If null, group need to be provide.
-     * @param group group. Can be null. If null, teacher needs to be provide.
-     * @returns {Promise<void>} Returns a promise.
-     */
-    async sync(structure: Structure, teacher: Array<Teacher> = [] , group: Array<Group> = []  ): Promise<void> {
-        let firstDate = Utils.getFirstCalendarDay();
-        firstDate = moment(firstDate).format('YYYY-MM-DD');
-        let endDate = Utils.getLastCalendarDay();
-        endDate = moment(endDate).format('YYYY-MM-DD');
-        if (!structure ||  teacher.length <=0  &&  group.length<=0 || !firstDate || !endDate ) return;
-        let filter = '';
-        if (group.length <= 0 )
-            filter += model.me.type === USER_TYPES.personnel ? this.getFilterTeacher(teacher): 'teacherId='+model.me.userId;
-        if (teacher.length <= 0  && group.length > 0 )
-            filter += this.getFilterGroup(group);
-        let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
-        let courses = await http.get(uri);
-        if (courses.data.length > 0) {
-            this.all = courses.data.map((course) => {
-                course = new Course(course, course.startDate, course.endDate);
-                course.locked = true;
-                course.subjectLabel = structure.subjects.mapping[course.subjectId];
-                course.teachers = _.map(course.teacherIds,
-                    (ids) => { return _.findWhere(structure.teachers.all, {id: ids});
-                    });
-                return course;
-            });
-            this.origin = Mix.castArrayAs(Course, courses.data);
-        }
-        return;
-    }
-
-    getFilterTeacher = (table) => {
-        let filter  ='';
-        let name = 'teacherId=';
-        for(let i=0; i<table.length; i++){
-            filter +=  `${name}${table[i].id}`;
-            if(i !== table.length-1)
-                filter+='&';
-        }
-        return filter
-    };
-
-    getFilterGroup = (table) => {
-        let filter  ='';
-        let name = 'group=';
-        for(let i=0; i<table.length; i++){
-            if(table[i]){
-            filter +=  `${name}${table[i].name}`;
-            if(i !== table.length-1)
-                filter+='&';
-            }
-        }
-        return filter
-    };
     /**
      * Create course with occurrences
-     * @param {Course} course course to Create
      * @returns {Promise<void>}
      */
-    async create (course: Course): Promise<void> {
+    async create (courses: Course[]): Promise<void> {
         try {
-            let courses = [], occurrence: any;
-            for (let i = 0; i < course.courseOccurrences.length; i++) {
-                occurrence = course.courseOccurrences[i].toJSON();
-                occurrence.structureId = course.structureId;
-                occurrence.subjectId = course.subjectId;
-                occurrence.teachers = course.teachers;
-                occurrence.groups = course.groups;
-                occurrence.startDate = Utils.getOccurrenceStartDate(course.startDate, course.courseOccurrences[i].startTime, occurrence.dayOfWeek);
-                occurrence.endDate = Utils.getOccurrenceEndDate(course.endDate, course.courseOccurrences[i].endTime, occurrence.dayOfWeek);
-                occurrence.manual = true;
-                occurrence.everyTwoWeek = course.everyTwoWeek;
-                courses.push(Utils.cleanCourseForSave(occurrence));
-            }
             await http.post('/edt/course', courses);
             return;
         } catch (e) {
@@ -216,7 +160,14 @@ export class Courses {
             throw e;
         }
     }
-
+    async save() {
+        let courseGroupById = _.groupBy(this.all, function(course){ return !!course._id; });
+        if(courseGroupById['true'])
+           await this.update(courseGroupById.true);
+        if(courseGroupById['false'])
+           await this.create(courseGroupById.false);
+        return;
+    }
     async update (courses: Course[]): Promise<void> {
         try {
             await http.put('/edt/course', courses);
@@ -225,4 +176,4 @@ export class Courses {
             notify.error('edt.notify.update.err');
         }
     }
-}
+    }

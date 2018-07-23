@@ -22,7 +22,7 @@ routes.define(($routeProvider) => {
     }
     if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
         $routeProvider
-            .when ('/edit/:idCourse/:start?/:end?',  {
+            .when ('/edit/:idCourse/:beginning?/:end?',  {
                 action: 'edit'
             });
     }

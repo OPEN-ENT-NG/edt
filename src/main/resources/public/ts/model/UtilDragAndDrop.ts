@@ -94,7 +94,10 @@ export class UtilDragAndDrop {
             };
         }
     };
-    static drop = (e, dragging, topPositionnement) => {
+    static drop = (e, dragging, topPositionnement, startPosition) => {
+        let actualPosition = dragging.offset();
+        if(actualPosition && startPosition.top === actualPosition.top && startPosition.left === actualPosition.left)
+            return undefined;
         let selected_timeslot = $('calendar .selected-timeslot');
         let positionShadowSchedule = selected_timeslot.offset();
         let courseEdit = UtilDragAndDrop.getCalendarAttributes(selected_timeslot, dragging, topPositionnement);

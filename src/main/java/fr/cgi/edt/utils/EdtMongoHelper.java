@@ -30,7 +30,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         super(collection);
     }
 
-    public void checkTransactionStatus (Boolean onError, Integer valuesSize, List<String> ids, Handler<Either<String, JsonObject>> handler) {
+    private void checkTransactionStatus (Boolean onError, Integer valuesSize, List<String> ids, Handler<Either<String, JsonObject>> handler) {
         if (valuesSize == ids.size()) {
             if (onError) {
                 rollBack(ids, handler);
@@ -176,7 +176,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         Date startDate ;
         Date endDate ;
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm:ss");
         Date now = new Date() ;
         JsonObject courseProperties  = new JsonObject()
                 .put("inFuture", false)
