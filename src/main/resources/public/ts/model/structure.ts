@@ -1,11 +1,13 @@
 import { model } from 'entcore';
 import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES } from './index';
 import { Eventer } from 'entcore-toolkit';
+import {CalendarItems} from "./calendarItems";
 
 export class Structure {
     id: string;
     name: string;
     courses: Courses;
+    calendarItems: CalendarItems;
     subjects: Subjects;
     groups: Groups;
     teachers: Teachers;
@@ -23,6 +25,7 @@ export class Structure {
         this.subjects = new Subjects();
         this.groups = new Groups();
         this.courses = new Courses();
+        this.calendarItems = new CalendarItems();
         this.teachers = new Teachers();
         if (model.me.type === USER_TYPES.relative) {
             this.students = new Students();

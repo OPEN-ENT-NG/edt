@@ -24,20 +24,11 @@ export class CourseOccurrence {
     }
 
     /**
-     * Format time for user reading
-     * @param {Date} time time to format
-     * @returns {string} returns string time as 'HH:mm'
-     */
-    private static getFormattedTime (time: Date): string {
-        return moment(time).format('HH:mm');
-    }
-
-    /**
      * Format start time
      * @returns {string} Returns start time string
      */
     getFormattedStartTime (): string {
-        return CourseOccurrence.getFormattedTime(this.startTime);
+        return moment(this.startTime).format('HH:mm');
     }
 
     /**
@@ -45,7 +36,7 @@ export class CourseOccurrence {
      * @returns {string} Returns end time string
      */
     getFormattedEndTime (): string {
-        return CourseOccurrence.getFormattedTime(this.endTime);
+        return  moment(this.endTime).format('HH:mm');
     }
 
     toJSON (): object {

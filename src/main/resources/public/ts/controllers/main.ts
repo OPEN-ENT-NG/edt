@@ -1,5 +1,16 @@
-import { ng, template, notify, moment, idiom as lang, _, Behaviours, model } from 'entcore';
-import {Structures, USER_TYPES, Course, Student, Group, Structure, Teacher, Utils, UtilDragAndDrop} from '../model';
+import {_, Behaviours, idiom as lang, model, moment, ng, notify, template} from 'entcore';
+import {
+    Course,
+    CourseOccurrence,
+    Group,
+    Structure,
+    Structures,
+    Student,
+    Teacher,
+    USER_TYPES,
+    UtilDragAndDrop,
+    Utils
+} from '../model';
 
 
 export let main = ng.controller('EdtController',
@@ -97,9 +108,7 @@ export let main = ng.controller('EdtController',
          * @param {Student} user user group
          * @returns {Group}
          */
-        $scope.getStudentGroup = (user: Student): Group => {
-            return _.findWhere($scope.structure.groups.all, { externalId: user.classes[0] });
-        };
+        $scope.getStudentGroup = (user: Student): Group =>  _.findWhere($scope.structure.groups.all, { externalId: user.classes[0] });
 
         /**
          * Get timetable bases on $scope.params object
@@ -111,8 +120,8 @@ export let main = ng.controller('EdtController',
                 notify.error('');
             } else  {
                 $scope.calendarLoader.display();
-                $scope.structure.courses.all = [];
-                await $scope.structure.courses.sync($scope.structure, $scope.params.user, $scope.params.group);
+                $scope.structure.calendarItems.all = [];
+                await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
                 await   Utils.safeApply($scope);
                 initTriggers();
@@ -180,19 +189,21 @@ export let main = ng.controller('EdtController',
             // --Start -- Calendar Drag and Drop
             let $dragging = null;
             let topPositionnement = 0;
-
+            let startPosition = {top: null, left: null};
             let $timeslots= $('calendar .timeslot');
             $timeslots.removeClass( 'selecting-timeslot' );
             let initVar = () => {
                 $dragging = null;
                 topPositionnement = 0;
                 $timeslots.removeClass( 'selecting-timeslot' );
+                $('calendar .selected-timeslot').remove();
             };
 
             $('calendar .schedule-item')
                 .css('cursor','move')
                 .mousedown((e)=>  {
                     $dragging = UtilDragAndDrop.takeSchedule(e,$timeslots);
+                    startPosition = $dragging.offset();
                     let calendar = $('calendar');
                     calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
                     calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
@@ -215,16 +226,16 @@ export let main = ng.controller('EdtController',
 
             $('calendar')
                 .mouseup(  (e) => {
-                if($dragging){
-                    $('.timeslot').removeClass( 'selecting-timeslot' );
-                    let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement);
-                    $scope.calendarUpdateItem(coursItem.itemId, coursItem.start, coursItem.end);
-                    initVar();
-                }
-            });
+                    if($dragging){
+                        $('.timeslot').removeClass( 'selecting-timeslot' );
+                        let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        if(coursItem) $scope.calendarUpdateItem(coursItem.itemId, coursItem.start, coursItem.end);
+                        initVar();
+                    }
+                });
 
-            $('calendar .previous-timeslots').mousedown((e)=> {initTriggers()});
-            $('calendar .next-timeslots').mousedown((e)=> {initTriggers()});
+            $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
+            $('calendar .next-timeslots').mousedown(()=> {initTriggers()});
             // --End -- Calendar Drag and Drop
         };
 
@@ -261,29 +272,57 @@ export let main = ng.controller('EdtController',
         }, true);
         $scope.$watch( () => {return model.calendar.timeSlots.all}, async function (newValue, oldValue) {
             if (newValue !== oldValue) {
-                setTimeout(function(){  initTriggers(); }, 1500);
+                setTimeout(function(){  initTriggers(); }, 1000);
             }
         }, true);
+
+        $scope.initDateCreatCourse = (param?, course?: Course) => {
+
+            if(model.calendar.newItem || (param && param["beginning"] && param["end"]) ) {
+                let TimeslotInfo =  {
+                    beginning : param ? moment( param.beginning, 'x') : model.calendar.newItem.beginning.subtract(2, 'hours') ,
+                    end : param ? moment( param.end, 'x') : model.calendar.newItem.end.subtract(2, 'hours') };
+
+                let startTime = moment(TimeslotInfo["beginning"]).minute(0).seconds(0).millisecond(0);
+                let endTime = moment(TimeslotInfo["end"]).minute(0).seconds(0).millisecond(0);
+                let dayOfWeek=  moment(TimeslotInfo["beginning"]).day();
+                let roomLabel = course ? course.roomLabels[0] : '';
+
+                $scope.courseOccurrenceForm = new CourseOccurrence(
+                    dayOfWeek,
+                    roomLabel,
+                    startTime.toDate(),
+                    endTime.toDate()
+                );
+                delete model.calendar.newItem;
+                return  moment(TimeslotInfo["beginning"]).subtract(2, 'hours');
+            }else {
+                if(course && !course.is_recurrent) {
+                    $scope.courseOccurrenceForm = new CourseOccurrence(
+                        course.dayOfWeek,
+                        course.roomLabels[0],
+                        moment(course.startDate).toDate(),
+                        moment(course.endDate).toDate()
+                    );
+                }else
+                    $scope.courseOccurrenceForm = new CourseOccurrence();
+                return moment();
+            }
+        };
         route({
             main:  () => {
                 $scope.syncCourses();
                 template.open('main', 'main');
                 Utils.safeApply($scope);
-                setTimeout(function(){  initTriggers(); }, 1500);
+                setTimeout(function(){  initTriggers(); }, 1000);
 
             },
             create: () => {
-                let startDate = moment();
-                let endDate;
-                if (model && model.calendar && model.calendar.newItem) {
-                    startDate = moment(model.calendar.newItem.beginning);
-                    startDate.subtract(2, 'hours');
-                    delete model.calendar.newItem;
-                }
 
+                let startDate = $scope.initDateCreatCourse();
                 const roundedDown = Math.floor(startDate.minute() / 15) * 15;
                 startDate.minute(roundedDown).second(0);
-                endDate = moment(startDate).add(1, 'hours');
+                let endDate = moment(startDate).add(1, 'hours');
 
                 $scope.course = new Course({
                     teachers: _.clone($scope.params.user),
@@ -291,7 +330,8 @@ export let main = ng.controller('EdtController',
                     courseOccurrences: [],
                     startDate: startDate,
                     endDate: endDate,
-                }, startDate, endDate);
+                });
+
                 if ($scope.structure && $scope.structures.all.length === 1)
                     $scope.course.structureId = $scope.structure.id;
 
@@ -299,8 +339,9 @@ export let main = ng.controller('EdtController',
                 Utils.safeApply($scope);
             },
             edit: async  (params) => {
-                $scope.course =  new Course({});
-                await $scope.course.sync( params.idCourse );
+                $scope.course =  new Course();
+                await $scope.course.sync( params.idCourse, $scope.structure );
+                $scope.initDateCreatCourse( params, $scope.course );
                 template.open('main', 'manage-course');
                 Utils.safeApply($scope);
             }
