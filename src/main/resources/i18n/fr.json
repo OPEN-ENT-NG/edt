@@ -68,6 +68,7 @@
   "edt.utils.create": "Créer",
   "edt.utils.add": "Ajouter",
   "edt.utils.cancel": "Annuler",
+  "edt.utils.back":"Retour",
   "edt.utils.save": "Sauvegarder",
   "edt.utils.modify": "Modifier",
   "edt.utils.delete": "Supprimer",

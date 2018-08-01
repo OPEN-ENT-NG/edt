@@ -38,6 +38,12 @@ export class CourseOccurrence {
     getFormattedEndTime (): string {
         return  moment(this.endTime).format('HH:mm');
     }
+    isValidTime  ():boolean  {
+        let startTime = moment(this.startTime).format("HH:mm:ss");
+        let endTime =  moment(this.endTime).format("HH:mm:ss");
+        let date =  moment().format("YYYY-MM-DD");
+        return moment(date+'T'+startTime).isBefore(moment(date+'T'+endTime))
+    };
 
     toJSON (): object {
         return {
