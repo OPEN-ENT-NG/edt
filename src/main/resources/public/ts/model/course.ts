@@ -27,7 +27,7 @@ export class Course {
     modified: string = '';
 
     is_recurrent:boolean = undefined;
-    canDelete:boolean;
+    canManage:boolean;
 
     constructor (obj?: object) {
         if (obj && obj instanceof Object) {
@@ -65,7 +65,7 @@ export class Course {
         try {
            let  { data } =  await http.get(`/viescolaire/common/course/${id}`);
            Mix.extend(this, Mix.castAs(Course, new Course(data)));
-           this.canDelete = this.canIDeleteCourse();
+           this.canManage = this.canIManageCourse();
            if(structure) this.mapWithStructure(structure);
 
         } catch (e) {
@@ -99,15 +99,21 @@ export class Course {
             teacherIds: _.pluck(this.teachers, 'id' ),
             classes : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
             groups : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name'),
-            endDate: moment( this.endDate).format('YYYY-MM-DDTHH:mm:ss'),
             roomLabels: this.roomLabels,
             dayOfWeek: this.is_recurrent ?parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
             everyTwoWeek: this.everyTwoWeek
         };
-       if( this.is_recurrent )
-            o.startDate =   moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
-        o.startDate = moment(this.startDate).format('YYYY-MM-DDTHH:mm:ss');
+       if( this.is_recurrent ){
+            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
+           o.endDate = moment(this.endDate).day( this.dayOfWeek );
+           o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
+           o.endDate= moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
+       }else{
+           let date =moment(this.startDate).format('YYYY-MM-DD');
+           o.startDate  = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
+           o.endDate =moment(date +'T'+ moment(this.endDate).format('HH:mm:ss')) ;
+       }
         if (this._id) {
             o._id = this._id;
         }
@@ -133,11 +139,23 @@ export class Course {
     isRecurrent (): boolean {
         return moment(this.endDate).diff(moment(this.startDate), 'days') != 0;
     }
-    canIDeleteCourse () :boolean {
+    canIManageCourse () :boolean {
         let now = moment();
         return (!this.isRecurrent() && moment(this.startDate).isAfter( now ))
-            ||  (this.isRecurrent() && moment( this.endDate).isAfter(now) )
+            ||  (this.isRecurrent() &&
+               moment(this.getLastOccurrence().startTime).isAfter(now) )
     };
+    getLastOccurrence() :CourseOccurrence{
+        let date = moment( this.endDate).day(this.dayOfWeek);
+        if(date.isAfter(moment(this.endDate)))
+            date = moment( this.endDate).subtract({days : 7}).day(this.dayOfWeek);
+        return new CourseOccurrence(
+            this.dayOfWeek,
+            '',
+          moment(date.format('YYYY-MM-DD') + 'T' + moment(this.startDate).format('HH:mm:ss')).toDate(),
+          moment( this.endDate).toDate()
+        )
+    }
 }
 
 export class Courses {

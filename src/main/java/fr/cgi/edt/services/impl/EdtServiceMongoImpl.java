@@ -36,12 +36,12 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     @Override
     public void create(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
-        new EdtMongoHelper(this.collection).transaction(courses, handler);
+        new EdtMongoHelper(this.collection).manageCourses(courses, handler);
     }
 
     @Override
     public void update(JsonArray courses, Handler<Either<String, JsonObject>> handler) {
-        new EdtMongoHelper(this.collection).transaction(courses, handler);
+        new EdtMongoHelper(this.collection).manageCourses(courses, handler);
     }
 
     @Override

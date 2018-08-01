@@ -161,7 +161,7 @@
                                 <td><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
                                 <td><input ng-model="courseOccurrenceForm.roomLabels[0]"/></td>
                                 <td>
-                                    <button ng-click="submit_CourseOccurrence_Form()">
+                                    <button ng-disabled="!courseOccurrenceForm.isValidTime()" ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
                                     </button>
                                 </td>
@@ -174,17 +174,23 @@
         </article>
 
         <div class="right-magnet vertical-spacing">
-            <div ng-if="form_is_not_valid" class="warning"> <i18n>edt.creation.error</i18n></div>
-            <button class="cancel" type="button" ng-click="cancelCreation()">
-                <i18n>edt.utils.cancel</i18n>
+
+
+            <button   class="cancel" type="button" ng-click="cancelCreation()">
+                <i18n ng-show="course.canManage || !isAnUpdate">edt.utils.cancel</i18n>
+                <i18n ng-show="!course.canManage && isAnUpdate">edt.utils.back</i18n>
             </button>
-            <button ng-disabled="!isValidForm()" type="submit" ng-click="saveCourse(course)">
+
+            <button ng-show="course.canManage || !isAnUpdate" ng-disabled="!isValidForm()" type="submit" ng-click="saveCourse(course)">
                 <i18n ng-if="isAnUpdate">edt.utils.modify</i18n>
                 <i18n ng-if="!isAnUpdate">edt.utils.create</i18n>
             </button>
-            <button ng-if="isAnUpdate && course.canDelete" type="button" ng-click="dropCourse(course)" >
+
+            <button ng-show="isAnUpdate && course.canManage" type="button" ng-click="dropCourse(course)" >
                 <i18n>edt.utils.delete</i18n>
             </button>
+
+
         </div>
     </form>
 
