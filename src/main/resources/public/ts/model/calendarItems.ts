@@ -41,6 +41,8 @@ export class CalendarItem {
             }
         }
         this.course = new Course(course);
+        this.course.endDate = this.endCourse;
+        this.course.startDate = this.startCourse;
         this.locked = true;
 
         if (startDate) {

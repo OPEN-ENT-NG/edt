@@ -22,10 +22,14 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
+
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
         $scope.display = {
             showQuarterHours : true
+        };
+        $scope.show = {
+            home_lightbox : false
         };
         $scope.calendarLoader = {
             show: false,
@@ -167,15 +171,50 @@ export let main = ng.controller('EdtController',
 
         $scope.translate = (key: string) => lang.translate(key);
 
-        $scope.calendarUpdateItem = (itemId, start?, end?) => {
+        $scope.calendarUpdateItem = (itemId, start?, end?,occurrence? ) => {
             if(itemId) {
-                $scope.params.updateItem = itemId;
-                let url = `/edit/${itemId}`;
+                $scope.show.home_lightbox = false;
+                let type = occurrence? 'occurrence' : 'course' ;
+                let url = `/edit/${type}/${itemId}`;
                 if(start && end) url += `/${start.format('x')}/${end.format('x')}`;
                 $scope.goTo(url);
             }
         };
 
+        $scope.chooseTypeEdit = (itemId,  start?, end?) => {
+            $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
+            $scope.paramEdition = {
+                start : start,
+                end : end
+            };
+            $scope.editOccurrence = false;
+            $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
+            if($scope.ableToChooseEditionType($scope.courseToEdit)){
+                $scope.show.home_lightbox = true;
+                template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
+            }else{
+                $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
+            }
+            Utils.safeApply($scope);
+        };
+
+        $scope.cancelEditionLightbox = () =>{
+            $scope.syncCourses();
+            $scope.show.home_lightbox = false;
+            initTriggers();
+            Utils.safeApply($scope);
+        };
+
+        $scope.ableToChooseEditionType = (course: Course):boolean => {
+            let now = moment();
+            let upcomingOccurrence = course.getNextOccurrenceDate(now);
+            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(course.endDate)) ;
+            return course.isRecurrent() && moreThenOneOccurrenceLeft && moment($scope.occurrenceDate).isAfter(now);
+        };
+
+        $scope.getSimpleDateFormat = (date) => {
+            return moment(date).format('YYYY-MM-DD');
+        };
 
         let initTriggers = () => {
             if ( $scope.isTeacher() || $scope.isStudent())
@@ -220,7 +259,7 @@ export let main = ng.controller('EdtController',
                 .css('cursor','pointer')
                 .mousedown((e) => {
                     e.stopPropagation();
-                    $scope.calendarUpdateItem($(e.currentTarget).data('id'));
+                    $scope.chooseTypeEdit($(e.currentTarget).data('id'));
                     $(e.currentTarget).unbind('mousedown');
                 });
 
@@ -229,7 +268,7 @@ export let main = ng.controller('EdtController',
                     if($dragging){
                         $('.timeslot').removeClass( 'selecting-timeslot' );
                         let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
-                        if(coursItem) $scope.calendarUpdateItem(coursItem.itemId, coursItem.start, coursItem.end);
+                        if(coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
                         initVar();
                     }
                 });
@@ -340,8 +379,13 @@ export let main = ng.controller('EdtController',
             },
             edit: async  (params) => {
                 $scope.course =  new Course();
-                await $scope.course.sync( params.idCourse, $scope.structure );
+                await $scope.course.sync(params.idCourse, $scope.structure);
                 $scope.initDateCreatCourse( params, $scope.course );
+                if (params.type === 'occurrence'){
+                    $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
+                    $scope.editOccurrence = true;
+                    $scope.course.is_recurrent = false;
+                }
                 template.open('main', 'manage-course');
                 Utils.safeApply($scope);
             }

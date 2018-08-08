@@ -16,11 +16,9 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
-import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
@@ -78,12 +76,7 @@ public class EdtController extends MongoDbControllerHelper {
     @SecuredAction(modify)
     @ApiDoc("Create a course with 1 or more occurrences")
     public void create(final HttpServerRequest request) {
-        RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
-            @Override
-            public void handle(JsonArray body) {
-                edtService.create(body, getServiceHandler(request));
-            }
-        });
+        RequestUtils.bodyToJsonArray(request, body -> edtService.create(body, getServiceHandler(request)));
     }
 
     @Put("/course")
@@ -91,11 +84,16 @@ public class EdtController extends MongoDbControllerHelper {
     @ResourceFilter(ManageCourseWorkflowAction.class)
     @ApiDoc("Update course")
     public void update (final HttpServerRequest request) {
-        RequestUtils.bodyToJsonArray(request, new Handler<JsonArray>() {
-            @Override
-            public void handle(JsonArray body) {
-                edtService.update(body, getServiceHandler(request));
-            }
+        RequestUtils.bodyToJsonArray(request, body -> edtService.update(body, getServiceHandler(request)));
+    }
+    @Put("/occurrence/:timestamp")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @ApiDoc("Update course occurrence")
+    public void updateOccurrence (final HttpServerRequest request) {
+        RequestUtils.bodyToJsonArray(request, (body) -> {
+            String dateOccurrence = request.getParam("timestamp");
+            edtService.updateOccurrence(body.getJsonObject(0), dateOccurrence, getServiceHandler(request));
         });
     }
 
@@ -103,12 +101,7 @@ public class EdtController extends MongoDbControllerHelper {
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
     @ApiDoc("Return information needs by relative profiles")
     public void getChildrenInformation(final HttpServerRequest request) {
-        UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
-            @Override
-            public void handle(UserInfos user) {
-                userService.getChildrenInformation(user, arrayResponseHandler(request));
-            }
-        });
+        UserUtils.getUserInfos(eb, request, user -> userService.getChildrenInformation(user, arrayResponseHandler(request)));
     }
 
     @Get("/settings/exclusions")
@@ -128,12 +121,7 @@ public class EdtController extends MongoDbControllerHelper {
     @ApiDoc("Create a period exclusion")
     public void createExclusion (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                new Handler<JsonObject>() {
-                    @Override
-                    public void handle(JsonObject exclusion) {
-                        settingsService.createExclusion(exclusion, arrayResponseHandler(request));
-                    }
-                });
+                exclusion -> settingsService.createExclusion(exclusion, arrayResponseHandler(request)));
     }
 
     //TODO Manage security. Switch authenticated filter to ressource filter
@@ -145,12 +133,7 @@ public class EdtController extends MongoDbControllerHelper {
         try {
             final Integer id = Integer.parseInt(request.params().get("id"));
             RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                    new Handler<JsonObject>() {
-                        @Override
-                        public void handle(JsonObject exclusion) {
-                            settingsService.updateExclusion(id, exclusion, arrayResponseHandler(request));
-                        }
-                    });
+                    exclusion -> settingsService.updateExclusion(id, exclusion, arrayResponseHandler(request)));
         } catch (ClassCastException e) {
             log.error("E008 : An error occurred when casting exclusion id");
             badRequest(request);
