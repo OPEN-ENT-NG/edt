@@ -3,6 +3,7 @@ import http from 'axios';
 import { Mix } from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from "./structure";
+import {Moment} from "moment";
 
 
 
@@ -14,8 +15,8 @@ export class Course {
     subjectLabel : string = '' ;
 
     dayOfWeek: number = null;
-    endDate:string | object = undefined;
-    startDate: string | object = undefined;
+    endDate:string | object ;
+    startDate: string | object;
 
     everyTwoWeek:boolean = undefined;
     structureId: string = undefined;
@@ -43,9 +44,10 @@ export class Course {
         else await this.create();
 
     }
-    async update () {
+    async update (occurrenceDate?) {
         try {
-            await http.put('/edt/course', [this.toJSON()]);
+            let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}` : '/edt/course';
+            await http.put(url, [this.toJSON()]);
             return;
         } catch (e) {
             notify.error('edt.notify.update.err');
@@ -145,6 +147,28 @@ export class Course {
             ||  (this.isRecurrent() &&
                moment(this.getLastOccurrence().startTime).isAfter(now) )
     };
+    isInFuture () :boolean {
+        let now = moment();
+        return !this.isRecurrent() && moment(this.startDate).isAfter( now )
+            ||  (this.isRecurrent() && now.isBefore(moment(this.startDate).day(this.dayOfWeek)) )
+
+    };
+
+    /**
+     * get next occurrence date from à Moment
+     * @param {moment.Moment} date
+     * @returns {string}
+     */
+
+    getNextOccurrenceDate (date: Moment|string) :string {
+       let momentDate = moment(date);
+       let occurrence = moment( _.clone(momentDate));
+       occurrence.day(this.dayOfWeek);
+       if( momentDate.isAfter(occurrence)  ) {
+           occurrence.add('days',this.everyTwoWeek? 14 : 7);
+       }
+       return occurrence.format('YYYY-MM-DD');
+    }
     getLastOccurrence() :CourseOccurrence{
         let date = moment( this.endDate).day(this.dayOfWeek);
         if(date.isAfter(moment(this.endDate)))

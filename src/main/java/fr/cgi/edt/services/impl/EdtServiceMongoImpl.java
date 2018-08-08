@@ -49,4 +49,9 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         new EdtMongoHelper(this.collection).delete( id, handler);
     }
 
+
+    @Override
+    public void updateOccurrence(JsonObject course, String dateOccurrence,  Handler<Either<String, JsonObject>> handler){
+        new EdtMongoHelper(this.collection).updateOccurrence(course, dateOccurrence, handler);
+    }
 }

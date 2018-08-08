@@ -22,9 +22,10 @@ routes.define(($routeProvider) => {
     }
     if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
         $routeProvider
-            .when ('/edit/:idCourse/:beginning?/:end?',  {
+            .when ('/edit/:type/:idCourse/:beginning?/:end?',  {
                 action: 'edit'
             });
+
     }
     $routeProvider.otherwise({
         redirectTo: '/'

@@ -1,0 +1,51 @@
+<h1 class="centered eight row">
+    <i18n >edt.schedule.update</i18n>
+</h1>
+<div class="twelve cell ">
+
+    <div class="cell twelve twelve-mobile vertical-spacing">
+        <i18n>edt.choose.edition.type.message</i18n>
+    </div>
+    <div class="cell twelve-mobile twelve vertical-spacing">
+        <div>
+            <label>
+                <input type="radio" ng-model="editOccurrence" ng-value="true">
+                <i18n>edt.choose.edition.type.choice1</i18n>
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio" ng-model="editOccurrence" ng-value="false">
+                <i18n>edt.choose.edition.type.choice2</i18n>
+            </label>
+        </div>
+    </div>
+
+</div>
+<div class="row illustration">
+    <div class="time-barre twelve cell" ng-class="{green: (!editOccurrence && courseToEdit.isInFuture())}">
+        <div class="startCourse">
+            <p>[[getSimpleDateFormat( courseToEdit.startDate )]]</p>
+        </div>
+        <div class="startEdition" ng-show="!editOccurrence && !courseToEdit.isInFuture()">
+            <p>[[courseToEdit.getNextOccurrenceDate(moment())]]</p>
+        </div>
+        <div class="middle" ng-if="editOccurrence">
+            <p>[[ occurrenceDate ]]</p>
+        </div>
+        <div class="end">
+            <p>[[ getSimpleDateFormat(courseToEdit.endDate) ]]</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="right-magnet vertical-spacing">
+    <button   class="cancel" type="button" ng-click="cancelEditionLightbox()">
+        <i18n>edt.utils.cancel</i18n>
+    </button>
+
+    <button type="submit" ng-click="calendarUpdateItem(courseToEdit._id, paramEdition.start, paramEdition.end, editOccurrence )">
+        <i18n >edt.utils.modify</i18n>
+    </button>
+</div>

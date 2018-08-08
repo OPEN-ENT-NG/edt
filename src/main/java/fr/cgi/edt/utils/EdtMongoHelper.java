@@ -2,9 +2,7 @@ package fr.cgi.edt.utils;
 
 
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
-
 import fr.wseduc.webutils.Either;
-
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.bus.ErrorMessage;
@@ -13,8 +11,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,15 +20,16 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-
-
 public class EdtMongoHelper extends MongoDbCrudService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
-    private static final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("YYYY-MM-dd" +
-            "");
-    private static final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    private static final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
+    private  final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+    private  final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private  final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
+    private static final String  STATUS = "status";
+    private static final String  START_DATE = "startDate";
+    private static final String  END_DATE = "endDate";
+    private static final String  DAY_OF_WEEK = "dayOfWeek";
     public EdtMongoHelper(String collection) {
         super(collection);
     }
@@ -42,7 +39,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
             if (onError) {
                 handler.handle(new Either.Left<>("An error occurred when inserting data"));
             } else {
-                JsonObject res = new JsonObject().put("status", 200);
+                JsonObject res = new JsonObject().put(STATUS, 200);
                 handler.handle(new Either.Right<>(res));
             }
         }
@@ -55,7 +52,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         JsonObject obj;
 
         Handler<Message<JsonObject>> transactionHandler = result -> {
-            if ("ok".equals(result.body().getString("status"))) {
+            if ("ok".equals(result.body().getString(STATUS))) {
                 ids.add(result.body().getString("_id"));
             } else {
                 onError[0] = true;
@@ -74,10 +71,43 @@ public class EdtMongoHelper extends MongoDbCrudService {
         }
     }
 
+    public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
+        final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
+
+        final   Handler<Message<JsonObject>> interneHandler = res ->{
+            if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
+            else handler.handle(new Either.Left<>("can't edit this course Occurrence")); };
+
+        mongo.findOne(this.collection, matches ,  result -> {
+            if ("ok".equals(result.body().getString(STATUS))) {
+                JsonObject oldCourse = result.body().getJsonObject("result");
+                if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
+                    JsonObject newCourse = new JsonObject(oldCourse.toString());
+                    newCourse.remove("_id");
+                    JsonObject dates = getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence);
+                    course.remove("_id");
+                    newCourse.put(START_DATE, dates.getString("newStartTime"));
+                    newCourse.put(END_DATE, dates.getString("newEndTime"));
+                    oldCourse.put(END_DATE, dates.getString("oldEndTime"));
+                    oldCourse.put(START_DATE, dates.getString("oldStartTime"));
+                    updateElement(oldCourse,interneHandler);
+                    mongo.save(collection, newCourse,interneHandler);
+                    mongo.save(collection, course, interneHandler);
+                }else {
+                    LOGGER.error("can't find this course");
+                    handler.handle(new Either.Left<>("can't find this course"));
+                }
+            }else {
+                LOGGER.error("this course does not exist");
+                handler.handle(new Either.Left<>("this course does not exist"));
+            }
+        });
+    }
+
     public void updateCourse (final JsonObject course, final Handler<Message<JsonObject>> handler){
         final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
         mongo.findOne(this.collection, matches ,  result -> {
-            if ("ok".equals(result.body().getString("status"))) {
+            if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
                 JsonObject coursePropreties = getCourseProperties(oldCourse);
                 if(coursePropreties.getBoolean("inFuture")) {
@@ -86,14 +116,15 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     JsonObject newCourse = new JsonObject(course.toString());
                     JsonObject dates = getDatesForSplitPeriod(oldCourse,newCourse);
                     newCourse.remove("_id");
-                    newCourse.put("startDate", dates.getString("startTime"));
-                    oldCourse.put("endDate", dates.getString("endTime"));
+                    newCourse.put(START_DATE, dates.getString("startTime"));
+                    oldCourse.put(END_DATE, dates.getString("endTime"));
                     updateElement(oldCourse, handler);
 
                     mongo.save(collection, newCourse, handler);
                 }else {
-                    LOGGER.error("can't edit this course");
-                    handler.handle(new ErrorMessage("can't edit this course"));
+                    String message = "can't edit this paste course";
+                    LOGGER.error(message);
+                    handler.handle(new ErrorMessage(message));
                 }
             } else {
                 LOGGER.error("this course does not exist");
@@ -104,7 +135,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
     public void deleteElement(final JsonObject matches,  final Handler<Either<String, JsonObject>> handler )   {
         mongo.delete(collection, matches, result -> {
-            if ("ok".equals(result.body().getString("status"))){
+            if ("ok".equals(result.body().getString(STATUS))){
                 handler.handle(new Either.Right<>(matches));
             }else{
                 handler.handle(new Either.Left<>("An error occurred when deleting data"));
@@ -121,16 +152,16 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
         final JsonObject matches = new JsonObject().put("_id", id);
         mongo.findOne(this.collection, matches , result -> {
-            if ("ok".equals(result.body().getString("status"))) {
+            if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject course = result.body().getJsonObject("result");
                 JsonObject coursePropreties = getCourseProperties(course);
                 if(coursePropreties.getBoolean("inFuture")) {
                     deleteElement(matches, handler);
                 }else if (coursePropreties.getBoolean("inPresent")){
                     JsonObject dates =  getDatesForSplitPeriod(course, null);
-                    updateElement(course.put("endDate",  dates.getString("endTime")), (res)->{
+                    updateElement(course.put(END_DATE,  dates.getString("endTime")), res ->{
                         if(res.isSend()){
-                            handler.handle(new Either.Right<>(new JsonObject().put("status","ok")));
+                            handler.handle(new Either.Right<>(new JsonObject().put(STATUS,"ok")));
                         }else{
                             handler.handle(new Either.Left<>("can't edit this course"));
                         }
@@ -155,8 +186,8 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 .put("inFuture", false)
                 .put("inPresent", false);
         try{
-            startDate = DATE_FORMATTER.parse( course.getString("startDate") );
-            endDate = DATE_FORMATTER.parse( course.getString("endDate") );
+            startDate = DATE_FORMATTER.parse( course.getString(START_DATE));
+            endDate = DATE_FORMATTER.parse( course.getString(END_DATE));
             boolean isRecurrent = 0 != TimeUnit.DAYS.convert(
                     endDate.getTime() -startDate.getTime(), TimeUnit.MILLISECONDS);
             if (now.before(startDate) ) {
@@ -169,10 +200,36 @@ public class EdtMongoHelper extends MongoDbCrudService {
         }
         return courseProperties;
     }
-    private JsonObject getDatesForSplitPeriod( JsonObject oldCourse , JsonObject newCourse ) {
+
+    private boolean getCourseEditOccurrenceAbility(JsonObject course, String occurrenceDate) {
+        Date startDate ;
+        Date endDate ;
+        Date now = new Date() ;
+        boolean courseProperties = false;
+        try{
+            startDate = DATE_FORMATTER.parse( course.getString(START_DATE) );
+            endDate = DATE_FORMATTER.parse( course.getString(END_DATE) );
+            boolean isRecurrent = 0 != TimeUnit.DAYS.convert(
+                    endDate.getTime() -startDate.getTime(), TimeUnit.MILLISECONDS);
+
+            Calendar occurrenceCalendar = longToCalendar(Long.parseLong(occurrenceDate)) ;
+
+            if ((now.before(startDate) || (isRecurrent && startDate.before(now) && endDate.after(now) ) )
+                    && now.before(occurrenceCalendar.getTime())
+                    && startDate.before(occurrenceCalendar.getTime())
+                    && (occurrenceCalendar.get(Calendar.DAY_OF_WEEK) -1 ) == course.getInteger("dayOfWeek")) {
+                courseProperties = true;
+            }
+        } catch (ParseException e) {
+            LOGGER.error("error when casting course's dates");
+        }
+
+        return courseProperties;
+    }
+    private JsonObject getDatesForSplitPeriod( JsonObject oldCourse, JsonObject newCourse) {
         JsonObject splitDates = new JsonObject();
         Calendar endCalendarDate = Calendar.getInstance();
-        endCalendarDate.setTime( getCombineDate(new Date(), oldCourse.getString("endDate")));
+        endCalendarDate.setTime( getCombineDate(new Date(), oldCourse.getString(END_DATE)));
         endCalendarDate.set(Calendar.DAY_OF_WEEK, oldCourse.getInteger("dayOfWeek")+1);
         if(endCalendarDate.before(Calendar.getInstance())){
             endCalendarDate.add(Calendar.DAY_OF_WEEK, +7);
@@ -180,22 +237,62 @@ public class EdtMongoHelper extends MongoDbCrudService {
         endCalendarDate.add(Calendar.DAY_OF_WEEK, -1);
         if( null != newCourse ) {
             Calendar startCalendarDate = Calendar.getInstance();
-            startCalendarDate.setTime(getCombineDate(endCalendarDate.getTime(), newCourse.getString("startDate")));
+            startCalendarDate.setTime(getCombineDate(endCalendarDate.getTime(), newCourse.getString(START_DATE)));
             startCalendarDate.set(Calendar.DAY_OF_WEEK, newCourse.getInteger("dayOfWeek")+1);
-            if(daysBetween(startCalendarDate,getCalendar(newCourse.getString("endDate"))) < 7){
-                startCalendarDate.setTime(getCombineDate(getDate(newCourse.getString("endDate")), newCourse.getString("startDate")));
+            if(daysBetween(startCalendarDate,getCalendar(newCourse.getString(END_DATE))) < 7 ){
+                startCalendarDate.setTime(getCombineDate(getDate(newCourse.getString(END_DATE)), newCourse.getString(START_DATE)));
             }
             splitDates.put("startTime", DATE_FORMATTER.format(startCalendarDate.getTime())) ;
         }
-        Calendar startOldCourseDate = getCalendar(oldCourse.getString("startDate"));
+        Calendar startOldCourseDate = getCalendar(oldCourse.getString(START_DATE));
         startOldCourseDate.set(Calendar.DAY_OF_WEEK, oldCourse.getInteger("dayOfWeek")+1);
         if(daysBetween(endCalendarDate, startOldCourseDate ) <= 7){
-            Calendar startOldCalendarDate = getCalendar(oldCourse.getString("startDate"));
+            Calendar startOldCalendarDate = getCalendar(oldCourse.getString(START_DATE));
             startOldCalendarDate.set(Calendar.DAY_OF_WEEK, oldCourse.getInteger("dayOfWeek")+1);
-            endCalendarDate.setTime(getCombineDate(startOldCalendarDate.getTime(), oldCourse.getString("endDate")));
+            endCalendarDate.setTime(getCombineDate(startOldCalendarDate.getTime(), oldCourse.getString(END_DATE)));
         }
         splitDates.put("endTime", DATE_FORMATTER.format( endCalendarDate.getTime()));
         return splitDates;
+    }
+    private JsonObject getDatesForExcludeOccurrence( JsonObject oldCourse,JsonObject newCourse, String date) {
+        JsonObject splitDates = new JsonObject();
+        Calendar occurrenceDate  = longToCalendar(Long.parseLong(date));
+        Calendar oldCourseEnd = Calendar.getInstance();
+        Calendar oldCourseStart = firstOccurrenceDate(oldCourse);
+        Calendar newCourseStart = Calendar.getInstance();
+        Calendar newCourseEnd = lastOccurrenceDate(newCourse);
+        oldCourseEnd.setTime(getCombineDate(occurrenceDate.getTime(), oldCourse.getString(END_DATE)));
+        newCourseStart.setTime(getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE)));
+        oldCourseEnd.add(Calendar.DAY_OF_WEEK, -7);
+        newCourseStart.add(Calendar.DAY_OF_WEEK, +7);
+
+        splitDates.put("oldEndTime", DATE_FORMATTER.format( oldCourseEnd.getTime()));
+        splitDates.put("oldStartTime", DATE_FORMATTER.format( oldCourseStart.getTime()));
+        splitDates.put("newEndTime", DATE_FORMATTER.format( newCourseEnd.getTime()));
+        splitDates.put("newStartTime", DATE_FORMATTER.format( newCourseStart.getTime()));
+        return splitDates;
+    }
+    Calendar firstOccurrenceDate(JsonObject course){
+        Calendar start = getCalendar(course.getString(START_DATE));
+        start.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
+        if(start.before(getCalendar(course.getString(START_DATE)))){
+            start.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+        return start;
+    }
+    Calendar lastOccurrenceDate(JsonObject course){
+        Calendar end = getCalendar(course.getString(END_DATE));
+        end.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
+        if(end.after(getCalendar(course.getString(END_DATE)))){
+            end.add(Calendar.WEEK_OF_YEAR, -1);
+        }
+        return end;
+    }
+    Calendar longToCalendar(Long  date){
+        Calendar calendarOccurrence = Calendar.getInstance();
+        calendarOccurrence.setTimeInMillis(date);
+        calendarOccurrence.add(Calendar.DAY_OF_WEEK, 1);
+        return calendarOccurrence;
     }
     int daysBetween(Calendar startDate, Calendar endDate) {
         long end = endDate.getTimeInMillis();

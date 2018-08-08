@@ -125,9 +125,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             return moment(date).format("HH:mm");
         };
 
-
-
-
         $scope.validDate = Utils.isValidDate($scope.course.startDate, $scope.course.endDate);
 
         /**
@@ -140,7 +137,11 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             $scope.changeDate();
             if (!$scope.isValidForm())
                 return;
-            if(course.is_recurrent){
+            if($scope.editOccurrence === true){
+                course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
+                await course.update($scope.occurrenceDate);
+            }
+            else if(course.is_recurrent){
                 let courses =  course.getCourseForEachOccurrence();
                 await courses.save();
             }
@@ -166,14 +167,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.subjectId !== undefined
                 && (
                     (
-                        $scope.course.isRecurrent()
+                        $scope.course.is_recurrent
                         && $scope.course.courseOccurrences
                         && $scope.course.courseOccurrences.length > 0
                         && $scope.validDate
                     )
                     ||
                     (
-                        !$scope.course.isRecurrent()
+                        !$scope.course.is_recurrent
                         && isNaN($scope.courseOccurrenceForm.startTime._d)
                         && isNaN($scope.courseOccurrenceForm.endTime._d)
                     )

@@ -30,4 +30,6 @@ public interface EdtService {
      * @param handler
      */
     void delete(String id,  Handler<Either<String, JsonObject>> handler  );
+
+     void updateOccurrence(JsonObject course, String dateOccurrence,  Handler<Either<String, JsonObject>> handler);
 }
