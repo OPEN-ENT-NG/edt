@@ -51,16 +51,13 @@ export let main = ng.controller('EdtController',
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync();
             switch (model.me.type) {
-                case USER_TYPES.teacher : {
-                    $scope.params.user = [model.me.userId];
-                }
-                    break;
                 case USER_TYPES.student : {
                     $scope.params.group = _.map(model.me.classes, (groupid) => {
                         return _.findWhere($scope.structure.groups.all, {id: groupid});
                     });
-                }
                     break;
+                }
+
                 case USER_TYPES.relative : {
                     if ($scope.structure.students.all.length > 0) {
                         $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
@@ -68,6 +65,7 @@ export let main = ng.controller('EdtController',
                         });
                         $scope.currentStudent = $scope.structure.students.all[0];
                     }
+                    break;
                 }
             }
             if (!$scope.isPersonnel()) {
@@ -130,12 +128,6 @@ export let main = ng.controller('EdtController',
                 await   Utils.safeApply($scope);
                 initTriggers();
             }
-        };
-
-        $scope.getTeacherTimetable = () => {
-            $scope.params.group = [];
-            $scope.params.user = [model.me.userId];
-            $scope.syncCourses();
         };
 
         if ($scope.isRelative()) {
