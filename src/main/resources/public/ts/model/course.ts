@@ -86,9 +86,10 @@ export class Course {
             }
         });
     };
-    async delete () {
+    async delete (occurrenceDate?) {
         try {
-            await http.delete(`/edt/course/${this._id}`);
+            let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/course/${this._id}`;
+            await http.delete(url);
         } catch (e) {
             notify.error('edt.notify.delete.err');
         }

@@ -169,5 +169,14 @@ public class EdtController extends MongoDbControllerHelper {
             badRequest(request);
         }
     }
+    @Delete("/occurrence/:timestamp/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @ApiDoc("delete course occurrence")
+    public void deleteOccurrence (final HttpServerRequest request) {
+        String dateOccurrence = request.getParam("timestamp");
+        String id = request.params().get("id");
+        edtService.deleteOccurrence(id,dateOccurrence, notEmptyResponseHandler(request));
+    }
 
 }

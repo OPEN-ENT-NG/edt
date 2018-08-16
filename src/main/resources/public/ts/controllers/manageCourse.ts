@@ -184,8 +184,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
 
         $scope.dropCourse = async (course: Course ) => {
-            if( course.canManage ) {
-                await course.delete();
+            if( course.canManage  ) {
+               $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
                 delete  $scope.course;
                 $scope.goTo('/');
                 $scope.syncCourses();

@@ -70,29 +70,51 @@ public class EdtMongoHelper extends MongoDbCrudService {
             }
         }
     }
-
-    public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
-        final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
-
-        final   Handler<Message<JsonObject>> interneHandler = res ->{
-            if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
-            else handler.handle(new Either.Left<>("can't edit this course Occurrence")); };
-
+    public void deleteOccurrence(String id, String dateOccurrence,  Handler<Either<String, JsonObject>> handler  ){
+        final JsonObject matches = new JsonObject().put("_id", id);
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    JsonObject dates = getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence);
+                    excludeOccurrenceFromCourse(oldCourse,newCourse,getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
+                }else {
+                    LOGGER.error("can't update this occurrence");
+                    handler.handle(new Either.Left<>("can't update this occurrence"));
+                }
+            }else {
+                LOGGER.error("this course does not exist");
+                handler.handle(new Either.Left<>("this course does not exist"));
+            }
+        });
+    }
+    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , Handler<Either<String, JsonObject>> handler  ){
+        Handler<Message<JsonObject>> internHandler = res ->{
+            if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
+            else handler.handle(new Either.Left<>("can't delete this course Occurrence"));
+        };
+        newCourse.put(START_DATE, dates.getString("newStartTime"));
+        newCourse.put(END_DATE, dates.getString("newEndTime"));
+        oldCourse.put(END_DATE, dates.getString("oldEndTime"));
+        oldCourse.put(START_DATE, dates.getString("oldStartTime"));
+        if(getDate(oldCourse.getString(END_DATE)).after(getDate(oldCourse.getString(START_DATE)))) updateElement(oldCourse,internHandler);
+        if(getDate(newCourse.getString(END_DATE)).after(getDate(newCourse.getString(START_DATE)))) mongo.save(collection, newCourse,internHandler);
+    }
+
+    public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
+        final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
+        mongo.findOne(this.collection, matches ,  result -> {
+            if ("ok".equals(result.body().getString(STATUS))) {
+                JsonObject oldCourse = result.body().getJsonObject("result");
+                if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
+                    JsonObject newCourse = new JsonObject(oldCourse.toString());
+                    newCourse.remove("_id");
                     course.remove("_id");
-                    newCourse.put(START_DATE, dates.getString("newStartTime"));
-                    newCourse.put(END_DATE, dates.getString("newEndTime"));
-                    oldCourse.put(END_DATE, dates.getString("oldEndTime"));
-                    oldCourse.put(START_DATE, dates.getString("oldStartTime"));
-                    updateElement(oldCourse,interneHandler);
-                    mongo.save(collection, newCourse,interneHandler);
-                    mongo.save(collection, course, interneHandler);
+                    excludeOccurrenceFromCourse(oldCourse,newCourse,getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
+                    mongo.save(collection, course, res ->{
+                        if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
+                        else handler.handle(new Either.Left<>("can't create this Occurrence")); });
                 }else {
                     LOGGER.error("can't find this course");
                     handler.handle(new Either.Left<>("can't find this course"));
@@ -104,7 +126,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    public void updateCourse (final JsonObject course, final Handler<Message<JsonObject>> handler){
+    private void updateCourse (final JsonObject course, final Handler<Message<JsonObject>> handler){
         final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
@@ -133,7 +155,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    public void deleteElement(final JsonObject matches,  final Handler<Either<String, JsonObject>> handler )   {
+    private void deleteElement(final JsonObject matches,  final Handler<Either<String, JsonObject>> handler )   {
         mongo.delete(collection, matches, result -> {
             if ("ok".equals(result.body().getString(STATUS))){
                 handler.handle(new Either.Right<>(matches));
@@ -226,6 +248,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
         return courseProperties;
     }
+
     private JsonObject getDatesForSplitPeriod( JsonObject oldCourse, JsonObject newCourse) {
         JsonObject splitDates = new JsonObject();
         Calendar endCalendarDate = Calendar.getInstance();
