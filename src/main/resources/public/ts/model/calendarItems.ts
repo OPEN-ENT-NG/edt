@@ -81,10 +81,10 @@ export class CalendarItems {
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
         endDate = moment(endDate).format('YYYY-MM-DD');
-        if (!structure ||  teacher.length <=0  &&  group.length<=0 || !firstDate || !endDate ) return;
+        if (!structure || (teacher.length <= 0 && model.me.type !== USER_TYPES.teacher )  &&  group.length<=0 || !firstDate || !endDate ) return;
         let filter = '';
         if (group.length <= 0 )
-            filter += model.me.type === USER_TYPES.personnel ? this.getFilterTeacher(teacher): 'teacherId='+model.me.userId;
+            filter += (model.me.type === USER_TYPES.teacher && teacher.length ===0 ) ?  'teacherId='+model.me.userId : this.getFilterTeacher(teacher);
         if (teacher.length <= 0  && group.length > 0 )
             filter += this.getFilterGroup(group);
         let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
