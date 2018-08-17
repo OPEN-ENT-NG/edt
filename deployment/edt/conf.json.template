@@ -1,5 +1,5 @@
     {
-      "name": "fr.cgi~edt~1.1-SNAPSHOT",
+      "name": "fr.cgi~edt~1.1.0",
       "config": {
         "main" : "fr.cgi.edt.Edt",
         "port" : 8168,
@@ -17,8 +17,7 @@
         "mode" : "${mode}",
         "entcore.port" : 8009,
         "dependencies" : {
-            "fr.openent.viescolaire": "0.4.0",
-            "org.entcore.directory": "1.25.0"
+            "fr.openent.viescolaire": "1.0.6"
         }
       }
     }
