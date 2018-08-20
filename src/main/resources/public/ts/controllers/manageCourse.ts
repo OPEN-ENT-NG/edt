@@ -1,12 +1,12 @@
 import { ng, _, model, moment, notify } from 'entcore';
-import {DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course} from '../model';
+import {DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects} from '../model';
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
     ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
 
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
-
+        $scope.selectionOfTeacherSubject = new Subjects();
         /**
          * keep the consistency between time of occurrence and dates of course
          */
@@ -37,8 +37,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             }
             Utils.safeApply($scope);
         };
-
-
+        $scope.syncSubjects = async () =>{
+            await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
+            $scope.structure.subjects.all.map((subject) => {
+                let defaultSubject = _.findWhere($scope.selectionOfTeacherSubject.all,{'subjectId': subject.subjectId});
+                subject.isDefault = !!defaultSubject;
+            });
+            Utils.safeApply($scope); 
+        };
         /**
          * Init Courses
          */
@@ -81,6 +87,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
         $scope.dropTeacher = (teacher: Teacher): void => {
             $scope.course.teachers = _.without($scope.course.teachers, teacher);
+            $scope.syncSubjects();
         };
 
         /**
