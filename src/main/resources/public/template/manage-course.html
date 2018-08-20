@@ -24,7 +24,9 @@
                 <div class="cell twelve-mobile ten">
                     <multi-combo title="[[translate('edt.creation.teachers.choose')]]" id="combo-teacher" combo-model="structure.teachers.all"
                                  search-on="displayName" order-by="displayName" filtered-model="course.teachers"
-                                 labels="comboLabels"></multi-combo>
+                                 labels="comboLabels"
+                                 selection-event="syncSubjects()"
+                                 deselection-event="syncSubjects()"></multi-combo>
                     <div class="select-blocks">
                         <div ng-repeat="teacher in course.teachers"
                              ng-click="dropTeacher(teacher, course.teachers)">[[teacher.displayName]]</div>
@@ -51,7 +53,7 @@
                 </label>
                 <div class="cell twelve-mobile ten">
                     <select class="twelve-mobile six" id="select-subject" ng-model="course.subjectId" required
-                            ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all">
+                            ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all | orderBy : '-isDefault' ">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                     </select>
                 </div>
