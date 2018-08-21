@@ -78,7 +78,7 @@
                     <i18n>edt.every.tow.weeks</i18n>*
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <switch ng-model="course.everyTwoWeek"></switch>
+                    <switch ng-model="course.everyTwoWeek" ng-change="UpToDateInfo()"></switch>
                 </div>
             </div>
             <div ng-if="!course.is_recurrent" class="row form-row">
@@ -118,6 +118,9 @@
                             <i18n>to</i18n>
                             <date-picker ng-change="changeDate()" ng-model="course.endDate"></date-picker>
                         </div>
+                    </div>
+                    <div ng-if="course.is_recurrent && course.everyTwoWeek" class="info ">
+                        <i18n>edt.firs.occurrence</i18n> : [[info.firstOccurrenceDate]] (<i18n>week</i18n> [[info.firstWeekNumber]])
                     </div>
                     <div ng-if="!validDate" class="warning  ">
                         <i18n>edt.erreur.date.debut.date.fin.not.valid</i18n>

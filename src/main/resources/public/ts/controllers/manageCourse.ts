@@ -1,5 +1,6 @@
 import { ng, _, model, moment, notify } from 'entcore';
 import {DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects} from '../model';
+import {Moment} from "moment";
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
     ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
@@ -7,9 +8,24 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
         $scope.selectionOfTeacherSubject = new Subjects();
+        $scope.info = {
+            firstOccurrenceDate : "",
+            firstWeekNumber : "",
+        };
         /**
          * keep the consistency between time of occurrence and dates of course
          */
+        $scope.UpToDateInfo = () => {
+            let occurrence = moment( $scope.course.startDate);
+            if($scope.course.courseOccurrences[0] && $scope.course.courseOccurrences[0].dayOfWeek) occurrence.day($scope.course.courseOccurrences[0].dayOfWeek);
+            else occurrence.day($scope.courseOccurrenceForm.dayOfWeek) ;
+            if( moment( $scope.course.startDate).isAfter(occurrence)  ) {
+                occurrence.add('days', 7);
+            }
+            $scope.info.firstOccurrenceDate =  occurrence.format('YYYY-MM-DD');
+            $scope.info.firstWeekNumber = occurrence.get('week');
+            Utils.safeApply($scope);
+        };
         $scope.changeDate = () => {
             let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
                 startTime = moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
@@ -35,6 +51,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                     return item;
                 });
             }
+            $scope.UpToDateInfo();
             Utils.safeApply($scope);
         };
         $scope.syncSubjects = async () =>{
@@ -43,7 +60,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 let defaultSubject = _.findWhere($scope.selectionOfTeacherSubject.all,{'subjectId': subject.subjectId});
                 subject.isDefault = !!defaultSubject;
             });
-            Utils.safeApply($scope); 
+            Utils.safeApply($scope);
         };
         /**
          * Init Courses
@@ -79,6 +96,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         }
         $scope.changeDate();
         Utils.safeApply($scope);
+
 
 
         /**
@@ -192,7 +210,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.dropCourse = async (course: Course ) => {
             if( course.canManage  ) {
-               $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
+                $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
                 delete  $scope.course;
                 $scope.goTo('/');
                 $scope.syncCourses();
