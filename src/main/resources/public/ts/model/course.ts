@@ -16,7 +16,7 @@ export class Course {
 
     dayOfWeek: number = null;
     endDate:string | object ;
-    startDate: string | object;
+    startDate: string | object ;
 
     everyTwoWeek:boolean = undefined;
     structureId: string = undefined;
@@ -161,7 +161,7 @@ export class Course {
      * @returns {string}
      */
 
-    getNextOccurrenceDate (date: Moment|string) :string {
+    getNextOccurrenceDate (date: Moment|Object|string) :string {
        let momentDate = moment(date);
        let occurrence = moment( _.clone(momentDate));
        occurrence.day(this.dayOfWeek);

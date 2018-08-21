@@ -71,6 +71,8 @@
   "edt.utils.back":"Retour",
   "edt.utils.save": "Sauvegarder",
   "edt.utils.modify": "Modifier",
+  "Week":"Semaine",
+  "edt.firs.occurrence":"1er occurrence",
   "edt.utils.delete": "Supprimer",
   "edt.utils.day": "Jour",
   "edt.utils.start.time": "Heure de début",
