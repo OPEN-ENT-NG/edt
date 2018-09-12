@@ -1,5 +1,6 @@
 package fr.cgi.edt;
 
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.shareddata.LocalMap;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
@@ -15,14 +16,14 @@ public class Edt extends BaseServer {
     public final static String EDT_SCHEMA = "edt";
     public final static String EXCLUSION_TABLE = "period_exclusion";
     public final static String EXCLUSION_TYPE_TABLE = "exclusion_type";
-
+    static EventBus eb;
     public final static String EXCLUSION_JSON_SCHEMA = "exclusion";
 
     @Override
     public void start() throws Exception {
         super.start();
-
-        addController(new EdtController(EDT_COLLECTION));
+        eb = getEventBus(vertx);
+        addController(new EdtController(EDT_COLLECTION, eb));
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());
 

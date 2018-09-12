@@ -1,5 +1,5 @@
 import { model } from 'entcore';
-import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES } from './index';
+import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES , Exclusions} from './index';
 import { Eventer } from 'entcore-toolkit';
 import {CalendarItems} from "./calendarItems";
 
@@ -13,7 +13,7 @@ export class Structure {
     teachers: Teachers;
     students: Students;
     eventer: Eventer = new Eventer();
-
+    exclusions: Exclusions ;
     /**
      * Structure constructor. Can take an id and a name in parameter
      * @param id structure id
@@ -27,6 +27,7 @@ export class Structure {
         this.courses = new Courses();
         this.calendarItems = new CalendarItems();
         this.teachers = new Teachers();
+        this.exclusions =  new Exclusions();
         if (model.me.type === USER_TYPES.relative) {
             this.students = new Students();
         }
@@ -43,14 +44,16 @@ export class Structure {
                 subjects: false,
                 groups: false,
                 teachers: false,
-                students: model.me.type !== USER_TYPES.relative
+                students: model.me.type !== USER_TYPES.relative,
+                exclusions: false
             };
 
             let endSync = () => {
                 let _b: boolean = syncedCollections.subjects
                 && syncedCollections.groups
                 && syncedCollections.teachers
-                && syncedCollections.students;
+                && syncedCollections.students
+                && syncedCollections.exclusions;
                 if (_b) {
                     resolve();
                     this.eventer.trigger('refresh');
@@ -60,6 +63,7 @@ export class Structure {
             this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; endSync(); });
             this.groups.sync(this.id).then(() => { syncedCollections.groups = true; endSync(); });
             this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
+            this.exclusions.sync(this.id).then(() => { syncedCollections.exclusions = true; endSync(); });
             if (model.me.type === USER_TYPES.relative) {
                 this.students.sync().then(() => { syncedCollections.students = true; endSync(); });
             }

@@ -1,6 +1,6 @@
 import { ng, _, model, moment, notify } from 'entcore';
 import {DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects} from '../model';
-import {Moment} from "moment";
+import { Mix } from 'entcore-toolkit';
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
     ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
@@ -11,18 +11,21 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.info = {
             firstOccurrenceDate : "",
             firstWeekNumber : "",
+            occurrenceInExclusion : false,
+            occurrenceOutExclusion : true,
         };
         /**
          * keep the consistency between time of occurrence and dates of course
          */
         $scope.UpToDateInfo = () => {
             let occurrence = moment( $scope.course.startDate);
-            if($scope.course.courseOccurrences[0] && $scope.course.courseOccurrences[0].dayOfWeek) occurrence.day($scope.course.courseOccurrences[0].dayOfWeek);
-            else occurrence.day($scope.courseOccurrenceForm.dayOfWeek) ;
-            if( moment( $scope.course.startDate).isAfter(occurrence)  ) {
+            if($scope.course.courseOccurrences[0] && $scope.course.courseOccurrences[0].dayOfWeek)
+                occurrence.day($scope.course.courseOccurrences[0].dayOfWeek);
+            else
+                occurrence.day($scope.courseOccurrenceForm.dayOfWeek);
+            if( moment( $scope.course.startDate).isAfter(occurrence) )
                 occurrence.add('days', 7);
-            }
-            $scope.info.firstOccurrenceDate =  occurrence.format('YYYY-MM-DD');
+            $scope.info.firstOccurrenceDate = occurrence.format('YYYY-MM-DD');
             $scope.info.firstWeekNumber = occurrence.get('week');
             Utils.safeApply($scope);
         };
@@ -52,8 +55,70 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 });
             }
             $scope.UpToDateInfo();
+            $scope.info.occurrenceInExclusion = $scope.isCourseInExclusions();
+            $scope.info.occurrenceOutExclusion = $scope.isCourseOutExclusions();
             Utils.safeApply($scope);
         };
+
+        $scope.isCourseInExclusions = ():boolean => {
+           let isOccurrenceInExclusion = false;
+           let exclusion;
+           let isCourseInExclusion = () => {
+               let startOccurrence ;
+               let startExclusion = moment(exclusion.start_date), endExclusion =moment(exclusion.end_date) ;
+               if( !$scope.course.is_recurrent ){
+                   startOccurrence = moment($scope.course.startDate);
+                   return !(startOccurrence.isBefore(startExclusion) || startOccurrence.isAfter(endExclusion))
+               } else {
+                   let courses = $scope.course.getCourseForEachOccurrence();
+                   for(let i= 0; i< courses.all.length; i++){
+                     let occurrenceDate = Mix.castAs(Course,courses.all[i]).getNextOccurrenceDate(exclusion.start_date);
+                     if(!(moment(occurrenceDate).isBefore(startExclusion) || moment(occurrenceDate).isAfter(endExclusion)))
+                         return true;
+                   }
+                   return false;
+               }
+           };
+           for(let i = 0; i < $scope.structure.exclusions.all.length; i++){
+               exclusion = $scope.structure.exclusions.all[i];
+               if(isCourseInExclusion()){
+                   isOccurrenceInExclusion = true;
+                   break;
+               }
+           }
+            return isOccurrenceInExclusion;
+        };
+        $scope.isCourseOutExclusions = ():boolean => {
+            let occurrenceOutExclusion = true;
+            let exclusion;
+            let isCourseOutExclusion = () => {
+                let startExclusion = moment(exclusion.start_date), endExclusion =moment(exclusion.end_date) ;
+                if(!$scope.course.is_recurrent){
+                    let startOccurrence = moment($scope.course.startDate);
+                    return (startOccurrence.isBefore(startExclusion) || startOccurrence.isAfter(endExclusion))
+                } else {
+                    let courses = $scope.course.getCourseForEachOccurrence();
+                    for(let i= 0; i< courses.all.length; i++){
+                        let startDate = moment(courses.all[i].startDate);
+                        let occurrenceDateFirst = Mix.castAs(Course,courses.all[i]).getNextOccurrenceDate(startDate);
+                        let occurrenceDateLast = Mix.castAs(Course,courses.all[i]).getLastOccurrence();
+                        if( moment(occurrenceDateFirst).isAfter(startExclusion)
+                                && (moment(occurrenceDateLast).isBefore(endExclusion) ))
+                            return false;
+                    }
+                    return true;
+                }
+            };
+            for(let i = 0; i < $scope.structure.exclusions.all.length; i++){
+                exclusion = $scope.structure.exclusions.all[i];
+                if(!isCourseOutExclusion()){
+                    occurrenceOutExclusion = false;
+                    break;
+                }
+            }
+            return occurrenceOutExclusion;
+        };
+
         $scope.syncSubjects = async () =>{
             await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
             $scope.structure.subjects.all.map((subject) => {
@@ -128,9 +193,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          * Create a course occurrence
          */
         $scope.submit_CourseOccurrence_Form = (): void => {
-            $scope.changeDate();
             $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
             $scope.courseOccurrenceForm = new CourseOccurrence();
+            $scope.changeDate();
         };
 
         /**
@@ -171,7 +236,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 await courses.save();
             }
             else{
-                course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
+                course.dayOfWeek = moment(course.startDate).day();
+                course.roomLabels = $scope.courseOccurrenceForm.roomLabels;
+                course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' +  moment($scope.courseOccurrenceForm.startTime).format('HH:mm:ss'));
+                course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + moment($scope.courseOccurrenceForm.endTime).format('HH:mm:ss'));
                 await course.save();
             }
             delete $scope.course;
@@ -190,6 +258,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.teachers.length > 0
                 && $scope.course.groups.length > 0
                 && $scope.course.subjectId !== undefined
+                && $scope.isCourseOutExclusions()
                 && (
                     (
                         $scope.course.is_recurrent

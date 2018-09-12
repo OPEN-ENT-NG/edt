@@ -87,6 +87,7 @@ export class CalendarItems {
             filter += (model.me.type === USER_TYPES.teacher && teacher.length ===0 ) ?  'teacherId='+model.me.userId : this.getFilterTeacher(teacher);
         if (teacher.length <= 0  && group.length > 0 )
             filter += this.getFilterGroup(group);
+
         let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
         let {data } = await http.get(uri);
         if (data.length > 0) {
@@ -99,7 +100,14 @@ export class CalendarItems {
         }
         return;
     }
-
+    async syncOccurrences(structureId,firstDate,endDate ) : Promise <void> {
+        let start = moment( firstDate).format('YYYY-MM-DD');
+        let end =moment( endDate).format('YYYY-MM-DD');
+        let uri = `/viescolaire/common/courses/${structureId}/${start}/${end}`;
+        let {data } = await http.get(uri);
+        this.all = data;
+        return ;
+    }
     getFilterTeacher = (table) => {
         let filter  ='';
         let name = 'teacherId=';

@@ -120,6 +120,9 @@ export class Course {
         if (this._id) {
             o._id = this._id;
         }
+
+        o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
+        o.endDate = moment(o.endDate).format('YYYY-MM-DDTHH:mm:ss');
         return o;
     }
     getCourseForEachOccurrence ():Courses {
@@ -169,6 +172,16 @@ export class Course {
            occurrence.add('days',this.everyTwoWeek? 14 : 7);
        }
        return occurrence.format('YYYY-MM-DD');
+    }
+
+    getPreviousOccurrenceDate (date: Moment|Object|string) :string {
+        let momentDate = moment(date);
+        let occurrence = moment( _.clone(momentDate));
+        occurrence.day(this.dayOfWeek);
+        if( momentDate.isBefore(occurrence)  ) {
+            occurrence.add('days',this.everyTwoWeek? -14 : -7);
+        }
+        return occurrence.format('YYYY-MM-DD');
     }
     getLastOccurrence() :CourseOccurrence{
         let date = moment( this.endDate).day(this.dayOfWeek);

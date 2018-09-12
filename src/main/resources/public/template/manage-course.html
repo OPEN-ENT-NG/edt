@@ -64,11 +64,11 @@
                 </label>
                 <div class="cell twelve-mobile ten">
                     <label>
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="false">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
                         <i18n>edt.type.punctual</i18n>
                     </label>
                     <label>
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="true">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
                         <i18n>edt.type.recurrent</i18n>
                     </label>
                 </div>
@@ -98,12 +98,19 @@
                     <input type="time" ng-model="courseOccurrenceForm.endTime" required/>
                 </div>
             </div>
+
             <div ng-if="!course.is_recurrent" class="row form-row">
                 <label class="cell two twelve-mobile">
                     <i18n>edt.utils.room</i18n>
                 </label>
                 <div class="cell twelve-mobile ten"><input ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
+            </div>
+            <div ng-if="info.occurrenceInExclusion && info.occurrenceOutExclusion" class="info ">
+                <i18n>edt.curse.on.exclusion.message</i18n>
+            </div>
+            <div ng-if="!info.occurrenceOutExclusion" class="warning ">
+                <i18n>edt.course.included.on.exclusion.message</i18n>
             </div>
             <div ng-if="course.is_recurrent" class="row form-row">
                 <div class="cell twelve">
@@ -176,6 +183,8 @@
                     </div>
                 </div>
             </div>
+
+
         </article>
 
         <div class="right-magnet vertical-spacing">

@@ -1,6 +1,7 @@
 import { Behaviours, moment } from 'entcore';
 import { Mix } from 'entcore-toolkit';
-import { Exclusion } from '../model';
+import {Courses, Exclusion} from '../model';
+import {CalendarItems} from "../model/calendarItems";
 
 export const SETTINGS_SNIPPLET = {
     hidden: true,
@@ -10,6 +11,7 @@ export const SETTINGS_SNIPPLET = {
                 exclusionForm: false,
                 DropLightbox: false
             };
+            this.periodCourses;
             this.current = { exclusion: null };
             this.sort = {
                 type: 'start_date',
@@ -23,8 +25,11 @@ export const SETTINGS_SNIPPLET = {
                 }
             });
         },
-        addExclusion: function () {
+        addExclusion:async function () {
+
             this.openExclusionForm(new Behaviours.applicationsBehaviours.edt.model.Exclusion(this.structure.id));
+            this.periodCourses = (new CalendarItems());
+            await this.periodCourses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
         },
         openExclusionForm: function (exclusion: Exclusion) {
             this.current.exclusion = exclusion;
@@ -44,12 +49,25 @@ export const SETTINGS_SNIPPLET = {
             this.display.exclusionForm = false;
         },
         createExclusion: async function () {
+            console.log(this.structure);
+            console.log(this);
             this.current.exclusion.loading = true;
             await this.current.exclusion.save();
             this.display.exclusionForm = false;
             this.current.exclusion.loading = false;
             await this.exclusions.sync(this.structure.id);
             this.$apply();
+        },
+        verifyCoursesInDatabase: async function () {
+            this.periodCourses = (new CalendarItems());
+            await this.periodCourses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
+            this.$apply();
+            return this.periodCourses.all.length;
+        },
+        coursePeriode: async function () {
+            let courses =  (new CalendarItems());
+            await courses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
+            return courses.all;
         },
         validDeletion: async function (ex: Exclusion) {
             await ex.delete();
@@ -69,10 +87,12 @@ export const SETTINGS_SNIPPLET = {
             return moment(date).format('DD/MM/YYYY');
         },
         currentExclusionValidation: function () {
+            console.log('debug log');
             if (this.current.exclusion) {
                 return this.current.exclusion.description.trim() !== ''
                     && moment(this.current.exclusion.end_date)
-                        .diff(moment(this.current.exclusion.start_date)) >= 0;
+                        .diff(moment(this.current.exclusion.start_date)) >= 0
+                    && moment().isBefore(this.current.exclusion.start_date);
             }
         },
         updateExclusion: function (exclusion) {

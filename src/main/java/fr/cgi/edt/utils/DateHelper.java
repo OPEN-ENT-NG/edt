@@ -15,22 +15,23 @@ public class DateHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
     public  final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
     public  final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    public  final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
     public  final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
     private static final String  START_DATE = "startDate";
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
     Calendar firstOccurrenceDate(JsonObject course){
-        Calendar start = getCalendar(course.getString(START_DATE));
+        Calendar start = getCalendar(course.getString(START_DATE), DATE_FORMATTER);
         start.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
-        if(start.before(getCalendar(course.getString(START_DATE)))){
+        if(start.before(getCalendar(course.getString(START_DATE),DATE_FORMATTER))){
             start.add(Calendar.WEEK_OF_YEAR, 1);
         }
         return start;
     }
     Calendar lastOccurrenceDate(JsonObject course){
-        Calendar end = getCalendar(course.getString(END_DATE));
+        Calendar end = getCalendar(course.getString(END_DATE), DATE_FORMATTER);
         end.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
-        if(end.after(getCalendar(course.getString(END_DATE)))){
+        if(end.after(getCalendar(course.getString(END_DATE), DATE_FORMATTER))){
             end.add(Calendar.WEEK_OF_YEAR, -1);
         }
         return end;
@@ -46,19 +47,19 @@ public class DateHelper {
         long start = startDate.getTimeInMillis();
         return (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
     }
-    Date getDate(String dateString){
+    public Date getDate(String dateString,SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
-            date =  DATE_FORMATTER.parse(dateString);
+            date =  dateFormat.parse(dateString);
         } catch (ParseException e) {
             LOGGER.error("error when casting date: ", e);
         }
         return date ;
     }
-    Calendar getCalendar(String dateString){
+    Calendar getCalendar(String dateString, SimpleDateFormat dateFormat){
         Calendar date= Calendar.getInstance();
         try{
-            date.setTime(DATE_FORMATTER.parse(dateString))  ;
+            date.setTime(dateFormat.parse(dateString))  ;
         } catch (ParseException e) {
             LOGGER.error("error when casting date: ", e);
         }
@@ -70,10 +71,11 @@ public class DateHelper {
             date =  DATE_FORMATTER.parse(
                     SIMPLE_DATE_FORMATTER.format(part1)
                             +'T'
-                            + TIME_FORMATTER.format(getDate(part2)));
+                            + TIME_FORMATTER.format(getDate(part2,DATE_FORMATTER)));
         } catch (ParseException e) {
             LOGGER.error("error when casting date: ", e);
         }
         return date ;
     }
+
 }
