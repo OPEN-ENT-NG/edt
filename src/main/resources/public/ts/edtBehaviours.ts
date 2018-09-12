@@ -6,7 +6,7 @@ import { Exclusion, Exclusions } from './model';
 export const edtBehaviours = {
     rights: {
         workflow: {
-            view: 'fr.cgi.edt.controllers.EdtController|view',
+                view: 'fr.cgi.edt.controllers.EdtController|view',
                 create: 'fr.cgi.edt.controllers.EdtController|create',
                 manage: 'fr.cgi.edt.controllers.EdtController|createExclusion'
         },
@@ -42,6 +42,6 @@ export const edtBehaviours = {
         Exclusions: Exclusions
     },
     sniplets: {
-        settings: SETTINGS_SNIPPLET
+        exclusion: SETTINGS_SNIPPLET
     }
 };

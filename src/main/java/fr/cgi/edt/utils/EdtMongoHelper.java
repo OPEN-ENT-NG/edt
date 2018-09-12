@@ -3,6 +3,7 @@ package fr.cgi.edt.utils;
 
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.bus.ErrorMessage;
@@ -26,8 +27,10 @@ public class EdtMongoHelper extends MongoDbCrudService {
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
     private final DateHelper dateHelper = new DateHelper();
-    public EdtMongoHelper(String collection) {
+    private final EventBus eb;
+    public EdtMongoHelper(String collection ,EventBus eb) {
         super(collection);
+        this.eb = eb;
     }
 
     private void checkTransactionStatus (Boolean onError, Integer valuesSize, List<String> ids, Handler<Either<String, JsonObject>> handler) {
@@ -93,8 +96,12 @@ public class EdtMongoHelper extends MongoDbCrudService {
         newCourse.put(END_DATE, dates.getString("newEndTime"));
         oldCourse.put(END_DATE, dates.getString("oldEndTime"));
         oldCourse.put(START_DATE, dates.getString("oldStartTime"));
-        if(dateHelper.getDate(oldCourse.getString(END_DATE)).after(dateHelper.getDate(oldCourse.getString(START_DATE)))) updateElement(oldCourse,internHandler);
-        if(dateHelper.getDate(newCourse.getString(END_DATE)).after(dateHelper.getDate(newCourse.getString(START_DATE)))) mongo.save(collection, newCourse,internHandler);
+        if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.DATE_FORMATTER)
+                .after(dateHelper.getDate(oldCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
+            updateElement(oldCourse,internHandler);
+        if(dateHelper.getDate(newCourse.getString(END_DATE),dateHelper.DATE_FORMATTER)
+                .after(dateHelper.getDate(newCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
+            mongo.save(collection, newCourse,internHandler);
     }
 
     public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
@@ -257,15 +264,15 @@ public class EdtMongoHelper extends MongoDbCrudService {
             Calendar startCalendarDate = Calendar.getInstance();
             startCalendarDate.setTime(dateHelper.getCombineDate(endCalendarDate.getTime(), newCourse.getString(START_DATE)));
             startCalendarDate.set(Calendar.DAY_OF_WEEK, newCourse.getInteger("dayOfWeek")+1);
-            if(dateHelper.daysBetween(startCalendarDate,dateHelper.getCalendar(newCourse.getString(END_DATE))) < 7 ){
-                startCalendarDate.setTime(dateHelper.getCombineDate(dateHelper.getDate(newCourse.getString(END_DATE)), newCourse.getString(START_DATE)));
+            if(dateHelper.daysBetween(startCalendarDate,dateHelper.getCalendar(newCourse.getString(END_DATE), dateHelper.DATE_FORMATTER)) < 7 ){
+                startCalendarDate.setTime(dateHelper.getCombineDate(dateHelper.getDate(newCourse.getString(END_DATE),dateHelper.DATE_FORMATTER), newCourse.getString(START_DATE)));
             }
             splitDates.put("startTime", dateHelper.DATE_FORMATTER.format(startCalendarDate.getTime())) ;
         }
-        Calendar startOldCourseDate = dateHelper.getCalendar(oldCourse.getString(START_DATE));
+        Calendar startOldCourseDate = dateHelper.getCalendar(oldCourse.getString(START_DATE), dateHelper.DATE_FORMATTER);
         startOldCourseDate.set(Calendar.DAY_OF_WEEK, oldCourse.getInteger("dayOfWeek")+1);
         if(dateHelper.daysBetween(endCalendarDate, startOldCourseDate ) <= 7){
-            Calendar startOldCalendarDate = dateHelper.getCalendar(oldCourse.getString(START_DATE));
+            Calendar startOldCalendarDate = dateHelper.getCalendar(oldCourse.getString(START_DATE), dateHelper.DATE_FORMATTER);
             startOldCalendarDate.set(Calendar.DAY_OF_WEEK, oldCourse.getInteger("dayOfWeek")+1);
             endCalendarDate.setTime(dateHelper.getCombineDate(startOldCalendarDate.getTime(), oldCourse.getString(END_DATE)));
         }
@@ -283,7 +290,6 @@ public class EdtMongoHelper extends MongoDbCrudService {
         newCourseStart.setTime(dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE)));
         oldCourseEnd.add(Calendar.DAY_OF_WEEK, -7);
         newCourseStart.add(Calendar.DAY_OF_WEEK, +7);
-
         splitDates.put("oldEndTime", dateHelper.DATE_FORMATTER.format( oldCourseEnd.getTime()));
         splitDates.put("oldStartTime", dateHelper.DATE_FORMATTER.format( oldCourseStart.getTime()));
         splitDates.put("newEndTime",dateHelper.DATE_FORMATTER.format( newCourseEnd.getTime()));

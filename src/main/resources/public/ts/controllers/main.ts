@@ -1,7 +1,7 @@
 import {_, Behaviours, idiom as lang, model, moment, ng, notify, template} from 'entcore';
 import {
     Course,
-    CourseOccurrence,
+    CourseOccurrence, Exclusions,
     Group,
     Structure,
     Structures,
@@ -348,13 +348,11 @@ export let main = ng.controller('EdtController',
                 setTimeout(function(){  initTriggers(); }, 1000);
 
             },
-            create: () => {
-
+            create:async () => {
                 let startDate = $scope.initDateCreatCourse();
                 const roundedDown = Math.floor(startDate.minute() / 15) * 15;
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
-
                 $scope.course = new Course({
                     teachers: _.clone($scope.params.user),
                     groups: _.clone($scope.params.group),
@@ -372,6 +370,7 @@ export let main = ng.controller('EdtController',
             edit: async  (params) => {
                 $scope.course =  new Course();
                 await $scope.course.sync(params.idCourse, $scope.structure);
+
                 $scope.initDateCreatCourse( params, $scope.course );
                 if (params.type === 'occurrence'){
                     $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());

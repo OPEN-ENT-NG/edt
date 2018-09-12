@@ -9,17 +9,21 @@ import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.cgi.edt.services.impl.SettingsServicePostgresImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
+import fr.cgi.edt.utils.DateHelper;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.request.RequestUtils;
+import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+
+import java.util.Date;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
@@ -42,11 +46,11 @@ public class EdtController extends MongoDbControllerHelper {
      * Creates a new controller.
      * @param collection Name of the collection stored in the mongoDB database.
      */
-    public EdtController(String collection) {
+    public EdtController(String collection, EventBus eb) {
         super(collection);
-        edtService = new EdtServiceMongoImpl(collection);
+        edtService = new EdtServiceMongoImpl(collection, eb);
         userService = new UserServiceNeo4jImpl();
-        settingsService = new SettingsServicePostgresImpl(Edt.EDT_SCHEMA, Edt.EXCLUSION_TABLE);
+        settingsService = new SettingsServicePostgresImpl(Edt.EDT_SCHEMA, Edt.EXCLUSION_TABLE, collection ,eb);
     }
 
     /**
@@ -121,7 +125,17 @@ public class EdtController extends MongoDbControllerHelper {
     @ApiDoc("Create a period exclusion")
     public void createExclusion (final HttpServerRequest request) {
         RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                exclusion -> settingsService.createExclusion(exclusion, arrayResponseHandler(request)));
+                exclusion -> {
+                    DateHelper dateHelper = new DateHelper();
+            Date start_date =  dateHelper.getDate( exclusion.getString("start_date"), dateHelper.DATE_FORMATTER_SQL);
+            Date end_date =  dateHelper.getDate( exclusion.getString("end_date"), dateHelper.DATE_FORMATTER_SQL);
+            Date now = new Date();
+            if(end_date.after(start_date) &&  ! start_date.before(now)) {
+                settingsService.createExclusion(exclusion, arrayResponseHandler(request));
+            }else {
+                badRequest(request);
+            }
+        });
     }
 
     //TODO Manage security. Switch authenticated filter to ressource filter
@@ -133,7 +147,17 @@ public class EdtController extends MongoDbControllerHelper {
         try {
             final Integer id = Integer.parseInt(request.params().get("id"));
             RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                    exclusion -> settingsService.updateExclusion(id, exclusion, arrayResponseHandler(request)));
+                    exclusion -> {
+                        DateHelper dateHelper = new DateHelper();
+                        Date start_date =  dateHelper.getDate( exclusion.getString("start_date"),dateHelper.DATE_FORMATTER);
+                        Date end_date =  dateHelper.getDate( exclusion.getString("end_date"), dateHelper.DATE_FORMATTER);
+                        Date now = new Date();
+                        if(start_date.before(end_date) && now.before(start_date)) {
+                            settingsService.updateExclusion(id, exclusion, arrayResponseHandler(request));
+                        }else {
+                            badRequest(request);
+                        }
+                    });
         } catch (ClassCastException e) {
             log.error("E008 : An error occurred when casting exclusion id");
             badRequest(request);

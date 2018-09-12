@@ -33,13 +33,16 @@
                 <label class="cell two twelve-mobile">
                     <i18n>edt.settings.exclusion.start_date</i18n>
                 </label>
-                <date-picker class="cell" ng-model="current.exclusion.start_date"></date-picker>
+                <date-picker class="cell" ng-model="current.exclusion.start_date" ng-change="verifyCoursesInDatabase()"></date-picker>
             </div>
             <div class="row">
                 <label class="cell two twelve-mobile">
                     <i18n>edt.settings.exclusion.end_date</i18n>
                 </label>
-                <date-picker class="cell" ng-model="current.exclusion.end_date"></date-picker>
+                <date-picker class="cell" ng-model="current.exclusion.end_date" ng-change="verifyCoursesInDatabase()"></date-picker>
+            </div>
+            <div class="info" ng-if="periodCourses.all.length">
+                <i18n>edt.info.message.there.is.courses.to.delete</i18n>
             </div>
             <div class="row">
                 <button class="right-magnet" ng-disabled="!currentExclusionValidation()">
