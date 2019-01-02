@@ -208,15 +208,35 @@ export let main = ng.controller('EdtController',
             return moment(date).format('YYYY-MM-DD');
         };
 
-        let initTriggers = () => {
-            if ( $scope.isTeacher() || $scope.isStudent())
-                return ;
+        let initTriggers = (InitBool ?: boolean) => {
+            console.log("initTrigger");
+          //  if ( $scope.isTeacher() || $scope.isStudent())
+              //  return ;
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
                 if ($location.path() !== '/create') {
                     $scope.createCourse();
                 }
             });
+            if(model.calendar.days.all[0].name === "sunday" && model.calendar.increment === "week"){
+                let temp= model.calendar.days.all[0];
+                temp.date = moment(temp.date).add(7, 'days');
+                model.calendar.days.all[0]=  model.calendar.days.all[1];
+                model.calendar.days.all[1]=  model.calendar.days.all[2];
+                model.calendar.days.all[2]=  model.calendar.days.all[3];
+                model.calendar.days.all[3]=  model.calendar.days.all[4];
+                model.calendar.days.all[4]=  model.calendar.days.all[5];
+                model.calendar.days.all[5]=  model.calendar.days.all[6];
+                model.calendar.days.all[6]= temp;
+
+                Utils.safeApply($scope);
+
+
+            }
+            console.log(model.calendar.days.all[2]);
+
+
+
             // --Start -- Calendar Drag and Drop
             let $dragging = null;
             let topPositionnement = 0;
@@ -265,8 +285,8 @@ export let main = ng.controller('EdtController',
                     }
                 });
 
-            $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
-            $('calendar .next-timeslots').mousedown(()=> {initTriggers()});
+        //    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
+       //     $('calendar .next-timeslots').mousedown(()=> {initTriggers()});
             // --End -- Calendar Drag and Drop
         };
 
@@ -303,7 +323,7 @@ export let main = ng.controller('EdtController',
         }, true);
         $scope.$watch( () => {return model.calendar.timeSlots.all}, async function (newValue, oldValue) {
             if (newValue !== oldValue) {
-                setTimeout(function(){  initTriggers(); }, 1000);
+            //    setTimeout(function(){  initTriggers(); }, 1000);
             }
         }, true);
 
@@ -345,7 +365,8 @@ export let main = ng.controller('EdtController',
                 $scope.syncCourses();
                 template.open('main', 'main');
                 Utils.safeApply($scope);
-                setTimeout(function(){  initTriggers(); }, 1000);
+                console.log("main");
+                setTimeout(function(){  initTriggers(true); }, 1000);
 
             },
             create:async () => {
