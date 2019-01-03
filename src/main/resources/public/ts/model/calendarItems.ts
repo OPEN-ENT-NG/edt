@@ -80,7 +80,7 @@ export class CalendarItems {
         let firstDate = Utils.getFirstCalendarDay();
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
-        endDate = moment(endDate).format('YYYY-MM-DD');
+         endDate = moment(endDate).format('YYYY-MM-DD');
         if (!structure || (teacher.length <= 0 && model.me.type !== USER_TYPES.teacher )  &&  group.length<=0 || !firstDate || !endDate ) return;
         let filter = '';
         if (group.length <= 0 )
@@ -93,7 +93,6 @@ export class CalendarItems {
         if (data.length > 0) {
             this.all = data.map((item) => {
                 item = new CalendarItem(item, item.startDate, item.endDate);
-                item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
                 item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
                 return item;
             });

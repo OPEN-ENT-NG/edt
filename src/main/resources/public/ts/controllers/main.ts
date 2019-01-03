@@ -35,11 +35,9 @@ export let main = ng.controller('EdtController',
             show: false,
             display: () => {
                 $scope.calendarLoader.show = true;
-                Utils.safeApply($scope);
             },
             hide: () => {
                 $scope.calendarLoader.show = false;
-                Utils.safeApply($scope);
             }
         };
 
@@ -119,14 +117,16 @@ export let main = ng.controller('EdtController',
         $scope.syncCourses = async () => {
             if ($scope.params.user  && $scope.params.user.length > 0
                 && $scope.params.group && $scope.params.group.length > 0) {
+
                 notify.error('');
             } else  {
+
                 $scope.calendarLoader.display();
+
                 $scope.structure.calendarItems.all = [];
                 await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
                 await   Utils.safeApply($scope);
-                initTriggers();
             }
         };
 
@@ -193,7 +193,7 @@ export let main = ng.controller('EdtController',
         $scope.cancelEditionLightbox = () =>{
             $scope.syncCourses();
             $scope.show.home_lightbox = false;
-            initTriggers();
+
             Utils.safeApply($scope);
         };
 
@@ -208,34 +208,22 @@ export let main = ng.controller('EdtController',
             return moment(date).format('YYYY-MM-DD');
         };
 
-        let initTriggers = (InitBool ?: boolean) => {
-            console.log("initTrigger");
-          //  if ( $scope.isTeacher() || $scope.isStudent())
-              //  return ;
+        let initTriggers = (init ?: boolean) => {
+            if(!init){
+                return;
+            }
+
+            //  if ( $scope.isTeacher() || $scope.isStudent())
+            //  return ;
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
                 if ($location.path() !== '/create') {
                     $scope.createCourse();
                 }
             });
-            if(model.calendar.days.all[0].name === "sunday" && model.calendar.increment === "week"){
-                let temp= model.calendar.days.all[0];
-                temp.date = moment(temp.date).add(7, 'days');
-                model.calendar.days.all[0]=  model.calendar.days.all[1];
-                model.calendar.days.all[1]=  model.calendar.days.all[2];
-                model.calendar.days.all[2]=  model.calendar.days.all[3];
-                model.calendar.days.all[3]=  model.calendar.days.all[4];
-                model.calendar.days.all[4]=  model.calendar.days.all[5];
-                model.calendar.days.all[5]=  model.calendar.days.all[6];
-                model.calendar.days.all[6]= temp;
 
-                Utils.safeApply($scope);
-
-
-            }
-            console.log(model.calendar.days.all[2]);
-
-
+            model.calendar.setDate(moment());
+       //     Utils.safeApply($scope);
 
             // --Start -- Calendar Drag and Drop
             let $dragging = null;
@@ -285,47 +273,18 @@ export let main = ng.controller('EdtController',
                     }
                 });
 
-        //    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
-       //     $('calendar .next-timeslots').mousedown(()=> {initTriggers()});
+            /*        $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
+                    $('calendar .next-timeslots').mousedown(()=> {initTriggers()});*/
             // --End -- Calendar Drag and Drop
         };
+        model.calendar.on('date-change'  ,  function(){
+            $scope.syncCourses();
 
 
-        /**
+        });      /**
          * Subscriber to directive calendar changes event
          */
-        $scope.$watch( () => {return  model.calendar.firstDay}, function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if (moment(oldValue).format('DD/MM/YYYY') !== moment(newValue).format('DD/MM/YYYY')) {
-                    $scope.syncCourses();
-                }
-            }
-        }, true);
 
-
-        $scope.$watch( () => {return  model.calendar.increment}, function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-
-                $scope.syncCourses();
-            }
-        }, true);
-        $scope.$watch( () => {return  $scope.params.user}, function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if(newValue.length > 0) $scope.params.group = [];
-                $scope.syncCourses();
-            }
-        }, true);
-        $scope.$watch( () => {return  $scope.params.group}, async function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-                if(newValue.length > 0)  $scope.params.user = [];
-                $scope.syncCourses();
-            }
-        }, true);
-        $scope.$watch( () => {return model.calendar.timeSlots.all}, async function (newValue, oldValue) {
-            if (newValue !== oldValue) {
-            //    setTimeout(function(){  initTriggers(); }, 1000);
-            }
-        }, true);
 
         $scope.initDateCreatCourse = (param?, course?: Course) => {
 
@@ -364,8 +323,6 @@ export let main = ng.controller('EdtController',
             main:  () => {
                 $scope.syncCourses();
                 template.open('main', 'main');
-                Utils.safeApply($scope);
-                console.log("main");
                 setTimeout(function(){  initTriggers(true); }, 1000);
 
             },
