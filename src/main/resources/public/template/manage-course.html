@@ -5,7 +5,6 @@
     </h1>
     <form>
         <article>
-            <h3><i18n>edt.utils.configuration</i18n></h3>
             <div ng-if="structures.all.length > 1" class="row form-row">
                 <label for="select-structure" class="cell two twelve-mobile asterisk obligatoire">
                     Structure
@@ -52,7 +51,7 @@
                     <i18n>subject</i18n>*
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <select class="twelve-mobile six" id="select-subject" ng-model="course.subjectId" required
+                    <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId" required
                             ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all | orderBy : '-isDefault' ">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                     </select>
@@ -62,7 +61,7 @@
                 <label class="cell two twelve-mobile">
                     <i18n>edt.type</i18n>*
                 </label>
-                <div class="cell twelve-mobile ten">
+                <div class="cell twelve-mobile two">
                     <label>
                         <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
                         <i18n>edt.type.punctual</i18n>
@@ -72,15 +71,16 @@
                         <i18n>edt.type.recurrent</i18n>
                     </label>
                 </div>
-            </div>
-            <div class="row form-row" ng-if="course.is_recurrent">
-                <label class="cell two twelve-mobile">
-                    <i18n>edt.every.tow.weeks</i18n>*
-                </label>
-                <div class="cell twelve-mobile ten">
-                    <switch ng-model="course.everyTwoWeek" ng-change="UpToDateInfo()"></switch>
+                <div ng-if="course.is_recurrent">
+                    <label class="cell twelve-mobile margin-right-lg">
+                        <i18n>edt.every.two.weeks</i18n>
+                    </label>
+                    <div class="cell twelve-mobile">
+                        <switch ng-model="course.everyTwoWeek" ng-change="UpToDateInfo()"></switch>
+                    </div>
                 </div>
             </div>
+
             <div ng-if="!course.is_recurrent" class="row form-row">
                 <label class="cell two twelve-mobile">
                     <i18n>date</i18n>*
@@ -90,20 +90,20 @@
                     <date-picker
                             ng-model="course.startDate"
                             ng-change="changeDate()"
-                    >
+                            class="text-center remove-padding margin-left-md margin-right-md width-7">
                     </date-picker>
                     <i18n>from2</i18n>
-                    <input type="time" ng-model="courseOccurrenceForm.startTime" required/>
+                    <input type="time" ng-model="courseOccurrenceForm.startTime" class="margin-left-lg margin-right-lg" required/>
                     <i18n>to2</i18n>
-                    <input type="time" ng-model="courseOccurrenceForm.endTime" required/>
+                    <input type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
                 </div>
             </div>
 
-            <div ng-if="!course.is_recurrent" class="row form-row">
+            <div ng-if="!course.is_recurrent" class="row form-row remove-padding">
                 <label class="cell two twelve-mobile">
                     <i18n>edt.utils.room</i18n>
                 </label>
-                <div class="cell twelve-mobile ten"><input ng-model="courseOccurrenceForm.roomLabels[0]"/>
+                <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
             </div>
             <div ng-if="info.occurrenceInExclusion && info.occurrenceOutExclusion" class="info ">
@@ -121,9 +121,9 @@
                         <div class="cell twelve-mobile ten">
 
                             <i18n>from</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.startDate" ></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.startDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             <i18n>to</i18n>
-                            <date-picker ng-change="changeDate()" ng-model="course.endDate"></date-picker>
+                            <date-picker ng-change="changeDate()" ng-model="course.endDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                         </div>
                     </div>
                     <div ng-if="course.is_recurrent && course.everyTwoWeek" class="info ">
@@ -171,7 +171,7 @@
                                 </td>
                                 <td><input type="time" ng-model="courseOccurrenceForm.startTime" required/></td>
                                 <td><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
-                                <td><input ng-model="courseOccurrenceForm.roomLabels[0]"/></td>
+                                <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" class="text-center remove-padding width-7"/></td>
                                 <td>
                                     <button ng-disabled="!courseOccurrenceForm.isValidTime()" ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
