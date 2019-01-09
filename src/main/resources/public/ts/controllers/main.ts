@@ -120,9 +120,12 @@ export let main = ng.controller('EdtController',
 
                 notify.error('');
             } else  {
-
+                if ($scope.isRelative()) {
+                    let arrayIds = model.me.classes;
+                    let groups = $scope.structure.groups.all;
+                    $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
+                }
                 $scope.calendarLoader.display();
-
                 $scope.structure.calendarItems.all = [];
                 await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
                 $scope.calendarLoader.hide();
