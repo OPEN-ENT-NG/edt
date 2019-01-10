@@ -194,7 +194,6 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.cancelEditionLightbox = () =>{
-            $scope.syncCourses();
             $scope.show.home_lightbox = false;
 
             Utils.safeApply($scope);
@@ -240,15 +239,7 @@ export let main = ng.controller('EdtController',
                 $('calendar .selected-timeslot').remove();
             };
 
-            $('calendar .schedule-item')
-                .css('cursor','move')
-                .mousedown((e)=>  {
-                    $dragging = UtilDragAndDrop.takeSchedule(e,$timeslots);
-                    startPosition = $dragging.offset();
-                    let calendar = $('calendar');
-                    calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                    calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                });
+
 
             $timeslots
                 .mousemove((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging))
@@ -274,6 +265,15 @@ export let main = ng.controller('EdtController',
                         if(coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
                         initVar();
                     }
+                });
+            $('calendar .schedule-item')
+                .css('cursor','move')
+                .mousedown((e)=>  {
+                    $dragging = UtilDragAndDrop.takeSchedule(e,$timeslots);
+                    startPosition = $dragging.offset();
+                    let calendar = $('calendar');
+                    calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                    calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
                 });
 
                 /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
