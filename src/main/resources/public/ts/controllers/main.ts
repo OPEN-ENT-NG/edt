@@ -245,10 +245,10 @@ export let main = ng.controller('EdtController',
                 .mousemove((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging))
                 .mouseenter((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
-            $('calendar hr')
+           $('calendar hr')
                 .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
-            $('calendar div.edit-icone')
+            $('.edit-icone')
                 .css('cursor','pointer')
                 .mousedown((e) => {
                     e.stopPropagation();
