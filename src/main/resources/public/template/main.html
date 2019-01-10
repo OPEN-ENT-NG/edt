@@ -12,10 +12,13 @@
 </div>
 <div class="row">
 
-    <article ng-if="!isStudent()" class="cell two twelve-mobile" static-include="/edt/public/template/main/sidebar.html"></article>
+    <article ng-if="isPersonnel() || isTeacher() || (isRelative() && structures.all.length > 1)" class="cell two twelve-mobile"
+             static-include="/edt/public/template/main/sidebar.html">
+    </article>
 
     <!-- Calendar View -->
-    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: !isStudent(), twelve: isStudent()}">
+    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: isPersonnel() || isTeacher() ||
+    (isRelative() && structures.all.length > 1), twelve: isStudent() || (isRelative() && structures.all.length < 2)}">
         <div class="loader" ng-if="calendarLoader.show">
             <div>
                 <p><i class="spinner"></i></p>
