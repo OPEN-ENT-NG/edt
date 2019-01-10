@@ -212,10 +212,9 @@ export let main = ng.controller('EdtController',
         };
 
         let initTriggers = (init ?: boolean) => {
-            if(!init){
-                return;
+            if(init){
+                model.calendar.setDate(moment());
             }
-
             //  if ( $scope.isTeacher() || $scope.isStudent())
             //  return ;
             model.calendar.eventer.off('calendar.create-item');
@@ -225,7 +224,7 @@ export let main = ng.controller('EdtController',
                 }
             });
 
-            model.calendar.setDate(moment());
+
        //     Utils.safeApply($scope);
 
             // --Start -- Calendar Drag and Drop
@@ -268,6 +267,7 @@ export let main = ng.controller('EdtController',
 
             $('calendar')
                 .mouseup(  (e) => {
+
                     if($dragging){
                         $('.timeslot').removeClass( 'selecting-timeslot' );
                         let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
@@ -276,12 +276,14 @@ export let main = ng.controller('EdtController',
                     }
                 });
 
-            /*        $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
+                /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
                     $('calendar .next-timeslots').mousedown(()=> {initTriggers()});*/
             // --End -- Calendar Drag and Drop
         };
-        model.calendar.on('date-change'  ,  function(){
-            $scope.syncCourses();
+        model.calendar.on('date-change'  , async function(){
+          //  console.log("date*-change");
+           await $scope.syncCourses();
+           initTriggers();
 
 
         });      /**
