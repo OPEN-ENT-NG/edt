@@ -1,4 +1,4 @@
-import { moment, model, me, Behaviours, _ } from 'entcore';
+import { moment, model, Behaviours, _ } from 'entcore';
 
 export class Utils {
 
@@ -40,11 +40,11 @@ export class Utils {
 
     };
 
-    static getFirstCalendarDay () :moment {
+    static getFirstCalendarDay () :any {
         return model.calendar.firstDay;
     }
 
-    static getLastCalendarDay () :moment {
+    static getLastCalendarDay () :any {
         return moment(model.calendar.firstDay).add(1, model.calendar.increment+'s');
     }
 }

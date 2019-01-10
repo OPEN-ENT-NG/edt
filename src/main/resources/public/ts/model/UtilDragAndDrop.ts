@@ -1,4 +1,4 @@
-import { moment, model, me, Behaviours, _ } from 'entcore';
+import { moment, model, Behaviours, _ } from 'entcore';
 
 
 export class UtilDragAndDrop {

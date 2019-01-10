@@ -1,12 +1,10 @@
-import {model, moment, _, notify, Behaviours} from 'entcore';
+import { _, model, moment} from 'entcore';
 import http from 'axios';
-import {USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
-
-
+import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
 export class CalendarItem {
 
     startDate: string | object;
-    beginning: moment;
+    beginning: any
     startMoment: any;
     startMomentDate: string;
     startMomentTime: string;
@@ -21,7 +19,7 @@ export class CalendarItem {
     endMomentTime: string;
     originalEndMoment?: any;
     endCourse: string | Date;
-    end: moment;
+    end: any;
 
     course: Course;
 
@@ -90,6 +88,7 @@ export class CalendarItems {
         if (data.length > 0) {
             this.all = data.map((item) => {
                 item = new CalendarItem(item, item.startDate, item.endDate);
+                item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
                 item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
                 return item;
             });
