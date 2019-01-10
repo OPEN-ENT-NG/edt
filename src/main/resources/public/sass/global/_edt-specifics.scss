@@ -6,6 +6,7 @@ body.edt {
   @import './specifics/custom';
   @import './specifics/switch';
   @import './specifics/atomic';
+  @import './specifics/fixCalendarHRFirefox';
 
 
   div.selecting-timeslot{
