@@ -1,4 +1,4 @@
-import {_, Behaviours, idiom as lang, model, moment, ng, notify, template} from 'entcore';
+import {_, Behaviours, idiom as lang, model, moment, ng, notify, template, angular} from 'entcore';
 import {
     Course,
     CourseOccurrence, Exclusions,
@@ -19,6 +19,8 @@ export let main = ng.controller('EdtController',
         $scope.params = {
             user: [],
             group: [],
+            oldGroup:[],
+            oldUser: [],
             updateItem: null,
             dateFromCalendar: null
         };
@@ -118,7 +120,7 @@ export let main = ng.controller('EdtController',
             if ($scope.params.user  && $scope.params.user.length > 0
                 && $scope.params.group && $scope.params.group.length > 0) {
 
-                notify.error('');
+                notify.error('Recherche simultannée de profs et de classe ');
             } else  {
                 if ($scope.isRelative()) {
                     let arrayIds = model.me.classes;
@@ -212,6 +214,9 @@ export let main = ng.controller('EdtController',
 
         let initTriggers = (init ?: boolean) => {
             if(init){
+                $scope.params.oldGroup = angular.copy($scope.params.group);
+                $scope.params.oldUser = angular.copy($scope.params.user);
+
                 model.calendar.setDate(moment());
             }
             //  if ( $scope.isTeacher() || $scope.isStudent())
@@ -224,7 +229,7 @@ export let main = ng.controller('EdtController',
             });
 
 
-       //     Utils.safeApply($scope);
+            //     Utils.safeApply($scope);
 
             // --Start -- Calendar Drag and Drop
 
@@ -285,14 +290,40 @@ export let main = ng.controller('EdtController',
             // --End -- Calendar Drag and Drop
         };
         model.calendar.on('date-change'  , async function(){
-          //  console.log("date*-change");
-           await $scope.syncCourses();
-           initTriggers();
+            console.log("date*-change");
+            await $scope.syncCourses();
+            initTriggers();
 
 
         });      /**
          * Subscriber to directive calendar changes event
          */
+
+        $scope.updateDatas = async () => {
+            if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
+                await $scope.syncCourses();
+                initTriggers();
+                $scope.params.user = [];
+                $scope.params.oldGroup = angular.copy($scope.params.group);
+
+            }
+
+
+
+            if(!angular.equals($scope.params.oldUser, $scope.params.user)){
+                await $scope.syncCourses();
+                initTriggers();
+                $scope.params.group = [];
+                $scope.params.oldUser = angular.copy($scope.params.user);
+
+            }
+
+
+
+
+
+
+        }
 
 
         $scope.initDateCreatCourse = (param?, course?: Course) => {

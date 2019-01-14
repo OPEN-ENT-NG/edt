@@ -28,6 +28,7 @@
                             order-by="displayName"
                             filtered-model="params.user"
                             labels="comboLabels"
+                            ng-click="updateDatas();"
                     ></multi-combo>
                     <div class="select-blocks">
                         <div ng-repeat="teacher in params.user"
@@ -47,6 +48,8 @@
                             order-by="type_groupe"
                             filtered-model="params.group"
                             labels="comboLabels"
+                            ng-click="updateDatas();"
+
                     ></multi-combo>
                     <div class="select-blocks">
                         <div ng-repeat="group in params.group" class="[[group.color]]"
