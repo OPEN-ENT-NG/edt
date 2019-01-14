@@ -96,6 +96,8 @@
                     <input type="time" ng-model="courseOccurrenceForm.startTime" class="margin-left-lg margin-right-lg" required/>
                     <i18n>to2</i18n>
                     <input type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
+                    <p class="warning " ng-if="!startTimeIsAfterEdTime()"><i18n>error.timeAfterBefore</i18n></p>
+
                 </div>
             </div>
 
@@ -124,6 +126,7 @@
                             <date-picker ng-change="changeDate()" ng-model="course.startDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             <i18n>to</i18n>
                             <date-picker ng-change="changeDate()" ng-model="course.endDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
+
                         </div>
                     </div>
                     <div ng-if="course.is_recurrent && course.everyTwoWeek" class="info ">
