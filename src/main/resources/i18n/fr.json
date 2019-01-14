@@ -116,5 +116,6 @@
   "edt.erreur.date.debut.date.fin.not.valid":"La date de début doit être inférieure à la date de fin.",
   "edt.info.message.there.is.courses.to.delete":"Des cours ont déjà été programmés sur cette période, l'enregistrement entrainera leur suppression.",
   "edt.curse.on.exclusion.message":"Votre cours s'étale sur une période de jour fermé.",
-  "edt.course.included.on.exclusion.message":"Votre cours est inclus dans une période fermée"
+  "edt.course.included.on.exclusion.message":"Votre cours est inclus dans une période fermée",
+  "error.timeAfterBefore":"L'heure de fin doit être au moins supérieure de 15 minutes à l'heure de début"
 }

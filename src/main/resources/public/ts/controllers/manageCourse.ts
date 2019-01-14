@@ -277,7 +277,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
 
-
+        $scope.startTimeIsAfterEdTime = () =>{
+            return   moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"));
+        }
         $scope.dropCourse = async (course: Course ) => {
             if( course.canManage  ) {
                 $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
