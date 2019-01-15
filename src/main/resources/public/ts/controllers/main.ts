@@ -117,25 +117,21 @@ export let main = ng.controller('EdtController',
          * @returns {Promise<void>}
          */
         $scope.syncCourses = async () => {
-            if ($scope.params.user  && $scope.params.user.length > 0
-                && $scope.params.group && $scope.params.group.length > 0) {
 
-                notify.error('Recherche simultannée de profs et de classe ');
-            } else  {
-                if ($scope.isRelative()) {
-                    let arrayIds = model.me.classes;
-                    let groups = $scope.structure.groups.all;
-                    $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
-                }
-                $scope.calendarLoader.display();
-                $scope.structure.calendarItems.all = [];
-                if($scope.params.group.length > 0){
-                    await $scope.structure.calendarItems.getGroups($scope.params.group);
-                }
-                await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
-                $scope.calendarLoader.hide();
-                await   Utils.safeApply($scope);
+            if ($scope.isRelative()) {
+                let arrayIds = model.me.classes;
+                let groups = $scope.structure.groups.all;
+                $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
             }
+            $scope.calendarLoader.display();
+            $scope.structure.calendarItems.all = [];
+            if($scope.params.group.length > 0){
+             //   await $scope.structure.calendarItems.getGroups($scope.params.group);
+            }
+            await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
+            $scope.calendarLoader.hide();
+            await   Utils.safeApply($scope);
+
         };
 
         if ($scope.isRelative()) {
@@ -200,6 +196,7 @@ export let main = ng.controller('EdtController',
 
         $scope.cancelEditionLightbox = () =>{
             $scope.show.home_lightbox = false;
+            template.close('homePagePopUp');
 
             Utils.safeApply($scope);
         };
@@ -307,7 +304,6 @@ export let main = ng.controller('EdtController',
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldGroup = angular.copy($scope.params.group);
-                $scope.params.user = [];
             }
 
 
@@ -316,7 +312,6 @@ export let main = ng.controller('EdtController',
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldUser = angular.copy($scope.params.user);
-                $scope.params.group = [];
 
             }
 
