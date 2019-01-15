@@ -12,6 +12,7 @@ export class Group {
         this.color = color;
     }
 
+
     toString (): string {
         return this.name;
     }
