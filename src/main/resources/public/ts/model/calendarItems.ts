@@ -103,9 +103,10 @@ export class CalendarItems {
         endDate = moment(endDate).format('YYYY-MM-DD');
         if (!structure || (teacher.length <= 0 && model.me.type !== USER_TYPES.teacher) && group.length <= 0 || !firstDate || !endDate) return;
         let filter = '';
-        if (group.length <= 0)
-            filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher);
-        if (teacher.length <= 0 && group.length > 0)
+        if (teacher.length > 0)
+            filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
+        if (group.length > 0)
+
             filter += this.getFilterGroup(group);
 
         let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
@@ -160,7 +161,7 @@ export class CalendarItems {
         for (let i = 0; i < table.length; i++) {
             if (table[i]) {
                filter += `${name}${table[i].id}`;
-            //    filter += `${name}29e187b8-4ec0-4dfa-b99c-33b562cbdd76`;
+
                 if (i !== table.length - 1)
                     filter += '&';
             }
