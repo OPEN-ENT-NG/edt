@@ -192,8 +192,7 @@
 
         </article>
 
-        <div class="right-magnet vertical-spacing">
-
+        <div class="right-magnet">
 
             <button   class="cancel" type="button" ng-click="cancelCreation()">
                 <i18n ng-show="course.canManage || !isAnUpdate">edt.utils.cancel</i18n>
@@ -208,7 +207,6 @@
             <button ng-show="isAnUpdate && course.canManage" type="button" ng-click="dropCourse(course)" >
                 <i18n>edt.utils.delete</i18n>
             </button>
-
 
         </div>
     </form>
