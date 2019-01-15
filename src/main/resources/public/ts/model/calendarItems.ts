@@ -1,6 +1,7 @@
 import { _, model, moment} from 'entcore';
 import http from 'axios';
 import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
+import filter = require("core-js/fn/array/filter");
 export class CalendarItem {
 
     startDate: string | object;
@@ -62,6 +63,30 @@ export class CalendarItems {
 
     constructor() {
         this.all = [];
+    }
+
+    /**
+     * Get groups from class
+     * @param {Array<Group>} group cannot be null
+     * @returns {Promise<void>}
+     */
+    async getGroups( group: Array<Group> = []){
+        if(group.length <=0) return ;
+        let filter = "";
+        filter += this.getFilterClass(group);
+        let uri = `/viescolaire/group/from/class?${filter}`;
+        let {data} = await http.get(uri);
+
+        if (data.length > 0) {
+            this.all = data.map((item) => {
+                if(item.name_groupes.length > 0){
+                   item.name_groupes.map((groupName)=>{
+                      let grip =new Group("",groupName,"");
+                      group.push(grip);
+                   })
+                }
+            });
+        }
     }
 
     /**
@@ -129,4 +154,17 @@ export class CalendarItems {
         return filter
     };
 
+    getFilterClass = (table) => {
+        let filter = '';
+        let name = 'classes=';
+        for (let i = 0; i < table.length; i++) {
+            if (table[i]) {
+               filter += `${name}${table[i].id}`;
+            //    filter += `${name}29e187b8-4ec0-4dfa-b99c-33b562cbdd76`;
+                if (i !== table.length - 1)
+                    filter += '&';
+            }
+        }
+        return filter
+    };
 }
