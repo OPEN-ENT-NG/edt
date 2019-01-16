@@ -107,7 +107,7 @@
   "edt.settings.exclusion.end_date": "Date de Fin",
   "edt.settings.exclusion.title": "Exclusion de périodes",
   "edt.choose.edition.type.message":"Souhaitez vous modifier :",
-  "edt.choose.edition.type.choice1":"Cette occurrence seulement",
+  "edt.choose.edition.type.choice1":"Ce cours seulement",
   "edt.choose.edition.type.choice2":"Toutes les futures occurrences de ce cours",
   "calendar.mode.day":"Jour",
   "calendar.mode.week":"Semaine",
