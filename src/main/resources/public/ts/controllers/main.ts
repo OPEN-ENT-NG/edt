@@ -177,13 +177,17 @@ export let main = ng.controller('EdtController',
             }
         };
 
-        $scope.chooseTypeEdit = (itemId,  start?, end?) => {
+        $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
+
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
                 start : start,
                 end : end
             };
             $scope.editOccurrence = false;
+            if(isDrag){
+                $scope.editOccurrence=isDrag;
+            }
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
             if($scope.ableToChooseEditionType($scope.courseToEdit,end)){
@@ -278,7 +282,7 @@ export let main = ng.controller('EdtController',
                         if($dragging){
                             $('.timeslot').removeClass( 'selecting-timeslot' );
                             let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
-                            if(coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
+                            if(coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end,true);
                             initVar();
                         }
                     });
