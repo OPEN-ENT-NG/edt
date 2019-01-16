@@ -185,11 +185,15 @@ export let main = ng.controller('EdtController',
             };
             $scope.editOccurrence = false;
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-            if($scope.ableToChooseEditionType($scope.courseToEdit)){
+
+            if($scope.ableToChooseEditionType($scope.courseToEdit,end)){
+
                 $scope.show.home_lightbox = true;
                 template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
             }else{
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
+                //$scope.show.home_lightbox = true;
+               // template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
             }
             Utils.safeApply($scope);
         };
@@ -201,11 +205,16 @@ export let main = ng.controller('EdtController',
             Utils.safeApply($scope);
         };
 
-        $scope.ableToChooseEditionType = (course: Course):boolean => {
+        $scope.ableToChooseEditionType = (course: Course,end):boolean => {
             let now = moment();
-            let upcomingOccurrence = course.getNextOccurrenceDate(now);
-            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(course.endDate)) ;
-            return course.isRecurrent() && moreThenOneOccurrenceLeft && moment($scope.occurrenceDate).isAfter(now);
+            let upcomingOccurrence = course.getNextOccurrenceDate(end);
+            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(end)) ;
+            console.log(upcomingOccurrence);
+            let isLastOccurence = moment(course.getLastOccurrence().endTime).format('YYYY-MM-DD') != upcomingOccurrence;
+            console.log(moreThenOneOccurrenceLeft);
+            console.log(moment(upcomingOccurrence).isAfter(now));
+
+            return course.isRecurrent() && moreThenOneOccurrenceLeft && isLastOccurence && moment(upcomingOccurrence).isAfter(now);
         };
 
         $scope.getSimpleDateFormat = (date) => {
@@ -290,7 +299,6 @@ export let main = ng.controller('EdtController',
             // --End -- Calendar Drag and Drop
         };
         model.calendar.on('date-change'  , async function(){
-            console.log("date*-change");
             await $scope.syncCourses();
             initTriggers();
 
