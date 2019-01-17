@@ -119,6 +119,6 @@
   "edt.course.included.on.exclusion.message":"Votre cours est inclus dans une période fermée",
   "error.timeAfterBefore":"L'heure de fin doit être au moins supérieure de 15 minutes à l'heure de début",
   "edt.calendar.weekfrom":"du",
-  "edt.info.week.peer":"pair",
-  "edt.info.week.odd":"impair"
+  "edt.info.week.peer":"paire",
+  "edt.info.week.odd":"impaire"
 }
