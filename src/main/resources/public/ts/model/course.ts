@@ -108,7 +108,7 @@ export class Course {
             everyTwoWeek: this.everyTwoWeek
         };
        if( this.is_recurrent ){
-            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
+           o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
            o.endDate = moment(this.endDate).day( this.dayOfWeek );
            o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
            o.endDate= moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
