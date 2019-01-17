@@ -36,6 +36,7 @@ export class Subjects {
             let url = `/directory/timetable/subjects/${structureId}`;
             if(teacherIds) url += `?${this.getFilterTeacher(teacherIds)}`;
             let subjects = await http.get(url);
+            this.all = [];
             subjects.data.forEach((subject) => {
                 this.all.push(new Subject(subject.subjectId, subject.subjectLabel, subject.subjectCode, subject.teacherId));
                 this.mapping[subject.subjectId] = subject.subjectLabel;

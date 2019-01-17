@@ -119,14 +119,18 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             return occurrenceOutExclusion;
         };
 
-        $scope.syncSubjects = async () =>{
-            await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
-            $scope.structure.subjects.all.map((subject) => {
-                let defaultSubject = _.findWhere($scope.selectionOfTeacherSubject.all,{'subjectId': subject.subjectId});
-                subject.isDefault = !!defaultSubject;
-            });
+        $scope.syncSubjects = async () => {
+            if ($scope.course.teachers.length > 0) {
+                await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
+            }
+            else {
+                $scope.selectionOfTeacherSubject = [];
+                $scope.course.subjectId = "";
+            }
             Utils.safeApply($scope);
         };
+
+
         /**
          * Init Courses
          */
