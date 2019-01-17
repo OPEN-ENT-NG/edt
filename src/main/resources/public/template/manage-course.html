@@ -51,9 +51,11 @@
                     <i18n>subject</i18n>*
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId" required
-                            ng-options="subject.subjectId as subject.subjectLabel for subject in structure.subjects.all | orderBy : '-isDefault' ">
+                    <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
+                        <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'" ng-selected="selectionOfTeacherSubject.all" >[[subject.subjectLabel]]</option>
+                        <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
+                        <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'">[[subject.subjectLabel]]</option>
                     </select>
                 </div>
             </div>
