@@ -12,7 +12,7 @@ node:
   volumes:
     - ./:/home/node/app
     - ~/.npm:/.npm
-    - ~/.gitconfig:/home/node/.gitconfig 
-    - ~/.npmrc:/home/node/.npmrc 
-    - ~/.bowerrc:/home/node/.bowerrc 
+    - ~/.gitconfig:/home/node/.gitconfig
+    - ~/.npmrc:/home/node/.npmrc
+    - ~/.bowerrc:/home/node/.bowerrc
     - ~/.gradle:/home/node/.gradle
