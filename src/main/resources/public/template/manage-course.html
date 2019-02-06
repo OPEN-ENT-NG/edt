@@ -53,7 +53,8 @@
                 <div class="cell twelve-mobile ten">
                     <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
-                        <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'" ng-selected="selectionOfTeacherSubject.all" >[[subject.subjectLabel]]</option>
+                        <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
+                                ng-selected="selectionOfTeacherSubject.all" >[[subject.subjectLabel]]</option>
                         <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
                         <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'">[[subject.subjectLabel]]</option>
                     </select>
@@ -127,19 +128,28 @@
                         <div class="cell twelve-mobile ten">
                             <div class="four cell twelve-mobile">
                                 <i18n>from</i18n>
-                                <date-picker ng-init="course.startDate=getSimpleDateFormat(course.startDate);" ng-change="changeDate()" ng-model="course.startDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
+                                <date-picker ng-init="course.startDate=getSimpleDateFormat(course.startDate);"
+                                             ng-change="changeDate()"
+                                             ng-model="course.startDate"
+                                             class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                                 <i18n>to</i18n>
-                                <date-picker  ng-init="course.endDate=getSimpleDateFormat(course.endDate);" ng-change="changeDate()" ng-model="course.endDate" class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
+                                <date-picker  ng-init="course.endDate=getSimpleDateFormat(course.endDate);"
+                                              ng-change="changeDate()"
+                                              ng-model="structure.periodeAnnee.end_date"
+                                              class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             </div>
-                            <div ng-if="course.is_recurrent && course.everyTwoWeek" class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
+                            <div ng-if="course.is_recurrent && course.everyTwoWeek"
+                                 class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
                             </div>
-                            <div ng-if="course.is_recurrent && course.everyTwoWeek" class="red-text padding-top-sm five cell twelve-mobile horizontal-spacing ">
-                                <i18n>edt.firs.occurrence</i18n> : [[info.firstOccurrenceDate]] (<i18n>Week</i18n> [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
+                            <div ng-if="course.is_recurrent && course.everyTwoWeek"
+                                 class="red-text padding-top-sm five cell twelve-mobile horizontal-spacing ">
+                                <i18n>edt.first.occurrence</i18n> : [[info.firstOccurrenceDate]] (<i18n>Week</i18n>
+                                [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
                             </div>
                         </div>
                     </div>
 
-                    <div ng-if="!validDate" class="warning  ">
+                    <div ng-if="!validDate" class="warning ">
                         <i18n>edt.erreur.date.debut.date.fin.not.valid</i18n>
                     </div>
                     <div class="row form-row remove-padding">

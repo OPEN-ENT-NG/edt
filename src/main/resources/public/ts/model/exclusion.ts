@@ -27,7 +27,7 @@ export class Exclusion {
 
     async create (): Promise<void> {
         try {
-            await http.post('/edt/settings/exclusion', this.toJSON());
+            await http.post('viescolaire/settings/exclusion', this.toJSON());
         } catch (e) {
             notify.error("edt.notify.exclusion.create.err")
         }
@@ -35,7 +35,7 @@ export class Exclusion {
 
     async update (): Promise<void> {
         try {
-            await http.put(`/edt/settings/exclusion/${this.id}`, this.toJSON());
+            await http.put(`/viescolaire/settings/exclusion/${this.id}`, this.toJSON());
         } catch (e) {
             notify.error("edt.notify.exclusion.update.err")
         }
@@ -43,7 +43,7 @@ export class Exclusion {
 
     async delete (): Promise<void> {
         try {
-            await http.delete(`/edt/settings/exclusion/${this.id}`);
+            await http.delete(`/viescolaire/settings/exclusion/${this.id}`);
         } catch (e) {
             notify.error("edt.notify.exclusion.delete.err")
         }
@@ -71,7 +71,7 @@ export class Exclusions {
     }
 
     async sync (structureId: string): Promise<void> {
-        let exclusions = await http.get(`/edt/settings/exclusions?structureId=${structureId}`);
+        let exclusions = await http.get(`/viescolaire/settings/periode?structureId=${structureId}`);
         this.all = Mix.castArrayAs(Exclusion, exclusions.data);
     }
 }

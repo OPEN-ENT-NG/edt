@@ -2,10 +2,13 @@ import { model } from 'entcore';
 import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES , Exclusions} from './index';
 import { Eventer } from 'entcore-toolkit';
 import {CalendarItems} from "./calendarItems";
+import {PeriodeAnnee} from "./periodeAnnee";
+
 
 export class Structure {
     id: string;
     name: string;
+    id_structure: string;
     courses: Courses;
     calendarItems: CalendarItems;
     subjects: Subjects;
@@ -13,15 +16,18 @@ export class Structure {
     teachers: Teachers;
     students: Students;
     eventer: Eventer = new Eventer();
-    exclusions: Exclusions ;
+    exclusions: Exclusions;
+    periodeAnnee: PeriodeAnnee;
+
     /**
      * Structure constructor. Can take an id and a name in parameter
      * @param id structure id
      * @param name structure name
      */
-    constructor (id?: string, name?: string) {
+    constructor (id?: string, name?: string, id_structure?: string) {
         if (typeof id === 'string') { this.id = id; }
         if (typeof name === 'string') { this.name = name; }
+        if (id_structure) this.id_structure = id_structure;
         this.subjects = new Subjects();
         this.groups = new Groups();
         this.courses = new Courses();
@@ -31,6 +37,7 @@ export class Structure {
         if (model.me.type === USER_TYPES.relative) {
             this.students = new Students();
         }
+        this.periodeAnnee = new PeriodeAnnee();
     }
 
     /**
@@ -45,7 +52,8 @@ export class Structure {
                 groups: false,
                 teachers: false,
                 students: model.me.type !== USER_TYPES.relative,
-                exclusions: false
+                exclusions: false,
+                periodeAnnee: false
             };
 
             let endSync = () => {
@@ -53,7 +61,8 @@ export class Structure {
                 && syncedCollections.groups
                 && syncedCollections.teachers
                 && syncedCollections.students
-                && syncedCollections.exclusions;
+                && syncedCollections.exclusions
+                && syncedCollections.periodeAnnee;
                 if (_b) {
                     resolve();
                     this.eventer.trigger('refresh');
@@ -67,6 +76,7 @@ export class Structure {
             if (model.me.type === USER_TYPES.relative) {
                 this.students.sync().then(() => { syncedCollections.students = true; endSync(); });
             }
+            this.periodeAnnee.sync(this.id).then(() => { syncedCollections.periodeAnnee = true; endSync(); });
         });
     }
 }
