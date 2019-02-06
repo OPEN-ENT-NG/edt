@@ -111,11 +111,11 @@ export class Course {
            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
            o.endDate = moment(this.endDate).day( this.dayOfWeek );
            o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
-           o.endDate= moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
+           o.endDate = moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
        }else{
-           let date =moment(this.startDate).format('YYYY-MM-DD');
-           o.startDate  = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
-           o.endDate =moment(date +'T'+ moment(this.endDate).format('HH:mm:ss')) ;
+           let date = moment(this.startDate).format('YYYY-MM-DD');
+           o.startDate = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
+           o.endDate = moment(date +'T'+ moment(this.endDate).format('HH:mm:ss')) ;
        }
         if (this._id) {
             o._id = this._id;

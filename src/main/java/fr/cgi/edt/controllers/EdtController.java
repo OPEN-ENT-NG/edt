@@ -1,15 +1,11 @@
 package fr.cgi.edt.controllers;
 
-import fr.cgi.edt.Edt;
 import fr.cgi.edt.security.ManageCourseWorkflowAction;
 import fr.cgi.edt.security.ManageSettingsWorkflowAction;
 import fr.cgi.edt.services.EdtService;
-import fr.cgi.edt.services.SettingsService;
 import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
-import fr.cgi.edt.services.impl.SettingsServicePostgresImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
-import fr.cgi.edt.utils.DateHelper;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -23,8 +19,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 
-import java.util.Date;
-
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
 
@@ -35,12 +29,10 @@ public class EdtController extends MongoDbControllerHelper {
 
     private final EdtService edtService;
     private final UserService userService;
-    private final SettingsService settingsService;
 
     private static final String
             read_only 			= "edt.view",
-            modify 				= "edt.create",
-            manage              = "edt.manage";
+            modify 				= "edt.create";
 
     /**
      * Creates a new controller.
@@ -50,7 +42,6 @@ public class EdtController extends MongoDbControllerHelper {
         super(collection);
         edtService = new EdtServiceMongoImpl(collection, eb);
         userService = new UserServiceNeo4jImpl();
-        settingsService = new SettingsServicePostgresImpl(Edt.EDT_SCHEMA, Edt.EXCLUSION_TABLE, collection ,eb);
     }
 
     /**
@@ -106,77 +97,6 @@ public class EdtController extends MongoDbControllerHelper {
     @ApiDoc("Return information needs by relative profiles")
     public void getChildrenInformation(final HttpServerRequest request) {
         UserUtils.getUserInfos(eb, request, user -> userService.getChildrenInformation(user, arrayResponseHandler(request)));
-    }
-
-    @Get("/settings/exclusions")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    @ApiDoc("List all exclusions")
-    public void getExclusion (final HttpServerRequest request) {
-        if (!request.params().contains("structureId")) {
-            badRequest(request);
-        } else {
-            settingsService.listExclusion(request.params().get("structureId"),
-                    arrayResponseHandler(request));
-        }
-    }
-
-    @Post("/settings/exclusion")
-    @SecuredAction(manage)
-    @ApiDoc("Create a period exclusion")
-    public void createExclusion (final HttpServerRequest request) {
-        RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                exclusion -> {
-                    DateHelper dateHelper = new DateHelper();
-            Date start_date =  dateHelper.getDate( exclusion.getString("start_date"), dateHelper.DATE_FORMATTER_SQL);
-            Date end_date =  dateHelper.getDate( exclusion.getString("end_date"), dateHelper.DATE_FORMATTER_SQL);
-            Date now = new Date();
-            if(end_date.after(start_date) &&  ! start_date.before(now)) {
-                settingsService.createExclusion(exclusion, arrayResponseHandler(request));
-            }else {
-                badRequest(request);
-            }
-        });
-    }
-
-    //TODO Manage security. Switch authenticated filter to ressource filter
-    @Put("/settings/exclusion/:id")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(ManageSettingsWorkflowAction.class)
-    @ApiDoc("Update a period exclusion based on provided id")
-    public void updateExclusion (final HttpServerRequest request) {
-        try {
-            final Integer id = Integer.parseInt(request.params().get("id"));
-            RequestUtils.bodyToJson(request, pathPrefix + Edt.EXCLUSION_JSON_SCHEMA,
-                    exclusion -> {
-                        DateHelper dateHelper = new DateHelper();
-                        Date start_date =  dateHelper.getDate( exclusion.getString("start_date"),dateHelper.DATE_FORMATTER);
-                        Date end_date =  dateHelper.getDate( exclusion.getString("end_date"), dateHelper.DATE_FORMATTER);
-                        Date now = new Date();
-                        if(start_date.before(end_date) && now.before(start_date)) {
-                            settingsService.updateExclusion(id, exclusion, arrayResponseHandler(request));
-                        }else {
-                            badRequest(request);
-                        }
-                    });
-        } catch (ClassCastException e) {
-            log.error("E008 : An error occurred when casting exclusion id");
-            badRequest(request);
-        }
-    }
-
-    //TODO Manage security. Switch authenticated filter to resource filter
-    @Delete("/settings/exclusion/:id")
-    @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(ManageSettingsWorkflowAction.class)
-    @ApiDoc("Delete a period exclusion based on provided id")
-    public void deleteExclusion (final HttpServerRequest request) {
-        try {
-            Integer id = Integer.parseInt(request.params().get("id"));
-            settingsService.deleteExclusion(id, arrayResponseHandler(request));
-        } catch (ClassCastException e) {
-            log.error("E009 : An error occurred when casting exclusion id");
-            badRequest(request);
-        }
     }
 
 

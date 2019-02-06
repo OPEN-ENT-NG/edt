@@ -25,12 +25,13 @@ export const SETTINGS_SNIPPLET = {
                 }
             });
         },
-        addExclusion:async function () {
 
+        addExclusion:async function () {
             this.openExclusionForm(new Behaviours.applicationsBehaviours.edt.model.Exclusion(this.structure.id));
             this.periodCourses = (new CalendarItems());
             await this.periodCourses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
         },
+
         openExclusionForm: function (exclusion: Exclusion) {
             this.current.exclusion = exclusion;
             if (exclusion.id) {
@@ -39,6 +40,7 @@ export const SETTINGS_SNIPPLET = {
             }
             this.display.exclusionForm = true;
         },
+
         cancelExclusionForm: function () {
             if (this.current.tmpExclusion) {
                 for (let key in this.current.tmpExclusion) {
@@ -48,6 +50,7 @@ export const SETTINGS_SNIPPLET = {
             }
             this.display.exclusionForm = false;
         },
+
         createExclusion: async function () {
             console.log(this.structure);
             console.log(this);
@@ -55,37 +58,45 @@ export const SETTINGS_SNIPPLET = {
             await this.current.exclusion.save();
             this.display.exclusionForm = false;
             this.current.exclusion.loading = false;
+            this.$apply();
             await this.exclusions.sync(this.structure.id);
             this.$apply();
         },
+
         verifyCoursesInDatabase: async function () {
             this.periodCourses = (new CalendarItems());
             await this.periodCourses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
             this.$apply();
             return this.periodCourses.all.length;
         },
+
         coursePeriode: async function () {
             let courses =  (new CalendarItems());
             await courses.syncOccurrences(this.structure.id, this.current.exclusion.start_date, this.current.exclusion.end_date);
             return courses.all;
         },
+
         validDeletion: async function (ex: Exclusion) {
             await ex.delete();
             this.display.DropLightbox = false;
             await this.exclusions.sync(this.structure.id);
             this.$apply();
         },
+
         cancelDeletion: function () {
             this.display.DropLightbox = false;
             delete this.current.exclusion;
         },
+
         dropExclusion: function (ex: Exclusion) {
             this.current.exclusion = ex;
             this.display.DropLightbox = true;
         },
+
         formatDate: function (date: any) {
             return moment(date).format('DD/MM/YYYY');
         },
+
         currentExclusionValidation: function () {
             console.log('debug log');
             if (this.current.exclusion) {
@@ -95,6 +106,7 @@ export const SETTINGS_SNIPPLET = {
                     && moment().isBefore(this.current.exclusion.start_date);
             }
         },
+
         updateExclusion: function (exclusion) {
             exclusion.save().then(() => {
                 exclusion.loading = false;
