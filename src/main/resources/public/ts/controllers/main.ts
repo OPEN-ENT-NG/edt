@@ -24,6 +24,7 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
+        let isUpdateData = false
 
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
@@ -68,11 +69,7 @@ export let main = ng.controller('EdtController',
                     break;
                 }
             }
-            if (!$scope.isPersonnel()) {
-                $scope.syncCourses();
-            } else {
-                Utils.safeApply($scope);
-            }
+            $scope.syncCourses();
         };
 
         $scope.syncStructure($scope.structure);
@@ -118,11 +115,20 @@ export let main = ng.controller('EdtController',
          */
         $scope.syncCourses = async () => {
 
-            if ($scope.isRelative()) {
+            if (!isUpdateData && $scope.isRelative()) {
                 let arrayIds = model.me.classes;
                 let groups = $scope.structure.groups.all;
                 $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
             }
+
+            if (!isUpdateData && $scope.isTeacher()) {
+                let found = _.find($scope.structure.teachers.all, function (teacher) {
+                    return teacher.id == model.me.userId;
+                });
+                if (found && $scope.params.user.indexOf(found) == -1)
+                    $scope.params.user.push(found);
+            }
+
             $scope.calendarLoader.display();
             $scope.structure.calendarItems.all = [];
             if($scope.params.group.length > 0){
@@ -229,7 +235,6 @@ export let main = ng.controller('EdtController',
             if(init){
                 $scope.params.oldGroup = angular.copy($scope.params.group);
                 $scope.params.oldUser = angular.copy($scope.params.user);
-
                 model.calendar.setDate(moment());
             }
             //  if ( $scope.isTeacher() || $scope.isStudent())
@@ -312,26 +317,18 @@ export let main = ng.controller('EdtController',
          */
 
         $scope.updateDatas = async () => {
+            isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldGroup = angular.copy($scope.params.group);
             }
 
-
-
             if(!angular.equals($scope.params.oldUser, $scope.params.user)){
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldUser = angular.copy($scope.params.user);
-
             }
-
-
-
-
-
-
         }
 
 
@@ -370,7 +367,6 @@ export let main = ng.controller('EdtController',
         };
         route({
             main:  () => {
-                $scope.syncCourses();
                 template.open('main', 'main');
                 setTimeout(function(){  initTriggers(true); }, 1000);
 
