@@ -69,7 +69,11 @@ export let main = ng.controller('EdtController',
                     break;
                 }
             }
-            $scope.syncCourses();
+            if (!$scope.isPersonnel()) {
+                $scope.syncCourses();
+            } else {
+                Utils.safeApply($scope);
+            }
         };
 
         $scope.syncStructure($scope.structure);
