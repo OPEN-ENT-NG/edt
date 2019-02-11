@@ -1,7 +1,7 @@
 import { _, model, moment} from 'entcore';
 import http from 'axios';
 import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
-import {Provider} from 'entcore-toolkit';
+
 export class CalendarItem {
 
     startDate: string | object;
@@ -61,11 +61,8 @@ export class CalendarItem {
 export class CalendarItems {
     all: CalendarItem[];
 
-    provider: Provider<CalendarItem>;
-
     constructor() {
         this.all = [];
-        this.provider = new Provider<CalendarItem>(`/viescolaire/common/courses/`, CalendarItem);
     }
 
     /**
@@ -113,8 +110,7 @@ export class CalendarItems {
             filter += this.getFilterGroup(group);
 
         let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
-        this.provider.path = uri;
-        let data = await this.provider.data();
+        let {data} = await http.get(uri);
         if (data.length > 0) {
             this.all = data.map((item) => {
                 item = new CalendarItem(item, item.startDate, item.endDate);
