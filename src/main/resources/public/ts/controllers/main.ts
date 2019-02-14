@@ -187,7 +187,6 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
-            console.log('plop')
 
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
@@ -204,7 +203,7 @@ export let main = ng.controller('EdtController',
 
                 $scope.show.home_lightbox = true;
                 template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
-            
+
             }else{
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
                 //$scope.show.home_lightbox = true;
@@ -251,7 +250,7 @@ export let main = ng.controller('EdtController',
             });
 
 
-            //     Utils.safeApply($scope);
+                 Utils.safeApply($scope);
 
             // --Start -- Calendar Drag and Drop
 
@@ -277,8 +276,9 @@ export let main = ng.controller('EdtController',
                 $('calendar hr')
                     .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
-                $('.edit-icone')
-                    .css('cursor','pointer');
+
+
+
 
 
                 $('calendar')
@@ -291,6 +291,7 @@ export let main = ng.controller('EdtController',
                             initVar();
                         }
                     });
+
                 $('calendar .schedule-item')
                     .css('cursor','move')
                     .mousedown((e)=>  {
@@ -300,6 +301,19 @@ export let main = ng.controller('EdtController',
                         calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
                         calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
                     });
+
+
+                //left click on icon
+                $('.one.cell.edit-icone')
+                    .mousedown((e) => {
+                        if(e.which === 1) {//check left click
+                            e.stopPropagation();
+                            $scope.chooseTypeEdit($(e.currentTarget).data('id'));
+                            $(e.currentTarget).unbind('mousedown');
+                        }
+                    });
+
+
 
                 /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
                     $('calendar .next-timeslots').mousedown(()=> {initTriggers()});*/
