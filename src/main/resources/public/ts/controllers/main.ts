@@ -25,7 +25,6 @@ export let main = ng.controller('EdtController',
             dateFromCalendar: null
         };
         let isUpdateData = false
-
         $scope.structures.sync();
         $scope.structure = $scope.structures.first();
         $scope.display = {
@@ -188,6 +187,7 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
+            console.log('plop')
 
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
@@ -204,6 +204,7 @@ export let main = ng.controller('EdtController',
 
                 $scope.show.home_lightbox = true;
                 template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
+            
             }else{
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
                 //$scope.show.home_lightbox = true;
@@ -223,10 +224,9 @@ export let main = ng.controller('EdtController',
             let now = moment();
             let upcomingOccurrence = course.getNextOccurrenceDate(end);
             let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(end)) ;
-            console.log(upcomingOccurrence);
+
             let isLastOccurence = moment(course.getLastOccurrence().endTime).format('YYYY-MM-DD') != upcomingOccurrence;
-            console.log(moreThenOneOccurrenceLeft);
-            console.log(moment(upcomingOccurrence).isAfter(now));
+
 
             return course.isRecurrent() && moreThenOneOccurrenceLeft && isLastOccurence && moment(upcomingOccurrence).isAfter(now);
         };
@@ -278,12 +278,8 @@ export let main = ng.controller('EdtController',
                     .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
                 $('.edit-icone')
-                    .css('cursor','pointer')
-                    .mousedown((e) => {
-                        e.stopPropagation();
-                        $scope.chooseTypeEdit($(e.currentTarget).data('id'));
-                        $(e.currentTarget).unbind('mousedown');
-                    });
+                    .css('cursor','pointer');
+
 
                 $('calendar')
                     .mouseup(  (e) => {
@@ -397,7 +393,7 @@ export let main = ng.controller('EdtController',
             edit: async  (params) => {
                 $scope.course =  new Course();
                 await $scope.course.sync(params.idCourse, $scope.structure);
-
+                console.log($scope.course)
                 $scope.initDateCreatCourse( params, $scope.course );
                 if (params.type === 'occurrence'){
                     $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());

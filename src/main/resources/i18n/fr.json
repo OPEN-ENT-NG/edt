@@ -110,6 +110,7 @@
   "edt.choose.edition.type.choice1":"Ce cours seulement",
   "edt.choose.edition.type.choice2":"Toutes les futures occurrences de ce cours",
   "edt.erreur.date.debut.date.fin.not.valid":"La date de début doit être inférieure à la date de fin.",
+  "edt.error.date.is.not.a.week.after":"La date de début et de fin doivent avoir une semaine d'écart",
   "edt.info.message.there.is.courses.to.delete":"Des cours ont déjà été programmés sur cette période, l'enregistrement entrainera leur suppression.",
   "edt.curse.on.exclusion.message":"Votre cours s'étale sur une période de jour fermé.",
   "edt.course.included.on.exclusion.message":"Votre cours est inclus dans une période fermée",

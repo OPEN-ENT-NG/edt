@@ -7,6 +7,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
+        console.log($scope.course);
+
         $scope.selectionOfTeacherSubject = new Subjects();
         $scope.info = {
             firstOccurrenceDate : "",
@@ -35,7 +37,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
                 endTime = moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
             if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
-                $scope.course.is_recurrent = false;
                 endDate = startDate;
             }
             if(!Utils.isValidDate(startDate, endDate)) {
@@ -162,6 +163,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 }
             }
 
+        }else if($location.$$path.includes('/create')){
+            $scope.editOccurrence = false;
         }
         $scope.changeDate();
         Utils.safeApply($scope);
