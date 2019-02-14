@@ -46,17 +46,21 @@
                     </div>
                 </div>
             </div>
+
             <div class="row form-row remove-padding-bottom">
                 <label for="select-subject" class="cell two twelve-mobile">
                     <i18n>subject</i18n>*
                 </label>
                 <div class="cell twelve-mobile ten">
+
                     <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                         <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
-                                ng-selected="selectionOfTeacherSubject.all" >[[subject.subjectLabel]]</option>
+                                ng-selected="selectionOfTeacherSubject.all" ng-value="subject.subjectId" >[[subject.subjectLabel]]</option>
                         <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
-                        <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'">[[subject.subjectLabel]]</option>
+                        <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'"
+                                ng-selected="course.subjectId == subject.subjectId"
+                                ng-value="subject.subjectId">[[subject.subjectLabel]]</option>
                     </select>
                 </div>
             </div>
@@ -64,27 +68,27 @@
                 <label class="cell two twelve-mobile">
                     <i18n>edt.type</i18n>*
                 </label>
+                <div class="cell twelve-mobile">
+                    <label class="margin-right-md">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
+                        <i18n>edt.type.punctual</i18n>
+                    </label>
+                </div>
+                <div class="cell twelve-mobile">
+                    <label>
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
+                        <i18n>edt.type.recurrent</i18n>
+                    </label>
+                </div>
+                <div ng-if="course.is_recurrent">
+                    <label class="cell twelve-mobile margin-left-lg margin-right-lg">
+                        <i18n>edt.every.two.weeks</i18n>
+                    </label>
                     <div class="cell twelve-mobile">
-                        <label class="margin-right-md">
-                            <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
-                            <i18n>edt.type.punctual</i18n>
-                        </label>
-                    </div>
-                    <div class="cell twelve-mobile">
-                        <label>
-                            <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
-                            <i18n>edt.type.recurrent</i18n>
-                        </label>
-                    </div>
-                    <div ng-if="course.is_recurrent">
-                        <label class="cell twelve-mobile margin-left-lg margin-right-lg">
-                            <i18n>edt.every.two.weeks</i18n>
-                        </label>
-                        <div class="cell twelve-mobile">
-                            <switch ng-model="course.everyTwoWeek" ng-change="UpToDateInfo()"></switch>
-                        </div>
+                        <switch ng-model="course.everyTwoWeek" ng-change="UpToDateInfo()"></switch>
                     </div>
                 </div>
+            </div>
 
             <div ng-if="!course.is_recurrent" class="row form-row">
                 <label class="cell two twelve-mobile">
@@ -135,7 +139,7 @@
                                 <i18n>to</i18n>
                                 <date-picker  ng-init="course.endDate=getSimpleDateFormat(course.endDate);"
                                               ng-change="changeDate()"
-                                              ng-model="structure.periodeAnnee.end_date"
+                                              ng-model="course.endDate"
                                               class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             </div>
                             <div ng-if="course.is_recurrent && course.everyTwoWeek"
@@ -150,7 +154,7 @@
                     </div>
 
                     <div ng-if="!validDate" class="warning ">
-                        <i18n>edt.erreur.date.debut.date.fin.not.valid</i18n>
+                        <i18n>edt.error.date.is.not.a.week.after</i18n>
                     </div>
                     <div class="row form-row remove-padding">
                         <table class="twelve list-view" style="text-align: center">
