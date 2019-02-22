@@ -350,12 +350,12 @@ export let main = ng.controller('EdtController',
 
             if(model.calendar.newItem || (param && param["beginning"] && param["end"]) ) {
                 let TimeslotInfo =  {
-                    beginning : param ? moment( param.beginning, 'x') : model.calendar.newItem.beginning.subtract(2, 'hours') ,
-                    end : param ? moment( param.end, 'x') : model.calendar.newItem.end.subtract(2, 'hours') };
+                    beginning : param ? param.beginning: model.calendar.newItem.beginning.format('x'),
+                    end : param ? param.end : model.calendar.newItem.end.format('x')};
 
-                let startTime = moment(TimeslotInfo["beginning"]).minute(0).seconds(0).millisecond(0);
-                let endTime = moment(TimeslotInfo["end"]).minute(0).seconds(0).millisecond(0);
-                let dayOfWeek=  moment(TimeslotInfo["beginning"]).day();
+                let startTime = (moment.utc(TimeslotInfo["beginning"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+                let endTime = (moment.utc(TimeslotInfo["end"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+                let dayOfWeek=  moment(TimeslotInfo["beginning"], 'x').day();
                 let roomLabel = course ? course.roomLabels[0] : '';
 
                 $scope.courseOccurrenceForm = new CourseOccurrence(
@@ -365,14 +365,14 @@ export let main = ng.controller('EdtController',
                     endTime.toDate()
                 );
                 delete model.calendar.newItem;
-                return  moment(TimeslotInfo["beginning"]).subtract(2, 'hours');
+                return  moment(TimeslotInfo["beginning"], 'x');
             }else {
                 if(course && !course.is_recurrent) {
                     $scope.courseOccurrenceForm = new CourseOccurrence(
                         course.dayOfWeek,
                         course.roomLabels[0],
-                        moment(course.startDate).toDate(),
-                        moment(course.endDate).toDate()
+                        moment(course.startDate).utc().toDate(),
+                        moment(course.endDate).utc().toDate()
                     );
                 }else
                     $scope.courseOccurrenceForm = new CourseOccurrence();
