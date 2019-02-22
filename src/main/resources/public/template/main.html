@@ -1,11 +1,19 @@
 <div class="row">
     <div class="twelve cell">
-        <div class="seven cell">
+        <div class="six cell">
             <app-title class="zero-mobile">
                 <h1 class="application-title">
                     <i18n>edt.fullTitle</i18n>
                 </h1>
             </app-title>
+        </div>
+        <div class="loader" ng-if="calendarLoader.show">
+            <div class="six cell">
+                <h4>
+                    <i class="spinner margin-right-md"></i>
+                    <i18n>edt.calendar.loading</i18n>
+                </h4>
+            </div>
         </div>
     </div>
     <div class="clear"></div>
@@ -19,12 +27,6 @@
     <!-- Calendar View -->
     <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: isPersonnel() || isTeacher() ||
     (isRelative() && structures.all.length > 1), twelve: isStudent() || (isRelative() && structures.all.length < 2)}">
-        <div class="loader" ng-if="calendarLoader.show">
-            <div>
-                <p><i class="spinner"></i></p>
-                <h4><i18n>edt.calendar.loading</i18n></h4>
-            </div>
-        </div>
         <calendar
                 enable-display-modes="true"
                 display-template="calendar/course-item"
