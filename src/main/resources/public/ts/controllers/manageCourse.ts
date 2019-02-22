@@ -33,9 +33,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
         $scope.changeDate = () => {
             let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
-                startTime = moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
+                startTime = moment($scope.courseOccurrenceForm.startTime).utc().format("HH:mm:ss"),
                 endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
-                endTime = moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
+                endTime = moment($scope.courseOccurrenceForm.endTime).utc().format("HH:mm:ss");
             if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
                 endDate = startDate;
             }
@@ -44,14 +44,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             }
             else{
                 $scope.validDate = true;
-                $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).toDate();
-                $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).toDate();
+                $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).utc().toDate();
+                $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).utc().toDate();
 
                 $scope.course.courseOccurrences = _.map($scope.course.courseOccurrences, (item)=> {
-                    let startTime = moment(item.startTime).format("HH:mm:ss"),
-                        endTime = moment(item.endTime).format("HH:mm:ss");
-                    item.startTime = moment(startDate + 'T' + startTime).toDate();
-                    item.endTime = moment(endDate + 'T' + endTime).toDate();
+                    let startTime = moment(item.startTime).utc().format("HH:mm:ss"),
+                        endTime = moment(item.endTime).utc().format("HH:mm:ss");
+                    item.startTime = moment(startDate + 'T' + startTime).utc().toDate();
+                    item.endTime = moment(endDate + 'T' + endTime).utc().toDate();
                     return item;
                 });
             }
