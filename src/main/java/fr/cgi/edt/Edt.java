@@ -1,5 +1,8 @@
 package fr.cgi.edt;
 
+import fr.cgi.edt.controllers.InitController;
+import fr.cgi.edt.services.InitService;
+import fr.cgi.edt.services.impl.DefaultInitImpl;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.shareddata.LocalMap;
 import org.entcore.common.http.BaseServer;
@@ -24,6 +27,8 @@ public class Edt extends BaseServer {
         super.start();
         eb = getEventBus(vertx);
         addController(new EdtController(EDT_COLLECTION, eb));
+        addController(new InitController(new DefaultInitImpl("edt",eb)));
+
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());
 
