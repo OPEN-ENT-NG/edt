@@ -89,7 +89,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
 
         String query = "INSERT INTO  viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) VALUES" ;
         for(int i=0;i<8;i++ )
-            query += "(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?),";
+            query += "(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?),";
         query = query.substring(0, query.length() - 1);
     //holidays of one day
         String  elevenNovember  = year + "-11-11 ",
@@ -103,14 +103,14 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
 
         String hourStart = "00:00:00", hourEnd = "23:59:59";
         JsonArray params = new JsonArray()
-                .add(elevenNovember + hourStart ).add(elevenNovember + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(christmas + hourStart ).add(christmas + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(fourteenNovember + hourStart ).add(fourteenNovember + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(firstMay + hourStart ).add(firstMay + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(eightMay + hourStart ).add(eightMay + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(newYear + hourStart ).add(newYear + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(fourteenJuly + hourStart ).add(fourteenJuly + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION")
-                .add(fifteenAugust + hourStart ).add(fifteenAugust + hourEnd).add("Année scolaire").add(jsonObject.getString("s.id")).add("EXCLUSION");
+                .add(elevenNovember + hourStart ).add(elevenNovember + hourEnd).add("11 novembre").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(christmas + hourStart ).add(christmas + hourEnd).add("25 décembre").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(fourteenNovember + hourStart ).add(fourteenNovember + hourEnd).add("14 novembre").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(firstMay + hourStart ).add(firstMay + hourEnd).add("1er mai").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(eightMay + hourStart ).add(eightMay + hourEnd).add("8 mai").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(newYear + hourStart ).add(newYear + hourEnd).add("1er janvier").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(fourteenJuly + hourStart ).add(fourteenJuly + hourEnd).add("14 juillet").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION")
+                .add(fifteenAugust + hourStart ).add(fifteenAugust + hourEnd).add("15 août").add(jsonObject.getString("s.id")).add(false).add("EXCLUSION");
         return new JsonObject()
                 .put(STATEMENT, query)
                 .put(VALUES, params )
@@ -123,13 +123,13 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
         String startDate,endDate;
 
         String query = "INSERT INTO  viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) " +
-                "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?)";
+                "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?)";
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
         startDate = year + "-08-01 00:00:00";
         year++;
         endDate = year + "-09-31 00:00:00";
-        JsonArray params = new JsonArray().add(startDate).add(endDate).add("Année scolaire").add(jsonObject.getString("s.id")).add("YEAR");
+        JsonArray params = new JsonArray().add(startDate).add(endDate).add("Année scolaire").add(jsonObject.getString("s.id")).add(true).add("YEAR");
         return new JsonObject()
                 .put(STATEMENT, query)
                 .put(VALUES, params )
