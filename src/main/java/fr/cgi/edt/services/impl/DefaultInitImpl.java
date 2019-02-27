@@ -34,50 +34,62 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
     @Override
     public void init(final Handler<Either<String, JsonObject>> handler) {
 
-        String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period ";
+        String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'EXCLUSION' ";
         sql.raw(structQuery, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
-                JsonArray structuresRegistered = new JsonArray();
+                JsonArray structuresRegisteredInc = new JsonArray();
                 for (Integer i = 0; i < event.right().getValue().size(); i++) {
-                    structuresRegistered.add(event.right().getValue().getJsonObject(i).getString("struct"));
+                    structuresRegisteredInc.add(event.right().getValue().getJsonObject(i).getString("struct"));
                 }
-
-                JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
-
-                JsonArray types = new JsonArray();
-                JsonObject action = new JsonObject()
-                        .put("action", "structure.getAllStructures")
-                        .put("types", types);
-                eb.send("viescolaire", action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+                String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'YEAR' ";
+                sql.raw(structQuery, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
                     @Override
-                    public void handle(Message<JsonObject> message) {
-                        JsonObject body = message.body();
-                        if ("ok".equals(body.getString("status"))) {
-                            JsonArray structList = body.getJsonArray("results");
-                            for (Integer k = 0; k < structList.size(); k++) {
-                                if (!structuresRegistered.contains(structList.getJsonObject(k).getString("s.id"))) {
-                                    statements.add(getInitSchoolPeriod(structList.getJsonObject(k)));
-                                    statements.add(getExludSchoolPeriod(structList.getJsonObject(k)));
+                    public void handle(Either<String, JsonArray> event1) {
+                        JsonArray structuresRegisteredExl = new JsonArray();
+                        for (Integer i = 0; i < event1.right().getValue().size(); i++) {
+                            structuresRegisteredExl.add(event1.right().getValue().getJsonObject(i).getString("struct"));
+                        }
+
+                        JsonArray statements = new fr.wseduc.webutils.collections.JsonArray();
+
+                        JsonArray types = new JsonArray();
+                        JsonObject action = new JsonObject()
+                                .put("action", "structure.getAllStructures")
+                                .put("types", types);
+                        eb.send("viescolaire", action, handlerToAsyncHandler(new Handler<Message<JsonObject>>() {
+                            @Override
+                            public void handle(Message<JsonObject> message) {
+                                JsonObject body = message.body();
+                                if ("ok".equals(body.getString("status"))) {
+                                    JsonArray structList = body.getJsonArray("results");
+                                    for (Integer k = 0; k < structList.size(); k++) {
+                                        if (!structuresRegisteredExl.contains(structList.getJsonObject(k).getString("s.id"))) {
+                                            statements.add(getInitSchoolPeriod(structList.getJsonObject(k)));
+                                        }
+                                        if (!structuresRegisteredInc.contains(structList.getJsonObject(k).getString("s.id"))) {
+                                            statements.add(getInitSchoolPeriod(structList.getJsonObject(k)));
+                                        }
+                                    }
+                                    try {
+                                        sql.transaction(statements, new Handler<Message<JsonObject>>() {
+                                            @Override
+                                            public void handle(Message<JsonObject> event) {
+                                                Number id = Integer.parseInt("1");
+                                                handler.handle(SqlQueryUtils.getTransactionHandler(event, id));
+                                            }
+                                        });
+                                    } catch (ClassCastException e) {
+                                        LOGGER.error("An error occurred when init", e);
+                                        handler.handle(new Either.Left<String, JsonObject>(""));
+
+                                    }
+
                                 }
                             }
-                            try {
-                                sql.transaction(statements, new Handler<Message<JsonObject>>() {
-                                    @Override
-                                    public void handle(Message<JsonObject> event) {
-                                        Number id = Integer.parseInt("1");
-                                        handler.handle(SqlQueryUtils.getTransactionHandler(event, id));
-                                    }
-                                });
-                            } catch (ClassCastException e) {
-                                LOGGER.error("An error occurred when init", e);
-                                handler.handle(new Either.Left<String, JsonObject>(""));
+                        }));
 
-                            }
-
-                        }
-                    }
-                }));
+                    } }));
 
             }
         }));
@@ -91,7 +103,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
         for(int i=0;i<8;i++ )
             query += "(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?),";
         query = query.substring(0, query.length() - 1);
-    //holidays of one day
+        //holidays of one day
         String  elevenNovember  = year + "-11-11 ",
                 fourteenNovember  = year + "-11-14 ",
                 christmas = year + "-12-25 ",
@@ -128,7 +140,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
         int year = Calendar.getInstance().get(Calendar.YEAR);
         startDate = year + "-08-01 00:00:00";
         year++;
-        endDate = year + "-09-31 00:00:00";
+        endDate = year + "-09-30 00:00:00";
         JsonArray params = new JsonArray().add(startDate).add(endDate).add("Année scolaire").add(jsonObject.getString("s.id")).add(true).add("YEAR");
         return new JsonObject()
                 .put(STATEMENT, query)
