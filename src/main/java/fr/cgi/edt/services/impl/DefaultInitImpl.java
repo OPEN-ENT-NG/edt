@@ -34,7 +34,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
     @Override
     public void init(final Handler<Either<String, JsonObject>> handler) {
 
-        String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'EXCLUSION' ";
+        String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'YEAR' ";
         sql.raw(structQuery, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
             @Override
             public void handle(Either<String, JsonArray> event) {
@@ -42,7 +42,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
                 for (Integer i = 0; i < event.right().getValue().size(); i++) {
                     structuresRegisteredInc.add(event.right().getValue().getJsonObject(i).getString("struct"));
                 }
-                String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'YEAR' ";
+                String structQuery = "SELECT DISTINCT id_structure as struct from viesco.setting_period where code = 'EXCLUSION' ";
                 sql.raw(structQuery, SqlResult.validResultHandler(new Handler<Either<String, JsonArray>>() {
                     @Override
                     public void handle(Either<String, JsonArray> event1) {
@@ -65,7 +65,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
                                     JsonArray structList = body.getJsonArray("results");
                                     for (Integer k = 0; k < structList.size(); k++) {
                                         if (!structuresRegisteredExl.contains(structList.getJsonObject(k).getString("s.id"))) {
-                                            statements.add(getInitSchoolPeriod(structList.getJsonObject(k)));
+                                            statements.add(getExludSchoolPeriod(structList.getJsonObject(k)));
                                         }
                                         if (!structuresRegisteredInc.contains(structList.getJsonObject(k).getString("s.id"))) {
                                             statements.add(getInitSchoolPeriod(structList.getJsonObject(k)));
@@ -140,7 +140,7 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
         int year = Calendar.getInstance().get(Calendar.YEAR);
         startDate = year + "-08-01 00:00:00";
         year++;
-        endDate = year + "-09-30 00:00:00";
+        endDate = year + "-07-31 00:00:00";
         JsonArray params = new JsonArray().add(startDate).add(endDate).add("Année scolaire").add(jsonObject.getString("s.id")).add(true).add("YEAR");
         return new JsonObject()
                 .put(STATEMENT, query)
