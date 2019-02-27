@@ -2,6 +2,7 @@ import { _ } from 'entcore';
 import http from 'axios';
 import { SETTINGS_SNIPPLET } from './snipplets';
 import { Exclusion, Exclusions } from './model';
+import {initData} from "./snipplets/init_data";
 
 export const edtBehaviours = {
     rights: {
@@ -43,6 +44,7 @@ export const edtBehaviours = {
         Exclusions: Exclusions
     },
     sniplets: {
-        exclusion: SETTINGS_SNIPPLET
+        exclusion: SETTINGS_SNIPPLET,
+        init_data_edt: initData
     }
 };
