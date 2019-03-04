@@ -32,7 +32,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     private static final String
             read_only 			= "edt.view",
-            modify 				= "edt.create";
+            modify 				= "edt.manage";
 
     /**
      * Creates a new controller.

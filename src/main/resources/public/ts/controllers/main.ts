@@ -164,7 +164,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.createCourse = () => {
             const edtRights = Behaviours.applicationsBehaviours.edt.rights;
-            if (model.me.hasWorkflow(edtRights.workflow.create)) {
+            if (model.me.hasWorkflow(edtRights.workflow.manage)) {
                 $scope.goTo('/create');
             }
         };

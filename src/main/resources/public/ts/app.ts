@@ -15,7 +15,7 @@ routes.define(($routeProvider) => {
             action: 'main'
         });
 
-    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.create)) {
+    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
         $routeProvider.when('/create', {
             action: 'create'
         });
