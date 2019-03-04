@@ -10,6 +10,6 @@ import io.vertx.core.http.HttpServerRequest;
 public class ManageCourseWorkflowAction implements ResourcesProvider {
     @Override
     public void authorize(HttpServerRequest resourceRequest, Binding binding, UserInfos user, Handler<Boolean> handler) {
-        handler.handle(new WorkflowActionUtils().hasRight(user, EdtWorkflowActions.CREATE.toString()));
+        handler.handle(new WorkflowActionUtils().hasRight(user, EdtWorkflowActions.MANAGE.toString()));
     }
 }
