@@ -135,7 +135,7 @@ export let main = ng.controller('EdtController',
             $scope.calendarLoader.display();
             $scope.structure.calendarItems.all = [];
             if($scope.params.group.length > 0){
-                //   await $scope.structure.calendarItems.getGroups($scope.params.group);
+                   await $scope.structure.calendarItems.getGroups($scope.params.group);
             }
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
             $scope.calendarLoader.hide();
