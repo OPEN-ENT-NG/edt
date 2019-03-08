@@ -9,6 +9,10 @@ body.edt {
   @import './specifics/fixCalendarHRFirefox';
   @import './specifics/circleInfo';
 
+  .schedule .days .day.single {
+    width: 100%
+  }
+
   div.selecting-timeslot{
     position : relative;
     &::before {
