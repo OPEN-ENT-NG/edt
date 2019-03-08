@@ -56,7 +56,7 @@
                     <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                         <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
-                                ng-selected="selectionOfTeacherSubject.all" ng-value="subject.subjectId" >[[subject.subjectLabel]]</option>
+                                ng-selected="selectionOfTeacherSubject.all[0]" ng-value="subject.subjectId" >[[subject.subjectLabel]]</option>
                         <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
                         <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'"
                                 ng-selected="course.subjectId == subject.subjectId"
