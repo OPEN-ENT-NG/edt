@@ -166,6 +166,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                             new Date( end )
                         )];
                 }
+            }else{
+                $scope.course.startDate =new Date(start);
+                $scope.course.endDate =new Date(end);
+
             }
 
         }else if($location.$$path.includes('/create')){
