@@ -1,3 +1,5 @@
-.schedule .days .day .timeslots .timeslot hr {
+@-moz-document url-prefix() {
+  .schedule .days .day .timeslots .timeslot hr {
   border-bottom: thin solid #fff !important;
+  }
 }
