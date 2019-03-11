@@ -7,7 +7,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
-        console.log($scope.course);
 
         $scope.selectionOfTeacherSubject = new Subjects();
         $scope.info = {
@@ -31,6 +30,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             $scope.info.firstWeekNumber = occurrence.get('week');
             Utils.safeApply($scope);
         };
+
         $scope.changeDate = () => {
             let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
                 startTime = moment($scope.courseOccurrenceForm.startTime).utc().format("HH:mm:ss"),
@@ -89,6 +89,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
            }
             return isOccurrenceInExclusion;
         };
+
         $scope.isCourseOutExclusions = ():boolean => {
             let occurrenceOutExclusion = true;
             let exclusion;
@@ -178,7 +179,16 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.changeDate();
         Utils.safeApply($scope);
 
+        $scope.makeRecurrentCourse = () => {
+            let structure = $scope.structure;
+            if (structure && structure.periodeAnnee && structure.periodeAnnee.end_date) {
+                $scope.course.endDate = moment(structure.periodeAnnee.end_date).format('YYYY-MM-DDTHH:mm:ss');
+            }
+        };
 
+        $scope.makePonctual = () => {
+            $scope.course.end = $scope.course.startDate;
+        };
 
         /**
          * Drop a teacher in teachers list
