@@ -70,13 +70,13 @@
                 </label>
                 <div class="cell twelve-mobile">
                     <label class="margin-right-md">
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change="makePonctual();info.occurrenceInExclusion = isCourseInExclusions();">
                         <i18n>edt.type.punctual</i18n>
                     </label>
                 </div>
                 <div class="cell twelve-mobile">
                     <label>
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" info.occurrenceInExclusion = isCourseInExclusions();">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" makeRecurrentCourse();info.occurrenceInExclusion = isCourseInExclusions();">
                         <i18n>edt.type.recurrent</i18n>
                     </label>
                 </div>
@@ -130,7 +130,7 @@
                             <i18n>date</i18n>
                         </label>
                         <div class="cell twelve-mobile ten">
-                            <div class="four cell twelve-mobile">
+                            <div class="six cell twelve-mobile">
                                 <i18n>from</i18n>
                                 <date-picker ng-init="course.startDate=getSimpleDateFormat(course.startDate);"
                                              ng-change="changeDate()"

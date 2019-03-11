@@ -28,7 +28,7 @@ export class PeriodeAnnee {
 
     async sync (structure_id: string) {
         try {
-            let {data} = await http.get(`/viescolaire/settings/periode?structure=${structure_id}`);
+            let {data} = await http.get(`/viescolaire/settings/periode/schoolyear?structureId=${structure_id}`);
             if(data.id !== undefined) {
                 this.id = data.id;
                 this.start_date = data.start_date;

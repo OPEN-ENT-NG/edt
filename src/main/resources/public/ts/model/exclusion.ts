@@ -71,7 +71,7 @@ export class Exclusions {
     }
 
     async sync (structureId: string): Promise<void> {
-        let exclusions = await http.get(`/viescolaire/settings/periode?structureId=${structureId}`);
+        let exclusions = await http.get(`/viescolaire/settings/periodes/exclusions?structureId=${structureId}`);
         this.all = Mix.castArrayAs(Exclusion, exclusions.data);
     }
 }
