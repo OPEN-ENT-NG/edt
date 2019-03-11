@@ -236,9 +236,10 @@ export let main = ng.controller('EdtController',
 
         let initTriggers = (init ?: boolean) => {
             if(init){
+                $scope.pageInitialized = true;
                 $scope.params.oldGroup = angular.copy($scope.params.group);
                 $scope.params.oldUser = angular.copy($scope.params.user);
-                model.calendar.setDate(moment());
+                 model.calendar.setDate(moment());
             }
             //  if ( $scope.isTeacher() || $scope.isStudent())
             //  return ;
@@ -382,7 +383,8 @@ export let main = ng.controller('EdtController',
         route({
             main:  () => {
                 template.open('main', 'main');
-                setTimeout(function(){  initTriggers(true); }, 1000);
+                if(!$scope.pageInitialized)
+                     setTimeout(function(){  initTriggers(true); }, 1000);
 
             },
             create:async () => {
