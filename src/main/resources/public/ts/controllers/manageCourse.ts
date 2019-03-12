@@ -26,15 +26,15 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 occurrence.day($scope.courseOccurrenceForm.dayOfWeek);
             if( moment( $scope.course.startDate).isAfter(occurrence) )
                 occurrence.add('days', 7);
-            $scope.info.firstOccurrenceDate = occurrence.format('YYYY-MM-DD');
+            $scope.info.firstOccurrenceDate = occurrence.format('YYYY/MM/DD');
             $scope.info.firstWeekNumber = occurrence.get('week');
             Utils.safeApply($scope);
         };
 
         $scope.changeDate = () => {
-            let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
+            let startDate = moment($scope.course.startDate).format("YYYY/MM/DD"),
                 startTime = moment($scope.courseOccurrenceForm.startTime).utc().format("HH:mm:ss"),
-                endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
+                endDate = moment($scope.course.endDate).format("YYYY/MM/DD"),
                 endTime = moment($scope.courseOccurrenceForm.endTime).utc().format("HH:mm:ss");
             if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
                 endDate = startDate;
@@ -237,6 +237,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          * Returns time formatted
          * @param date Date to format
          */
+
         $scope.getTime = (date: any) => {
             return moment(date).format("HH:mm");
         };
