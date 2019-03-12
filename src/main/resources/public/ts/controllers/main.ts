@@ -409,7 +409,6 @@ export let main = ng.controller('EdtController',
             edit: async  (params) => {
                 $scope.course =  new Course();
                 await $scope.course.sync(params.idCourse, $scope.structure);
-                console.log($scope.course)
                 $scope.initDateCreatCourse( params, $scope.course );
                 if (params.type === 'occurrence'){
                     $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
