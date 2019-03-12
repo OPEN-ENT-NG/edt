@@ -7,7 +7,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
-
         $scope.selectionOfTeacherSubject = new Subjects();
         $scope.info = {
             firstOccurrenceDate : "",
@@ -143,17 +142,24 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
 
         if ($location.$$path.includes('/edit')) {
+            // delete $scope.courseOccurrenceForm.startTime;
+            // delete $scope.courseOccurrenceForm.endTime;
             $scope.course.courseOccurrences = [];
             $scope.isAnUpdate = true;
             let start = moment( $scope.course.startDate).seconds(0).millisecond(0),
                 end = moment( $scope.course.endDate).seconds(0).millisecond(0);
 
             if ( $routeParams['beginning'] && $routeParams['end'] ) {
+
                 start = moment( $routeParams.beginning, 'x').seconds(0).millisecond(0);
                 end = moment( $routeParams.end, 'x').seconds(0).millisecond(0);
+                $scope.courseOccurrenceForm.startTime = moment(start).utc().toDate();;
+                $scope.courseOccurrenceForm.endTime = moment(end).utc().toDate();;
+
                 $scope.course.dayOfWeek = moment(start).day();
+
                 if (!$scope.course.is_recurrent) {
-                    $scope.course.startDate =  $scope.course.end = start;
+                    $scope.course.startDate =  $scope.course.end = moment(start).utc().toDate() ;
                 }
             }
 
@@ -308,6 +314,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.startTimeIsAfterEdTime = () =>{
             return   moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"));
         }
+
         $scope.dropCourse = async (course: Course ) => {
 
             if( course.canManage && confirm("Souhaitez vous supprimer ce cours?")) {
