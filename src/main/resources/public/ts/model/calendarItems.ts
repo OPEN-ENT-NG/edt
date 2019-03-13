@@ -81,8 +81,16 @@ export class CalendarItems {
             this.all = data.map((item) => {
                 if(item.name_groupes.length > 0){
                    item.name_groupes.map((groupName)=>{
-                      let grip =new Group("",groupName,"");
-                      group.push(grip);
+                     let isAlreadyInGroups = false;
+                       group.map( g => {
+                           if(g.name === groupName){
+                               isAlreadyInGroups = true;
+                           }
+                       });
+                       if(!isAlreadyInGroups){
+                           let grip =new Group("",groupName,"");
+                           group.push(grip);
+                       }
                    })
                 }
             });
