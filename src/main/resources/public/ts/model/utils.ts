@@ -1,4 +1,6 @@
 import { moment, model, Behaviours, _ } from 'entcore';
+import {Course} from "./index";
+import {Mix} from "entcore-toolkit";
 
 export class Utils {
 
@@ -66,4 +68,52 @@ export class Utils {
     static getLastCalendarDay () :any {
         return moment(model.calendar.firstDay).add(1, model.calendar.increment+'s');
     }
+
+    static isCourseInExclusions(course, exclusions): boolean {
+        if(!exclusions || !exclusions.length){
+            return false;
+        }
+        for (let i = 0, imax = exclusions.length; i < imax; i++) {
+            let exclusion = exclusions[i];
+            if (!course.is_recurrent) {
+                if(this.occurrenceInExclusionsDay(course, exclusion) == true){
+                    return true;
+                }
+            }
+            else {
+                let courses = course.getCourseForEachOccurrence();
+                for (let j = 0, jmax = courses.length; j < jmax; j++) {
+                    let course = courses[j];
+                    if(this.occurrenceInExclusionsDay(course, exclusion) == true){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return true if course is on one exclusion day
+     * @param course
+     * @param exclusion
+     * @returns {boolean}
+     */
+    static occurrenceInExclusionsDay (occurrence, exclusion): boolean {
+        let exclusionStart = moment(exclusion.start_date),
+            exclusionEnd = moment(exclusion.end_date),
+            occurrenceStart = moment(occurrence.startDate),
+            occurrenceEnd = moment(occurrence.endDate),
+            exclusionOneDayOnly = exclusionStart.format("DD-MM-YYYY") == exclusionEnd.format("DD-MM-YYYY");
+        if (exclusionOneDayOnly && exclusionStart.day() != occurrenceStart.day()) {
+            return false;
+        }
+        if (occurrenceStart.isAfter(exclusionEnd)) {
+            return false;
+        }
+        if (occurrenceEnd.isBefore(exclusionStart)) {
+            return false;
+        }
+        return true;
+    };
 }

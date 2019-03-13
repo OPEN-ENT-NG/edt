@@ -171,6 +171,9 @@ export class Course {
        if( momentDate.isAfter(occurrence)  ) {
            occurrence.add('days',this.everyTwoWeek? 14 : 7);
        }
+       if(occurrence.isAfter(this.endDate)){
+           return moment(this.endDate).format('YYYY-MM-DD');
+       }
        return occurrence.format('YYYY-MM-DD');
     }
 
