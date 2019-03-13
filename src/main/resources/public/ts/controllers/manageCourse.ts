@@ -239,7 +239,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.groups.length > 0
                 && $scope.course.subjectId !== undefined
                 && $scope.course.subjectId.length > 0
-                && !$scope.isCourseInExclusions($scope.course, $scope.structure.exclusions.all)
+                && !Utils.isCourseInExclusions($scope.course, $scope.structure.exclusions.all)
                 && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"))
                 && (
                     (
