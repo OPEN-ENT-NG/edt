@@ -344,18 +344,29 @@ export let main = ng.controller('EdtController',
                 initTriggers();
                 $scope.params.oldUser = angular.copy($scope.params.user);
             }
-        }
+        };
 
-
+        $scope.getMomentFromDate = function (date,time) {
+            return  moment([
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                time.hour(),
+                time.minute()
+            ])
+        };
         $scope.initDateCreatCourse = (param?, course?: Course) => {
 
             if(model.calendar.newItem || (param && param["beginning"] && param["end"]) ) {
                 let TimeslotInfo =  {
                     beginning : param ? param.beginning: model.calendar.newItem.beginning.format('x'),
                     end : param ? param.end : model.calendar.newItem.end.format('x')};
-
                 let startTime = (moment.utc(TimeslotInfo["beginning"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+                console.log(moment(startTime).format("MM"));
+                startTime = $scope.getSummerTimeIfMandatory(startTime);
                 let endTime = (moment.utc(TimeslotInfo["end"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+                endTime = $scope.getSummerTimeIfMandatory(endTime);
+
                 let dayOfWeek=  moment(TimeslotInfo["beginning"], 'x').day();
                 let roomLabel = course ? course.roomLabels[0] : '';
 
@@ -379,6 +390,19 @@ export let main = ng.controller('EdtController',
                     $scope.courseOccurrenceForm = new CourseOccurrence();
                 return moment();
             }
+        };
+
+        $scope.getSummerTimeIfMandatory = (time) =>{
+            let  summerDay = moment([2011,3,1]);
+            let winterDay = moment ([2011,9,28]);
+          if(moment(time).format("MM") >= moment(summerDay).format("MM") &&
+              moment(time).format("MM") < moment(winterDay).format("MM") ){
+             time = moment(time).subtract(1,'hours');
+          }else if(moment(time).format("MM") ===  moment(winterDay).format("MM") && moment(time).format("dd") <= moment(winterDay).format("dd") ){
+              time =  moment(time).subtract(1,'hours');
+
+          }
+          return time;
         };
         route({
             main:  () => {
