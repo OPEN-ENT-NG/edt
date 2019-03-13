@@ -44,14 +44,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             }
             else{
                 $scope.validDate = true;
-                $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).utc().toDate();
-                $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).utc().toDate();
+                $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).toDate();
+                $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).toDate();
 
                 $scope.course.courseOccurrences = _.map($scope.course.courseOccurrences, (item)=> {
-                    let startTime = moment(item.startTime).utc().format("HH:mm:ss"),
-                        endTime = moment(item.endTime).utc().format("HH:mm:ss");
-                    item.startTime = moment(startDate + 'T' + startTime).utc().toDate();
-                    item.endTime = moment(endDate + 'T' + endTime).utc().toDate();
+                    let startTime = moment(item.startTime).format("HH:mm:ss"),
+                        endTime = moment(item.endTime).format("HH:mm:ss");
+                    item.startTime = moment(startDate + 'T' + startTime).toDate();
+                    item.endTime = moment(endDate + 'T' + endTime).toDate();
                     return item;
                 });
             }
