@@ -31,9 +31,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.changeDate = () => {
-            let startDate = moment($scope.course.startDate).format("YYYY/MM/DD"),
+            let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
                 startTime = moment($scope.courseOccurrenceForm.startTime).utc().format("HH:mm:ss"),
-                endDate = moment($scope.course.endDate).format("YYYY/MM/DD"),
+                endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
                 endTime = moment($scope.courseOccurrenceForm.endTime).utc().format("HH:mm:ss");
             if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
                 endDate = startDate;
