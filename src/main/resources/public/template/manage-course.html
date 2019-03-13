@@ -70,13 +70,13 @@
                 </label>
                 <div class="cell twelve-mobile">
                     <label class="margin-right-md">
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change="makePonctual();info.occurrenceInExclusion = isCourseInExclusions();">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="false" ng-change="makePonctual();">
                         <i18n>edt.type.punctual</i18n>
                     </label>
                 </div>
                 <div class="cell twelve-mobile">
                     <label>
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change=" makeRecurrentCourse();info.occurrenceInExclusion = isCourseInExclusions();">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change="makeRecurrentCourse();">
                         <i18n>edt.type.recurrent</i18n>
                     </label>
                 </div>
@@ -117,12 +117,10 @@
                 <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
             </div>
-            <div ng-if="info.occurrenceInExclusion && info.occurrenceOutExclusion" class="info ">
-                <i18n>edt.curse.on.exclusion.message</i18n>
+            <div ng-if="info.occurrenceInExclusion" class="warning">
+                <i18n>edt.course.on.exclusion.message</i18n>
             </div>
-            <div ng-if="!info.occurrenceOutExclusion" class="warning ">
-                <i18n>edt.course.included.on.exclusion.message</i18n>
-            </div>
+
             <div ng-if="course.is_recurrent" class="row form-row remove-padding">
                 <div class="cell twelve">
                     <div class="row form-row remove-padding-bottom">
