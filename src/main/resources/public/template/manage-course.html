@@ -117,9 +117,6 @@
                 <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
             </div>
-            <div ng-if="info.occurrenceInExclusion" class="warning">
-                <i18n>edt.course.on.exclusion.message</i18n>
-            </div>
 
             <div ng-if="course.is_recurrent" class="row form-row remove-padding">
                 <div class="cell twelve">
@@ -151,8 +148,12 @@
                         </div>
                     </div>
 
-                    <div ng-if="!validDate" class="warning ">
+                    <div ng-if="!Utils.isValidDate(course.startDate, course.endDate);" class="warning ">
                         <i18n>edt.error.date.is.not.a.week.after</i18n>
+                    </div>
+
+                    <div ng-show="Utils.isCourseInExclusions(course, structure.exclusions.all);" class="warning">
+                        <i18n>edt.course.on.exclusion.message</i18n>
                     </div>
                     <div class="row form-row remove-padding">
                         <table class="twelve list-view" style="text-align: center">
