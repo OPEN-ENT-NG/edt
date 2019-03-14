@@ -9,6 +9,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
         $scope.selectionOfTeacherSubject = new Subjects();
+
+        $scope.Utils = Utils;
+
         $scope.info = {
             firstOccurrenceDate : "",
             firstWeekNumber : "",
@@ -39,11 +42,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 endDate = startDate;
                 $scope.course.endDate = $scope.course.startDate;
             }
-            if(!Utils.isValidDate(startDate, endDate)) {
-                $scope.validDate = false;
-            }
-            else{
-                $scope.validDate = true;
+            if(Utils.isValidDate(startDate, endDate)) {
                 $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).toDate();
                 $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).utc().toDate();
 
@@ -56,7 +55,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 });
             }
             $scope.UpToDateInfo();
-            $scope.info.occurrenceInExclusion = Utils.isCourseInExclusions($scope.course, $scope.structure.exclusions.all);
             Utils.safeApply($scope);
         };
 
@@ -136,14 +134,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             if (structure && structure.periodeAnnee && structure.periodeAnnee.end_date) {
                 $scope.course.endDate = moment(structure.periodeAnnee.end_date).format('YYYY-MM-DDTHH:mm:ss');
             }
-            $scope.info.occurrenceInExclusion = Utils.isCourseInExclusions($scope.course, $scope.structure.exclusions.all);
             Utils.safeApply($scope);
         };
 
         $scope.makePonctual = () => {
             $scope.course.is_recurrent = false;
             $scope.course.end = $scope.course.startDate;
-            $scope.info.occurrenceInExclusion = Utils.isCourseInExclusions($scope.course, $scope.structure.exclusions.all);
             Utils.safeApply($scope);
         };
 
@@ -170,7 +166,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
         $scope.dropOccurrence = (occurrence: CourseOccurrence): void => {
             $scope.course.courseOccurrences = _.without($scope.course.courseOccurrences, occurrence);
-            $scope.info.occurrenceInExclusion = Utils.isCourseInExclusions($scope.course, $scope.structure.exclusions.all);
             Utils.safeApply($scope);
         };
 
@@ -200,8 +195,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.getTime = (date: any) => {
             return moment(date).format("HH:mm");
         };
-
-        $scope.validDate = Utils.isValidDate($scope.course.startDate, $scope.course.endDate);
 
         /**
          *
@@ -252,7 +245,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         $scope.course.is_recurrent
                         && $scope.course.courseOccurrences
                         && $scope.course.courseOccurrences.length > 0
-                        && $scope.validDate
+                        && Utils.isValidDate($scope.course.startDate, $scope.course.endDate)
                     )
                     ||
                     (

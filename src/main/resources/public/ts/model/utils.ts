@@ -82,8 +82,8 @@ export class Utils {
             }
             else {
                 let courses = course.getCourseForEachOccurrence();
-                for (let j = 0, jmax = courses.length; j < jmax; j++) {
-                    let course = courses[j];
+                for (let j = 0, jmax = courses.all.length; j < jmax; j++) {
+                    let course = courses.all[j];
                     if(this.occurrenceInExclusionsDay(course, exclusion) == true){
                         return true;
                     }
