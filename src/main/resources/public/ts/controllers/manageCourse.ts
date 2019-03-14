@@ -118,11 +118,17 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
             }
 
+
+
         }else if($location.$$path.includes('/create')){
             $scope.editOccurrence = false;
+
         }
         $scope.changeDate();
         Utils.safeApply($scope);
+        $scope.syncSubjects();
+        Utils.safeApply($scope);
+
 
         $scope.makeRecurrentCourse = () => {
             $scope.course.is_recurrent = true;
