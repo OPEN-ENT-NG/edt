@@ -197,7 +197,7 @@ export let main = ng.controller('EdtController',
                 start : start,
                 end : end
             };
-            $scope.editOccurrence = false;
+            $scope.editOccurrence = true;
             // if(isDrag){
             //     $scope.editOccurrence = isDrag;
             // }
