@@ -366,7 +366,7 @@ export let main = ng.controller('EdtController',
                     beginning : param ? param.beginning: model.calendar.newItem.beginning.format('x'),
                     end : param ? param.end : model.calendar.newItem.end.format('x')};
                 let startTime = (moment.utc(TimeslotInfo["beginning"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
-                console.log(moment(startTime).format("MM"));
+
                 startTime = $scope.getSummerTimeIfMandatory(startTime);
                 let endTime = (moment.utc(TimeslotInfo["end"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
                 endTime = $scope.getSummerTimeIfMandatory(endTime);
