@@ -42,6 +42,10 @@ export let main = ng.controller('EdtController',
                 $scope.calendarLoader.show = false;
             }
         };
+        $scope.displayAllClass = async () =>{
+          await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
+          await Utils.safeApply($scope);
+        };
 
         /**
          * Synchronize a structure.

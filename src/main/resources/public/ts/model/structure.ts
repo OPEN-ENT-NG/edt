@@ -45,7 +45,7 @@ export class Structure {
      * synchronization.
      * @returns {Promise<T>|Promise}
      */
-    sync (): Promise<any> {
+    sync (isTeacher?: boolean): Promise<any> {
         return new Promise((resolve, reject) => {
             let syncedCollections = {
                 subjects: false,
@@ -70,7 +70,7 @@ export class Structure {
             };
 
             this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; endSync(); });
-            this.groups.sync(this.id).then(() => { syncedCollections.groups = true; endSync(); });
+            this.groups.sync(this.id,(isTeacher )? isTeacher : false).then(() => { syncedCollections.groups = true; endSync(); });
             this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
             this.exclusions.sync(this.id).then(() => { syncedCollections.exclusions = true; endSync(); });
             if (model.me.type === USER_TYPES.relative) {

@@ -51,6 +51,7 @@
                             ng-click="updateDatas();"
 
                     ></multi-combo>
+                    <button ng-if ="isTeacher()" ng-click="displayAllClass()"><i18n>showMore</i18n></button>
                     <div class="select-blocks">
                         <div ng-repeat="group in params.group" class="[[group.color]]"
                              ng-click="dropGroup(group)">[[group.name]]</div>
