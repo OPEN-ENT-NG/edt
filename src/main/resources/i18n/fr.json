@@ -116,5 +116,6 @@
   "error.timeAfterBefore":"L'heure de fin doit être au moins supérieure de 15 minutes à l'heure de début",
   "edt.calendar.weekfrom":"du",
   "edt.info.week.peer":"paire",
-  "edt.info.week.odd":"impaire"
+  "edt.info.week.odd":"impaire",
+  "showMore": "Voir plus"
 }
