@@ -225,6 +225,9 @@ export let main = ng.controller('EdtController',
 
         $scope.ableToChooseEditionType = (course: Course,end):boolean => {
             let now = moment();
+            if(!end){
+                end = moment(course.startDate);
+            }
             let upcomingOccurrence = course.getNextOccurrenceDate(end);
             let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(end)) ;
 
