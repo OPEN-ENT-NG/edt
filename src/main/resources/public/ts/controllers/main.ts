@@ -26,6 +26,7 @@ export let main = ng.controller('EdtController',
         };
         let isUpdateData = false
         $scope.structures.sync();
+        $scope.params.deletedGroups = [];
         $scope.structure = $scope.structures.first();
         $scope.display = {
             showQuarterHours : true
@@ -140,6 +141,13 @@ export let main = ng.controller('EdtController',
             $scope.structure.calendarItems.all = [];
             if($scope.params.group.length > 0){
                    await $scope.structure.calendarItems.getGroups($scope.params.group);
+                   $scope.params.deletedGroups.map(g =>{
+                        $scope.params.group.map(gg  => {
+                            if(g.id == gg.id){
+                                $scope.params.group = _.without($scope.params.group, gg);
+                            }
+                        })
+                   })
             }
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
             $scope.calendarLoader.hide();
@@ -161,6 +169,7 @@ export let main = ng.controller('EdtController',
          * @param {Group} group Group to drop
          */
         $scope.dropGroup = (group: Group): void => {
+            $scope.params.deletedGroups.push(group);
             $scope.params.group = _.without($scope.params.group, group);
         };
         /**
@@ -340,7 +349,11 @@ export let main = ng.controller('EdtController',
 
         $scope.updateDatas = async () => {
             isUpdateData = true;
+            console.log($scope.params.deletedGroups )
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
+                if($scope.params.group.length > $scope.params.oldGroup.length){
+                    $scope.params.deletedGroups = [];
+                }
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldGroup = angular.copy($scope.params.group);
