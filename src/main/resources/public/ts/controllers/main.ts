@@ -349,7 +349,6 @@ export let main = ng.controller('EdtController',
 
         $scope.updateDatas = async () => {
             isUpdateData = true;
-            console.log($scope.params.deletedGroups )
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
                 if($scope.params.group.length > $scope.params.oldGroup.length){
                     $scope.params.deletedGroups = [];
