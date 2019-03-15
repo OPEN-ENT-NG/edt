@@ -77,7 +77,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
                 }else {
                     LOGGER.error("can't update this occurrence");
                     handler.handle(new Either.Left<>("can't update this occurrence"));
@@ -89,19 +89,21 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    private void excludeOccurrenceFromCourse(JsonObject oldCourse,  JsonObject dates , Handler<Either<String, JsonObject>> handler  ){
+    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , Handler<Either<String, JsonObject>> handler  ){
         Handler<Message<JsonObject>> internHandler = res ->{
             if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
             else handler.handle(new Either.Left<>("can't delete this course Occurrence"));
         };
         oldCourse.put(END_DATE, dates.getString("newEndTime"));
         oldCourse.put(START_DATE, dates.getString("newStartTime"));
+        newCourse.put(START_DATE,dates.getString("oldStartTime"));
+        newCourse.put(END_DATE,dates.getString("oldEndTime"));
         if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.DATE_FORMATTER)
                 .after(dateHelper.getDate(oldCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
             updateElement(oldCourse,internHandler);
-//        if(dateHelper.getDate(newCourse.getString(END_DATE),dateHelper.DATE_FORMATTER)
-//                .after(dateHelper.getDate(newCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
-//            mongo.save(collection, newCourse,internHandler);
+        if(dateHelper.getDate(newCourse.getString(END_DATE),dateHelper.DATE_FORMATTER)
+                .after(dateHelper.getDate(newCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
+            mongo.save(collection, newCourse,internHandler);
     }
 
     public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
@@ -113,7 +115,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
                     course.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse,getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
+                    excludeOccurrenceFromCourse(oldCourse, newCourse,getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
                     mongo.save(collection, course, res ->{
                        if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
                         else handler.handle(new Either.Left<>("can't create this Occurrence")); });
