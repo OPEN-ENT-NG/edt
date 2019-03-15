@@ -44,8 +44,8 @@ export let main = ng.controller('EdtController',
             }
         };
         $scope.displayAllClass = async () =>{
-          await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
-          await Utils.safeApply($scope);
+            await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
+            await Utils.safeApply($scope);
         };
 
         /**
@@ -83,7 +83,8 @@ export let main = ng.controller('EdtController',
         $scope.syncStructure($scope.structure);
 
         $scope.switchStructure = (structure: Structure) => {
-            $scope.syncStructure(structure);
+            if( $scope.params.group.length !==0 ||  $scope.params.user.length !== 0 )
+                $scope.syncStructure(structure);
         };
 
         /**
@@ -140,14 +141,14 @@ export let main = ng.controller('EdtController',
             $scope.calendarLoader.display();
             $scope.structure.calendarItems.all = [];
             if($scope.params.group.length > 0){
-                   await $scope.structure.calendarItems.getGroups($scope.params.group);
-                   $scope.params.deletedGroups.map(g =>{
-                        $scope.params.group.map(gg  => {
-                            if(g.id == gg.id){
-                                $scope.params.group = _.without($scope.params.group, gg);
-                            }
-                        })
-                   })
+                await $scope.structure.calendarItems.getGroups($scope.params.group);
+                $scope.params.deletedGroups.map(g =>{
+                    $scope.params.group.map(gg  => {
+                        if(g.id == gg.id){
+                            $scope.params.group = _.without($scope.params.group, gg);
+                        }
+                    })
+                })
             }
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
             $scope.calendarLoader.hide();
@@ -255,7 +256,7 @@ export let main = ng.controller('EdtController',
                 $scope.pageInitialized = true;
                 $scope.params.oldGroup = angular.copy($scope.params.group);
                 $scope.params.oldUser = angular.copy($scope.params.user);
-                 model.calendar.setDate(moment());
+                model.calendar.setDate(moment());
             }
             //  if ( $scope.isTeacher() || $scope.isStudent())
             //  return ;
@@ -267,7 +268,7 @@ export let main = ng.controller('EdtController',
             });
 
 
-                 Utils.safeApply($scope);
+            Utils.safeApply($scope);
 
             // --Start -- Calendar Drag and Drop
 
@@ -414,20 +415,20 @@ export let main = ng.controller('EdtController',
         $scope.getSummerTimeIfMandatory = (time) =>{
             let  summerDay = moment([2011,3,1]);
             let winterDay = moment ([2011,9,28]);
-          if(moment(time).format("MM") >= moment(summerDay).format("MM") &&
-              moment(time).format("MM") < moment(winterDay).format("MM") ){
-             time = moment(time).subtract(1,'hours');
-          }else if(moment(time).format("MM") ===  moment(winterDay).format("MM") && moment(time).format("dd") <= moment(winterDay).format("dd") ){
-              time =  moment(time).subtract(1,'hours');
+            if(moment(time).format("MM") >= moment(summerDay).format("MM") &&
+                moment(time).format("MM") < moment(winterDay).format("MM") ){
+                time = moment(time).subtract(1,'hours');
+            }else if(moment(time).format("MM") ===  moment(winterDay).format("MM") && moment(time).format("dd") <= moment(winterDay).format("dd") ){
+                time =  moment(time).subtract(1,'hours');
 
-          }
-          return time;
+            }
+            return time;
         };
         route({
             main:  () => {
                 template.open('main', 'main');
                 if(!$scope.pageInitialized)
-                     setTimeout(function(){  initTriggers(true); }, 1000);
+                    setTimeout(function(){  initTriggers(true); }, 1000);
 
             },
             create:async () => {
