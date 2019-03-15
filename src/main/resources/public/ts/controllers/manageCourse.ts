@@ -59,7 +59,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.syncSubjects = async () => {
-            ($scope.selectionOfTeacherSubject) ? $scope.selectionOfTeacherSubject : $scope.selectionOfTeacherSubject = new Subjects();
+            $scope.selectionOfTeacherSubject = new Subjects();
             if ($scope.course.teachers.length > 0) {
                 await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
 
