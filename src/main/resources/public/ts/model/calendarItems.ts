@@ -80,18 +80,18 @@ export class CalendarItems {
         if (data.length > 0) {
             this.all = data.map((item) => {
                 if(item.name_groupes.length > 0){
-                   item.name_groupes.map((groupName)=>{
-                     let isAlreadyInGroups = false;
-                       group.map( g => {
-                           if(g.name === groupName){
-                               isAlreadyInGroups = true;
-                           }
-                       });
-                       if(!isAlreadyInGroups){
-                           let grip =new Group("",groupName,"");
-                           group.push(grip);
-                       }
-                   })
+                    item.name_groupes.map((groupName)=>{
+                        let isAlreadyInGroups = false;
+                        group.map( g => {
+                            if(g.name === groupName){
+                                isAlreadyInGroups = true;
+                            }
+                        });
+                        if(!isAlreadyInGroups){
+                            let grip =new Group("",groupName,"");
+                            group.push(grip);
+                        }
+                    })
                 }
             });
         }
@@ -106,6 +106,7 @@ export class CalendarItems {
      */
     async sync(structure: Structure, teacher: Array<Teacher> = [], group: Array<Group> = []): Promise<void> {
         let firstDate = Utils.getFirstCalendarDay();
+
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
         endDate = moment(endDate).format('YYYY-MM-DD');
@@ -114,18 +115,20 @@ export class CalendarItems {
         if (teacher.length > 0)
             filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
         if (group.length > 0)
-
             filter += this.getFilterGroup(group);
 
-        let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
-        let {data} = await http.get(uri);
-        if (data.length > 0) {
-            this.all = data.map((item) => {
-                item = new CalendarItem(item, item.startDate, item.endDate);
-                item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
-                item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
-                return item;
-            });
+        if(filter) {
+            let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
+
+            let {data} = await http.get(uri);
+            if (data.length > 0) {
+                this.all = data.map((item) => {
+                    item = new CalendarItem(item, item.startDate, item.endDate);
+                    item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                    item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
+                    return item;
+                });
+            }
         }
         return;
     }
@@ -168,7 +171,7 @@ export class CalendarItems {
         let name = 'classes=';
         for (let i = 0; i < table.length; i++) {
             if (table[i]) {
-               filter += `${name}${table[i].id}`;
+                filter += `${name}${table[i].id}`;
 
                 if (i !== table.length - 1)
                     filter += '&';
