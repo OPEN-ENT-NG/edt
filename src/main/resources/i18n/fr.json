@@ -111,7 +111,7 @@
   "edt.choose.edition.type.choice2":"Toutes les futures occurrences de ce cours",
   "edt.erreur.date.debut.date.fin.not.valid":"La date de début doit être inférieure à la date de fin.",
   "edt.error.date.is.not.a.week.after":"La date de début et de fin doivent avoir une semaine d'écart",
-  "edt.info.message.there.is.courses.to.delete":"Des cours ont déjà été programmés sur cette période, l'enregistrement entrainera leur suppression.",
+  "edt.info.message.there.is.courses.to.delete":"Des cours ont déjà été programmés sur cette période, ils ne seront plus pris en compte tant que la periode d'exclusion est active.",
   "edt.course.on.exclusion.message": "Votre cours est inclus dans une période fermée, les jours fermés de l'occurrence ne seront pas pris en compte",
   "error.timeAfterBefore":"L'heure de fin doit être au moins supérieure de 15 minutes à l'heure de début",
   "edt.calendar.weekfrom":"du",
