@@ -43,10 +43,10 @@ export let main = ng.controller('EdtController',
                 $scope.calendarLoader.show = false;
             }
         };
-        $scope.displayAllClass = async () =>{
-            await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
-            await Utils.safeApply($scope);
-        };
+        // $scope.displayAllClass = async () =>{
+        //     await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
+        //     await Utils.safeApply($scope);
+        // };
 
         /**
          * Synchronize a structure.
@@ -54,7 +54,7 @@ export let main = ng.controller('EdtController',
         $scope.syncStructure = async (structure: Structure) => {
             $scope.structure = structure;
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
-            await $scope.structure.sync();
+            await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
             switch (model.me.type) {
                 case USER_TYPES.student : {
                     $scope.params.group = _.map(model.me.classes, (groupid) => {

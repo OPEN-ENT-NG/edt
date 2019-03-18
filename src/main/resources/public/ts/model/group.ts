@@ -45,7 +45,7 @@ export class Groups {
                     this.all.map(gg => {
                         if (gg.id === g.id){
                             alreadyExists = true;
-                            gg.name += "*";
+                            gg.name += " ( ma classe )";
                         }
                     });
                     if(alreadyExists !== true){
