@@ -208,9 +208,11 @@ export let main = ng.controller('EdtController',
                 end : end
             };
             $scope.editOccurrence = true;
-            // if(isDrag){
-            //     $scope.editOccurrence = isDrag;
-            // }
+            if(!isDrag){
+                $scope.paramEdition.start = moment($scope.courseToEdit.startDate);
+                $scope.paramEdition.end = moment($scope.courseToEdit.endDate);
+            }
+
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
             if($scope.ableToChooseEditionType($scope.courseToEdit,end)){
