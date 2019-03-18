@@ -70,7 +70,7 @@ export class CalendarItems {
      * @param {Array<Group>} group cannot be null
      * @returns {Promise<void>}
      */
-    async getGroups( group: Array<Group> = []){
+    async getGroups( group: Array<Group> = [] , deletedGroup){
         if(group.length <=0) return ;
         let filter = "";
         filter += this.getFilterClass(group);
@@ -78,17 +78,35 @@ export class CalendarItems {
         let {data} = await http.get(uri);
 
         if (data.length > 0) {
-            this.all = data.map((item) => {
-                if(item.name_groupes.length > 0){
-                    item.name_groupes.map((groupName)=>{
+        console.log(deletedGroup);
+            this.all = data.map((item, index) => {
+                if(item.name_groups.length > 0){
+                    item.name_groups.map((groupName)=>{
+                        let isAGroupOfANewClass = false;
                         let isAlreadyInGroups = false;
+
                         group.map( g => {
                             if(g.name === groupName){
                                 isAlreadyInGroups = true;
                             }
                         });
+
+                        deletedGroup.classes.map( c =>{
+                           if(item.id_classe === c.id ){
+                               isAGroupOfANewClass = true;
+                           }
+                        });
+
+
+                        if(!isAGroupOfANewClass){
+                            deletedGroup.groupsDeleted.map((gg,index)=>{
+                                if(gg.name === groupName){
+                                    deletedGroup.groupsDeleted.splice(index,1);
+                                }
+                            })
+                        }
                         if(!isAlreadyInGroups){
-                            let grip =new Group("",groupName,"");
+                            let grip =new Group(item.id_groups[index],groupName,"");
                             group.push(grip);
                         }
                     })

@@ -26,7 +26,13 @@ export let main = ng.controller('EdtController',
         };
         let isUpdateData = false
         $scope.structures.sync();
-        $scope.params.deletedGroups = [];
+        //GroupsDeleted =groups wich are deleted from the filter
+        //classes : classes for wich the groups are deleted
+        $scope.params.deletedGroups = {
+            groupsDeleted: [],
+            classes: []
+        };
+
         $scope.structure = $scope.structures.first();
         $scope.display = {
             showQuarterHours : true
@@ -138,11 +144,39 @@ export let main = ng.controller('EdtController',
                     $scope.params.user.push(found);
             }
 
+
+
             $scope.calendarLoader.display();
             $scope.structure.calendarItems.all = [];
+            console.log( $scope.params.deletedGroups.classes);
+//add groups to classes
+            $scope.params.group.map(g => {
+                let isInClass = false;
+                $scope.params.deletedGroups.classes.map(c => {
+                    if (c.id === g.id){
+                        isInClass = true;
+                    }
+
+
+                });
+                if(!isInClass  && g.type_groupe !== 0){
+                    $scope.params.deletedGroups.classes.push(g);
+                }
+
+                $scope.params.deletedGroups.classes.map(c => {
+                    $scope.params.deletedGroups.groupsDeleted.map((gg,index) => {
+                        if(gg.id === c.id)
+                            $scope.params.deletedGroups.groupsDeleted.splice(index,1);
+
+                    });
+                });
+            });
+
+
+
             if($scope.params.group.length > 0){
-                await $scope.structure.calendarItems.getGroups($scope.params.group);
-                $scope.params.deletedGroups.map(g =>{
+                await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
+                $scope.params.deletedGroups.groupsDeleted.map(g =>{
                     $scope.params.group.map(gg  => {
                         if(g.id == gg.id){
                             $scope.params.group = _.without($scope.params.group, gg);
@@ -150,6 +184,21 @@ export let main = ng.controller('EdtController',
                     })
                 })
             }
+//add classes after filter groups
+            $scope.params.group.map(g => {
+                let isInClass = false;
+
+                $scope.params.deletedGroups.classes.map(c => {
+                    if (c.id === g.id){
+                        isInClass = true;
+                    }
+                });
+                if(!isInClass){
+                    $scope.params.deletedGroups.classes.push(g);
+                }
+            });
+
+
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
             $scope.calendarLoader.hide();
             await   Utils.safeApply($scope);
@@ -170,7 +219,17 @@ export let main = ng.controller('EdtController',
          * @param {Group} group Group to drop
          */
         $scope.dropGroup = (group: Group): void => {
-            $scope.params.deletedGroups.push(group);
+
+            if(group.type_groupe != 0 || group.type_groupe === undefined)
+                $scope.params.deletedGroups.groupsDeleted.push(group);
+
+            $scope.params.deletedGroups.classes.map((c,index) => {
+                if(c.id == group.id){
+                    $scope.params.deletedGroups.classes.splice(index,1);
+                }
+            });
+
+
             $scope.params.group = _.without($scope.params.group, group);
         };
         /**
@@ -354,7 +413,6 @@ export let main = ng.controller('EdtController',
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
                 if($scope.params.group.length > $scope.params.oldGroup.length){
-                    $scope.params.deletedGroups = [];
                 }
                 await $scope.syncCourses();
                 initTriggers();

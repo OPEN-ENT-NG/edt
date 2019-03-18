@@ -5,7 +5,7 @@ export class Group {
     name: string;
     color: string;
     id: string;
-
+    type_groupe? ;
     constructor (id: string, name: string, color:string) {
         this.id = id;
         this.name = name;
