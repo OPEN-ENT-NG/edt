@@ -289,7 +289,6 @@ export let main = ng.controller('EdtController',
         $scope.cancelEditionLightbox = () =>{
             $scope.show.home_lightbox = false;
             template.close('homePagePopUp');
-
             Utils.safeApply($scope);
         };
 
@@ -308,7 +307,7 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.getSimpleDateFormat = (date) => {
-            return moment(date).format('DD/MM/YYYY');
+            return moment(date).format('YYYY-MM-DD');
         };
 
         let initTriggers = (init ?: boolean) => {
