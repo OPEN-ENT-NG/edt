@@ -142,7 +142,7 @@
                             </div>
                             <div ng-if="course.is_recurrent && course.everyTwoWeek"
                                  class="red-text padding-top-sm five cell twelve-mobile horizontal-spacing ">
-                                <i18n>edt.first.occurrence</i18n> : [[getSimpleDateFormat(info.firstOccurrenceDate)]] (<i18n>Week</i18n>
+                                <i18n>edt.first.occurrence</i18n> : [[getSimpleFRDateFormat(info.firstOccurrenceDate)]] (<i18n>Week</i18n>
                                 [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
                             </div>
                         </div>

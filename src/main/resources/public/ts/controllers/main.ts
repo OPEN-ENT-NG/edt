@@ -309,6 +309,9 @@ export let main = ng.controller('EdtController',
         $scope.getSimpleDateFormat = (date) => {
             return moment(date).format('YYYY-MM-DD');
         };
+        $scope.getSimpleFRDateFormat = (date) => {
+            return moment(date).format('DD/MM/YYYY');
+        };
 
         let initTriggers = (init ?: boolean) => {
             if(init){
