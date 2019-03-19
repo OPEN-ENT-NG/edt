@@ -1,8 +1,11 @@
-<div class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"  >
+<div class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]" >
     <div ng-if="isPersonnel()">
         <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
         <div class="one cell edit-icone" data-id="[[item.course._id]]" >
-            <i class="edit sm-margin-right right-magnet"  ></i> </div>
+            <i class="edit sm-margin-right right-magnet"  >
+                <div ng-hide="true">[[item.startDate]]</div>
+                <div ng-hide="true">[[item.endDate]]</div>
+            </i> </div>
     </div>
     <div ng-if="!isPersonnel()">
         <div class="cell twelve ellipsis" >[[item.course.subjectLabel]] </div>

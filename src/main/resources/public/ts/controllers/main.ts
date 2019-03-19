@@ -170,7 +170,6 @@ export let main = ng.controller('EdtController',
             });
 
 
-            console.log( $scope.params.group);
 
 
             if($scope.params.group.length > 0){
@@ -266,14 +265,13 @@ export let main = ng.controller('EdtController',
                 end : end
             };
             $scope.editOccurrence = true;
-            if(!isDrag){
-                $scope.paramEdition.start = moment($scope.courseToEdit.startDate);
-                $scope.paramEdition.end = moment($scope.courseToEdit.endDate);
-            }
-
+            // if(!isDrag){
+            //     $scope.paramEdition.start = moment($scope.courseToEdit.startDate);
+            //     $scope.paramEdition.end = moment($scope.courseToEdit.endDate);
+            // }
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
-            if($scope.ableToChooseEditionType($scope.courseToEdit,end)){
+            if($scope.ableToChooseEditionType($scope.courseToEdit,start)){
 
                 $scope.show.home_lightbox = true;
                 template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
@@ -292,13 +290,13 @@ export let main = ng.controller('EdtController',
             Utils.safeApply($scope);
         };
 
-        $scope.ableToChooseEditionType = (course: Course,end):boolean => {
+        $scope.ableToChooseEditionType = (course: Course,start):boolean => {
             let now = moment();
-            if(!end){
-                end = moment(course.startDate);
+            if(!start){
+                start = moment(course.startDate);
             }
-            let upcomingOccurrence = course.getNextOccurrenceDate(end);
-            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(end)) ;
+            let upcomingOccurrence = course.getNextOccurrenceDate(start);
+            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start)) ;
 
             let isLastOccurence = moment(course.getLastOccurrence().endTime).format('YYYY-MM-DD') != upcomingOccurrence;
 
@@ -359,7 +357,7 @@ export let main = ng.controller('EdtController',
                     if ($dragging) {
                         $('.timeslot').removeClass('selecting-timeslot');
                         let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
-                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
+                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
                         initVar();
                     }
                 };
@@ -379,9 +377,10 @@ export let main = ng.controller('EdtController',
 
 
                 var mouseDownEditIcon = (e) => {
+
                     if (e.which === 1) {//check left click
                         e.stopPropagation();
-                        $scope.chooseTypeEdit($(e.currentTarget).data('id'));
+                        $scope.chooseTypeEdit($(e.currentTarget).data('id'),moment(e.target.children[0].innerHTML),moment(e.target.children[1].innerHTML));
                         $(e.currentTarget).unbind('mousedown');
                     }
                 };
@@ -513,6 +512,9 @@ export let main = ng.controller('EdtController',
                     $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
                     $scope.editOccurrence = true;
                     $scope.course.is_recurrent = false;
+                }else{
+                    $scope.editOccurrence = false;
+
                 }
                 template.open('main', 'manage-course');
                 Utils.safeApply($scope);
