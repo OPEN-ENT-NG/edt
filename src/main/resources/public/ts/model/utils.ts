@@ -41,6 +41,12 @@ export class Utils {
      * @returns {boolean}
      */
     static isValidDate (start , end ) : boolean {
+        if (start[2] == "/") { //hack to demo
+            start = start[6] + start[7] + start[8] + start[9] + "-" + start[3] + start[4] + "-" + start[0] + start[1];
+        }
+        if (end[2] == "/") {
+            end = end[6] + end[7] + end[8] + end[9] + "-" + end[3] + end[4] + "-" + end[0] + end[1];
+        }
         return moment(start).diff(moment(end)) < 0;
     };
 
