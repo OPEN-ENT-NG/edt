@@ -25,16 +25,16 @@
 <div class="row illustration">
     <div class="time-barre twelve cell" ng-class="{green: (!editOccurrence && courseToEdit.isInFuture())}">
         <div class="startCourse">
-            <p>[[getSimpleDateFormat( courseToEdit.startDate )]]</p>
+            <p>[[getSimpleFRDateFormat( courseToEdit.startDate )]]</p>
         </div>
         <div class="startEdition" ng-show="!editOccurrence && !courseToEdit.isInFuture()">
-            <p>[[getSimpleDateFormat(courseToEdit.getNextOccurrenceDate(moment()))]]</p>
+            <p>[[getSimpleFRDateFormat(courseToEdit.getNextOccurrenceDate(moment()))]]</p>
         </div>
         <div class="middle" ng-if="editOccurrence">
-            <p>[[ getSimpleDateFormat(occurrenceDate) ]]</p>
+            <p>[[ getSimpleFRDateFormat(occurrenceDate) ]]</p>
         </div>
         <div class="end">
-            <p>[[ getSimpleDateFormat(courseToEdit.endDate) ]]</p>
+            <p>[[ getSimpleFRDateFormat(courseToEdit.endDate) ]]</p>
         </div>
     </div>
 </div>
