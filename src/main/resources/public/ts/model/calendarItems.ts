@@ -78,10 +78,9 @@ export class CalendarItems {
         let {data} = await http.get(uri);
 
         if (data.length > 0) {
-        console.log(deletedGroup);
-            this.all = data.map((item, index) => {
+            this.all = data.map((item) => {
                 if(item.name_groups.length > 0){
-                    item.name_groups.map((groupName)=>{
+                    item.name_groups.map((groupName, index)=>{
                         let isAGroupOfANewClass = false;
                         let isAlreadyInGroups = false;
 

@@ -151,13 +151,12 @@ export let main = ng.controller('EdtController',
             $scope.params.group.map(g => {
                 let isInClass = false;
                 $scope.params.deletedGroups.classes.map(c => {
-                    if (c.id === g.id){
+                    if (c.id === g.id ){
                         isInClass = true;
                     }
-
-
                 });
-                if(!isInClass  && g.type_groupe !== 0){
+
+                if(!isInClass  && g.type_groupe !== 0 && g.users ){
                     $scope.params.deletedGroups.classes.push(g);
                 }
 
@@ -170,6 +169,8 @@ export let main = ng.controller('EdtController',
                 });
             });
 
+
+            console.log( $scope.params.group);
 
 
             if($scope.params.group.length > 0){
@@ -227,8 +228,8 @@ export let main = ng.controller('EdtController',
                 }
             });
 
-
             $scope.params.group = _.without($scope.params.group, group);
+
         };
         /**
          * Course creation
