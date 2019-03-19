@@ -331,65 +331,65 @@ export let main = ng.controller('EdtController',
 
             // --Start -- Calendar Drag and Drop
 
-            if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+            if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
                 let $dragging = null;
                 let topPositionnement = 0;
                 let startPosition = {top: null, left: null};
-                let $timeslots= $('calendar .timeslot');
-                $timeslots.removeClass( 'selecting-timeslot' );
+                let $timeslots = $('calendar .timeslot');
+                $timeslots.removeClass('selecting-timeslot');
                 let initVar = () => {
                     $dragging = null;
                     topPositionnement = 0;
-                    $timeslots.removeClass( 'selecting-timeslot' );
+                    $timeslots.removeClass('selecting-timeslot');
                     $('calendar .selected-timeslot').remove();
                 };
 
                 $timeslots
-                    .mousemove((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging))
-                    .mouseenter((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
+                    .mousemove((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging))
+                    .mouseenter((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
-                $('calendar hr')
-                    .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
+                var mousemoveCalendarHr = (e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging);
+                $('body').off('mousemove', 'calendar hr', mousemoveCalendarHr);
+                $('body').on('mousemove', 'calendar hr', mousemoveCalendarHr);
+
+                var mouseupCalendar = (e) => {
+                    if ($dragging) {
+                        $('.timeslot').removeClass('selecting-timeslot');
+                        let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
+                        initVar();
+                    }
+                };
+                $('body').off('mouseup', 'calendar', mouseupCalendar);
+                $('body').on('mouseup', 'calendar', mouseupCalendar);
+
+                var mousedownCalendarScheduleItem = (e) => {
+                    $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
+                    startPosition = $dragging.offset();
+                    let calendar = $('calendar');
+                    calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                    calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                };
+                $('body').off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+                $('body').on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+                $('body calendar .schedule-item').css('cursor', 'move');
 
 
-                $('calendar')
-                    .mouseup(  (e) => {
-
-                        if($dragging){
-                            $('.timeslot').removeClass( 'selecting-timeslot' );
-                            let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
-                            if(coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end,true);
-                            initVar();
-                        }
-                    });
-
-                $('calendar .schedule-item')
-                    .css('cursor','move')
-                    .mousedown((e)=>  {
-                        $dragging = UtilDragAndDrop.takeSchedule(e,$timeslots);
-                        startPosition = $dragging.offset();
-                        let calendar = $('calendar');
-                        calendar.off( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                        calendar.on( 'mousemove', (e)=> UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                    });
-
-
+                var mouseDownEditIcon = (e) => {
+                    if (e.which === 1) {//check left click
+                        e.stopPropagation();
+                        $scope.chooseTypeEdit($(e.currentTarget).data('id'));
+                        $(e.currentTarget).unbind('mousedown');
+                    }
+                };
                 //left click on icon
-                $('.one.cell.edit-icone')
-                    .mousedown((e) => {
-                        if(e.which === 1) {//check left click
-                            e.stopPropagation();
-                            $scope.chooseTypeEdit($(e.currentTarget).data('id'));
-                            $(e.currentTarget).unbind('mousedown');
-                        }
-                    });
-
+                $('body').off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+                $('body').on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
 
 
                 /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
                     $('calendar .next-timeslots').mousedown(()=> {initTriggers()});*/
             }
-
             // --End -- Calendar Drag and Drop
         };
         model.calendar.on('date-change'  , async function(){
