@@ -163,7 +163,7 @@ export class Course {
      * @param {moment.Moment} date
      * @returns {string}
      */
-
+// TODO Depreciate function delete asap
     getNextOccurrenceDate (date: Moment|Object|string) :string {
        let momentDate = moment(date);
        let occurrence = moment( _.clone(momentDate));
