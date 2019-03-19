@@ -28,10 +28,10 @@
             <p>[[getSimpleDateFormat( courseToEdit.startDate )]]</p>
         </div>
         <div class="startEdition" ng-show="!editOccurrence && !courseToEdit.isInFuture()">
-            <p>[[courseToEdit.getNextOccurrenceDate(moment())]]</p>
+            <p>[[getSimpleDateFormat(courseToEdit.getNextOccurrenceDate(moment()))]]</p>
         </div>
         <div class="middle" ng-if="editOccurrence">
-            <p>[[ occurrenceDate ]]</p>
+            <p>[[ getSimpleDateFormat(occurrenceDate) ]]</p>
         </div>
         <div class="end">
             <p>[[ getSimpleDateFormat(courseToEdit.endDate) ]]</p>

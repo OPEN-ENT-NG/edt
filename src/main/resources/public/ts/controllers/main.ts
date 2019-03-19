@@ -144,12 +144,10 @@ export let main = ng.controller('EdtController',
                     $scope.params.user.push(found);
             }
 
-
-
             $scope.calendarLoader.display();
             $scope.structure.calendarItems.all = [];
-            console.log( $scope.params.deletedGroups.classes);
-//add groups to classes
+
+            //add groups to classes
             $scope.params.group.map(g => {
                 let isInClass = false;
                 $scope.params.deletedGroups.classes.map(c => {
@@ -309,7 +307,7 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.getSimpleDateFormat = (date) => {
-            return moment(date).format('YYYY-MM-DD');
+            return moment(date).format('DD/MM/YYYY');
         };
 
         let initTriggers = (init ?: boolean) => {
@@ -346,18 +344,12 @@ export let main = ng.controller('EdtController',
                     $('calendar .selected-timeslot').remove();
                 };
 
-
-
                 $timeslots
                     .mousemove((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging))
                     .mouseenter((e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
                 $('calendar hr')
                     .mousemove( (e) =>topPositionnement = UtilDragAndDrop.drag(e, $dragging));
-
-
-
-
 
 
                 $('calendar')
