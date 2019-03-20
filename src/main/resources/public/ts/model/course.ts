@@ -177,6 +177,7 @@ export class Course {
        return occurrence.format('YYYY-MM-DD');
     }
 
+
     getPreviousOccurrenceDate (date: Moment|Object|string) :string {
         let momentDate = moment(date);
         let occurrence = moment( _.clone(momentDate));
