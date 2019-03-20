@@ -295,13 +295,15 @@ export let main = ng.controller('EdtController',
             if(!start){
                 start = moment(course.startDate);
             }
+            let previousOccurrence = course.getPreviousOccurrenceDate(start);
+            let atLeastOnePreviousOccurence = moment(previousOccurrence).isAfter(moment(start));
             let upcomingOccurrence = course.getNextOccurrenceDate(start);
-            let moreThenOneOccurrenceLeft = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start)) ;
-
-            let isLastOccurence = moment(course.getLastOccurrence().endTime).format('YYYY-MM-DD') != upcomingOccurrence;
+            let atLeastOneOccurence = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start)) ;
 
 
-            return course.isRecurrent() && moreThenOneOccurrenceLeft && isLastOccurence && moment(upcomingOccurrence).isAfter(now);
+            //return true;
+           return course.isRecurrent() &&
+                ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now)) || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence ));
         };
 
         $scope.getSimpleDateFormat = (date) => {
