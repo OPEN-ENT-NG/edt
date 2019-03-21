@@ -1,7 +1,5 @@
 package fr.cgi.edt.utils;
 
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.EventBus;
@@ -19,7 +17,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EdtMongoHelper extends MongoDbCrudService {
 
@@ -91,7 +88,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , Boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler  ){
+    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler  ){
         oldCourse.put(END_DATE, dates.getString("newEndTime"));
         oldCourse.put(START_DATE, dates.getString("newStartTime"));
         newCourse.put(START_DATE, dates.getString("oldStartTime"));
@@ -134,14 +131,14 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
     public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
         final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
-        AtomicReference<Boolean> isLastOCcurence = new AtomicReference<>(false);
+        final boolean[] isLastOCcurence = {false};
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
 
                 if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER)
                         .equals(dateHelper.getDate(course.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER))){
-                    isLastOCcurence.set(true);
+                    isLastOCcurence[0] = true;
                 }
 
 
@@ -155,7 +152,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     LOGGER.info(dateHelper.getDate(course.getString(START_DATE), dateHelper.DATE_FORMATTER).toString());
                     LOGGER.info(dateHelper.getDate(course.getString(END_DATE), dateHelper.DATE_FORMATTER).toString());
 
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence.get(), new Handler<Either<String, JsonObject>>() {
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence[0], new Handler<Either<String, JsonObject>>() {
                         @Override
                         public void handle(Either<String, JsonObject> stringJsonObjectEither) {
                             mongo.save(collection, course, res -> {
