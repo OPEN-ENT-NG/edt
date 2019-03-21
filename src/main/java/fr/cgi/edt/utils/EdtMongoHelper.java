@@ -1,6 +1,7 @@
 package fr.cgi.edt.utils;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.EventBus;
@@ -18,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EdtMongoHelper extends MongoDbCrudService {
 
@@ -77,7 +79,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), false, handler);
                 }else {
                     LOGGER.error("can't update this occurrence");
                     handler.handle(new Either.Left<>("can't update this occurrence"));
@@ -89,36 +91,80 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , Handler<Either<String, JsonObject>> handler  ){
-        Handler<Message<JsonObject>> internHandler = res ->{
-            if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
-            else handler.handle(new Either.Left<>("can't delete this course Occurrence"));
-        };
+    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , Boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler  ){
         oldCourse.put(END_DATE, dates.getString("newEndTime"));
         oldCourse.put(START_DATE, dates.getString("newStartTime"));
-        newCourse.put(START_DATE,dates.getString("oldStartTime"));
-        newCourse.put(END_DATE,dates.getString("oldEndTime"));
-        if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.DATE_FORMATTER)
-                .after(dateHelper.getDate(oldCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
-            updateElement(oldCourse,internHandler);
-        if(dateHelper.getDate(newCourse.getString(END_DATE),dateHelper.DATE_FORMATTER)
-                .after(dateHelper.getDate(newCourse.getString(START_DATE),dateHelper.DATE_FORMATTER)))
-            mongo.save(collection, newCourse,internHandler);
+        newCourse.put(START_DATE, dates.getString("oldStartTime"));
+        newCourse.put(END_DATE, dates.getString("oldEndTime"));
+
+        Handler<Message<JsonObject>> secondInternHandler = jsonObjectMessage -> {
+            if (jsonObjectMessage.isSend()) {
+                handler.handle(new Either.Right<>(jsonObjectMessage.body()));
+            } else {
+                handler.handle(new Either.Left<>("can't delete this course Occurrence"));
+            }
+        };
+
+        Handler<Message<JsonObject>> firstInternHandler = res -> {
+            secondUpdate(newCourse, isLastOCcurence, handler, secondInternHandler);
+        };
+
+        if(isLastOCcurence || dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.DATE_FORMATTER).after(dateHelper.getDate(oldCourse.getString(START_DATE),dateHelper.DATE_FORMATTER))){
+            JsonObject old2 = oldCourse;
+            if(isLastOCcurence){
+                old2 = new JsonObject(newCourse.toString());
+                old2.put("_id", oldCourse.getString("_id"));
+            }
+            updateElement(old2, firstInternHandler);
+        }
+        else {
+            secondUpdate(newCourse, isLastOCcurence, handler, secondInternHandler);
+        }
+
+    }
+
+    private void secondUpdate(JsonObject newCourse, Boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler, Handler<Message<JsonObject>> secondInternHandler) {
+        if (!isLastOCcurence && dateHelper.getDate(newCourse.getString(END_DATE), dateHelper.DATE_FORMATTER)
+                .after(dateHelper.getDate(newCourse.getString(START_DATE), dateHelper.DATE_FORMATTER))) {
+            mongo.save(collection, newCourse, secondInternHandler);
+        } else {
+           handler.handle(new Either.Right<>(new JsonObject()));
+        }
     }
 
     public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
         final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
+        AtomicReference<Boolean> isLastOCcurence = new AtomicReference<>(false);
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
+
+                if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER)
+                        .equals(dateHelper.getDate(course.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER))){
+                    isLastOCcurence.set(true);
+                }
+
+
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
                     course.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse, newCourse,getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), handler);
-                    mongo.save(collection, course, res ->{
-                       if(res.isSend())  handler.handle(new Either.Right<>(res.body()));
-                        else handler.handle(new Either.Left<>("can't create this Occurrence")); });
+
+
+                    LOGGER.info(" -- course ---- ");
+                    LOGGER.info(dateHelper.getDate(course.getString(START_DATE), dateHelper.DATE_FORMATTER).toString());
+                    LOGGER.info(dateHelper.getDate(course.getString(END_DATE), dateHelper.DATE_FORMATTER).toString());
+
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence.get(), new Handler<Either<String, JsonObject>>() {
+                        @Override
+                        public void handle(Either<String, JsonObject> stringJsonObjectEither) {
+                            mongo.save(collection, course, res -> {
+                                if (res.isSend()) handler.handle(new Either.Right<>(res.body()));
+                                else handler.handle(new Either.Left<>("can't create this Occurrence"));
+                            });
+                        }
+                    });
+
                 }else {
                     LOGGER.error("can't find this course");
                     handler.handle(new Either.Left<>("can't find this course"));
