@@ -1,11 +1,11 @@
 <div ng-controller="manageCourseCtrl" id="occurrences-creation">
     <h1 class="centered eight row">
-        <i18n ng-if="isAnUpdate">edt.schedule.update</i18n>
-        <i18n ng-if="!isAnUpdate">edt.schedule.create</i18n>
+        <i18n ng-show="::isAnUpdate">edt.schedule.update</i18n>
+        <i18n ng-show="::!isAnUpdate">edt.schedule.create</i18n>
     </h1>
     <form>
         <article class="remove-padding-bottom">
-            <div ng-if="structures.all.length > 1" class="row form-row">
+            <div ng-if="::structures.all.length > 1" class="row form-row">
                 <label for="select-structure" class="cell two twelve-mobile asterisk obligatoire">
                     Structure
                 </label>

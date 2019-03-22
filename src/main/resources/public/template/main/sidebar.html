@@ -5,7 +5,7 @@
                 <i18n>edt.utils.display_mode</i18n>
                 :
             </h5>
-            <div ng-if="( isRelative() || isTeacher() || isPersonnel() ) && structures.all.length > 1">
+            <div ng-if="checkAccess() && structures.all.length > 1">
                 <select
                         ng-model="structure"
                         id="structure-list"
@@ -17,7 +17,7 @@
                     </option>
                 </select>
             </div>
-            <div ng-if="isTeacher() || isPersonnel() " class="row display-inline-block">
+            <div ng-if="::isTeacher() || isPersonnel() " class="row display-inline-block">
                 <label class="twelve small">
                     <multi-combo
                             class="twelve"
@@ -38,7 +38,7 @@
                     </div>
                 </label>
             </div>
-            <div ng-if="isTeacher() || isPersonnel()" class="row display-inline-block">
+            <div ng-if="::isTeacher() || isPersonnel()" class="row display-inline-block">
                 <label class="twelve small">
                     <multi-combo
                             title="[[translate('utils.groups')]]"
