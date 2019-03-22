@@ -24,6 +24,7 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
+
         let isUpdateData = false
         $scope.structures.sync();
         //GroupsDeleted =groups wich are deleted from the filter
@@ -116,6 +117,12 @@ export let main = ng.controller('EdtController',
          * @returns {boolean}
          */
         $scope.isRelative = (): boolean => model.me.type === USER_TYPES.relative;
+
+
+        $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher() || ($scope.isRelative() && $scope.structures.all.length > 1)};
+        $scope.checkTwelve = () => {
+            return $scope.isStudent() || ($scope.isRelative() && $scope.structures.all.length < 2)
+        };
 
         /**
          * Returns student group
@@ -257,36 +264,26 @@ export let main = ng.controller('EdtController',
             }
         };
 
+        template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
         $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
-
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
                 start : start,
                 end : end
             };
             $scope.editOccurrence = true;
-            // if(!isDrag){
-            //     $scope.paramEdition.start = moment($scope.courseToEdit.startDate);
-            //     $scope.paramEdition.end = moment($scope.courseToEdit.endDate);
-            // }
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
             if($scope.ableToChooseEditionType($scope.courseToEdit,start)){
-
                 $scope.show.home_lightbox = true;
-                template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
-
             }else{
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
-                //$scope.show.home_lightbox = true;
-                // template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
             }
             Utils.safeApply($scope);
         };
 
         $scope.cancelEditionLightbox = () =>{
             $scope.show.home_lightbox = false;
-            template.close('homePagePopUp');
             Utils.safeApply($scope);
         };
 
