@@ -72,13 +72,16 @@ public class DefaultInitImpl   extends SqlCrudService implements InitService {
                                         }
                                     }
                                     try {
-                                        sql.transaction(statements, new Handler<Message<JsonObject>>() {
-                                            @Override
-                                            public void handle(Message<JsonObject> event) {
-                                                Number id = Integer.parseInt("1");
-                                                handler.handle(SqlQueryUtils.getTransactionHandler(event, id));
-                                            }
-                                        });
+                                        if(statements.isEmpty())
+                                            handler.handle(new Either.Right<String, JsonObject>(new JsonObject()));
+                                        else
+                                            sql.transaction(statements, new Handler<Message<JsonObject>>() {
+                                                @Override
+                                                public void handle(Message<JsonObject> event) {
+                                                    Number id = Integer.parseInt("1");
+                                                    handler.handle(SqlQueryUtils.getTransactionHandler(event, id));
+                                                }
+                                            });
                                     } catch (ClassCastException e) {
                                         LOGGER.error("An error occurred when init", e);
                                         handler.handle(new Either.Left<String, JsonObject>(""));
