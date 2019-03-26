@@ -42,7 +42,6 @@ export const initData = {
         },
 
         initData: async function () {
-            console.log('coucou les periodes');
             let response = await http.get(`edt/init`);
             this.toastHttpCall(Utils.setToastMessage(response,'edt.data.init.success', 'edt.data.init.error'));
             this.safeApply();
