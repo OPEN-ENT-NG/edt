@@ -1,4 +1,5 @@
 import { Mix } from 'entcore-toolkit';
+import {idiom as lang} from 'entcore';
 import http from 'axios';
 
 export class Group {
@@ -15,7 +16,7 @@ export class Group {
 
 
     toString (): string {
-        return this.name;
+        return this.displayName;
     }
 }
 
@@ -40,23 +41,33 @@ export class Groups {
                 let groupsAllArray = Mix.castArrayAs(Group, groupsAll.data);
                 //Add all the groups and modify duplicate
                 let alreadyExists ;
+                // groupsAllArray.map(g =>{
+                //     g.displayName = g.name;
+                // });
+                this.all.map(g =>{
+                    g.displayName = g.name;
+                });
                 groupsAllArray.map(g => {
                      alreadyExists = false;
                     let index;
                     this.all.map(gg => {
-                        gg.displayName = gg.name;
                         if (gg.id === g.id){
                             alreadyExists = true;
-                            gg.displayName += " ( ma classe )";
+
+                            gg.displayName +=" " + lang.translate("my.class");
                         }
                     });
                     if(alreadyExists !== true){
+                        g.displayName = g.name;
                         this.all.push(g);
                     }
                 })
             }else{
                 let groups = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`  );
                 this.all = Mix.castArrayAs(Group, groups.data);
+                this.all.map(g => {
+                    g.displayName = g.name;
+                })
             }
         } catch (e) {
             throw e;
