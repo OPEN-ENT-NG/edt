@@ -44,7 +44,7 @@
                             title="[[translate('utils.groups')]]"
                             id="group-list-teacher"
                             combo-model="structure.groups.all"
-                            search-on="name"
+                            search-on="displayName"
                             order-by="type_groupe"
                             filtered-model="params.group"
                             labels="comboLabels"
@@ -54,7 +54,7 @@
                     <!--<button ng-if ="isTeacher()" ng-click="displayAllClass()"><i18n>showMore</i18n></button>-->
                     <div class="select-blocks">
                         <div ng-repeat="group in params.group" class="[[group.color]]"
-                             ng-click="dropGroup(group)">[[group.name]]</div>
+                             ng-click="dropGroup(group)">[[group.displayName]]</div>
                     </div>
                 </label>
             </div>

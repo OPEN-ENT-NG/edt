@@ -6,6 +6,7 @@ export class Group {
     color: string;
     id: string;
     type_groupe? ;
+    displayName: string;
     constructor (id: string, name: string, color:string) {
         this.id = id;
         this.name = name;
@@ -43,9 +44,10 @@ export class Groups {
                      alreadyExists = false;
                     let index;
                     this.all.map(gg => {
+                        gg.displayName = gg.name;
                         if (gg.id === g.id){
                             alreadyExists = true;
-                            gg.name += " ( ma classe )";
+                            gg.displayName += " ( ma classe )";
                         }
                     });
                     if(alreadyExists !== true){
