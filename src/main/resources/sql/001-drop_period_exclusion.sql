@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS edt.period_exclusion;
