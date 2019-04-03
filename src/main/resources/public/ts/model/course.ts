@@ -13,7 +13,7 @@ export class Course {
     groups: string[] | Group [] = [];
     teachers: Teacher [] = [];
     subjectLabel : string = '' ;
-
+    exceptionnal ?: string;
     dayOfWeek: number = null;
     endDate:string | object ;
     startDate: string | object ;
@@ -105,7 +105,8 @@ export class Course {
             roomLabels: this.roomLabels,
             dayOfWeek: this.is_recurrent ?parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
-            everyTwoWeek: this.everyTwoWeek
+            everyTwoWeek: this.everyTwoWeek,
+            exceptionnal: (this.exceptionnal)? this.exceptionnal : undefined
         };
        if( this.is_recurrent ){
            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
