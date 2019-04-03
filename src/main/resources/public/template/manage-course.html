@@ -61,7 +61,20 @@
                         <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'"
                                 ng-selected="course.subjectId == subject.subjectId"
                                 ng-value="subject.subjectId">[[subject.subjectLabel]]</option>
+                        <!--<option i18n-value="exceptionnal.id">[[translate('exceptionnal.label')]]</option>-->
+
                     </select>
+
+
+                </div>
+
+            </div>
+            <div ng-show="isExceptionnalSubject()" class="row form-row remove-padding-bottom">
+                <label class="cell two twelve-mobile">
+                    <i18n>exceptionnal.subject</i18n>*
+                </label>
+                <div  class="cell twelve-mobile ten">
+                    <input type="text" class="cell twelve-mobile ten"  ng-model="course.exceptionnal">
                 </div>
             </div>
             <div class="row form-row" ng-show="editOccurrence !== true">
