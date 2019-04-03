@@ -17,7 +17,6 @@ public class Edt extends BaseServer {
 
     private final static String EDT_COLLECTION = "courses";
     public final static String EDT_SCHEMA = "edt";
-    public final static String EXCLUSION_TABLE = "period_exclusion";
     public final static String EXCLUSION_TYPE_TABLE = "exclusion_type";
     static EventBus eb;
     public final static String EXCLUSION_JSON_SCHEMA = "exclusion";
