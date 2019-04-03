@@ -26,12 +26,14 @@ export class Course {
     courseOccurrences : CourseOccurrence[] = [];
     created: string = '';
     modified: string = '';
-
+    lastUser: string;
+    author: string;
     is_recurrent:boolean = undefined;
     canManage:boolean;
 
     constructor (obj?: object) {
         if (obj && obj instanceof Object) {
+            console.log(obj);
             for (let key in obj) {
                 this[key] = obj[key];
             }
@@ -47,7 +49,7 @@ export class Course {
     async update (occurrenceDate?) {
         try {
             let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}` : '/edt/course';
-            await http.put(url, [this.toJSON()]);
+            await http.put(url, [this.toJSON(false)]);
             return;
         } catch (e) {
             notify.error('edt.notify.update.err');
@@ -55,7 +57,7 @@ export class Course {
     }
     async create () {
         try {
-            await http.post('/edt/course', [this.toJSON()]);
+            await http.post('/edt/course', [this.toJSON(true)]);
             return;
         } catch (e) {
             notify.error('edt.notify.create.err');
@@ -95,7 +97,7 @@ export class Course {
         }
     }
 
-    toJSON () {
+    toJSON (isNew) {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
@@ -106,8 +108,20 @@ export class Course {
             dayOfWeek: this.is_recurrent ?parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
             everyTwoWeek: this.everyTwoWeek,
-            exceptionnal: (this.exceptionnal)? this.exceptionnal : undefined
+            exceptionnal: (this.exceptionnal)? this.exceptionnal : undefined,
+            updated: moment(),
+            lastUser :model.me.login
+
+
         };
+        if(isNew){
+            o.created = moment();
+            o.author = model.me.login
+        }else {
+            o.created = this.created;
+            o.author = this.author;
+
+        }
        if( this.is_recurrent ){
            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
            o.endDate = moment(this.endDate).day( this.dayOfWeek );

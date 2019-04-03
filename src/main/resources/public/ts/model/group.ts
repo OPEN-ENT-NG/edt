@@ -41,9 +41,6 @@ export class Groups {
                 let groupsAllArray = Mix.castArrayAs(Group, groupsAll.data);
                 //Add all the groups and modify duplicate
                 let alreadyExists ;
-                // groupsAllArray.map(g =>{
-                //     g.displayName = g.name;
-                // });
                 this.all.map(g =>{
                     g.displayName = g.name;
                 });
