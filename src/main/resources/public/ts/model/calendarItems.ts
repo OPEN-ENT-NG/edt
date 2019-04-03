@@ -1,4 +1,4 @@
-import { _, model, moment} from 'entcore';
+import { _, idiom as lang,model, moment} from 'entcore';
 import http from 'axios';
 import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
 
@@ -141,11 +141,17 @@ export class CalendarItems {
             if (data.length > 0) {
                 this.all = data.map((item) => {
                     item = new CalendarItem(item, item.startDate, item.endDate);
-                    item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                    if(item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")){
+                        item.course.subjectLabel = item.exceptionnal;
+
+                    }else{
+                        item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                    }
                     item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
                     return item;
                 });
             }
+
         }
         return;
     }

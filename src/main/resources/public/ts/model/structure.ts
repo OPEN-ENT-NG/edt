@@ -1,8 +1,9 @@
-import { model } from 'entcore';
+import { model, idiom as lang } from 'entcore';
 import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES , Exclusions} from './index';
 import { Eventer } from 'entcore-toolkit';
 import {CalendarItems} from "./calendarItems";
 import {PeriodeAnnee} from "./periodeAnnee";
+import {Subject} from "./subject";
 
 
 export class Structure {
@@ -68,8 +69,9 @@ export class Structure {
                     this.eventer.trigger('refresh');
                 }
             };
+            let exceptionnalSubject = new Subject(lang.translate("exceptionnal.id"), lang.translate("exceptionnal.label"), "", "");
 
-            this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; endSync(); });
+            this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; this.subjects.all.push(exceptionnalSubject); endSync(); });
             this.groups.sync(this.id,(isTeacher )? isTeacher : false).then(() => { syncedCollections.groups = true; endSync(); });
             this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
             this.exclusions.sync(this.id).then(() => { syncedCollections.exclusions = true; endSync(); });

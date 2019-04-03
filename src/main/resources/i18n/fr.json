@@ -117,5 +117,9 @@
   "edt.calendar.weekfrom":"du",
   "edt.info.week.peer":"paire",
   "edt.info.week.odd":"impaire",
-  "showMore": "Voir plus"
+  "showMore": "Voir plus",
+  "my.class": "( ma classe )",
+  "exceptionnal.id": "exceptionnal Subject",
+  "exceptionnal.label": "EXCEPTIONNELLE",
+  "exceptionnal.subject": "Intitulé du cours exceptionnel"
 }

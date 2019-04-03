@@ -1,4 +1,4 @@
-import { ng, _, model, moment, notify } from 'entcore';
+import { ng, _,idiom as lang, model, moment, notify } from 'entcore';
 import {
     DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects
 } from '../model';
@@ -58,13 +58,20 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope);
         };
 
+        $scope.isExceptionnalSubject = () => {
+            if($scope.course.subjectId === lang.translate("exceptionnal.id")){
+                return true
+            }else{
+                return false;
+            }
+        };
         $scope.syncSubjects = async () => {
             $scope.selectionOfTeacherSubject = new Subjects();
             if ($scope.course.teachers.length > 0) {
                 await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
 
-              if($scope.selectionOfTeacherSubject.all.length && $scope.selectionOfTeacherSubject.all.length > 0)
-                  $scope.course.subjectId  = $scope.selectionOfTeacherSubject.all[0].subjectId;
+                if(!$scope.course.subjectId && $scope.selectionOfTeacherSubject.all.length && $scope.selectionOfTeacherSubject.all.length > 0)
+                    $scope.course.subjectId  = $scope.selectionOfTeacherSubject.all[0].subjectId;
 
             }
             else {
@@ -239,6 +246,11 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.subjectId !== undefined
                 && $scope.course.subjectId.length > 0
                 && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"))
+                && ( $scope.course.subjectId !== lang.translate("exceptionnal.id")
+                    || ( $scope.course.subjectId === lang.translate("exceptionnal.id")
+                        && $scope.course.exceptionnal
+                        && $scope.course.exceptionnal.length > 0
+                        && $scope.course.exceptionnal !== " ") )
                 && (
                     (
                         $scope.course.is_recurrent
@@ -264,10 +276,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
             if( course.canManage)
                 if(confirm("Souhaitez-vous supprimer ce cours ?")) {
-                $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
-                delete  $scope.course;
-                $scope.goTo('/');
-                $scope.syncCourses();
-            }
+                    $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
+                    delete  $scope.course;
+                    $scope.goTo('/');
+                    $scope.syncCourses();
+                }
         };
     }]);
