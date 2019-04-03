@@ -83,7 +83,8 @@ export class UtilDragAndDrop {
             let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
             let startCourse = moment(model.calendar.firstDay);
             startCourse = startCourse.day(dayOfweek).hour(timeslot.beginning).minute(0).second(0);
-            startCourse = startCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
+            console.log(15 * (indexHr + 1));
+            console.log(15 * (topPositionnement / 10));
             let endCourse = moment(model.calendar.firstDay);
             endCourse = endCourse.day(dayOfweek).hour(timeslot.end).minute(0).second(0);
             endCourse = endCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
