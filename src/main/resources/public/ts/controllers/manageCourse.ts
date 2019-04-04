@@ -17,6 +17,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             firstWeekNumber : "",
             occurrenceInExclusion : false
         };
+
         /**
          * keep the consistency between time of occurrence and dates of course
          */
@@ -270,16 +271,24 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.startTimeIsAfterEdTime = () =>{
             return   moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"));
-        }
+        };
+
+        $scope.tryDropCourse = () => {
+            $scope.openedLightbox = !$scope.openedLightbox;
+            $scope.openedLightbox = true;
+        };
 
         $scope.dropCourse = async (course: Course ) => {
-
-            if( course.canManage)
-                if(confirm("Souhaitez-vous supprimer ce cours ?")) {
-                    $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
-                    delete  $scope.course;
-                    $scope.goTo('/');
-                    $scope.syncCourses();
-                }
+            if( course.canManage) {
+                $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
+                delete  $scope.course;
+                $scope.goTo('/');
+                $scope.syncCourses();
+            }
         };
+
+        $scope.closeLightbox = () => {
+            $scope.openedLightbox = false;
+        };
+
     }]);

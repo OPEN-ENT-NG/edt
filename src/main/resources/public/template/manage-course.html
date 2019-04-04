@@ -231,16 +231,31 @@
             </button>
 
 
-            <button ng-show="isAnUpdate && course.canManage" type="button" ng-click="dropCourse(course)" >
+            <button ng-show="isAnUpdate && course.canManage" type="button" ng-click="tryDropCourse()" > <!-- ng-click="dropCourse(course)" -->
                 <i18n>edt.utils.delete</i18n>
             </button>
 
-            <button ng-show="course.canManage || !isAnUpdate" ng-disabled="!isValidForm()" type="submit" ng-click="saveCourse(course)">
+            <button ng-show="course.canManage || !isAnUpdate" ng-disabled="!isValidForm()" type="submit">
                 <i18n ng-if="isAnUpdate">edt.utils.modify</i18n>
                 <i18n ng-if="!isAnUpdate">edt.utils.create</i18n>
             </button>
         </div>
-    </form>
 
+        <lightbox show="openedLightbox" on-close="!openedLightbox"> 
+            <p>
+                <i18n>Souhaitez-vous supprimer ce cours ?</i18n>
+            </p>
+
+            <button class="marginFive magnet-right"
+                    ng-click="dropCourse(course)">
+                <i18n>ok</i18n>
+            </button>
+
+            <button ng-click="closeLightbox()"
+                    class="right-magnet cancel">
+                <span><i18n>nope</i18n></span>
+            </button>
+        </lightbox>
+    </form>
 
 </div>
