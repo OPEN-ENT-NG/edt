@@ -235,7 +235,8 @@
                 <i18n>edt.utils.delete</i18n>
             </button>
 
-            <button ng-show="course.canManage || !isAnUpdate" ng-disabled="!isValidForm()" type="submit">
+            <button ng-show="course.canManage || !isAnUpdate" ng-disabled="!isValidForm()" type="submit"
+                    ng-click="saveCourse(course)">
                 <i18n ng-if="isAnUpdate">edt.utils.modify</i18n>
                 <i18n ng-if="!isAnUpdate">edt.utils.create</i18n>
             </button>
