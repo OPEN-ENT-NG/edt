@@ -88,8 +88,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
 
         if ($location.$$path.includes('/edit')) {
-            // delete $scope.courseOccurrenceForm.startTime;
-            // delete $scope.courseOccurrenceForm.endTime;
             $scope.course.courseOccurrences = [];
             $scope.isAnUpdate = true;
             let start = moment( $scope.course.startDate).seconds(0).millisecond(0),

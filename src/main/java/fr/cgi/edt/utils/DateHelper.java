@@ -78,4 +78,9 @@ public class DateHelper {
         return date ;
     }
 
+    int weekOfYear(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
 }

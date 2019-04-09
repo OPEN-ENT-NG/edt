@@ -135,32 +135,20 @@ public class EdtMongoHelper extends MongoDbCrudService {
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
-
-                if(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER)
-                        .equals(dateHelper.getDate(course.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER))){
+                if(dateHelper.weekOfYear(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER))
+                    ==  (dateHelper.weekOfYear(dateHelper.getDate(course.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER)))){
                     isLastOCcurence[0] = true;
                 }
-
 
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
                     course.remove("_id");
 
-
-                    LOGGER.info(" -- course ---- ");
-                    LOGGER.info(dateHelper.getDate(course.getString(START_DATE), dateHelper.DATE_FORMATTER).toString());
-                    LOGGER.info(dateHelper.getDate(course.getString(END_DATE), dateHelper.DATE_FORMATTER).toString());
-
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence[0], new Handler<Either<String, JsonObject>>() {
-                        @Override
-                        public void handle(Either<String, JsonObject> stringJsonObjectEither) {
-                            mongo.save(collection, course, res -> {
-                                if (res.isSend()) handler.handle(new Either.Right<>(res.body()));
-                                else handler.handle(new Either.Left<>("can't create this Occurrence"));
-                            });
-                        }
-                    });
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence[0], stringJsonObjectEither -> mongo.save(collection, course, res -> {
+                        if (res.isSend()) handler.handle(new Either.Right<>(res.body()));
+                        else handler.handle(new Either.Left<>("can't create this Occurrence"));
+                    }));
 
                 }else {
                     LOGGER.error("can't find this course");
