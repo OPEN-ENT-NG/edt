@@ -45,7 +45,7 @@ export class Groups {
                     g.displayName = g.name;
                 });
                 groupsAllArray.map(g => {
-                     alreadyExists = false;
+                    alreadyExists = false;
                     let index;
                     this.all.map(gg => {
                         if (gg.id === g.id){
@@ -65,6 +65,20 @@ export class Groups {
                 this.all.map(g => {
                     g.displayName = g.name;
                 })
+                //sorting groups
+                this.all.sort((g,gg)=> {
+                    if(g.type_groupe < gg.type_groupe)
+                        return -1;
+                    else if(g.type_groupe > gg.type_groupe)
+                        return 1;
+                    else if (g.type_groupe === gg.type_groupe)
+                        if(g.name < gg.name)
+                            return -1;
+                        else
+                            return 1;
+
+                });
+
             }
         } catch (e) {
             throw e;
