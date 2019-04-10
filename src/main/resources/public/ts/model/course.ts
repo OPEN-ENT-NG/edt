@@ -33,7 +33,6 @@ export class Course {
 
     constructor (obj?: object) {
         if (obj && obj instanceof Object) {
-            console.log(obj);
             for (let key in obj) {
                 this[key] = obj[key];
             }
