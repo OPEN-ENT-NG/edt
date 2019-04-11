@@ -42,11 +42,19 @@ public class DateHelper {
         calendarOccurrence.add(Calendar.DAY_OF_WEEK, 1);
         return calendarOccurrence;
     }
+
     int daysBetween(Calendar startDate, Calendar endDate) {
         long end = endDate.getTimeInMillis();
         long start = startDate.getTimeInMillis();
         return (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
     }
+
+    int daysBetween(String startDate, String endDate) {
+        Calendar start = this.getCalendar(startDate, this.DATE_FORMATTER);
+        Calendar end = this.getCalendar(endDate, this.DATE_FORMATTER);
+        return this.daysBetween(start, end);
+    }
+
     public Date getDate(String dateString,SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
@@ -78,9 +86,36 @@ public class DateHelper {
         return date ;
     }
 
-    int weekOfYear(Date date) {
+    int getWeekOfYear(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         return c.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    int getWeekOfYear(String datetring) {
+        Date date = this.getDate(datetring, this.SIMPLE_DATE_FORMATTER);
+        return this.getWeekOfYear(date);
+    }
+
+    int getDayOfWeek(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        return c.get(Calendar.DAY_OF_WEEK);
+    }
+
+
+
+    String addDaysToDate(String dateString, int days) {
+        Calendar date = this.getCalendar(dateString, this.DATE_FORMATTER);
+        date.add(Calendar.DATE, days);
+        return DATE_FORMATTER.format(date.getTime());
+    }
+
+
+    String goToNextFirstDayOfWeek(String dateString) {
+        Calendar date = this.getCalendar(dateString, this.DATE_FORMATTER);
+        int daysNeeded = 7 - getDayOfWeek(date.getTime());
+        date.add(Calendar.DATE, daysNeeded);
+        return DATE_FORMATTER.format(date.getTime());
     }
 }

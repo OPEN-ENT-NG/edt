@@ -24,7 +24,8 @@ public class EdtMongoHelper extends MongoDbCrudService {
     private static final String  STATUS = "status";
     private static final String  START_DATE = "startDate";
     private static final String  END_DATE = "endDate";
-    private static final String  DAY_OF_WEEK = "dayOfWeek";
+    private static final String DAY_OF_WEEK = "dayOfWeek";
+    private static final String EVERY_TWO_WEEK= "everyTwoWeek";
     private final DateHelper dateHelper = new DateHelper();
     private final EventBus eb;
     public EdtMongoHelper(String collection ,EventBus eb) {
@@ -76,7 +77,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), false, handler);
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), false, false, handler);
                 }else {
                     LOGGER.error("can't update this occurrence");
                     handler.handle(new Either.Left<>("can't update this occurrence"));
@@ -88,11 +89,18 @@ public class EdtMongoHelper extends MongoDbCrudService {
         });
     }
 
-    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler  ){
-        oldCourse.put(END_DATE, dates.getString("newEndTime"));
+    private void excludeOccurrenceFromCourse(JsonObject oldCourse, JsonObject newCourse, JsonObject dates , boolean isLastOCcurence, boolean everyTwoWeek, Handler<Either<String, JsonObject>> handler  ){
         oldCourse.put(START_DATE, dates.getString("newStartTime"));
+        oldCourse.put(END_DATE, dates.getString("newEndTime"));
         newCourse.put(START_DATE, dates.getString("oldStartTime"));
         newCourse.put(END_DATE, dates.getString("oldEndTime"));
+
+        if (everyTwoWeek == true) {
+            oldCourse.put(START_DATE, dateHelper.goToNextFirstDayOfWeek(dateHelper.addDaysToDate(oldCourse.getString(START_DATE), 7)));//go to the firsdt day in two week.
+            if(dateHelper.daysBetween(oldCourse.getString(START_DATE), oldCourse.getString(END_DATE)) < 0){
+                oldCourse.put(START_DATE, oldCourse.getString(END_DATE));
+            }
+        }
 
         Handler<Message<JsonObject>> secondInternHandler = jsonObjectMessage -> {
             if (jsonObjectMessage.isSend()) {
@@ -107,17 +115,16 @@ public class EdtMongoHelper extends MongoDbCrudService {
         };
 
         if(isLastOCcurence || dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.DATE_FORMATTER).after(dateHelper.getDate(oldCourse.getString(START_DATE),dateHelper.DATE_FORMATTER))){
-            JsonObject old2 = oldCourse;
+            JsonObject old_tmp = oldCourse;
             if(isLastOCcurence){
-                old2 = new JsonObject(newCourse.toString());
-                old2.put("_id", oldCourse.getString("_id"));
+                old_tmp = new JsonObject(newCourse.toString());
+                old_tmp.put("_id", oldCourse.getString("_id"));
             }
-            updateElement(old2, firstInternHandler);
+            updateElement(old_tmp, firstInternHandler);
         }
         else {
             secondUpdate(newCourse, isLastOCcurence, handler, secondInternHandler);
         }
-
     }
 
     private void secondUpdate(JsonObject newCourse, Boolean isLastOCcurence, Handler<Either<String, JsonObject>> handler, Handler<Message<JsonObject>> secondInternHandler) {
@@ -131,13 +138,15 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
     public void updateOccurrence(final JsonObject course, String dateOccurrence, final  Handler<Either<String, JsonObject>> handler){
         final JsonObject matches = new JsonObject().put("_id", course.getString("_id"));
-        final boolean[] isLastOCcurence = {false};
         mongo.findOne(this.collection, matches ,  result -> {
+            boolean isLastOCcurence = false;
+
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
-                if(dateHelper.weekOfYear(dateHelper.getDate(oldCourse.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER))
-                    ==  (dateHelper.weekOfYear(dateHelper.getDate(course.getString(END_DATE), dateHelper.SIMPLE_DATE_FORMATTER)))){
-                    isLastOCcurence[0] = true;
+
+                if (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(course.getString(END_DATE))
+                    || (course.getBoolean(EVERY_TWO_WEEK) == true && (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(course.getString(END_DATE)) + 1))) {
+                    isLastOCcurence = true;
                 }
 
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
@@ -145,7 +154,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     newCourse.remove("_id");
                     course.remove("_id");
 
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence[0], stringJsonObjectEither -> mongo.save(collection, course, res -> {
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence, course.getBoolean(EVERY_TWO_WEEK), stringJsonObjectEither -> mongo.save(collection, course, res -> {
                         if (res.isSend()) handler.handle(new Either.Right<>(res.body()));
                         else handler.handle(new Either.Left<>("can't create this Occurrence"));
                     }));
