@@ -9,7 +9,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
         $scope.selectionOfTeacherSubject = new Subjects();
-
         $scope.Utils = Utils;
 
         $scope.info = {
@@ -69,8 +68,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.syncSubjects = async () => {
             $scope.selectionOfTeacherSubject = new Subjects();
             if ($scope.course.teachers.length > 0) {
-                await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
-
+                  await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
                 if(!$scope.course.subjectId && $scope.selectionOfTeacherSubject.all.length && $scope.selectionOfTeacherSubject.all.length > 0)
                     $scope.course.subjectId  = $scope.selectionOfTeacherSubject.all[0].subjectId;
 
