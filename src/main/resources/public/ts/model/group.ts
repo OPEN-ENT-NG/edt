@@ -58,7 +58,27 @@ export class Groups {
                         g.displayName = g.name;
                         this.all.push(g);
                     }
-                })
+                });
+                this.all.sort((g,gg)=> {
+                        if(g.displayName.includes( lang.translate("my.class")) && !gg.displayName.includes(lang.translate("my.class")))
+                            return -1;
+                        else if(!g.displayName.includes( lang.translate("my.class")) && gg.displayName.includes(lang.translate("my.class")))
+                            return 1;
+                        else {
+                            if (g.type_groupe < gg.type_groupe)
+                                return -1;
+                            else if (g.type_groupe > gg.type_groupe)
+                                return 1;
+                            else if (g.type_groupe === gg.type_groupe)
+                                if (g.name < gg.name)
+                                    return -1;
+                                else
+                                    return 1;
+
+
+                        }
+                    }
+                );
             }else{
                 let groups = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`  );
                 this.all = Mix.castArrayAs(Group, groups.data);
