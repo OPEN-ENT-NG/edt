@@ -8,6 +8,7 @@ body.edt {
   @import './specifics/atomic';
   @import './specifics/fixCalendarHRFirefox';
   @import './specifics/circleInfo';
+  @import './specifics/calendarItem';
 
   .schedule .days .day.single {
     width: 100%
