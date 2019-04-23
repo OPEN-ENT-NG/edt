@@ -143,9 +143,10 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
-
                 if (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(course.getString(END_DATE))
-                    || (course.getBoolean(EVERY_TWO_WEEK) == true && (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(course.getString(END_DATE)) + 1))) {
+                    || ((course.containsKey(EVERY_TWO_WEEK))
+                        ? course.getBoolean(EVERY_TWO_WEEK)
+                        : false )&& (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(course.getString(END_DATE)) + 1)) {
                     isLastOCcurence = true;
                 }
 
@@ -154,7 +155,10 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     newCourse.remove("_id");
                     course.remove("_id");
 
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence, course.getBoolean(EVERY_TWO_WEEK), stringJsonObjectEither -> mongo.save(collection, course, res -> {
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence), isLastOCcurence,
+                            (course.containsKey(EVERY_TWO_WEEK))
+                                    ? course.getBoolean(EVERY_TWO_WEEK)
+                                    : false, stringJsonObjectEither -> mongo.save(collection, course, res -> {
                         if (res.isSend()) handler.handle(new Either.Right<>(res.body()));
                         else handler.handle(new Either.Left<>("can't create this Occurrence"));
                     }));
