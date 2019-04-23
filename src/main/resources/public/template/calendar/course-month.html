@@ -1,23 +1,14 @@
-<div class="row schedule-item-content [[item.color]]" data-id="[[item.course._id]]" >
+<div class="schedule-item-content border-radius-5 [[item.color]]" data-id="[[item.course._id]]" >
     <div class="two cell row" ng-if="isPersonnel()">
-        <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
-        <div class="one cell edit-icone" data-id="[[item.course._id]]" >
-            <i class="edit"  >
+        <div class="cell eleven ellipsis padding-sm" >[[item.course.subjectLabel]] </div>
+        <div class="one cell edit-icone padding-top-sm" data-id="[[item.course._id]]" >
+            <i class="edit sm-margin-right right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
                 <div ng-hide="true">[[item.endDate]]</div>
-            </i> </div>
+            </i>
+        </div>
     </div>
     <div ng-if="!isPersonnel()">
         <div class="cell ten ellipsis" >[[item.course.subjectLabel]]</div>
     </div>
-
-    <em class="metadata">
-           <span ng-repeat="roomLabel in item.course.roomLabels">
-               <span ng-if="roomLabel !== null && roomLabel !=''">
-                -  <i18n>edt.utils.room</i18n>: [[roomLabel]]
-               </span>
-           </span>
-    </em>
-
-
 </div>
