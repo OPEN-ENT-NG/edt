@@ -494,6 +494,7 @@ export let main = ng.controller('EdtController',
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
                 $scope.course = new Course({
+                    structure: _.clone($scope.structure),
                     teachers: _.clone($scope.params.user),
                     groups: _.clone($scope.params.group),
                     courseOccurrences: [],
