@@ -298,9 +298,13 @@ export let main = ng.controller('EdtController',
             let atLeastOneOccurence = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start)) ;
 
 
+            let newDay = moment(start).format("DD");
+            let previousDay= moment(course.startDate).format("DD");
             //return true;
            return course.isRecurrent() &&
-                ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now)) || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence ));
+                ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
+                    || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
+                    || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start)));
         };
 
         $scope.getSimpleDateFormat = (date) => {
