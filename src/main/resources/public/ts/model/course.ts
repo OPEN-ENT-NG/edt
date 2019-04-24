@@ -19,6 +19,7 @@ export class Course {
     startDate: string | object ;
 
     everyTwoWeek:boolean = undefined;
+    structure: Structure = null;
     structureId: string = undefined;
     teacherIds: string[]= [];
     subjectId: string = '';
@@ -110,9 +111,12 @@ export class Course {
             exceptionnal: (this.exceptionnal)? this.exceptionnal : undefined,
             updated: moment(),
             lastUser :model.me.login
-
-
         };
+
+        if(!this.structureId && this.structure && this.structure.id){
+            o.structureId = this.structure.id;
+        }
+
         if(isNew){
             o.created = moment();
             o.author = model.me.login
