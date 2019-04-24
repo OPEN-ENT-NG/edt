@@ -17,6 +17,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             occurrenceInExclusion : false
         };
 
+
+        $scope.switchStructure = async (structure) => {
+            $scope.structure = structure;
+            await $scope.structure.sync();
+        };
+
         /**
          * keep the consistency between time of occurrence and dates of course
          */
