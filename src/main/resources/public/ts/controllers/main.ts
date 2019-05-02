@@ -11,6 +11,7 @@ import {
     UtilDragAndDrop,
     Utils
 } from '../model';
+import {Subject} from "../model/subject";
 
 
 export let main = ng.controller('EdtController',
@@ -25,7 +26,8 @@ export let main = ng.controller('EdtController',
             dateFromCalendar: null
         };
 
-        let isUpdateData = false
+        let isUpdateData = false;
+        $scope.isAllStructure = false;
         $scope.structures.sync();
         //GroupsDeleted =groups wich are deleted from the filter
         //classes : classes for wich the groups are deleted
@@ -50,10 +52,6 @@ export let main = ng.controller('EdtController',
                 $scope.calendarLoader.show = false;
             }
         };
-        // $scope.displayAllClass = async () =>{
-        //     await $scope.structure.groups.sync($scope.structure.id,model.me.type === USER_TYPES.teacher);
-        //     await Utils.safeApply($scope);
-        // };
 
         /**
          * Synchronize a structure.
@@ -62,10 +60,11 @@ export let main = ng.controller('EdtController',
             $scope.structure = structure;
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
+            console.log("pep");
             switch (model.me.type) {
                 case USER_TYPES.student : {
                     $scope.params.group = _.map(model.me.classes, (groupid) => {
-                        return _.findWhere($scope.structure.groups.all, {id: groupid});
+                        _.findWhere($scope.structure.groups.all, {id: groupid});
                     });
                     break;
                 }
@@ -80,6 +79,12 @@ export let main = ng.controller('EdtController',
                     break;
                 }
             }
+            if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
+                let allStructures = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
+                if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
+                    $scope.structures.all.push(allStructures);
+                }
+            }
             if (!$scope.isPersonnel()) {
                 $scope.syncCourses();
             } else {
@@ -89,9 +94,34 @@ export let main = ng.controller('EdtController',
 
         $scope.syncStructure($scope.structure);
 
+        // async function syncAllStructure() {
+        //
+        // }
+
         $scope.switchStructure = (structure: Structure) => {
-            if( $scope.params.group.length !==0 ||  $scope.params.user.length !== 0 )
+
+            if (structure.id != lang.translate("all.structures.id") &&
+                ($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0)) {
                 $scope.syncStructure(structure);
+                $scope.isAllStructure = false;
+
+            }
+            else if (structure.id == lang.translate("all.structures.id")) {
+                // $scope.structure = structure;
+                $scope.isAllStructure = true;
+                $scope.syncCourses();
+
+                // syncAllStructure();
+                // let allStructures = [];
+                //
+                // console.log($scope.structures.all);
+                // for (let i = 0; i < $scope.structures.all.length; i++) {
+                //     allStructures = _.map($scope.structures.all[i].teachers.all, (teachers) => {
+                //         allStructures.push(teachers);
+                //     });
+                // }
+                // console.log(allStructures);
+            };
         };
 
         /**
@@ -138,6 +168,7 @@ export let main = ng.controller('EdtController',
         $scope.syncCourses = async () => {
 
             if (!isUpdateData && $scope.isRelative()) {
+
                 let arrayIds = model.me.classes;
                 let groups = $scope.structure.groups.all;
                 $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
@@ -189,7 +220,7 @@ export let main = ng.controller('EdtController',
                     })
                 })
             }
-//add classes after filter groups
+            //add classes after filter groups
             $scope.params.group.map(g => {
                 let isInClass = false;
 
@@ -203,8 +234,8 @@ export let main = ng.controller('EdtController',
                 }
             });
 
+            await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group, $scope.structures, $scope.isAllStructure);
 
-            await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group);
             $scope.calendarLoader.hide();
             await   Utils.safeApply($scope);
 
@@ -301,7 +332,7 @@ export let main = ng.controller('EdtController',
             let newDay = moment(start).format("DD");
             let previousDay= moment(course.startDate).format("DD");
             //return true;
-           return course.isRecurrent() &&
+            return course.isRecurrent() &&
                 ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
                     || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
                     || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start)));
@@ -409,6 +440,8 @@ export let main = ng.controller('EdtController',
         $scope.updateDatas = async () => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
+                console.log("pp")
+
                 if($scope.params.group.length > $scope.params.oldGroup.length){
                 }
                 await $scope.syncCourses();
@@ -417,6 +450,8 @@ export let main = ng.controller('EdtController',
             }
 
             if(!angular.equals($scope.params.oldUser, $scope.params.user)){
+                console.log("xx")
+
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldUser = angular.copy($scope.params.user);
