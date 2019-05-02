@@ -1,6 +1,7 @@
 import { _, idiom as lang,model, moment} from 'entcore';
 import http from 'axios';
 import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
+import {Structures} from "./structure";
 
 export class CalendarItem {
 
@@ -91,9 +92,9 @@ export class CalendarItems {
                         });
 
                         deletedGroup.classes.map( c =>{
-                           if(item.id_classe === c.id ){
-                               isAGroupOfANewClass = true;
-                           }
+                            if(item.id_classe === c.id ){
+                                isAGroupOfANewClass = true;
+                            }
                         });
 
 
@@ -121,9 +122,8 @@ export class CalendarItems {
      * @param group group. Can be null. If null, teacher needs to be provide.
      * @returns {Promise<void>} Returns a promise.
      */
-    async sync(structure: Structure, teacher: Array<Teacher> = [], group: Array<Group> = []): Promise<void> {
+    async sync(structure: Structure, teacher: Array<Teacher> = [], group: Array<Group> = [], structures: Structures, isAllStructure :boolean): Promise<void> {
         let firstDate = Utils.getFirstCalendarDay();
-
         firstDate = moment(firstDate).format('YYYY-MM-DD');
         let endDate = Utils.getLastCalendarDay();
         endDate = moment(endDate).format('YYYY-MM-DD');
@@ -133,10 +133,52 @@ export class CalendarItems {
             filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
         if (group.length > 0)
             filter += this.getFilterGroup(group);
+        if(isAllStructure){
+            if(filter) {
+                let uris = []
+                structures.all.map( async struc =>{
+                    if(struc.id  !== lang.translate("all.structures.id")) {
+                        uris.push(`/viescolaire/common/courses/${struc.id}/${firstDate}/${endDate}?${filter}`)
+                    }
+                });
+                let datas = [];
+                for(let i=0 ; i< uris.length;i++){
+                    let data1 = await http.get(uris[i]);
+                    if( structures.all[i].id !== lang.translate("all.structures.id" )&&  structures.all[i].subjects.all.length <= 0){
+                        await structures.all[i].sync()
+                    }
+                    datas = datas.concat(data1.data);
 
+                }
+
+
+                this.all =  datas.map(item=>{
+                    item = new CalendarItem(item, item.startDate, item.endDate);
+                    if(item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")){
+                        item.course.subjectLabel = item.exceptionnal;
+
+                    }else{
+                        item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                    }
+                    item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
+                    structures.all.map(struc =>{
+                        if(struc.id  !== lang.translate("all.structures.id")){
+                            if(item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")){
+                                item.course.subjectLabel = item.exceptionnal;
+                            }else{
+                                if( struc.subjects.mapping[item.course.subjectId]) {
+                                    item.course.subjectLabel = struc.subjects.mapping[item.course.subjectId];
+                                }
+                            }
+                        }
+                    })
+                    return item;
+                })
+            }
+        }
+        else
         if(filter) {
             let uri = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
-
             let {data} = await http.get(uri);
             if (data.length > 0) {
                 this.all = data.map((item) => {

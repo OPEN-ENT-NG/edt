@@ -123,5 +123,7 @@
   "my.class": "( ma classe )",
   "exceptionnal.id": "exceptionnal Subject",
   "exceptionnal.label": "EXCEPTIONNELLE",
-  "exceptionnal.subject": "Intitulé du cours exceptionnel"
+  "exceptionnal.subject": "Intitulé du cours exceptionnel",
+  "all.structures.id": "all_Structures",
+  "all.structures.label": "Tous mes établissements"
 }
