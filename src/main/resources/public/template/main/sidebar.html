@@ -17,6 +17,19 @@
                     </option>
                 </select>
             </div>
+            <div class="row display-inline-block">
+
+                <select
+                        ng-model="child"
+                        id="children-list"
+                        class="twelve margin-left-2 margin-bottom-mid"
+                        ng-change="switchChild(child)"
+                        ng-options="child as child.displayName for child in children">
+                    <option value="" disabled selected>
+                        [[translate('utils.child.choose.one')]]
+                    </option>
+                </select>
+            </div>
             <div ng-if="::isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="row display-inline-block">
                 <label class="twelve small">
                     <multi-combo
@@ -57,6 +70,7 @@
                     </div>
                 </label>
             </div>
+
         </section>
     </div>
     <section ng-if="isPersonnel()" id="add-section" class="row">

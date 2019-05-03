@@ -25,7 +25,7 @@
     </article>
 
     <!-- Calendar View -->
-    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: checkAccess(), twelve: checkTwelve()}">
+    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: checkAccess(), twelve: !checkAccess()}">
         <calendar
                 enable-display-modes="true"
                 display-template="calendar/course-item"

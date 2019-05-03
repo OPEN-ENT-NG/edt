@@ -50,6 +50,7 @@
   "utils.group.choose.one": "Choisissez un(e) classe/groupe",
   "utils.structure": "Structures",
   "utils.structure.choose.one": "Choisissez une structure",
+  "utils.child.choose.one" :"Choisissez un enfant",
   "edt.every.two.weeks":"Toutes les deux semaines",
   "edt.calendar.loading": "Emploi du temps en cours de chargement...",
   "edt.timetable.of": "Emploi du temps de ",
@@ -125,5 +126,6 @@
   "exceptionnal.label": "EXCEPTIONNELLE",
   "exceptionnal.subject": "Intitulé du cours exceptionnel",
   "all.structures.id": "all_Structures",
-  "all.structures.label": "Tous mes établissements"
+  "all.structures.label": "Tous mes établissements",
+  "child.select":"Enfant"
 }
