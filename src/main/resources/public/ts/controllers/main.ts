@@ -12,6 +12,8 @@ import {
     Utils
 } from '../model';
 import {Subject} from "../model/subject";
+import http from "axios";
+
 
 
 export let main = ng.controller('EdtController',
@@ -26,6 +28,12 @@ export let main = ng.controller('EdtController',
             dateFromCalendar: null
         };
 
+        async function getMainStruct() {
+            let {data} =  await http.get('/directory/user/4265605f-3352-4f42-8cef-18e150bbf6bf?_=1556865888485');
+            model.me.idMainStructure = data.functions[0][1][0];
+            $scope.structure = $scope.structures.first();
+        }
+
         let isUpdateData = false;
         $scope.isAllStructure = false;
         $scope.structures.sync();
@@ -35,6 +43,9 @@ export let main = ng.controller('EdtController',
             groupsDeleted: [],
             classes: []
         };
+        if(model.me.type === "PERSEDUCNAT"){
+            getMainStruct()
+        }
 
         $scope.structure = $scope.structures.first();
         $scope.display = {
@@ -60,7 +71,6 @@ export let main = ng.controller('EdtController',
             $scope.structure = structure;
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
-            console.log("pep");
             switch (model.me.type) {
                 case USER_TYPES.student : {
                     $scope.params.group = _.map(model.me.classes, (groupid) => {

@@ -103,6 +103,9 @@ export class Structures {
      * @returns {Structure} first structure contained in 'all' array
      */
     first (): Structure {
+        if(model.me.idMainStructure){
+           return this.all.find(s => s.id == model.me.idMainStructure)
+        }
         return this.all[0];
     }
 }
