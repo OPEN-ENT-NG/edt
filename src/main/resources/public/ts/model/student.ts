@@ -8,6 +8,7 @@ export class Student {
     lastName: string;
     displayName: string;
     classes: string[];
+    idClasses : string[];
     structures: string[];
 
     constructor (obj: any) {

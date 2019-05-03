@@ -12,9 +12,9 @@ import io.vertx.core.json.JsonObject;
 public class UserServiceNeo4jImpl implements UserService {
     @Override
     public void getChildrenInformation(UserInfos user, Handler<Either<String, JsonArray>> handler) {
-        String query = "MATCH (:User {id:{userId}})<-[RELATED]-(u:User)-[IN]->(s:Structure) " +
-                "return distinct u.id as id, u.firstName as firstName, u.lastName as lastName, " +
-                "u.displayName as displayName, u.classes as classes, collect(s.id) as structures";
+        String query = "MATCH (:User {id:{userId}})<-[RELATED]-(u:User)-[IN]->(s:Structure)  Match(u)--(m:Group{filter:\"Student\"})--(b:Class)" +
+                "return distinct u.id as id, u.firstName as firstName, u.lastName as lastName," +
+                " u.displayName as displayName, u.classes as classes,b.id as idClasses, collect(DISTINCT s.id) as structures";
 
         Neo4j.getInstance().execute(query, new JsonObject().put("userId", user.getUserId()), Neo4jResult.validResultHandler(handler));
     }

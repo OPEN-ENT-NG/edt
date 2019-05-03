@@ -28,6 +28,7 @@ export let main = ng.controller('EdtController',
             dateFromCalendar: null
         };
 
+
         async function getMainStruct() {
             let {data} =  await http.get('/directory/user/4265605f-3352-4f42-8cef-18e150bbf6bf?_=1556865888485');
             model.me.idMainStructure = data.functions[0][1][0];
@@ -48,6 +49,7 @@ export let main = ng.controller('EdtController',
         }
 
         $scope.structure = $scope.structures.first();
+
         $scope.display = {
             showQuarterHours : true
         };
@@ -81,14 +83,20 @@ export let main = ng.controller('EdtController',
 
                 case USER_TYPES.relative : {
                     if ($scope.structure.students.all.length > 0) {
+                        if( model.me.type === USER_TYPES.relative && !$scope.children){
+                            $scope.children = $scope.structure.students.all;
+                            $scope.child = $scope.structure.students.all[0];
+                        }
                         $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
                             return _.findWhere($scope.structure.groups.all, {id: groupid});
+
                         });
                         $scope.currentStudent = $scope.structure.students.all[0];
                     }
                     break;
                 }
             }
+
             if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
                 let allStructures = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
@@ -107,6 +115,12 @@ export let main = ng.controller('EdtController',
         // async function syncAllStructure() {
         //
         // }
+
+        $scope.switchChild = (child: Student) =>{
+        $scope.child= child;
+
+            $scope.syncCourses();
+        }
 
         $scope.switchStructure = (structure: Structure) => {
 
@@ -158,8 +172,11 @@ export let main = ng.controller('EdtController',
          */
         $scope.isRelative = (): boolean => model.me.type === USER_TYPES.relative;
 
+        $scope.isAParentWhoNeedSidebar = () =>{
 
-        $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher() || ($scope.isRelative() && $scope.structures.all.length > 1)};
+            return $scope.isRelative() && ($scope.structures.all.length > 1 || model.me.childrenIds.length > 1)
+        }
+        $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher() ||   $scope.isAParentWhoNeedSidebar()};
         $scope.checkTwelve = () => {
             return $scope.isStudent() || ($scope.isRelative() && $scope.structures.all.length < 2)
         };
@@ -176,10 +193,14 @@ export let main = ng.controller('EdtController',
          * @returns {Promise<void>}
          */
         $scope.syncCourses = async () => {
-
+            let arrayIds =[];
             if (!isUpdateData && $scope.isRelative()) {
+                if($scope.child){
+                     arrayIds.push($scope.child.idClasses)
+                }else{
+                     arrayIds =   model.me.classes
 
-                let arrayIds = model.me.classes;
+                }
                 let groups = $scope.structure.groups.all;
                 $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
             }
