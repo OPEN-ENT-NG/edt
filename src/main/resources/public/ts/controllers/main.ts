@@ -33,6 +33,7 @@ export let main = ng.controller('EdtController',
             let {data} =  await http.get('/directory/user/4265605f-3352-4f42-8cef-18e150bbf6bf?_=1556865888485');
             model.me.idMainStructure = data.functions[0][1][0];
             $scope.structure = $scope.structures.first();
+            $scope.syncStructure( $scope.structure)
         }
 
         let isUpdateData = false;
@@ -98,6 +99,7 @@ export let main = ng.controller('EdtController',
             }
 
             if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
+
                 let allStructures = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
                     $scope.structures.all.push(allStructures);
@@ -110,7 +112,6 @@ export let main = ng.controller('EdtController',
             }
         };
 
-        $scope.syncStructure($scope.structure);
 
         // async function syncAllStructure() {
         //
@@ -123,11 +124,11 @@ export let main = ng.controller('EdtController',
         }
 
         $scope.switchStructure = (structure: Structure) => {
-
             if (structure.id != lang.translate("all.structures.id") &&
-                ($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0)) {
+                (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() )) {
                 $scope.syncStructure(structure);
                 $scope.isAllStructure = false;
+                console.log("CC")
 
             }
             else if (structure.id == lang.translate("all.structures.id")) {
@@ -547,6 +548,8 @@ export let main = ng.controller('EdtController',
             }
             return time;
         };
+        $scope.syncStructure($scope.structure);
+
         route({
             main:  () => {
                 template.open('main', 'main');
