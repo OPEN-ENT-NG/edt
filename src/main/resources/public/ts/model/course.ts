@@ -126,6 +126,9 @@ export class Course {
 
         }
        if( this.is_recurrent ){
+           if(this.dayOfWeek - moment(this.startDate).day() < 0)
+               o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day() + 7);
+           else
            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
            o.endDate = moment(this.endDate).day( this.dayOfWeek );
            o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
@@ -156,8 +159,9 @@ export class Course {
     syncCourseWithOccurrence (occurrence: CourseOccurrence) :Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        this.startDate = moment(new Date( moment(this.startDate).format("YYYY-MM-DD") +" "+ moment(occurrence.startTime).format("HH:mm")));
-        this.endDate = moment(new Date(moment(this.endDate).format("YYYY-MM-DD") + " " + moment(occurrence.endTime).format("HH:mm")));
+        this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+"T" +moment(occurrence.startTime).format("HH:mm"));
+
+        this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+"T" +moment(occurrence.endTime).format("HH:mm"));
         return this;
     }
     isRecurrent (): boolean {

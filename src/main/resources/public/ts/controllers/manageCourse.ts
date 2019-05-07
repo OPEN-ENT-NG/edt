@@ -74,6 +74,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.syncSubjects = async () => {
             $scope.selectionOfTeacherSubject = new Subjects();
             if ($scope.course.teachers.length > 0) {
+                console.log("cc")
                   await $scope.selectionOfTeacherSubject.sync($scope.structure.id, _.pluck($scope.course.teachers, 'id'));
                 if(!$scope.course.subjectId && $scope.selectionOfTeacherSubject.all.length && $scope.selectionOfTeacherSubject.all.length > 0)
                     $scope.course.subjectId  = $scope.selectionOfTeacherSubject.all[0].subjectId;
@@ -224,6 +225,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             }
             else if(course.is_recurrent){
                 let courses =  course.getCourseForEachOccurrence();
+                console.log($scope.courseOccurrenceForm.startTime);
                 await courses.save();
             }
             else{
