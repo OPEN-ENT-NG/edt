@@ -86,6 +86,18 @@ export let main = ng.controller('EdtController',
                     if ($scope.structure.students.all.length > 0) {
                         if( model.me.type === USER_TYPES.relative && !$scope.children){
                             $scope.children = $scope.structure.students.all;
+                            $scope.children.sort( (c,cc) => {
+                                if (c.lastName < cc.lastName)
+                                    return -1;
+                                else if (c.lastName === cc.lastName)
+                                {
+                                    if (c.firstName < cc.firstName)
+                                        return -1;
+                                    else
+                                        return 1;
+                                }else
+                                    return 1;
+                            })
                             $scope.child = $scope.structure.students.all[0];
                         }
                         $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
@@ -118,7 +130,7 @@ export let main = ng.controller('EdtController',
         // }
 
         $scope.switchChild = (child: Student) =>{
-        $scope.child= child;
+            $scope.child= child;
 
             $scope.syncCourses();
         }
@@ -197,9 +209,9 @@ export let main = ng.controller('EdtController',
             let arrayIds =[];
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child){
-                     arrayIds.push($scope.child.idClasses)
+                    arrayIds.push($scope.child.idClasses)
                 }else{
-                     arrayIds =   model.me.classes
+                    arrayIds =   model.me.classes
 
                 }
                 let groups = $scope.structure.groups.all;
