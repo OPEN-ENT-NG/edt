@@ -130,7 +130,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
 
         }else if($location.$$path.includes('/create')){
-            $scope.course.structure = $scope.structures.first();
+         console.log($scope.structure)
+            $scope.course.structure = $scope.structure;
+            // $scope.course.structure = $scope.structures.first();
             $scope.structure.sync();
             $scope.editOccurrence = false;
 
