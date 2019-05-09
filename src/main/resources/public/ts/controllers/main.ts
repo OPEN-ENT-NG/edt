@@ -152,7 +152,7 @@ export let main = ng.controller('EdtController',
                 $scope.isAllStructure = true;
                 $scope.syncCourses();
                 $scope.structure = structure;
-                
+
             };
         };
 
@@ -405,6 +405,40 @@ export let main = ng.controller('EdtController',
 
             // --Start -- Calendar Drag and Drop
 
+            function getDayOfWeek() {
+                let dayOfWeek = 0;
+                switch(model.calendar.days.all[0].name){
+                    case "monday":
+                        dayOfWeek = 1;
+                        break;
+                    case "tuesday":
+                        dayOfWeek = 2;
+
+                        break;
+                    case "wednesday":
+                        dayOfWeek = 3;
+
+                        break;
+                    case "thursday":
+                        dayOfWeek = 4;
+
+                        break;
+                    case "friday":
+                        dayOfWeek = 5;
+
+                        break;
+                    case "saturday":
+                        dayOfWeek = 6;
+
+                        break;
+                    default:
+                        dayOfWeek = 7;
+                        break;
+
+                }
+                return dayOfWeek;
+            }
+
             if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
                 let $dragging = null;
                 let topPositionnement = 0;
@@ -428,8 +462,16 @@ export let main = ng.controller('EdtController',
 
                 var mouseupCalendar = (e) => {
                     if ($dragging) {
+                        let coursItem;
                         $('.timeslot').removeClass('selecting-timeslot');
-                        let coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        if(model.calendar.increment === "day"){
+                            let dayOfWeek = getDayOfWeek();
+                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition,dayOfWeek);
+                        }
+                      else{
+                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        }
+                        console.log(coursItem);
                         if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
                         initVar();
                     }
