@@ -76,10 +76,11 @@ export class UtilDragAndDrop {
         return $(e.currentTarget);
     };
 
-    static  getCalendarAttributes=( selectedTimeslot, selectedSchedule, topPositionnement )=>{
+    static  getCalendarAttributes=( selectedTimeslot, selectedSchedule, topPositionnement,dayOfWeek? )=>{
         if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
             let indexHr = $(selectedTimeslot).prev('hr').index();
-            let dayOfweek = $(selectedTimeslot).parents('div.day').index();
+            let dayOfweek = dayOfWeek ? dayOfWeek : $(selectedTimeslot).parents('div.day').index();
+            console.log(dayOfweek);
             let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
             let startCourse = moment(model.calendar.firstDay);
             startCourse = startCourse.day(dayOfweek).hour(timeslot.beginning).minute(0).second(0);
@@ -93,13 +94,13 @@ export class UtilDragAndDrop {
             };
         }
     };
-    static drop = (e, dragging, topPositionnement, startPosition) => {
+    static drop = (e, dragging, topPositionnement, startPosition, dayOfWeek?) => {
         let actualPosition = dragging.offset();
         if(actualPosition && startPosition.top === actualPosition.top && startPosition.left === actualPosition.left)
             return undefined;
         let selected_timeslot = $('calendar .selected-timeslot');
         let positionShadowSchedule = selected_timeslot.offset();
-        let courseEdit = UtilDragAndDrop.getCalendarAttributes(selected_timeslot, dragging, topPositionnement);
+        let courseEdit = UtilDragAndDrop.getCalendarAttributes(selected_timeslot, dragging, topPositionnement,dayOfWeek);
         dragging.offset(positionShadowSchedule);
         selected_timeslot.remove();
         $(document).unbind("mousedown");
