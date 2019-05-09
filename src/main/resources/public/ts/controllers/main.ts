@@ -152,17 +152,7 @@ export let main = ng.controller('EdtController',
                 $scope.isAllStructure = true;
                 $scope.syncCourses();
                 $scope.structure = structure;
-
-                // syncAllStructure();
-                // let allStructures = [];
-                //
-                // console.log($scope.structures.all);
-                // for (let i = 0; i < $scope.structures.all.length; i++) {
-                //     allStructures = _.map($scope.structures.all[i].teachers.all, (teachers) => {
-                //         allStructures.push(teachers);
-                //     });
-                // }
-                // console.log(allStructures);
+                
             };
         };
 
@@ -489,7 +479,6 @@ export let main = ng.controller('EdtController',
         $scope.updateDatas = async () => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
-                console.log("pp")
 
                 if($scope.params.group.length > $scope.params.oldGroup.length){
                 }
@@ -499,7 +488,6 @@ export let main = ng.controller('EdtController',
             }
 
             if(!angular.equals($scope.params.oldUser, $scope.params.user)){
-                console.log("xx")
 
                 await $scope.syncCourses();
                 initTriggers();
