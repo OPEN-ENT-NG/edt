@@ -30,7 +30,7 @@ export let main = ng.controller('EdtController',
 
 
         async function getMainStruct() {
-            let {data} =  await http.get('/directory/user/4265605f-3352-4f42-8cef-18e150bbf6bf?_=1556865888485');
+            let {data} =  await http.get(`/directory/user/${model.me.userId}?_=1556865888485`);
             model.me.idMainStructure = data.functions[0][1][0];
             $scope.structure = $scope.structures.first();
             $scope.syncStructure( $scope.structure)
@@ -114,7 +114,9 @@ export let main = ng.controller('EdtController',
 
                 let allStructures = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
-                    $scope.structures.all.push(allStructures);
+                    $scope.structures.all.unshift(allStructures);
+                    $scope.switchStructure($scope.structures.all[0]);
+                    // $scope.structure = $scope.structures.all[0];
                 }
             }
             if (!$scope.isPersonnel()) {
@@ -137,16 +139,19 @@ export let main = ng.controller('EdtController',
 
         $scope.switchStructure = (structure: Structure) => {
             if (structure.id != lang.translate("all.structures.id") &&
-                (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() )) {
+                (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
+
                 $scope.syncStructure(structure);
+
                 $scope.isAllStructure = false;
-                console.log("CC")
 
             }
             else if (structure.id == lang.translate("all.structures.id")) {
-                // $scope.structure = structure;
+                // $scope.syncStructure(structure);
+
                 $scope.isAllStructure = true;
                 $scope.syncCourses();
+                $scope.structure = structure;
 
                 // syncAllStructure();
                 // let allStructures = [];
@@ -279,7 +284,7 @@ export let main = ng.controller('EdtController',
             });
 
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group, $scope.structures, $scope.isAllStructure);
-
+            // $scope.structure = $scope.structures.all[0];
             $scope.calendarLoader.hide();
             await   Utils.safeApply($scope);
 
