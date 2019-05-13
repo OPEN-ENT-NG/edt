@@ -24,10 +24,10 @@ export let main = ng.controller('EdtController',
             group: [],
             oldGroup:[],
             oldUser: [],
+            coursesToDelete:[],
             updateItem: null,
             dateFromCalendar: null
         };
-
 
         async function getMainStruct() {
             let {data} =  await http.get(`/directory/user/${model.me.userId}?_=1556865888485`);
@@ -55,7 +55,8 @@ export let main = ng.controller('EdtController',
             showQuarterHours : true
         };
         $scope.show = {
-            home_lightbox : false
+            home_lightbox : false,
+            delete_lightbox: false
         };
         $scope.calendarLoader = {
             show: false,
@@ -202,6 +203,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.syncCourses = async () => {
             let arrayIds =[];
+            $scope.params.coursesToDelete = [];
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child){
                     arrayIds.push($scope.child.idClasses)
@@ -335,6 +337,8 @@ export let main = ng.controller('EdtController',
         };
 
         template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
+        template.open('deletePagePopUp', 'main/delete-courses-popup');
+
         $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
@@ -356,6 +360,10 @@ export let main = ng.controller('EdtController',
             $scope.show.home_lightbox = false;
             Utils.safeApply($scope);
         };
+        $scope.cancelDeleteLightbox = () =>{
+            $scope.show.delete_lightbox = false;
+            Utils.safeApply($scope);
+        }
 
         $scope.ableToChooseEditionType = (course: Course,start):boolean => {
             let now = moment();
@@ -461,17 +469,19 @@ export let main = ng.controller('EdtController',
                 $('body').on('mousemove', 'calendar hr', mousemoveCalendarHr);
 
                 var mouseupCalendar = (e) => {
+                    if(e.which === 3){
+                        return;
+                    }
                     if ($dragging) {
                         let coursItem;
                         $('.timeslot').removeClass('selecting-timeslot');
                         if(model.calendar.increment === "day"){
                             let dayOfWeek = getDayOfWeek();
-                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition,dayOfWeek);
+                            coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition,dayOfWeek);
                         }
-                      else{
-                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        else{
+                            coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
                         }
-                        console.log(coursItem);
                         if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
                         initVar();
                     }
@@ -480,6 +490,9 @@ export let main = ng.controller('EdtController',
                 $('body').on('mouseup', 'calendar', mouseupCalendar);
 
                 var mousedownCalendarScheduleItem = (e) => {
+                    if(e.which === 3){
+                        return;
+                    }
                     $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
                     startPosition = $dragging.offset();
                     let calendar = $('calendar');
@@ -499,9 +512,48 @@ export let main = ng.controller('EdtController',
                         $(e.currentTarget).unbind('mousedown');
                     }
                 };
+                var prepareToDelete = (event) =>{
+                    let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+
+                    if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
+                        event.stopPropagation();
+                        let itemId = $(event.currentTarget).data("id");
+
+                        $(event.currentTarget).addClass("selected");
+
+                        let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
+
+                        $scope.editOccurrence = true;
+                        let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
+                         if($scope.ableToChooseEditionType(courseToDelete,start)){
+                             courseToDelete.occurrenceDate =  occurrenceDate
+                         }
+                        $scope.params.coursesToDelete.push(courseToDelete)
+                        $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
+                        console.log(    $scope.params.coursesToDelete)
+                    }
+                    Utils.safeApply($scope);
+                }
+                var cancelDelete = (event) =>{
+                    if(event.which == 3 && $(event.currentTarget).hasClass("selected")) {
+                        event.stopPropagation();
+                        $(event.currentTarget).removeClass("selected");
+                        let idToDelete =  $(event.currentTarget).data("id")
+                        $scope.params.coursesToDelete.map((course,i) => {
+                            if(course._id  === idToDelete){
+                                $scope.params.coursesToDelete.splice(i,1);
+                            }
+                        })
+
+                    }
+                    Utils.safeApply($scope);
+                }
+
                 //left click on icon
                 $('body').off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
                 $('body').on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+                $('body').on('mousedown', '.schedule-item-content', prepareToDelete);
+                $('body').on('mousedown', '.schedule-item-content.selected', cancelDelete);
 
 
                 /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
@@ -518,6 +570,21 @@ export let main = ng.controller('EdtController',
          * Subscriber to directive calendar changes event
          */
 
+        $scope.openDeleteForm = () =>{
+            $scope.show.delete_lightbox = true;
+            Utils.safeApply($scope);
+        };
+        $scope.deleteCourses = async () =>{
+            $scope.show.delete_lightbox = false;
+            console.log($scope.params.coursesToDelete);
+            $scope.params.coursesToDelete.map(async c => {
+                (c.occurrenceDate)? await c.delete(c.occurrenceDate) : await c.delete();
+                $scope.syncCourses()
+                Utils.safeApply($scope);
+            });
+
+
+        }
         $scope.updateDatas = async () => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
@@ -595,7 +662,14 @@ export let main = ng.controller('EdtController',
             }
             return time;
         };
+
+
+
+
+
         $scope.syncStructure($scope.structure);
+
+
 
         route({
             main:  () => {

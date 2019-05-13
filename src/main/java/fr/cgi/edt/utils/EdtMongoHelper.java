@@ -132,7 +132,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 .after(dateHelper.getDate(newCourse.getString(START_DATE), dateHelper.DATE_FORMATTER))) {
             mongo.save(collection, newCourse, secondInternHandler);
         } else {
-           handler.handle(new Either.Right<>(new JsonObject()));
+           handler.handle(new Either.Right<>(new JsonObject().put("_id","cc")));
         }
     }
 

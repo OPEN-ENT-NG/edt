@@ -1,4 +1,4 @@
-<div ng-if="item.exceptionnal" class="schedule-item-content exceptionnal" data-id="[[item.course._id]]" >
+<div oncontextmenu="return false" ng-if="item.exceptionnal" class="schedule-item-content exceptionnal" data-id="[[item.course._id]]" >
     <div ng-if="isPersonnel()">
         <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
         <div class="one cell edit-icone" data-id="[[item.course._id]]" >
@@ -25,7 +25,7 @@
 
 
 </div>
-<div ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]" >
+<div oncontextmenu="return false" ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]" >
     <div ng-if="isPersonnel()">
         <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
         <div class="one cell edit-icone" data-id="[[item.course._id]]" >
