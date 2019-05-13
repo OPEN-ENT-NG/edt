@@ -127,5 +127,8 @@
   "exceptionnal.subject": "Intitulé du cours exceptionnel",
   "all.structures.id": "all_Structures",
   "all.structures.label": "Tous mes établissements",
-  "child.select":"Enfant"
+  "child.select":"Enfant",
+  "edt.utils.delete.selected" : "Supprimer les cours sélectionnés",
+  "edt.schedule.delete": "Supprimer des cours",
+  "edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?"
 }

@@ -47,3 +47,10 @@
   background: #996633 !important;
   color: #fff !important;
 }
+
+.schedule-item-content.selected{
+  background: #99ccff  !important;
+  color: #000 !important;
+  border-color: #000;
+  border-width: 1px;
+}

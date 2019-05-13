@@ -89,4 +89,14 @@
             </div>
         </div>
     </section>
+
+    <section ng-if="isPersonnel()" id="delete-section" class="row">
+        <div class="cell twelve ">
+            <button ng-disabled="! (params.coursesToDelete.length > 0)" class="twelve padding-sm" ng-click="openDeleteForm()">
+
+                <i18n>edt.utils.delete.selected</i18n>
+
+            </button>
+        </div>
+    </section>
 </div>
