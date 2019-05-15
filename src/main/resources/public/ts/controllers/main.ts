@@ -378,7 +378,10 @@ export let main = ng.controller('EdtController',
 
             let newDay = moment(start).format("DD");
             let previousDay= moment(course.startDate).format("DD");
-            //return true;
+
+
+            // return true;
+
             return course.isRecurrent() &&
                 ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
                     || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
@@ -477,6 +480,7 @@ export let main = ng.controller('EdtController',
                         $('.timeslot').removeClass('selecting-timeslot');
                         if(model.calendar.increment === "day"){
                             let dayOfWeek = getDayOfWeek();
+
                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition,dayOfWeek);
                         }
                         else{

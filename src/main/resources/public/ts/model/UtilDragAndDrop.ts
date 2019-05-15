@@ -45,11 +45,11 @@ export class UtilDragAndDrop {
             }
             topPositionnement = UtilDragAndDrop.getTopPositioning(dragging);
             if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
-                $(prev).before(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                $(prev).before(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
             }else if( i >= currDivHr.length && notFound === true ){
-                $(next).after(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                $(next).after(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
             }else{
-                $(prev).append(`<div class="selected-timeslot"  style="height: ${dragging.height()}px; top:-${topPositionnement}px;"></div>`);
+                $(prev).append(`<div class="selected-timeslot"  style="height: ${dragging.height()}px; top:-20px;"></div>`);
             }
         }
         return topPositionnement;
@@ -77,16 +77,24 @@ export class UtilDragAndDrop {
         return $(e.currentTarget);
     };
 
+
+
     static  getCalendarAttributes=( selectedTimeslot, selectedSchedule, topPositionnement,dayOfWeek? )=>{
         if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
             let indexHr = $(selectedTimeslot).prev('hr').index();
             let dayOfweek = dayOfWeek ? dayOfWeek : $(selectedTimeslot).parents('div.day').index();
             let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
-            let startCourse = moment(model.calendar.firstDay);
-            startCourse = startCourse.day(dayOfweek).hour(timeslot.beginning).minute(0).second(0);
+            let startCourse = moment($(selectedTimeslot).parents('.timeslot').index());
+                startCourse = startCourse.year(moment(model.calendar.firstDay).format("YYYY"))
+                    .date(moment(model.calendar.firstDay).date()).month(moment(model.calendar.firstDay).month()).hour(timeslot.beginning).minute(indexHr * 15).second(0)
+                    .day(dayOfweek);
+                ;
             let endCourse = moment(model.calendar.firstDay);
-            endCourse = endCourse.day(dayOfweek).hour(timeslot.end).minute(0).second(0);
-            endCourse = endCourse.add(15 * (indexHr + 1), 'minutes').subtract(15 * (topPositionnement / 10), 'minutes');
+            console.log(startCourse)
+            endCourse = moment(startCourse);
+             endCourse = endCourse.add(selectedSchedule.height()*3/2,"minutes");
+            console.log(endCourse)
+
             return {
                 itemId :$($(selectedSchedule).find('.schedule-item-content')).data('id'),
                 start:startCourse,
