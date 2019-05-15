@@ -14,7 +14,6 @@ export class UtilDragAndDrop {
     };
 
     static drag = (e,dragging,  ) => {
-
         let topPositionnement=0;
         if(dragging){
             $('calendar .selected-timeslot').remove();
@@ -90,10 +89,8 @@ export class UtilDragAndDrop {
                     .day(dayOfweek);
                 ;
             let endCourse = moment(model.calendar.firstDay);
-            console.log(startCourse)
             endCourse = moment(startCourse);
              endCourse = endCourse.add(selectedSchedule.height()*3/2,"minutes");
-            console.log(endCourse)
 
             return {
                 itemId :$($(selectedSchedule).find('.schedule-item-content')).data('id'),
