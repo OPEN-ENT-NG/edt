@@ -379,13 +379,11 @@ export let main = ng.controller('EdtController',
             let newDay = moment(start).format("DD");
             let previousDay= moment(course.startDate).format("DD");
 
-
-            // return true;
-
             return course.isRecurrent() &&
                 ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
                     || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
-                    || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start)));
+                    || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start))
+                    || (moment(start).isAfter(now) && atLeastOneOccurence ));
         };
 
         $scope.getSimpleDateFormat = (date) => {
