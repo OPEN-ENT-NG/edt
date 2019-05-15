@@ -98,11 +98,15 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 end = moment( $scope.course.endDate).seconds(0).millisecond(0);
 
             if ( $routeParams['beginning'] && $routeParams['end'] ) {
-
                 start = moment( $routeParams.beginning, 'x').seconds(0).millisecond(0);
                 end = moment( $routeParams.end, 'x').seconds(0).millisecond(0);
                 $scope.courseOccurrenceForm.startTime = moment(start).utc().toDate();
-                $scope.courseOccurrenceForm.endTime = moment(start).utc().add(moment($scope.course.endDate).diff(moment($scope.course.startDate))).toDate();
+                $scope.courseOccurrenceForm.endTime = moment(end).utc().toDate()
+                console.log($scope.courseOccurrenceForm.endTime)
+                console.log($scope.courseOccurrenceForm.startTime)
+
+                // $scope.courseOccurrenceForm.endTime = moment(start).utc().add(moment($scope.course.endDate).diff(moment($scope.course.startDate))).toDate();
+
                 $scope.course.dayOfWeek = moment(start).day();
 
                 if (!$scope.course.is_recurrent) {
@@ -125,7 +129,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 $scope.course.endDate =new Date(end);
 
             }
-
 
 
         }else if($location.$$path.includes('/create')){
