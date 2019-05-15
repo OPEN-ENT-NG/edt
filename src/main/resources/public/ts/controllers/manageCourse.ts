@@ -101,11 +101,11 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 start = moment( $routeParams.beginning, 'x').seconds(0).millisecond(0);
                 end = moment( $routeParams.end, 'x').seconds(0).millisecond(0);
                 $scope.courseOccurrenceForm.startTime = moment(start).utc().toDate();
-                $scope.courseOccurrenceForm.endTime = moment(end).utc().toDate()
-                console.log($scope.courseOccurrenceForm.endTime)
-                console.log($scope.courseOccurrenceForm.startTime)
+                $scope.courseOccurrenceForm.endTime = moment(end).utc().toDate();
+                let startMinutes = moment($scope.course.startDate).minutes() + (60 * moment($scope.course.startDate).hours());
+                let endMinutes = moment($scope.course.endDate).minutes() + (60 * moment($scope.course.endDate).hours());
 
-                // $scope.courseOccurrenceForm.endTime = moment(start).utc().add(moment($scope.course.endDate).diff(moment($scope.course.startDate))).toDate();
+                $scope.courseOccurrenceForm.endTime = moment(start).utc().add(endMinutes - startMinutes,"minutes").toDate();
 
                 $scope.course.dayOfWeek = moment(start).day();
 

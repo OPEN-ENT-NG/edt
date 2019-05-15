@@ -378,7 +378,6 @@ export let main = ng.controller('EdtController',
 
             let newDay = moment(start).format("DD");
             let previousDay= moment(course.startDate).format("DD");
-
             return course.isRecurrent() &&
                 ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
                     || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
@@ -532,7 +531,6 @@ export let main = ng.controller('EdtController',
                          }
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
-                        console.log(    $scope.params.coursesToDelete)
                     }
                     Utils.safeApply($scope);
                 }
@@ -578,7 +576,6 @@ export let main = ng.controller('EdtController',
         };
         $scope.deleteCourses = async () =>{
             $scope.show.delete_lightbox = false;
-            console.log($scope.params.coursesToDelete);
             $scope.params.coursesToDelete.map(async c => {
                 (c.occurrenceDate)? await c.delete(c.occurrenceDate) : await c.delete();
                 $scope.syncCourses()
