@@ -85,7 +85,7 @@ export class UtilDragAndDrop {
             let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
             let startCourse = moment($(selectedTimeslot).parents('.timeslot').index());
                 startCourse = startCourse.year(moment(model.calendar.firstDay).format("YYYY"))
-                    .date(moment(model.calendar.firstDay).date()).month(moment(model.calendar.firstDay).month()).hour(timeslot.beginning).minute(indexHr * 15).second(0)
+                    .date(moment(model.calendar.firstDay).date()).month(moment(model.calendar.firstDay).month()).hour(timeslot.beginning).minute(indexHr * 15 -15 ).second(0)
                     .day(dayOfweek);
                 ;
             let endCourse = moment(model.calendar.firstDay);
