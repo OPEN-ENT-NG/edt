@@ -49,8 +49,11 @@
 }
 
 .schedule-item-content.selected{
-  background: #99ccff  !important;
-  color: #000 !important;
+  opacity: 0.33;
+}
+.schedule-item-content.cantDelete{
+  color: #aaa  !important;
+  background: #555  !important;
   border-color: #000;
   border-width: 1px;
 }

@@ -531,7 +531,12 @@ export let main = ng.controller('EdtController',
                          }
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
+
+                     }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment())) {
+                        event.stopPropagation();
+                        $(event.currentTarget).addClass("cantDelete");
                     }
+
                     Utils.safeApply($scope);
                 }
                 var cancelDelete = (event) =>{
@@ -546,6 +551,10 @@ export let main = ng.controller('EdtController',
                         })
 
                     }
+                    if(event.which == 3 && $(event.currentTarget).hasClass("cantDelete")) {
+                        event.stopPropagation();
+                        $(event.currentTarget).removeClass("cantDelete");
+                    }
                     Utils.safeApply($scope);
                 }
 
@@ -554,6 +563,7 @@ export let main = ng.controller('EdtController',
                 $('body').on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
                 $('body').on('mousedown', '.schedule-item-content', prepareToDelete);
                 $('body').on('mousedown', '.schedule-item-content.selected', cancelDelete);
+                $('body').on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
 
 
                 /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
