@@ -1,4 +1,4 @@
-import { model, moment, _, notify, Behaviours } from 'entcore';
+import { model, moment, _, notify } from 'entcore';
 import http from 'axios';
 import { Mix } from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
@@ -17,7 +17,8 @@ export class Course {
     dayOfWeek: number = null;
     endDate:string | object ;
     startDate: string | object ;
-
+    idStartSlot: string;
+    idEndSlot: string;
     everyTwoWeek:boolean = undefined;
     structure: Structure = null;
     structureId: string = undefined;
@@ -123,7 +124,6 @@ export class Course {
         }else {
             o.created = this.created;
             o.author = this.author;
-
         }
        if( this.is_recurrent ){
            if(this.dayOfWeek - moment(this.startDate).day() < 0)
@@ -144,6 +144,8 @@ export class Course {
 
         o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
         o.endDate = moment(o.endDate).format('YYYY-MM-DDTHH:mm:ss');
+        o.idStartSlot = this.idStartSlot;
+        o.idEndSlot = this.idEndSlot;
         return o;
     }
     getCourseForEachOccurrence ():Courses {

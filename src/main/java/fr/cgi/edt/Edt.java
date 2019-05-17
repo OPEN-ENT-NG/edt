@@ -1,7 +1,6 @@
 package fr.cgi.edt;
 
 import fr.cgi.edt.controllers.InitController;
-import fr.cgi.edt.services.InitService;
 import fr.cgi.edt.services.impl.DefaultInitImpl;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.shareddata.LocalMap;
