@@ -1,7 +1,8 @@
-import { ng, _,idiom as lang, model, moment, notify } from 'entcore';
+import { ng, _,idiom as lang, moment } from 'entcore';
 import {
     DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects
 } from '../model';
+import {TimeSlot, TimeSlots} from "../model/timeSlots";
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
     ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
@@ -17,6 +18,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             occurrenceInExclusion : false
         };
 
+        $scope.display.freeSchedule = false;
+
+        $scope.course.timeSlots = !($scope.timeSlots) ? new TimeSlots($scope.structure.id) : $scope.timeSlots;
+        $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
 
         $scope.switchStructure = async (structure) => {
             $scope.structure = structure;
@@ -40,28 +45,32 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.changeDate = () => {
-            let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
-                startTime = moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
-                endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
-                endTime = moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
-            if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
-                endDate = startDate;
-                $scope.course.endDate = $scope.course.startDate;
-            }
-            if(Utils.isValidDate(startDate, endDate)) {
-                $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).toDate();
-                $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).utc().toDate();
+            let isTimeslot = $scope.course.timeSlot.start != undefined;
+                let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
+                    startTime = isTimeslot ? $scope.course.timeSlot.start.startHour : moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
+                    endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
+                    endTime = isTimeslot ? $scope.course.timeSlot.start.endHour : moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
 
-                $scope.course.courseOccurrences = _.map($scope.course.courseOccurrences, (item)=> {
-                    let startTime = moment(item.startTime).format("HH:mm:ss"),
-                        endTime = moment(item.endTime).format("HH:mm:ss");
-                    item.startTime = moment(startDate + 'T' + startTime).toDate();
-                    item.endTime = moment(endDate + 'T' + endTime).toDate();
-                    return item;
-                });
-            }
-            $scope.UpToDateInfo();
-            Utils.safeApply($scope);
+                if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
+                    endDate = startDate;
+                    $scope.course.endDate = $scope.course.startDate;
+                }
+                if(Utils.isValidDate(startDate, endDate)) {
+                    $scope.courseOccurrenceForm.startTime =  $scope.course.startDate = moment(startDate + 'T' + startTime).toDate();
+                    $scope.courseOccurrenceForm.endTime = $scope.course.endData = moment(endDate + 'T' + endTime).utc().toDate();
+
+                    $scope.course.courseOccurrences = _.map($scope.course.courseOccurrences, (item)=> {
+                        let startTime = moment(item.startTime).format("HH:mm:ss"),
+                            endTime = moment(item.endTime).format("HH:mm:ss");
+                        item.startTime = moment(startDate + 'T' + startTime).toDate();
+                        item.endTime = moment(endDate + 'T' + endTime).toDate();
+                        return item;
+                    });
+                }
+                if (!isTimeslot) {
+                    $scope.UpToDateInfo();
+                }
+                Utils.safeApply($scope)
         };
 
         $scope.isExceptionnalSubject = () => {
@@ -86,6 +95,33 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope);
         };
 
+        $scope.course.timeSlot.start = _.chain($scope.course.timeSlots.all)
+            .filter((timeSlot) => {
+                return timeSlot.id == $scope.course.idStartSlot;
+            })
+            .first()
+            .value();
+
+        $scope.course.timeSlot.end = _.chain($scope.course.timeSlots.all)
+            .filter((timeSlot) => {
+                return timeSlot.id == $scope.course.idEndSlot;
+            })
+            .first()
+            .value();
+
+        $scope.selectEndTime = () => {
+            $scope.course.timeSlot.end = $scope.course.timeSlot.start;
+            $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour).toDate();
+        };
+
+        $scope.selectStartTime = function () {
+            $scope.courseOccurrenceForm.startTime = moment(moment($scope.course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour).toDate();
+            $scope.selectEndTime();
+        };
+
+        $scope.formatEndDate = () => {
+            $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour).toDate();
+        };
 
         /**
          * Init Courses
@@ -114,6 +150,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 }
             }
 
+            if (!moment($scope.courseOccurrenceForm.startTime).isSame(moment(moment($scope.course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour).toDate())) {
+                $scope.display.freeSchedule = true;
+            }
+
             if ($scope.course.is_recurrent) {
                 if ( $scope.course.dayOfWeek &&  $scope.course.startDate &&  $scope.course.endDate) {
                     $scope.course.courseOccurrences = [
@@ -130,20 +170,19 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
             }
 
+            if (!$scope.course.idStartSlot || $scope.courseToEdit.isDragged) {
+                $scope.display.freeSchedule = true;
+            }
+
 
         }else if($location.$$path.includes('/create')){
-
-            // $scope.course.structure = $scope.structures.first();
-            // $scope.structure.sync();
             $scope.editOccurrence = false;
-
         }
         $scope.course.structure = $scope.structure;
         $scope.changeDate();
         Utils.safeApply($scope);
         $scope.syncSubjects();
         Utils.safeApply($scope);
-
 
         $scope.makeRecurrentCourse = () => {
             $scope.course.is_recurrent = true;
@@ -190,6 +229,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          * Create a course occurrence
          */
         $scope.submit_CourseOccurrence_Form = (): void => {
+            if (!$scope.display.freeSchedule) {
+                $scope.course.startDate = moment(moment($scope.course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour);
+                $scope.course.endDate = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour);
+                $scope.course.idStartSlot = $scope.course.timeSlot.start.id;
+                $scope.course.idEndSlot = $scope.course.timeSlot.end.id;
+            }
             $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
             $scope.courseOccurrenceForm = new CourseOccurrence();
             $scope.changeDate();
@@ -234,8 +279,16 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             else{
                 course.dayOfWeek = moment(course.startDate).day();
                 course.roomLabels = $scope.courseOccurrenceForm.roomLabels;
-                course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' +  moment($scope.courseOccurrenceForm.startTime).format('HH:mm:ss'));
-                course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + moment($scope.courseOccurrenceForm.endTime).format('HH:mm:ss'));
+                if (!$scope.display.freeSchedule) {
+                    course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' +  $scope.course.timeSlot.start.startHour);
+                    course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour);
+                    course.idStartSlot = $scope.course.timeSlot.start.id;
+                    course.idEndSlot = $scope.course.timeSlot.end.id;
+                }
+                else {
+                    course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' +  moment($scope.courseOccurrenceForm.startTime).format('HH:mm:ss'));
+                    course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + moment($scope.courseOccurrenceForm.endTime).format('HH:mm:ss'));
+                }
                 await course.save();
             }
             delete $scope.course;

@@ -128,6 +128,10 @@
   "all.structures.id": "all_Structures",
   "all.structures.label": "Tous mes établissements",
   "child.select":"Enfant",
+  "edt.free.schedule.time.choice": "Choix horaires libres",
+  "edt.time.slot.choice": "Choix plage horaire",
+  "edt.course.add.time.slot": "Le cours comprend une plage horaire",
+  "edt.choose.time.slot": "Choisissez une plage horaire",
   "edt.utils.delete.selected" : "Supprimer les cours sélectionnés",
   "edt.schedule.delete": "Supprimer des cours",
   "edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?"
