@@ -10,9 +10,16 @@ import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
+import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserUtils;
 import io.vertx.core.Handler;
@@ -29,6 +36,8 @@ public class EdtController extends MongoDbControllerHelper {
 
     private final EdtService edtService;
     private final UserService userService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
 
     private static final String
             read_only 			= "edt.view",
@@ -81,6 +90,7 @@ public class EdtController extends MongoDbControllerHelper {
     public void update (final HttpServerRequest request) {
         RequestUtils.bodyToJsonArray(request, body -> edtService.update(body, getServiceHandler(request)));
     }
+
     @Put("/occurrence/:timestamp")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
@@ -99,7 +109,6 @@ public class EdtController extends MongoDbControllerHelper {
         UserUtils.getUserInfos(eb, request, user -> userService.getChildrenInformation(user, arrayResponseHandler(request)));
     }
 
-
     @Delete("/course/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageSettingsWorkflowAction.class)
@@ -113,6 +122,7 @@ public class EdtController extends MongoDbControllerHelper {
             badRequest(request);
         }
     }
+
     @Delete("/occurrence/:timestamp/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
@@ -121,6 +131,34 @@ public class EdtController extends MongoDbControllerHelper {
         String dateOccurrence = request.getParam("timestamp");
         String id = request.params().get("id");
         edtService.deleteOccurrence(id,dateOccurrence, notEmptyResponseHandler(request));
+    }
+
+    @Get("/time-slots")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    public void getSlots(final HttpServerRequest request) {
+        if (!request.params().contains("structureId")){
+            badRequest(request);
+        }
+        String structureId = request.getParam("structureId");
+        JsonObject action = new JsonObject()
+                .put("action", "timeslot.getSlotProfiles")
+                .put("structureId", structureId);
+
+        Handler<Either<String, JsonArray>> handler = DefaultResponseHandler.arrayResponseHandler(request);
+            eb.send("viescolaire", action, (Handler<AsyncResult<Message<JsonObject>>>) event -> {
+                String status = event.result().body().getString("status");
+                JsonObject body = event.result().body();
+                JsonArray slots = new JsonArray();
+                if ("ok".equals(status) && body.getJsonObject("result").containsKey("slots")
+                        && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
+                        slots = body.getJsonObject("result").getJsonArray("slots");
+                        Renders.renderJson(request, slots);
+                } else  {
+                    LOGGER.error("[EDT@DefaultRegistrerService] Failed to retrieve slot profile");
+                    String message = "[Edt@DefaultRegisterService] Failed to parse slots";
+                    handler.handle(new Either.Left<>(message));
+                }
+            });
     }
 
 }

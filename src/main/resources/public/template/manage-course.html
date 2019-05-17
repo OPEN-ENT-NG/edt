@@ -114,11 +114,39 @@
                             ng-change="changeDate()"
                             class="text-center remove-padding margin-left-md margin-right-md width-7">
                     </date-picker>
+
                     <i18n>from2</i18n>
-                    <input type="time" ng-model="courseOccurrenceForm.startTime" class="margin-left-lg margin-right-lg" required/>
+
+                    <select ng-show="!display.freeSchedule"
+                            class="margin-left-lg margin-right-lg"
+                            ng-model="course.timeSlot.start"
+                            ng-change="selectStartTime()"
+                            ng-options="item.name + ' : ' + item.startHour for item in course.timeSlots.all | orderBy:'startHour'">
+                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                    </select>
+
+                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.startTime" class="margin-left-lg margin-right-lg" required/>
+
                     <i18n>to2</i18n>
-                    <input type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
-                    <p class="warning " ng-if="!startTimeIsAfterEdTime()"><i18n>error.timeAfterBefore</i18n></p>
+
+                    <select ng-show="!display.freeSchedule"
+                            class="margin-left-lg margin-right-lg"
+                            ng-model="course.timeSlot.end"
+                            ng-change="formatEndDate();"
+                            ng-options="item.name + ' : ' + item.endHour for item in course.timeSlots.all | orderBy:'endHour'">
+                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                    </select>
+
+                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
+
+                    <span class="warning four" ng-if="!startTimeIsAfterEdTime()"><i18n>error.timeAfterBefore</i18n></span>
+
+                    <div>
+                        <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
+                            <input type="checkbox" ng-model="display.freeSchedule"/>
+                            <span><i18n>edt.free.schedule.time.choice</i18n></span>
+                        </label>
+                    </div>
 
                 </div>
             </div>
@@ -138,7 +166,7 @@
                             <i18n>date</i18n>
                         </label>
                         <div class="cell twelve-mobile ten">
-                            <div class="six cell twelve-mobile">
+                            <div class="cell twelve-mobile">
                                 <i18n>from</i18n>
                                 <date-picker ng-init="course.startDate=getSimpleDateFormat(course.startDate);"
                                              ng-change="changeDate()"
@@ -149,6 +177,12 @@
                                               ng-change="changeDate()"
                                               ng-model="course.endDate"
                                               class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
+                            </div>
+                            <div>
+                                <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
+                                    <input type="checkbox" ng-model="display.freeSchedule"/>
+                                    <span><i18n>edt.free.schedule.time.choice</i18n></span>
+                                </label>
                             </div>
                             <div ng-if="course.is_recurrent && course.everyTwoWeek"
                                  class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
@@ -205,8 +239,26 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td><input type="time" ng-model="courseOccurrenceForm.startTime" required/></td>
-                                <td><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
+                                <!-- Free Schedule -->
+                                <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.startTime" required/></td>
+                                <!-- Time Slot -->
+                                <td ng-show="!display.freeSchedule">
+                                    <select ng-model="course.timeSlot.start"
+                                            ng-options="item.name + ' : ' + item.startHour for item in course.timeSlots.all"
+                                            ng-change="selectEndTime()">
+                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                                    </select>
+                                </td>
+                                <!-- Free Schedule -->
+                                <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
+                                <!-- Time Slot -->
+                                <td ng-show="!display.freeSchedule">
+                                    <select ng-model="course.timeSlot.end"
+                                            ng-options="item.name + ' : ' + item.endHour for item in course.timeSlots.all">
+                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                                    </select>
+                                </td>
+
                                 <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" class="text-center remove-padding width-7"/></td>
                                 <td>
                                     <button ng-disabled="!courseOccurrenceForm.isValidTime()" ng-click="submit_CourseOccurrence_Form()">

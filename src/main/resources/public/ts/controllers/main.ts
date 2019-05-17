@@ -11,8 +11,8 @@ import {
     UtilDragAndDrop,
     Utils
 } from '../model';
-import {Subject} from "../model/subject";
 import http from "axios";
+import {TimeSlots} from "../model/timeSlots";
 
 
 
@@ -68,11 +68,15 @@ export let main = ng.controller('EdtController',
             }
         };
 
+        $scope.displayTimeSlot = true;
+        $scope.displayFreeSchedule = false;
+
         /**
          * Synchronize a structure.
          */
         $scope.syncStructure = async (structure: Structure) => {
             $scope.structure = structure;
+            $scope.timeSlots.structure_id = $scope.structure.id;
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
             switch (model.me.type) {
@@ -155,6 +159,32 @@ export let main = ng.controller('EdtController',
                 $scope.structure = structure;
 
             };
+        };
+
+        /**
+         * Returns time slot by structure
+         */
+        $scope.timeSlots = new TimeSlots($scope.structure.id);
+        $scope.timeSlot = undefined;
+
+        $scope.timeSlots.syncTimeSlots().then(() => {
+            for (let i = 0; i < $scope.timeSlots.all.length; i ++) {
+                if ($scope.timeSlots.all[i].default) {
+                    $scope.timeSlot = $scope.timeSlots.all[i];
+                    Utils.safeApply($scope);
+                    return;
+                }
+            }
+        });
+
+        $scope.showFreeSchedule = () => {
+            $scope.displayFreeSchedule = true;
+            $scope.displayTimeSlot = false;
+        };
+
+        $scope.showTimeSlot = () => {
+            $scope.displayFreeSchedule = false;
+            $scope.displayTimeSlot = true;
         };
 
         /**
@@ -345,6 +375,7 @@ export let main = ng.controller('EdtController',
                 start : start,
                 end : end
             };
+            $scope.courseToEdit.isDragged = (isDrag);
             $scope.editOccurrence = true;
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
@@ -483,7 +514,7 @@ export let main = ng.controller('EdtController',
                         else{
                             coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
                         }
-                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end);
+                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
                         initVar();
                     }
                 };
