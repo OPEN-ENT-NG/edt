@@ -77,7 +77,12 @@ public class EdtMongoHelper extends MongoDbCrudService {
                 if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), false, false, handler);
+                    Calendar occurrenceDate = dateHelper.longToCalendar(Long.parseLong(dateOccurrence));
+                    Calendar oldCourseStart = dateHelper.lastOccurrenceDate(oldCourse);
+                    if((dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE))).equals(dateHelper.getCombineDate(oldCourseStart.getTime(), oldCourse.getString(START_DATE))))
+                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), true, false, handler);
+                    else
+                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence), false, false, handler);
                 }else {
                     LOGGER.error("can't update this occurrence");
                     handler.handle(new Either.Left<>("can't update this occurrence"));
