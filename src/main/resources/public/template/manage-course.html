@@ -243,9 +243,10 @@
                                 <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.startTime" required/></td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
-                                    <select ng-model="course.timeSlot.start"
-                                            ng-options="item.name + ' : ' + item.startHour for item in course.timeSlots.all"
-                                            ng-change="selectEndTime()">
+                                    <select
+                                            ng-model="course.timeSlot.start"
+                                            ng-options="item.name + ' : ' + item.startHour for item in course.timeSlots.all | orderBy:'startHour'"
+                                            ng-change="selectStartTime()">
                                         <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                                     </select>
                                 </td>
@@ -253,12 +254,12 @@
                                 <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
-                                    <select ng-model="course.timeSlot.end"
-                                            ng-options="item.name + ' : ' + item.endHour for item in course.timeSlots.all">
+                                    <select
+                                            ng-model="course.timeSlot.end"
+                                            ng-options="item.name + ' : ' + item.endHour for item in course.timeSlots.all | orderBy:'endHour'">
                                         <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                                     </select>
                                 </td>
-
                                 <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" class="text-center remove-padding width-7"/></td>
                                 <td>
                                     <button ng-disabled="!courseOccurrenceForm.isValidTime()" ng-click="submit_CourseOccurrence_Form()">
