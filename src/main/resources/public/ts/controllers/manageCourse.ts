@@ -154,7 +154,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 if (!moment($scope.courseOccurrenceForm.startTime).isSame(moment(moment($scope.course.startDate).format('YYYY-MM-DD')
                     + ' ' + $scope.course.timeSlot.start.startHour).toDate()) ||
                     (!moment($scope.courseOccurrenceForm.endTime).isSame(moment(moment($scope.course.endDate).format('YYYY-MM-DD')
-                        + ' ' + $scope.course.timeSlot.start.endHour).toDate()))) {
+                        + ' ' + $scope.course.timeSlot.end.endHour).toDate()))) {
 
                     $scope.display.freeSchedule = true;
                 }
