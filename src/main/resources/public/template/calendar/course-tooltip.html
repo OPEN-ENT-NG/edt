@@ -1,4 +1,27 @@
-<article class="tooltip-cours " >
+<article ng-if="item.exceptionnal" exceptionnal class="tooltip-cours  "  >
+    <div class="header cell twelve ellipsis exceptionnal">[[item.course.subjectLabel]]</div>
+    <div>
+        <span>
+            [[item.startMomentTime]] - [[item.endMomentTime]]
+        </span>
+
+    </div>
+    <div>
+        <span ng-repeat="teacher in item.course.teachers">[[teacher.displayName]] </span>
+    </div>
+    <em class="metadata">
+        <span ng-repeat="className in item.course.classes">[[className]]</span>
+        <span ng-repeat="groupName in item.course.groups">[[groupName]]</span>
+    </em>
+    <div>
+       <span ng-repeat="roomLabel in item.course.roomLabels">
+               <span ng-if="roomLabel !== null && roomLabel !=''">
+                   <i18n>edt.utils.room</i18n>: [[roomLabel]]
+               </span>
+           </span>
+    </div>
+</article>
+<article ng-if="!item.exceptionnal" class="tooltip-cours " >
     <div class="header cell twelve ellipsis [[item.color]]">[[item.course.subjectLabel]]</div>
     <div>
         <span>
