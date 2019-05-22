@@ -389,6 +389,7 @@ export let main = ng.controller('EdtController',
 
         $scope.cancelEditionLightbox = () =>{
             $scope.show.home_lightbox = false;
+            model.calendar.setDate(model.calendar.firstDay)
             Utils.safeApply($scope);
         };
         $scope.cancelDeleteLightbox = () =>{
