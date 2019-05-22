@@ -81,9 +81,8 @@ export let main = ng.controller('EdtController',
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
             switch (model.me.type) {
                 case USER_TYPES.student : {
-                    $scope.params.group = _.map(model.me.classes, (groupid) => {
-                        _.findWhere($scope.structure.groups.all, {id: groupid});
-                    });
+                    $scope.params.group = $scope.structure.groups.all;
+
                     break;
                 }
 
@@ -257,26 +256,27 @@ export let main = ng.controller('EdtController',
             $scope.structure.calendarItems.all = [];
 
             //add groups to classes
-            $scope.params.group.map(g => {
-                let isInClass = false;
-                $scope.params.deletedGroups.classes.map(c => {
-                    if (c.id === g.id ){
-                        isInClass = true;
+            if (model.me.type === USER_TYPES.personnel || model.me.type === USER_TYPES.teacher)
+                $scope.params.group.map(g => {
+                    let isInClass = false;
+                    $scope.params.deletedGroups.classes.map(c => {
+                        if (c.id === g.id ){
+                            isInClass = true;
+                        }
+                    });
+
+                    if(!isInClass  && g.type_groupe !== 0 && g.users ){
+                        $scope.params.deletedGroups.classes.push(g);
                     }
-                });
 
-                if(!isInClass  && g.type_groupe !== 0 && g.users ){
-                    $scope.params.deletedGroups.classes.push(g);
-                }
+                    $scope.params.deletedGroups.classes.map(c => {
+                        $scope.params.deletedGroups.groupsDeleted.map((gg,index) => {
+                            if(gg.id === c.id)
+                                $scope.params.deletedGroups.groupsDeleted.splice(index,1);
 
-                $scope.params.deletedGroups.classes.map(c => {
-                    $scope.params.deletedGroups.groupsDeleted.map((gg,index) => {
-                        if(gg.id === c.id)
-                            $scope.params.deletedGroups.groupsDeleted.splice(index,1);
-
+                        });
                     });
                 });
-            });
 
 
 
@@ -296,7 +296,7 @@ export let main = ng.controller('EdtController',
                 let isInClass = false;
 
                 $scope.params.deletedGroups.classes.map(c => {
-                    if (c.id === g.id){
+                    if (g && c && c.id === g.id){
                         isInClass = true;
                     }
                 });
@@ -557,13 +557,13 @@ export let main = ng.controller('EdtController',
 
                         $scope.editOccurrence = true;
                         let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-                         if($scope.ableToChooseEditionType(courseToDelete,start)){
-                             courseToDelete.occurrenceDate =  occurrenceDate
-                         }
+                        if($scope.ableToChooseEditionType(courseToDelete,start)){
+                            courseToDelete.occurrenceDate =  occurrenceDate
+                        }
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
 
-                     }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment())) {
+                    }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment())) {
                         event.stopPropagation();
                         $(event.currentTarget).addClass("cantDelete");
                     }
