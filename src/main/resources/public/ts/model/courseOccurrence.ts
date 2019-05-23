@@ -42,7 +42,7 @@ export class CourseOccurrence {
         let startTime = moment(this.startTime).format("HH:mm:ss");
         let endTime =  moment(this.endTime).format("HH:mm:ss");
         let date =  moment().format("YYYY-MM-DD");
-        return moment(date+'T'+startTime).isBefore(moment(date+'T'+endTime))
+        return moment(date+'T'+endTime).isAfter(moment(date+'T'+startTime).add(14,"minutes"))
     };
 
     toJSON (): object {
