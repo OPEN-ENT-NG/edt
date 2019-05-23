@@ -1,10 +1,6 @@
 <div class="sidebar ">
     <div class="row">
         <section id="display-section" class="twelve">
-            <h5 class="large">
-                <i18n>edt.utils.display_mode</i18n>
-                :
-            </h5>
             <div ng-if="checkAccess() && structures.all.length > 1">
                 <select
                         ng-model="structure"
@@ -75,10 +71,6 @@
     </div>
     <section ng-if="isPersonnel()" id="add-section" class="row">
         <div class="cell twelve ">
-            <h5 class="large">
-                <i18n>edt.utils.add</i18n>
-                :
-            </h5>
             <div class="row cell">
                 <div class="twelve cell small">
                     <button class="twelve padding-sm" ng-click="createCourse()">

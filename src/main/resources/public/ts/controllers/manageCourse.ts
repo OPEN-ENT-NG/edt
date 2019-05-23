@@ -49,7 +49,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
                     startTime = isTimeslot ? $scope.course.timeSlot.start.startHour : moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
                     endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
-                    endTime = isTimeslot ? $scope.course.timeSlot.start.endHour : moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
+                    endTime = isTimeslot ? $scope.course.timeSlot.end.endHour : moment($scope.courseOccurrenceForm.endTime).format("HH:mm:ss");
 
                 if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
                     endDate = startDate;
@@ -67,9 +67,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         return item;
                     });
                 }
-                if (!isTimeslot) {
-                    $scope.UpToDateInfo();
-                }
+                $scope.UpToDateInfo();
                 Utils.safeApply($scope)
         };
 

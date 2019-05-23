@@ -110,7 +110,7 @@
   "edt.settings.exclusion.title": "Exclusion de périodes",
   "edt.choose.edition.type.message":"Souhaitez vous modifier :",
   "edt.choose.edition.type.choice1":"Ce cours seulement",
-  "edt.choose.edition.type.choice2":"Toutes les futures occurrences de ce cours",
+  "edt.choose.edition.type.choice2":"Toutes les occurrences de ce cours (excepté les cours déjà passés)",
   "edt.choose.delete.course": "Souhaitez-vous supprimer ce cours ?",
   "edt.erreur.date.debut.date.fin.not.valid":"La date de début doit être inférieure à la date de fin.",
   "edt.error.date.is.not.a.week.after":"La date de début et de fin doivent avoir une semaine d'écart",
