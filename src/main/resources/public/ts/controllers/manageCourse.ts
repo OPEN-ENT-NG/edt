@@ -326,10 +326,15 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && Utils.isValidDate($scope.course.startDate, $scope.course.endDate)
                     )
                     ||
-                    (
-                        !$scope.course.is_recurrent
-                        && isNaN($scope.courseOccurrenceForm.startTime._d)
-                        && isNaN($scope.courseOccurrenceForm.endTime._d)
+                    (!$scope.course.is_recurrent
+                        && ($scope.display.freeSchedule
+                            && isNaN($scope.courseOccurrenceForm.startTime._d)
+                            && isNaN($scope.courseOccurrenceForm.endTime._d)
+                        )
+                        || (!$scope.display.freeSchedule
+                            && $scope.course.timeSlot.start !== undefined
+                            && $scope.course.timeSlot.end !== undefined
+                        )
                     )
                 );
         };
