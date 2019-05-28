@@ -526,12 +526,17 @@ export let main = ng.controller('EdtController',
                     if(e.which === 3){
                         return;
                     }
-                    $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
-                    startPosition = $dragging.offset();
-                    let calendar = $('calendar');
-                    calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                    calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                    if($(e.target).hasClass("notpast")) {
+                        $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
+                        startPosition = $dragging.offset();
+                        let calendar = $('calendar');
+                        calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                        calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
+                    }else{
+                        return;
+                    }
                 };
+
                 $('body').off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
                 $('body').on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
                 $('body calendar .schedule-item').css('cursor', 'move');
@@ -571,6 +576,8 @@ export let main = ng.controller('EdtController',
 
                     Utils.safeApply($scope);
                 }
+
+
                 var cancelDelete = (event) =>{
                     if(event.which == 3 && $(event.currentTarget).hasClass("selected")) {
                         event.stopPropagation();
@@ -612,6 +619,14 @@ export let main = ng.controller('EdtController',
          * Subscriber to directive calendar changes event
          */
 
+
+
+
+
+        $scope.isNotPast = (item) =>{
+            return(moment(item.startDate).isAfter(moment()));
+
+        }
         $scope.openDeleteForm = () =>{
             $scope.show.delete_lightbox = true;
             Utils.safeApply($scope);
