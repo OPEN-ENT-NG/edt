@@ -18,10 +18,17 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             occurrenceInExclusion : false
         };
 
-        $scope.display.freeSchedule = false;
-
         $scope.course.timeSlots = !($scope.timeSlots) ? new TimeSlots($scope.structure.id) : $scope.timeSlots;
         $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
+
+        if ($scope.timeSlots.haveSlot()) {
+            $scope.display.freeSchedule = false;
+            $scope.display.checkbox = true;
+        }
+        else {
+            $scope.display.freeSchedule = true;
+            $scope.display.checkbox = false;
+        }
 
         $scope.switchStructure = async (structure) => {
             $scope.structure = structure;
@@ -149,11 +156,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             }
 
             if ($scope.course.timeSlot.start != undefined) {
-                if (!moment($scope.courseOccurrenceForm.startTime).isSame(moment(moment($scope.course.startDate).format('YYYY-MM-DD')
-                    + ' ' + $scope.course.timeSlot.start.startHour).toDate()) ||
-                    (!moment($scope.courseOccurrenceForm.endTime).isSame(moment(moment($scope.course.endDate).format('YYYY-MM-DD')
-                        + ' ' + $scope.course.timeSlot.end.endHour).toDate()))) {
-
+                if (!moment($scope.courseOccurrenceForm.startTime).format('LT') == ($scope.course.timeSlot.start.startHour) ||
+                     (!moment($scope.courseOccurrenceForm.endTime).format('LT') == ($scope.course.timeSlot.end.endHour))) {
                     $scope.display.freeSchedule = true;
                 }
             }

@@ -142,7 +142,7 @@
                     <span class="warning four" ng-if="!startTimeIsAfterEdTime()"><i18n>error.timeAfterBefore</i18n></span>
                     <span class="warning four" ng-if="!isPastDate()"><i18n>error.PastDate</i18n></span>
 
-                    <div>
+                    <div ng-show="display.checkbox">
                         <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
                             <input type="checkbox" ng-model="display.freeSchedule"/>
                             <span><i18n>edt.free.schedule.time.choice</i18n></span>
@@ -179,19 +179,21 @@
                                               ng-model="course.endDate"
                                               class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             </div>
-                            <div>
+                            <div class="cell twelve-mobile" ng-show="display.checkbox">
                                 <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
                                     <input type="checkbox" ng-model="display.freeSchedule"/>
                                     <span><i18n>edt.free.schedule.time.choice</i18n></span>
                                 </label>
                             </div>
-                            <div ng-if="course.is_recurrent && course.everyTwoWeek"
-                                 class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
-                            </div>
-                            <div ng-if="course.is_recurrent && course.everyTwoWeek"
-                                 class="red-text padding-top-sm five cell twelve-mobile horizontal-spacing ">
-                                <i18n>edt.first.occurrence</i18n> : [[getSimpleFRDateFormat(info.firstOccurrenceDate)]] (<i18n>Week</i18n>
-                                [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
+                            <div class="cell four twelve-mobile margin-left-lg">
+                                <span ng-if="course.is_recurrent && course.everyTwoWeek"
+                                     class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
+                                </span>
+                                <span ng-if="course.is_recurrent && course.everyTwoWeek"
+                                     class="red-text padding-top-sm ten cell twelve-mobile horizontal-spacing ">
+                                    <i18n>edt.first.occurrence</i18n> : [[getSimpleFRDateFormat(info.firstOccurrenceDate)]] (<i18n>Week</i18n>
+                                    [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
+                                </span>
                             </div>
                         </div>
                     </div>

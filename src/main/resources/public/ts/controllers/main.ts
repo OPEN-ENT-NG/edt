@@ -68,9 +68,6 @@ export let main = ng.controller('EdtController',
             }
         };
 
-        $scope.displayTimeSlot = true;
-        $scope.displayFreeSchedule = false;
-
         /**
          * Synchronize a structure.
          */
@@ -130,16 +127,11 @@ export let main = ng.controller('EdtController',
             }
         };
 
-
-        // async function syncAllStructure() {
-        //
-        // }
-
         $scope.switchChild = (child: Student) =>{
             $scope.child= child;
 
             $scope.syncCourses();
-        }
+        };
 
         $scope.switchStructure = (structure: Structure) => {
             if (structure.id != lang.translate("all.structures.id") &&
@@ -167,24 +159,16 @@ export let main = ng.controller('EdtController',
         $scope.timeSlot = undefined;
 
         $scope.timeSlots.syncTimeSlots().then(() => {
-            for (let i = 0; i < $scope.timeSlots.all.length; i ++) {
-                if ($scope.timeSlots.all[i].default) {
-                    $scope.timeSlot = $scope.timeSlots.all[i];
-                    Utils.safeApply($scope);
-                    return;
+            if ($scope.timeSlots.haveSlot()) {
+                for (let i = 0; i < $scope.timeSlots.all.length; i ++) {
+                    if ($scope.timeSlots.all[i].default) {
+                        $scope.timeSlot = $scope.timeSlots.all[i];
+                        Utils.safeApply($scope);
+                        return;
+                    }
                 }
             }
         });
-
-        $scope.showFreeSchedule = () => {
-            $scope.displayFreeSchedule = true;
-            $scope.displayTimeSlot = false;
-        };
-
-        $scope.showTimeSlot = () => {
-            $scope.displayFreeSchedule = false;
-            $scope.displayTimeSlot = true;
-        };
 
         /**
          * Returns if current user is a personnel

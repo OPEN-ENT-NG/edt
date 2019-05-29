@@ -20,14 +20,24 @@ export class TimeSlots {
 
     constructor(id_structure?: string) {
         if (id_structure) this.structure_id = id_structure;
+        this.all = [];
     }
 
     async syncTimeSlots () {
         try {
-            let {data} = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
-            this.all = Mix.castArrayAs(TimeSlot, data);
+            let response = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
+            if (response.status === 200) {
+                this.all = Mix.castArrayAs(TimeSlot, response.data);
+            }
+            else if (response.status === 204) {
+                console.log("pas de profil défini");
+            }
         } catch (e) {
             notify.error('erreur time slots');
         }
+    }
+
+    haveSlot () {
+        return this.all && this.all.length > 0;
     }
 }
