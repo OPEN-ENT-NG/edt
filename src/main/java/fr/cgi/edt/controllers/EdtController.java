@@ -153,7 +153,11 @@ public class EdtController extends MongoDbControllerHelper {
                         && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
                         slots = body.getJsonObject("result").getJsonArray("slots");
                         Renders.renderJson(request, slots);
-                } else  {
+                }
+                else if ("ok".equals(status) && body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
+                    Renders.noContent(request);
+                }
+                else {
                     LOGGER.error("[EDT@DefaultRegistrerService] Failed to retrieve slot profile");
                     String message = "[Edt@DefaultRegisterService] Failed to parse slots";
                     handler.handle(new Either.Left<>(message));
