@@ -336,7 +336,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                             && $scope.course.timeSlot.end !== undefined
                         )
                     )
-                );
+                )
+                &&
+                $scope.isPastDate()
+                ;
         };
 
 
@@ -344,6 +347,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             return   moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"));
         };
 
+        $scope.isPastDate = () =>{
+          return  (moment($scope.course.startDate)
+                .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
+                .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
+                .isAfter(moment().add(1,'minute')));
+        }
         $scope.tryDropCourse = () => {
             $scope.openedLightbox = !$scope.openedLightbox;
             $scope.openedLightbox = true;
