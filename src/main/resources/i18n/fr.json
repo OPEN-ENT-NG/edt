@@ -134,5 +134,6 @@
   "edt.choose.time.slot": "Choisissez une plage horaire",
   "edt.utils.delete.selected" : "Supprimer les cours sélectionnés",
   "edt.schedule.delete": "Supprimer des cours",
-  "edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?"
+  "edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?",
+  "error.PastDate": "La date choisie ne peut être antérieure à aujourd'hui"
 }
