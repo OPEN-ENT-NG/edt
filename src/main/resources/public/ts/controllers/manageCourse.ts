@@ -316,7 +316,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.groups.length > 0
                 && $scope.course.subjectId !== undefined
                 && $scope.course.subjectId.length > 0
-                && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"))
+                && (($scope.display.freeSchedule
+                    && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"))
+                )
+                || (!$scope.display.freeSchedule
+                        && $scope.course.timeSlot.start !== undefined
+                        && $scope.course.timeSlot.end !== undefined
+                    ) && ($scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour)
+                )
                 && ( $scope.course.subjectId !== lang.translate("exceptionnal.id")
                     || ( $scope.course.subjectId === lang.translate("exceptionnal.id")
                         && $scope.course.exceptionnal
@@ -347,8 +354,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
 
-        $scope.startTimeIsAfterEdTime = () =>{
-            return   moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14,"minutes"));
+        $scope.startTimeIsAfterEndTime = () => {
+            if ($scope.display.freeSchedule) {
+                return moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14, "minutes"));
+            }
+            else if (!$scope.display.freeSchedule && $scope.course.timeSlot.start !== undefined) {
+                return $scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour;
+            }
+            else return true;
         };
 
         $scope.isPastDate = () =>{
@@ -356,7 +369,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
                 .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
                 .isAfter(moment().add(1,'minute')));
-        }
+        };
+
         $scope.tryDropCourse = () => {
             $scope.openedLightbox = !$scope.openedLightbox;
             $scope.openedLightbox = true;
