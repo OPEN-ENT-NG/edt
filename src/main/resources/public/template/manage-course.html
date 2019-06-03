@@ -139,7 +139,7 @@
 
                     <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
 
-                    <span class="warning four" ng-if="!startTimeIsAfterEdTime()"><i18n>error.timeAfterBefore</i18n></span>
+                    <span class="warning four" ng-if="!startTimeIsAfterEndTime()"><i18n>error.timeAfterBefore</i18n></span>
                     <span class="warning four" ng-if="!isPastDate()"><i18n>error.PastDate</i18n></span>
 
                     <div ng-show="display.checkbox">
