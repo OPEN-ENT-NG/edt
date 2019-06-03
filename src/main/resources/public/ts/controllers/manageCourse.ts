@@ -185,6 +185,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         }else if($location.$$path.includes('/create')){
             $scope.editOccurrence = false;
+            if ($scope.hideTimeSlot) {
+                $scope.display.freeSchedule = true;
+            }
         }
         $scope.course.structure = $scope.structure;
         $scope.changeDate();

@@ -421,6 +421,7 @@ export let main = ng.controller('EdtController',
             model.calendar.eventer.on('calendar.create-item', () => {
                 if ($location.path() !== '/create') {
                     $scope.createCourse();
+                    $scope.hideTimeSlot = true;
                 }
             });
 
