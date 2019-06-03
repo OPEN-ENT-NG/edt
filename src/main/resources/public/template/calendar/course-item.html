@@ -1,6 +1,6 @@
 <div oncontextmenu="return false" ng-if="item.exceptionnal" class="schedule-item-content exceptionnal" data-id="[[item.course._id]]" ng-class="(!isNotPast(item)) ?  'past' : 'notpast' " >
     <div ng-if="isPersonnel()  ">
-        <div ng-class="(!isNotPast(item)) ?  'eleven' : 'twelve'
+        <div ng-class="(isNotPast(item)) ?  'eleven' : 'twelve'
             "class="cell  ellipsis" >[[item.course.subjectLabel]] </div>
         <div  ng-show="isNotPast(item)" class="one cell edit-icone" data-id="[[item.course._id]]" >
             <i class="edit sm-margin-right right-magnet"  >
@@ -28,7 +28,7 @@
 </div>
 <div oncontextmenu="return false" ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"  ng-class="(!isNotPast(item)) ?  'past' : 'notpast' " >
     <div ng-if="isPersonnel()">
-        <div ng-class="(!isNotPast(item)) ?  'eleven' : 'twelve' "
+        <div ng-class="(isNotPast(item)) ?  'eleven' : 'twelve' "
              class="cell ellipsis" >[[item.course.subjectLabel]] </div>
         <div ng-show="isNotPast(item)" class="one cell edit-icone" data-id="[[item.course._id]]" >
             <i class="edit sm-margin-right right-magnet"  >
