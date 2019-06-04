@@ -330,6 +330,7 @@ export let main = ng.controller('EdtController',
             const edtRights = Behaviours.applicationsBehaviours.edt.rights;
             if (model.me.hasWorkflow(edtRights.workflow.manage)) {
                 $scope.goTo('/create');
+                $scope.hideTimeSlot = false;
             }
         };
 
