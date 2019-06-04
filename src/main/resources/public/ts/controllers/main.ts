@@ -542,7 +542,6 @@ export let main = ng.controller('EdtController',
                     if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
                         event.stopPropagation();
                         let itemId = $(event.currentTarget).data("id");
-
                         $(event.currentTarget).addClass("selected");
 
                         let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
@@ -552,6 +551,7 @@ export let main = ng.controller('EdtController',
                         if($scope.ableToChooseEditionType(courseToDelete,start)){
                             courseToDelete.occurrenceDate =  occurrenceDate
                         }
+                        courseToDelete.timeToDelete= moment(start).format("YYYY/MM/DD");
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
 
@@ -620,7 +620,7 @@ export let main = ng.controller('EdtController',
         $scope.deleteCourses = async () =>{
             $scope.show.delete_lightbox = false;
             $scope.params.coursesToDelete.map(async c => {
-                (c.occurrenceDate)? await c.delete(c.occurrenceDate) : await c.delete();
+               (c.occurrenceDate) ? await c.delete(c.timeToDelete) : await c.delete();
                 $scope.syncCourses()
                 Utils.safeApply($scope);
             });
