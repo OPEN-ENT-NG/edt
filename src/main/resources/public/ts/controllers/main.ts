@@ -725,6 +725,17 @@ export let main = ng.controller('EdtController',
                 const roundedDown = Math.floor(startDate.minute() / 15) * 15;
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
+
+                 $scope.params.group.sort((g,gg) =>{
+                     if (g.displayName && !gg.displayName){
+                         return -1;
+                     }
+                     else if(gg.displayName && !g.displayName){
+                         return 1;
+                     }else{
+                         return 0;
+                     }
+                 });
                 $scope.course = new Course({
                     structure: _.clone($scope.structure),
                     teachers: _.clone($scope.params.user),
