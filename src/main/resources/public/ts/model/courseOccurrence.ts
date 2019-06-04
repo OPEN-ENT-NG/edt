@@ -43,7 +43,7 @@ export class CourseOccurrence {
             return false;
         }
         else {
-            let isTimeSlot = course.timeSlot.start !== undefined;
+            let isTimeSlot = !display.freeSchedule && course.timeSlot.start !== undefined;
             let startTime = isTimeSlot ? course.timeSlot.start.startHour : moment(this.startTime).format("HH:mm:ss");
             let endTime = isTimeSlot ? course.timeSlot.end.endHour : moment(this.endTime).format("HH:mm:ss");
             let date =  moment().format("YYYY-MM-DD");
