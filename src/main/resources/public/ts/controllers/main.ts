@@ -663,9 +663,7 @@ export let main = ng.controller('EdtController',
                     end : param ? param.end : model.calendar.newItem.end.format('x')};
                 let startTime = (moment.utc(TimeslotInfo["beginning"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
 
-                startTime = $scope.getSummerTimeIfMandatory(startTime);
                 let endTime = (moment.utc(TimeslotInfo["end"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
-                endTime = $scope.getSummerTimeIfMandatory(endTime);
 
                 let dayOfWeek=  moment(TimeslotInfo["beginning"], 'x').day();
                 let roomLabel = course ? course.roomLabels[0] : '';
@@ -691,23 +689,6 @@ export let main = ng.controller('EdtController',
                 return moment();
             }
         };
-
-        $scope.getSummerTimeIfMandatory = (time) =>{
-            let  summerDay = moment([2011,3,1]);
-            let winterDay = moment ([2011,9,28]);
-            if(moment(time).format("MM") >= moment(summerDay).format("MM") &&
-                moment(time).format("MM") < moment(winterDay).format("MM") ){
-                time = moment(time).subtract(1,'hours');
-            }else if(moment(time).format("MM") ===  moment(winterDay).format("MM") && moment(time).format("dd") <= moment(winterDay).format("dd") ){
-                time =  moment(time).subtract(1,'hours');
-
-            }
-            return time;
-        };
-
-
-
-
 
         $scope.syncStructure($scope.structure);
 
