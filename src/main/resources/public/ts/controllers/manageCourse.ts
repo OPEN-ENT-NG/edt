@@ -241,8 +241,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
         $scope.submit_CourseOccurrence_Form = (): void => {
             if (!$scope.display.freeSchedule) {
-                $scope.course.startDate = moment(moment($scope.course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour);
-                $scope.course.endDate = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour);
+                $scope.courseOccurrenceForm.startTime = moment(moment($scope.course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour);
+                $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour);
                 $scope.course.idStartSlot = $scope.course.timeSlot.start.id;
                 $scope.course.idEndSlot = $scope.course.timeSlot.end.id;
             }
