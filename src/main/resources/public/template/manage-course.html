@@ -10,7 +10,7 @@
                     Structure
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <select ng-model="course.structure" id="select-structure" ng-change="switchStructure(structure)" required
+                    <select ng-model="course.structure" id="select-structure" ng-change="switchStructure(course.structure)" required
                             ng-options="structure.name for structure in structures.all">
                         <option ng-if="!course.structure" value="" disabled selected>[[translate('edt.creation.structure.choose')]]</option>
                     </select>
