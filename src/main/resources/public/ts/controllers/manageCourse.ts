@@ -1,6 +1,6 @@
 import { ng, _,idiom as lang, moment } from 'entcore';
 import {
-    DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects
+    DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects, Structure
 } from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
 
@@ -31,8 +31,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         }
 
         $scope.switchStructure = async (structure) => {
-            $scope.structure = structure;
-            await $scope.structure.sync();
+            $scope.course.structure = structure;
+            await $scope.syncStructure(structure);
         };
 
         /**

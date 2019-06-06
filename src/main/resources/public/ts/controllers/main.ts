@@ -1,7 +1,7 @@
-import {_, Behaviours, idiom as lang, model, moment, ng, notify, template, angular} from 'entcore';
+import {_, Behaviours, idiom as lang, model, moment, ng, template, angular} from 'entcore';
 import {
     Course,
-    CourseOccurrence, Exclusions,
+    CourseOccurrence,
     Group,
     Structure,
     Structures,
@@ -76,6 +76,7 @@ export let main = ng.controller('EdtController',
             $scope.timeSlots.structure_id = $scope.structure.id;
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
+            await $scope.timeSlots.syncTimeSlots();
             switch (model.me.type) {
                 case USER_TYPES.student : {
                     $scope.params.group = $scope.structure.groups.all;
@@ -134,13 +135,14 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.switchStructure = (structure: Structure) => {
+            $scope.timeSlots = new TimeSlots($scope.structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
 
                 $scope.syncStructure(structure);
 
                 $scope.isAllStructure = false;
-
+                $scope.timeSlots.syncTimeSlots();
             }
             else if (structure.id == lang.translate("all.structures.id")) {
                 // $scope.syncStructure(structure);
