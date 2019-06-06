@@ -90,11 +90,25 @@ export class Course {
         });
     };
     async delete (occurrenceDate?) {
-        try {
-            let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/course/${this._id}`;
-            await http.delete(url);
-        } catch (e) {
-            notify.error('edt.notify.delete.err');
+
+        if ( occurrenceDate && occurrenceDate.length){
+            let timesToDelete = occurrenceDate;
+            try {
+                for(let i=0;i<timesToDelete.length;i++){
+                    let url = `/edt/occurrence/${moment(timesToDelete[i]).format('x')}/${this._id}`;
+                    await http.delete(url);
+                    }
+
+            } catch (e) {
+                notify.error('edt.notify.delete.err');
+            }
+        }else {
+            try {
+                let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/course/${this._id}`;
+                await http.delete(url);
+            } catch (e) {
+                notify.error('edt.notify.delete.err');
+            }
         }
     }
 

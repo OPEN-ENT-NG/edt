@@ -546,12 +546,17 @@ export let main = ng.controller('EdtController',
 
                         let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
 
+
                         $scope.editOccurrence = true;
                         let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
                         if($scope.ableToChooseEditionType(courseToDelete,start)){
                             courseToDelete.occurrenceDate =  occurrenceDate
                         }
-                        courseToDelete.timeToDelete= moment(start).format("YYYY/MM/DD");
+
+                        (!courseToDelete.timeToDelete) ?  courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
+
+                        courseToDelete.timeToDelete.push(moment(start).format("YYYY/MM/DD"));
+
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
 
@@ -565,13 +570,26 @@ export let main = ng.controller('EdtController',
 
 
                 var cancelDelete = (event) =>{
+                    let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+
                     if(event.which == 3 && $(event.currentTarget).hasClass("selected")) {
                         event.stopPropagation();
                         $(event.currentTarget).removeClass("selected");
                         let idToDelete =  $(event.currentTarget).data("id")
                         $scope.params.coursesToDelete.map((course,i) => {
                             if(course._id  === idToDelete){
-                                $scope.params.coursesToDelete.splice(i,1);
+                                let currentCourse = $scope.params.coursesToDelete[i];
+                                if( currentCourse.timeToDelete.length > 1){
+                                    currentCourse.timeToDelete.map((t,ii) => {
+                                        if (moment(start).format("YYYY/MM/DD") === t){
+                                            $scope.params.coursesToDelete[i].timeToDelete.splice(ii,1);
+                                        }
+                                    })
+
+                                }else{
+                                    $scope.params.coursesToDelete[i].timeToDelete = [];
+                                    $scope.params.coursesToDelete.splice(i,1);
+                                }
                             }
                         })
 
@@ -581,6 +599,7 @@ export let main = ng.controller('EdtController',
                         $(event.currentTarget).removeClass("cantDelete");
                     }
                     Utils.safeApply($scope);
+
                 }
 
                 //left click on icon
@@ -617,11 +636,29 @@ export let main = ng.controller('EdtController',
             $scope.show.delete_lightbox = true;
             Utils.safeApply($scope);
         };
+
+        function orderDeletes(c: any) {
+            c.timeToDelete.sort((t,tt) => {
+                if(moment(t).isAfter(moment(tt))){
+                    return 1;
+                }else if(moment(t).isBefore(moment(tt))){
+                    return -1;
+                }else
+                    return 0;
+            })
+        }
+
         $scope.deleteCourses = async () =>{
             $scope.show.delete_lightbox = false;
             $scope.params.coursesToDelete.map(async c => {
-               (c.occurrenceDate) ? await c.delete(c.timeToDelete) : await c.delete();
-                $scope.syncCourses()
+                orderDeletes(c)
+                if(c.occurrenceDate){
+                    await c.delete(c.timeToDelete);
+                }
+                else
+                    await c.delete();
+
+                $scope.syncCourses();
                 Utils.safeApply($scope);
             });
 
@@ -630,7 +667,6 @@ export let main = ng.controller('EdtController',
         $scope.updateDatas = async () => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
-
                 if($scope.params.group.length > $scope.params.oldGroup.length){
                 }
                 await $scope.syncCourses();
@@ -707,16 +743,16 @@ export let main = ng.controller('EdtController',
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
 
-                 $scope.params.group.sort((g,gg) =>{
-                     if (g.displayName && !gg.displayName){
-                         return -1;
-                     }
-                     else if(gg.displayName && !g.displayName){
-                         return 1;
-                     }else{
-                         return 0;
-                     }
-                 });
+                $scope.params.group.sort((g,gg) =>{
+                    if (g.displayName && !gg.displayName){
+                        return -1;
+                    }
+                    else if(gg.displayName && !g.displayName){
+                        return 1;
+                    }else{
+                        return 0;
+                    }
+                });
                 $scope.course = new Course({
                     structure: _.clone($scope.structure),
                     teachers: _.clone($scope.params.user),
