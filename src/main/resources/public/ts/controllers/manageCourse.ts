@@ -21,18 +21,24 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.course.timeSlots = !($scope.timeSlots) ? new TimeSlots($scope.structure.id) : $scope.timeSlots;
         $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
 
-        if ($scope.timeSlots.haveSlot()) {
-            $scope.display.freeSchedule = false;
-            $scope.display.checkbox = true;
-        }
-        else {
-            $scope.display.freeSchedule = true;
-            $scope.display.checkbox = false;
-        }
+        $scope.editTimeSlot = () => {
+            if ($scope.timeSlots.haveSlot()) {
+                $scope.display.freeSchedule = false;
+                $scope.display.checkbox = true;
+            }
+            else {
+                $scope.display.freeSchedule = true;
+                $scope.display.checkbox = false;
+            }
+            Utils.safeApply($scope);
+        };
+
+        $scope.editTimeSlot();
 
         $scope.switchStructure = async (structure) => {
             $scope.course.structure = structure;
             await $scope.syncStructure(structure);
+            $scope.editTimeSlot();
         };
 
         /**
