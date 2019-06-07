@@ -29,7 +29,7 @@ export class TimeSlots {
             if (response.status === 200) {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }
-            else if (response.status === 204) {
+            else if (response.status === 204 || response == undefined) {
                 this.all = [];
                 console.log("pas de profil défini");
             }
