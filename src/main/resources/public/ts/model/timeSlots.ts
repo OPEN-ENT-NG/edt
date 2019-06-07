@@ -30,6 +30,7 @@ export class TimeSlots {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }
             else if (response.status === 204) {
+                this.all = [];
                 console.log("pas de profil défini");
             }
         } catch (e) {
