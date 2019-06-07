@@ -101,6 +101,7 @@
   "edt.notify.exclusion.update.err" : "E005 : Erreur lors de la mise à jour de l'exclusion",
   "edt.notify.exclusion.delete.err" : "E006 : Erreur lors de la suppression de l'exclusion",
   "edt.notify.exclusion.create.err" : "E007 : Erreur lors de la création de l'exclusion",
+  "edt.error.time.slots" : "Erreur lors de la récupération des plages horaires",
   "edt.settings.exclusion.add": "Ajouter une exclusion",
   "edt.settings.exclusion.loading": "Exclusion en cours de sauvegarde",
   "edt.settings.exclusion.deletion": "Êtes vous sûr de vouloir supprimer l'exclusion",

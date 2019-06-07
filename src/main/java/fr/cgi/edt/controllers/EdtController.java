@@ -149,13 +149,15 @@ public class EdtController extends MongoDbControllerHelper {
                 String status = event.result().body().getString("status");
                 JsonObject body = event.result().body();
                 JsonArray slots = new JsonArray();
-                if ("ok".equals(status) && body.getJsonObject("result").containsKey("slots")
-                        && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
-                        slots = body.getJsonObject("result").getJsonArray("slots");
-                        Renders.renderJson(request, slots);
-                }
-                else if ("ok".equals(status) && body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
+                if ("ok".equals(status)
+                        && (body.getJsonObject("result") == null || body.getJsonObject("result").isEmpty())
+                        || (body.getJsonObject("result").getJsonArray("slots").isEmpty())) {
                     Renders.noContent(request);
+                }
+                else if ("ok".equals(status) && body.getJsonObject("result").containsKey("slots")
+                        && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
+                    slots = body.getJsonObject("result").getJsonArray("slots");
+                    Renders.renderJson(request, slots);
                 }
                 else {
                     LOGGER.error("[EDT@DefaultRegistrerService] Failed to retrieve slot profile");

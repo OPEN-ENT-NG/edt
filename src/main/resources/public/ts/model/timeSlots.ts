@@ -10,7 +10,6 @@ export class TimeSlot {
     constructor(id_structure?: string) {
         if (id_structure) this.structure_id = id_structure;
     }
-
 }
 
 export class TimeSlots {
@@ -29,12 +28,12 @@ export class TimeSlots {
             if (response.status === 200) {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }
-            else if (response.status === 204 || response == undefined) {
+            else if (response.status === 204) {
                 this.all = [];
-                console.log("pas de profil défini");
+                console.log("pas de plage définie");
             }
         } catch (e) {
-            notify.error('erreur time slots');
+            notify.error('edt.error.time.slots');
         }
     }
 
