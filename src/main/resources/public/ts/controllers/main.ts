@@ -212,6 +212,14 @@ export let main = ng.controller('EdtController',
          */
         $scope.getStudentGroup = (user: Student): Group =>  _.findWhere($scope.structure.groups.all, { externalId: user.classes[0] });
 
+        function filterCourses() {
+            $scope.structure.calendarItems.all.map((item,i) =>{
+                if(moment(item.endCourse).isBefore(item.endDate)|| !item.startMoment){
+                    $scope.structure.calendarItems.all.splice(i,1);
+                }
+            })
+        }
+
         /**
          * Get timetable bases on $scope.params object
          * @returns {Promise<void>}
@@ -292,6 +300,8 @@ export let main = ng.controller('EdtController',
             });
 
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group, $scope.structures, $scope.isAllStructure);
+
+            filterCourses();
             // $scope.structure = $scope.structures.all[0];
             $scope.calendarLoader.hide();
             await   Utils.safeApply($scope);

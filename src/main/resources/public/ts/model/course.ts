@@ -168,7 +168,7 @@ export class Course {
            let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i]);
             if (i!==0)
                 delete newCourse._id;
-            courses.all.push(newCourse.toJSON());
+            courses.all.push(newCourse.toJSON(true));
         }
         return courses
     }
