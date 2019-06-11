@@ -156,7 +156,7 @@
                 <label class="cell two twelve-mobile">
                     <i18n>edt.utils.room</i18n>
                 </label>
-                <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" ng-model="courseOccurrenceForm.roomLabels[0]"/>
+                <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" maxlength="50" ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
             </div>
 
@@ -264,7 +264,7 @@
                                         <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                                     </select>
                                 </td>
-                                <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" class="text-center remove-padding width-7"/></td>
+                                <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" maxlength="50" class="text-center remove-padding width-7"/></td>
                                 <td>
                                     <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display)" ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
