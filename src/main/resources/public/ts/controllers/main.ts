@@ -214,7 +214,7 @@ export let main = ng.controller('EdtController',
 
         function filterCourses() {
             $scope.structure.calendarItems.all.map((item,i) =>{
-                if(moment(item.endCourse).isBefore(item.endDate)|| !item.startMoment){
+                if( item && moment(item.endCourse).isBefore(item.endDate)|| item &&  !item.startMoment){
                     $scope.structure.calendarItems.all.splice(i,1);
                 }
             })
