@@ -52,7 +52,6 @@ export class CourseOccurrence {
     };
 
     isNotPastTime() : boolean{
-        console.log("T ES RENTRE LA")
        return  moment(this.startTime).isAfter(moment().add(1,'second'))
 
     }
