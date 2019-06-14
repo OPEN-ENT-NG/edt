@@ -266,14 +266,16 @@
                                 </td>
                                 <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" maxlength="50" class="text-center remove-padding width-7"/></td>
                                 <td>
-                                    <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display)" ng-click="submit_CourseOccurrence_Form()">
+                                    <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display) || !courseOccurrenceForm.isNotPastTime()" ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
                                     </button>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
-                        <div ng-if="!courseOccurrenceForm.isValidTime(course, display)" class="warning"> <i18n>error.timeAfterBefore</i18n> </div>
+                        <div ng-show="!courseOccurrenceForm.isValidTime(course, display)" class="warning"> <i18n>error.timeAfterBefore</i18n> </div>
+                        <div ng-show="!courseOccurrenceForm.isNotPastTime()" class="warning"> <i18n>error.PastDate</i18n> </div>
+
                     </div>
                 </div>
             </div>
