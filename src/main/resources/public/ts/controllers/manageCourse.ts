@@ -317,6 +317,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         /**
          * Function triggered on step 3 activation
          */
+
         $scope.isValidForm = () => {
             return $scope.course
                 && $scope.course.teachers
@@ -374,7 +375,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.isPastDate = () =>{
-          return  (moment($scope.course.startDate)
+            return  (moment($scope.course.startDate)
                 .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
                 .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
                 .isAfter(moment().add(1,'minute')));
