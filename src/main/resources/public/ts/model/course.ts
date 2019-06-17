@@ -166,7 +166,7 @@ export class Course {
     getCourseForEachOccurrence ():Courses {
         let courses = new Courses();
         for(let i = 0; i < this.courseOccurrences.length ; i++){
-           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i]);
+           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i], this.display, this.courseOccurrences);
             if (i!==0)
                 delete newCourse._id;
             courses.all.push(newCourse.toJSON(true));
