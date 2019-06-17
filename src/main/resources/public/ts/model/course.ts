@@ -32,6 +32,7 @@ export class Course {
     author: string;
     is_recurrent:boolean = undefined;
     canManage:boolean;
+    display: any;
 
     constructor (obj?: object) {
         if (obj && obj instanceof Object) {
@@ -172,12 +173,18 @@ export class Course {
         }
         return courses
     }
-    syncCourseWithOccurrence (occurrence: CourseOccurrence) :Course {
+    syncCourseWithOccurrence (occurrence, display, course) :Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+"T" +moment(occurrence.startTime).format("HH:mm"));
+        if (display.freeSchedule) {
+            this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
+            this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
+        }
+        else {
+            this.startDate = moment(moment(this.startDate).format('YYYY-MM-DD') + " " +  course.timeSlot.start.startHour);
+            this.endDate = moment(moment(this.endDate).format('YYYY-MM-DD') + " " + course.timeSlot.end.endHour);
+        }
 
-        this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+"T" +moment(occurrence.endTime).format("HH:mm"));
         return this;
     }
     isRecurrent (): boolean {

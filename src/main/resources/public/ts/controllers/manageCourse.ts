@@ -286,7 +286,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             if (!$scope.isValidForm())
                 return;
             if($scope.editOccurrence === true){
-                course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
+                course.syncCourseWithOccurrence($scope.courseOccurrenceForm, $scope.display, $scope.course);
                 await course.update($scope.occurrenceDate);
             }
             else if(course.is_recurrent){
