@@ -19,6 +19,7 @@ export class Course {
     startDate: string | object ;
     idStartSlot: string;
     idEndSlot: string;
+    timeSlot: any;
     everyTwoWeek:boolean = undefined;
     structure: Structure = null;
     structureId: string = undefined;
@@ -173,18 +174,17 @@ export class Course {
         }
         return courses
     }
-    syncCourseWithOccurrence (occurrence, display, course) :Course {
+    syncCourseWithOccurrence (occurrence) :Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        if (display.freeSchedule) {
+        if (this.display !== undefined && this.display.freeSchedule) {
             this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
             this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
         }
         else {
-            this.startDate = moment(moment(this.startDate).format('YYYY-MM-DD') + " " +  course.timeSlot.start.startHour);
-            this.endDate = moment(moment(this.endDate).format('YYYY-MM-DD') + " " + course.timeSlot.end.endHour);
+            this.startDate = moment(moment(this.startDate).format('YYYY-MM-DD') + " " +  this.timeSlot.start.startHour);
+            this.endDate = moment(moment(this.endDate).format('YYYY-MM-DD') + " " + this.timeSlot.end.endHour);
         }
-
         return this;
     }
     isRecurrent (): boolean {
