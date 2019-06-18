@@ -1,7 +1,6 @@
 import {Utils} from "../model";
 import http from "axios";
-import {toast} from "../model/toast";
-
+import {toasts} from 'entcore';
 console.log("init data");
 
 export const initData = {
@@ -34,9 +33,9 @@ export const initData = {
 
         toastHttpCall: (response) => {
             if (response.succeed) {
-                initData.that.notifications.push(new toast(response.toastMessage, 'confirm'));
+                toasts.confirm(response.toastMessage);
             } else {
-                initData.that.notifications.push(new toast(response.toastMessage, 'error'));
+                toasts.warning(response.toastMessage);
             }
             return response;
         },

@@ -1,4 +1,4 @@
-import {_, Behaviours, idiom as lang, model, moment, ng, template, angular} from 'entcore';
+import {_, Behaviours, idiom as lang, model, moment, ng, template, angular , toasts} from 'entcore';
 import {
     Course,
     CourseOccurrence,
@@ -28,7 +28,7 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
-
+        $scope.chronoEnd = true;
         async function getMainStruct() {
             let {data} =  await http.get(`/directory/user/${model.me.userId}?_=1556865888485`);
             model.me.idMainStructure = data.functions[0][1][0];
@@ -550,12 +550,11 @@ export let main = ng.controller('EdtController',
                 };
                 var prepareToDelete = (event) =>{
                     let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+                    event.stopPropagation();
 
                     if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
-                        event.stopPropagation();
                         let itemId = $(event.currentTarget).data("id");
                         $(event.currentTarget).addClass("selected");
-
                         let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
 
 
@@ -572,9 +571,14 @@ export let main = ng.controller('EdtController',
                         $scope.params.coursesToDelete.push(courseToDelete)
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
 
-                    }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment())) {
-                        event.stopPropagation();
-                        $(event.currentTarget).addClass("cantDelete");
+                    }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment()) && $scope.chronoEnd) {
+                        console.log("cc")
+                        $scope.chronoEnd = false ;
+                        setTimeout((function (){
+                            $scope.chronoEnd = true;
+                        }),100);
+                        toasts.info("edt.cantDelete.courses");
+
                     }
 
                     Utils.safeApply($scope);
