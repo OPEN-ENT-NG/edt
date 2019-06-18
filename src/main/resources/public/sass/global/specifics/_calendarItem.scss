@@ -51,11 +51,16 @@
 .schedule-item-content.selected{
   opacity: 0.33;
 }
+
 .schedule-item-content.cantDelete{
   color: #aaa  !important;
   background: #555  !important;
   border-color: #000;
   border-width: 1px;
+}
+
+.schedule-item-content {
+  padding: 3px !important;
 }
 
 .past{
