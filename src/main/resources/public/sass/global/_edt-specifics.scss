@@ -232,8 +232,6 @@ div.illustration{
   }
 }
 
-
-
 .month-day  .n-more {
   display: none;
 }
@@ -244,4 +242,12 @@ div.illustration{
 
 .border-radius-5 {
   border-radius: 5px;
+}
+
+.display-flex {
+  display: flex
+}
+
+.space-between {
+  justify-content: space-between;
 }
