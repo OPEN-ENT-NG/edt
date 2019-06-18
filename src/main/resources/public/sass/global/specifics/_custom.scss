@@ -1,3 +1,18 @@
 multi-combo .multi-combo-root-button {
   min-width: 50px;
 }
+.schedule .next-timeslots {
+  width: 100%;
+  position: relative;
+  z-index: 800;
+  height: 30px;
+  margin: 0;
+}
+.schedule .previous-timeslots {
+  width: 100%;
+  position: absolute;
+  height: 20px;
+  left: 0;
+  top: 60px;
+  z-index: 800;
+}
