@@ -1,14 +1,15 @@
 <div oncontextmenu="return false" ng-if="item.exceptionnal" class="schedule-item-content exceptionnal " data-id="[[item.course._id]]" ng-class="(!isNotPast(item)) ?  'past' : 'notpast' " >
     <div ng-if="isPersonnel()" class="display-flex space-between">
-        <div class="cell ellipsis" >[[item.course.subjectLabel]] </div>
-        <div  ng-show="isNotPast(item)" class="cell edit-icone" data-id="[[item.course._id]]" >
+        <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
+             class="cell ten ellipsis" >[[item.course.subjectLabel]] </div>
+        <div  ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]" >
             <i class="edit margin-right-md right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
                 <div ng-hide="true">[[item.endDate]]</div>
             </i> </div>
     </div>
     <div ng-if="!isPersonnel()">
-        <div class="cell ellipsis">[[item.course.subjectLabel]] </div>
+        <div class="cell ten ellipsis">[[item.course.subjectLabel]] </div>
     </div>
 
     <em class="metadata">
@@ -27,15 +28,16 @@
 </div>
 <div oncontextmenu="return false" ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"  ng-class="(!isNotPast(item)) ?  'past' : 'notpast' " >
     <div ng-if="isPersonnel()" class="display-flex space-between">
-        <div class="cell ellipsis" >[[item.course.subjectLabel]] </div>
-        <div ng-show="isNotPast(item)" class="cell edit-icone" data-id="[[item.course._id]]" >
+        <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
+             class="cell ten ellipsis" >[[item.course.subjectLabel]] </div>
+        <div ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]" >
             <i class="edit margin-right-md right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
                 <div ng-hide="true">[[item.endDate]]</div>
             </i> </div>
     </div>
     <div ng-if="!isPersonnel()">
-        <div class="cell ellipsis">[[item.course.subjectLabel]] </div>
+        <div class="cell ten ellipsis">[[item.course.subjectLabel]] </div>
     </div>
 
     <em class="metadata">
