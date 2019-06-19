@@ -524,13 +524,16 @@ export let main = ng.controller('EdtController',
                     if(e.which === 3){
                         return;
                     }
-                    if($(e.target).hasClass("notpast")) {
+                    if($(e.target).hasClass("notpast") || $(e.target).hasClass("inside-schedule")) {
+                        console.log("cc")
                         $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
                         startPosition = $dragging.offset();
                         let calendar = $('calendar');
                         calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
                         calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
                     }else{
+                        console.log("pas cc")
+
                         return;
                     }
                 };
@@ -550,9 +553,9 @@ export let main = ng.controller('EdtController',
                 };
                 var prepareToDelete = (event) =>{
                     let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
-                    event.stopPropagation();
 
                     if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
+                        event.stopPropagation();
                         let itemId = $(event.currentTarget).data("id");
                         $(event.currentTarget).addClass("selected");
                         let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
@@ -572,7 +575,7 @@ export let main = ng.controller('EdtController',
                         $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
 
                     }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment()) && $scope.chronoEnd) {
-                        console.log("cc")
+                        event.stopPropagation();
                         $scope.chronoEnd = false ;
                         setTimeout((function (){
                             $scope.chronoEnd = true;
@@ -582,7 +585,7 @@ export let main = ng.controller('EdtController',
                     }
 
                     Utils.safeApply($scope);
-                }
+                };
 
 
                 var cancelDelete = (event) =>{
