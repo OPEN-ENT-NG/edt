@@ -149,6 +149,10 @@ export class Course {
            o.endDate = moment(this.endDate).day( this.dayOfWeek );
            o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
            o.endDate = moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
+           if(moment(o.endDate).isAfter(moment(this.endDate)))
+               o.endDate = moment(o.endDate).add(-7,"days");
+
+
        }else{
            let date = moment(this.startDate).format('YYYY-MM-DD');
            o.startDate = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
@@ -172,6 +176,7 @@ export class Course {
                 delete newCourse._id;
             courses.all.push(newCourse.toJSON(true));
         }
+        console.log(courses.all)
         return courses
     }
     syncCourseWithOccurrence (occurrence) :Course {
