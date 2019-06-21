@@ -801,6 +801,9 @@ export let main = ng.controller('EdtController',
                 }
                 template.open('main', 'manage-course');
                 Utils.safeApply($scope);
+            },
+            importSts: () => {
+                template.open('main', 'sniplet-sts');
             }
         });
     }]);
