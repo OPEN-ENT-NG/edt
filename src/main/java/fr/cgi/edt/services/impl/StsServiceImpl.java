@@ -383,10 +383,22 @@ public class StsServiceImpl implements StsService {
                 JsonArray datesFromPeriodes = periodes.getJsonArray(periodeFromCourse);
                 for (int j = 0; j < datesFromPeriodes.size(); j++) {
                     try {
+                        JsonObject tmpCours = new JsonObject()
+                                .put("structureId", finalCourse.getString("structureId"))
+                                .put("teacherIds", finalCourse.getJsonArray("teacherIds"))
+                                .put("subjectId", finalCourse.getString("subjectId"))
+                                .put("classes", finalCourse.getJsonArray("classes"))
+                                .put("dayOfWeek", finalCourse.getString("dayOfWeek"))
+                                .put("source", "STS");
+
+                        if(finalCourse.getJsonArray("groups") != null){
+                            tmpCours.put("groups", finalCourse.getJsonArray("groups"));
+                        }
+
                         JsonObject dateSchedules = datesFromPeriodes.getJsonObject(j);
-                        finalCourse.put("startDate", dateSchedules.getString("dateDebut") + "T" + startTimeFinal);
-                        finalCourse.put("endDate", dateSchedules.getString("dateFin") + "T" + endTimeFinal);
-                        arrayFormattedCourses.add(finalCourse);
+                        tmpCours.put("startDate", dateSchedules.getString("dateDebut") + "T" + startTimeFinal);
+                        tmpCours.put("endDate", dateSchedules.getString("dateFin") + "T" + endTimeFinal);
+                        arrayFormattedCourses.add(tmpCours);
 
                     } catch (Exception e) {
                     }
