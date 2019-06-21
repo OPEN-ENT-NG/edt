@@ -179,16 +179,16 @@ export class Course {
         console.log(courses.all)
         return courses
     }
-    syncCourseWithOccurrence (occurrence) :Course {
+    syncCourseWithOccurrence (occurrence, display, courseOcurrence) :Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        if (this.display !== undefined && this.display.freeSchedule) {
-            this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
-            this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
-        }
-        else {
+        if (this.display && !this.display.freeSchedule) {
             this.startDate = moment(moment(this.startDate).format('YYYY-MM-DD') + " " +  this.timeSlot.start.startHour);
             this.endDate = moment(moment(this.endDate).format('YYYY-MM-DD') + " " + this.timeSlot.end.endHour);
+        }
+        else {
+            this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
+            this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
         }
         return this;
     }
