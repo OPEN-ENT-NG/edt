@@ -378,10 +378,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 return  moment($scope.course.startDate).format("HH:MM)") < $scope.course.timeSlot.start.startHour;
             }
             else
-            return (moment($scope.course.startDate)
-                .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
-                .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
-                .isAfter(moment().add(1,'minute')));
+            return moment($scope.course.startDate).format("HH:MM") < moment($scope.courseOccurrenceForm.startTime).format("HH:MM");
         };
 
         $scope.tryDropCourse = () => {
