@@ -2,7 +2,7 @@
     <div ng-if="isPersonnel()" class="display-flex space-between">
         <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
              class="cell ten ellipsis" >[[item.course.subjectLabel]] </div>
-        <div  ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]" >
+        <div ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]" >
             <i class="edit margin-right-md right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
                 <div ng-hide="true">[[item.endDate]]</div>
