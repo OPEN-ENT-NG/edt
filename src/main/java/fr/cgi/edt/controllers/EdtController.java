@@ -4,7 +4,9 @@ import fr.cgi.edt.security.ManageCourseWorkflowAction;
 import fr.cgi.edt.security.ManageSettingsWorkflowAction;
 import fr.cgi.edt.services.EdtService;
 import fr.cgi.edt.services.UserService;
+import fr.cgi.edt.services.StsService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
+import fr.cgi.edt.services.impl.StsServiceImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
@@ -22,9 +24,13 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserUtils;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+
+import java.io.File;
+import java.util.UUID;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
 import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
@@ -36,7 +42,6 @@ public class EdtController extends MongoDbControllerHelper {
 
     private final EdtService edtService;
     private final UserService userService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
 
     private static final String
@@ -167,4 +172,22 @@ public class EdtController extends MongoDbControllerHelper {
             });
     }
 
+    @Post("/sts")
+    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @ApiDoc("Import sts file")
+    public void importSts (final HttpServerRequest request) {
+        StsService stsService = new StsServiceImpl(vertx, eb, log);
+        final String importId = UUID.randomUUID().toString();
+        final String path = config.getString("import-folder", "/tmp") + File.separator + importId;
+        stsService.uploadImport(vertx, request, path, new Handler<AsyncResult>() {
+            @Override
+            public void handle(AsyncResult event) {
+                if (event.succeeded()) {
+                    Handler<Either<String, JsonObject>> handler = DefaultResponseHandler.defaultResponseHandler(request);
+                    stsService.readSts(vertx, path, handler);
+                } else
+                    badRequest(request, event.cause().getMessage());
+            }
+        });
+    }
 }

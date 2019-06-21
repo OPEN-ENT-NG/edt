@@ -137,5 +137,11 @@
   "edt.schedule.delete": "Supprimer des cours",
   "edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?",
   "error.PastDate": "La date choisie ne peut être antérieure à aujourd'hui",
-  "edt.cantDelete.courses":"Les cours passés ne peuvent pas être supprimés "
+  "edt.cantDelete.courses":"Les cours passés ne peuvent pas être supprimés ",
+  "edt.admin.importsts.title": "Import d'emploi du temps via STS",
+  "edt.admin.importsts.submit": "Envoyer les fichiers",
+  "edt.admin.importsts.fileupload": "Veuillez importer les fichiers sts-emp et emp-sts",
+  "edt.admin.importsts.subjectsNotFound": "Sujet non trouvés",
+  "edt.admin.importsts.teachersNotFound": "Professeurs non trouvés",
+  "edt.admin.importsts.coursesWritten": "Nombre de cours créés"
 }
