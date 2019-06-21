@@ -4,6 +4,7 @@ import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.joda.time.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,10 +43,22 @@ public class DateHelper {
         calendarOccurrence.add(Calendar.DAY_OF_WEEK, 1);
         return calendarOccurrence;
     }
+    public Date addDays (Date dt, int days){
+        Calendar c = Calendar.getInstance();
+        c.setTime(dt);
+        c.add(Calendar.DATE, days);
+        return c.getTime();
+    }
 
     int daysBetween(Calendar startDate, Calendar endDate) {
         long end = endDate.getTimeInMillis();
         long start = startDate.getTimeInMillis();
+        return (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
+    }
+
+    public int daysBetween(Date startDate, Date endDate) {
+        long end = endDate.getTime();
+        long start = startDate.getTime();
         return (int) TimeUnit.MILLISECONDS.toDays(Math.abs(end - start));
     }
 
@@ -55,7 +68,7 @@ public class DateHelper {
         return this.daysBetween(start, end);
     }
 
-    public Date getDate(String dateString,SimpleDateFormat dateFormat ){
+    public Date getDate(String dateString, SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
             date =  dateFormat.parse(dateString);
@@ -117,5 +130,15 @@ public class DateHelper {
         int daysNeeded = 7 - getDayOfWeek(date.getTime());
         date.add(Calendar.DATE, daysNeeded);
         return DATE_FORMATTER.format(date.getTime());
+    }
+
+    public String getDateString(Date date) {
+        String result = null;
+        try {
+            result = SIMPLE_DATE_FORMATTER.format(date);
+        } catch (Exception e) {
+            LOGGER.error("error when casting date: ", e);
+        }
+        return result;
     }
 }

@@ -27,7 +27,8 @@ routes.define(($routeProvider) => {
             });
 
     }
-    $routeProvider.otherwise({
-        redirectTo: '/'
+    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage))
+    $routeProvider.when('/importSts', {
+            action: 'importSts'
     });
 });

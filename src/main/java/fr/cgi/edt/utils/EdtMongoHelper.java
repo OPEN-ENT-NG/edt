@@ -45,6 +45,14 @@ public class EdtMongoHelper extends MongoDbCrudService {
         }
     }
 
+    public void addCourses(JsonArray arrayCourses, Handler<String> handler) {
+        try {
+            mongo.insert(this.collection, arrayCourses, jsonObjectMessage -> handler.handle("Executed"));
+        } catch (Exception e) {
+            handler.handle("mongoinsertfailed");
+        }
+    }
+
     public void manageCourses(final JsonArray values, final Handler<Either<String, JsonObject>> handler) {
         final ArrayList<String> ids = new ArrayList<>();
         final Boolean[] onError = {false};
