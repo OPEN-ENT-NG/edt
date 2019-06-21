@@ -359,9 +359,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         )
                     )
                 )
-                &&
-                $scope.isPastDate()
-                ;
+                && $scope.isPastDate();
         };
 
 
@@ -375,8 +373,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             else return true;
         };
 
-        $scope.isPastDate = () =>{
-            return  (moment($scope.course.startDate)
+        $scope.isPastDate = () => {
+            if ($scope.course.timeSlot.start && !$scope.display.freeSchedule) {
+                return  moment($scope.course.startDate).format("HH:MM)") < $scope.course.timeSlot.start.startHour;
+            }
+            else
+            return (moment($scope.course.startDate)
                 .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
                 .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
                 .isAfter(moment().add(1,'minute')));
