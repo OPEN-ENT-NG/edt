@@ -357,6 +357,13 @@ public class StsServiceImpl implements StsService {
             }
         }
 
+        if (subjects != null && subjects.containsKey(subjectFromCourse)) {
+            JsonObject subject = subjects.getJsonObject(subjectFromCourse);
+            if(subject != null && subject.containsKey("id")){
+                finalCourse.put("subjectId", subject.getString("id"));
+            }
+        }
+
         if (classesFromCourse != null && !classesFromCourse.isEmpty()) {
             finalCourse.put("classes", classesFromCourse);
         }
@@ -370,7 +377,8 @@ public class StsServiceImpl implements StsService {
 
 
         if (finalCourse.containsKey("structureId") && finalCourse.containsKey("teacherIds") && !finalCourse.getJsonArray("teacherIds").isEmpty()
-                && finalCourse.containsKey("dayOfWeek") && (finalCourse.containsKey("classes") || finalCourse.containsKey("group"))) {
+                && finalCourse.containsKey("subjectId")  && finalCourse.containsKey("dayOfWeek") &&
+                (finalCourse.containsKey("classes") || finalCourse.containsKey("group"))) {
             if (periodes != null && periodeFromCourse != null && periodes.containsKey(periodeFromCourse)) {
                 JsonArray datesFromPeriodes = periodes.getJsonArray(periodeFromCourse);
                 for (int j = 0; j < datesFromPeriodes.size(); j++) {
