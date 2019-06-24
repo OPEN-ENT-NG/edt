@@ -374,17 +374,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.isPastDate = () => {
-            if ($scope.course.timeSlot.start && !$scope.display.freeSchedule) {
-                return (moment($scope.course.startDate)
-                    .add(moment($scope.course.timeSlot).minutes(),'minutes')
-                    .add(moment($scope.course.timeSlot.start).hours(),'hours')
-                    .isAfter(moment().add(1,'minute')))
-            }
-            else
-                return (moment($scope.course.startDate)
-                .add(moment($scope.courseOccurrenceForm.startTime).minutes(),'minutes')
-                .add(moment($scope.courseOccurrenceForm.startTime).hours(),'hours')
-                .isAfter(moment().add(1,'minute')))
+            if (moment().format('L') === moment($scope.course.startDate).format('L')) {
+                if ($scope.course.timeSlot.start && !$scope.display.freeSchedule) {
+                    return moment().format('LT') < $scope.course.timeSlot.start.startHour;
+                } else
+                    return moment().format('lll') < (moment($scope.courseOccurrenceForm.startTime).format('lll'))
+            } else return true;
         };
 
         $scope.tryDropCourse = () => {
