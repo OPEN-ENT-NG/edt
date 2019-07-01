@@ -1,5 +1,5 @@
     {
-      "name": "fr.cgi~edt~1.1-SNAPSHOT",
+      "name": "fr.cgi~edt~1.1-BETA7",
       "config": {
         "main" : "fr.cgi.edt.Edt",
         "port" : 8168,
