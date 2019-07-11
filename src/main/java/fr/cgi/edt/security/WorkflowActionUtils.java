@@ -6,6 +6,9 @@ import java.util.List;
 
 public class WorkflowActionUtils {
 
+    static public final String VIESCO_SETTING_INIT_DATA = "viesco.setting.initalisation.data";
+    static public final String TIME_SLOTS_READ = "time.slots.read";
+
     /**
      * Check if user got provided workflow action
      * @param user user

@@ -1,7 +1,8 @@
 package fr.cgi.edt.controllers;
 
-import fr.cgi.edt.security.ManageCourseWorkflowAction;
-import fr.cgi.edt.security.ManageSettingsWorkflowAction;
+import fr.cgi.edt.security.WorkflowActionUtils;
+import fr.cgi.edt.security.workflow.ManageCourseWorkflowAction;
+import fr.cgi.edt.security.workflow.ManageSettingsWorkflowAction;
 import fr.cgi.edt.services.EdtService;
 import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.StsService;
@@ -24,7 +25,6 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserUtils;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -139,7 +139,7 @@ public class EdtController extends MongoDbControllerHelper {
     }
 
     @Get("/time-slots")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @SecuredAction(value = WorkflowActionUtils.TIME_SLOTS_READ, type = ActionType.WORKFLOW)
     public void getSlots(final HttpServerRequest request) {
         if (!request.params().contains("structureId")){
             badRequest(request);
