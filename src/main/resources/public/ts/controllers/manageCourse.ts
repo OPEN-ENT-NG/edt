@@ -21,6 +21,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.course.timeSlots = !($scope.timeSlots) ? new TimeSlots($scope.structure.id) : $scope.timeSlots;
         $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
 
+        $scope.deleteOnlyOneCourse = true;
+
         $scope.editTimeSlot = () => {
             if ($scope.timeSlots.haveSlot()) {
                 $scope.display.freeSchedule = false;
@@ -374,7 +376,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.isPastDate = () => {
-            if (moment(moment($scope.course.startDate).format('L')).isSame(moment(moment().format('L')))) {
+            if ((moment($scope.course.startDate).format('L')) === moment(moment().format('L'))._i) {
                 if($scope.course.is_recurrent) {
                     return moment($scope.courseOccurrenceForm.startTime).isAfter(moment());
                 }
@@ -394,9 +396,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             $scope.openedLightbox = true;
         };
 
-        $scope.dropCourse = async (course: Course ) => {
+        $scope.dropCourse = async (course: Course, deleteOnlyOneCourse) => {
             if( course.canManage) {
-                $scope.editOccurrence ? await course.delete($scope.occurrenceDate):  await course.delete();
+                $scope.editOccurrence ? await course.delete($scope.occurrenceDate, deleteOnlyOneCourse):  await course.delete();
                 delete  $scope.course;
                 $scope.goTo('/');
                 $scope.syncCourses();

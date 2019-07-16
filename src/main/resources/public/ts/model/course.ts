@@ -91,20 +91,18 @@ export class Course {
             }
         });
     };
-    async delete (occurrenceDate?) {
-
-        if ( occurrenceDate && occurrenceDate.length){
+    async delete (occurrenceDate?, deleteOnlyOneCourses?) {
+        if (occurrenceDate && occurrenceDate.length && deleteOnlyOneCourses == undefined){
             let timesToDelete = occurrenceDate;
             try {
-                for(let i=0;i<timesToDelete.length;i++){
+                for (let i = 0; i < timesToDelete.length; i++) {
                     let url = `/edt/occurrence/${moment(timesToDelete[i]).format('x')}/${this._id}`;
                     await http.delete(url);
-                    }
-
+                }
             } catch (e) {
                 notify.error('edt.notify.delete.err');
             }
-        }else {
+        } else {
             try {
                 let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/course/${this._id}`;
                 await http.delete(url);
@@ -176,7 +174,6 @@ export class Course {
                 delete newCourse._id;
             courses.all.push(newCourse.toJSON(true));
         }
-        console.log(courses.all)
         return courses
     }
     syncCourseWithOccurrence (occurrence, display, courseOcurrence) :Course {
