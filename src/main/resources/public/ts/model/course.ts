@@ -92,8 +92,9 @@ export class Course {
         });
     };
     async delete (occurrenceDate?, deleteOnlyOneCourses?) {
-        if (occurrenceDate && occurrenceDate.length){
-            let timesToDelete = occurrenceDate;
+        let timesToDelete = occurrenceDate;
+
+        if (occurrenceDate && occurrenceDate.length && !(typeof timesToDelete === "string")){
             try {
                 for (let i = 0; i < timesToDelete.length; i++) {
                     let url = `/edt/occurrence/${moment(timesToDelete[i]).format('x')}/${this._id}`;
