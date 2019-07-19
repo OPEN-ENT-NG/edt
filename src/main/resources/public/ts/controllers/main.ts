@@ -525,7 +525,6 @@ export let main = ng.controller('EdtController',
                         return;
                     }
                     if($(e.target).hasClass("notpast") || $(e.target).hasClass("inside-schedule")) {
-                        console.log("cc")
                         $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
                         startPosition = $dragging.offset();
                         let calendar = $('calendar');
