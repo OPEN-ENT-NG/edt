@@ -92,7 +92,7 @@ export class Course {
         });
     };
     async delete (occurrenceDate?, deleteOnlyOneCourses?) {
-        if (occurrenceDate && occurrenceDate.length && deleteOnlyOneCourses == undefined){
+        if (occurrenceDate && occurrenceDate.length){
             let timesToDelete = occurrenceDate;
             try {
                 for (let i = 0; i < timesToDelete.length; i++) {
