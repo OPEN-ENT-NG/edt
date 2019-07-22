@@ -531,8 +531,6 @@ export let main = ng.controller('EdtController',
                         calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
                         calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
                     }else{
-                        console.log("pas cc")
-
                         return;
                     }
                 };
