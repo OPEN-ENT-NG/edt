@@ -80,29 +80,27 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
     public void deleteOccurrence(String id, String dateOccurrence,  Handler<Either<String, JsonObject>> handler  ){
         final JsonObject matches = new JsonObject().put("_id", id);
+        Calendar occurrenceDate = dateHelper.longToCalendar(Long.parseLong(dateOccurrence));
         mongo.findOne(this.collection, matches ,  result -> {
             if ("ok".equals(result.body().getString(STATUS))) {
                 JsonObject oldCourse = result.body().getJsonObject("result");
                 Boolean everyTwoWeek = (oldCourse.containsKey("everyTwoWeek"))? oldCourse.getBoolean("everyTwoWeek") : false;
-//                if (everyTwoWeek == true) {
-//                    oldCourse.put(START_DATE, dateHelper.goToNextFirstDayOfWeek(dateHelper.addDaysToDate(oldCourse.getString(START_DATE), 14)));//go to the firt day in two week.
-//                    if(dateHelper.daysBetween(oldCourse.getString(START_DATE), oldCourse.getString(END_DATE)) < 0){
-//                        oldCourse.put(START_DATE, oldCourse.getString(END_DATE));
-//                    }
-//                }
+                Boolean isLastOccurence = false;
 
-                if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence,everyTwoWeek)) {
+                if (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(occurrenceDate.getTime())
+                        || everyTwoWeek && (dateHelper.getWeekOfYear(oldCourse.getString(END_DATE)) == dateHelper.getWeekOfYear(occurrenceDate.getTime()) + 1)) {
+                    isLastOccurence = true;
+                }
+
+                if (getCourseEditOccurrenceAbility(oldCourse, dateOccurrence, everyTwoWeek)) {
                     JsonObject newCourse = new JsonObject(oldCourse.toString());
                     newCourse.remove("_id");
-                    Calendar occurrenceDate = dateHelper.longToCalendar(Long.parseLong(dateOccurrence));
                     Calendar oldCourseStart = dateHelper.lastOccurrenceDate(oldCourse);
                     if((dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE)))
-                            .equals(dateHelper.getCombineDate(oldCourseStart.getTime(), oldCourse.getString(START_DATE)))
-                    || (dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE)))
                             .equals(dateHelper.getCombineDate(oldCourseStart.getTime(), oldCourse.getString(START_DATE))))
-                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence,everyTwoWeek), true, everyTwoWeek, handler);
+                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence, everyTwoWeek, isLastOccurence), isLastOccurence, true, handler);
                     else
-                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse ,dateOccurrence,everyTwoWeek), false, everyTwoWeek, handler);
+                        excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence, everyTwoWeek, isLastOccurence), isLastOccurence, false, handler);
                 }else {
                     LOGGER.error("can't update this occurrence");
                     handler.handle(new Either.Left<>("can't update this occurrence"));
@@ -182,7 +180,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
                     newCourse.remove("_id");
                     course.remove("_id");
 
-                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence, everyTwoWeek), isLastOCcurence,
+                    excludeOccurrenceFromCourse(oldCourse, newCourse, getDatesForExcludeOccurrence(oldCourse, newCourse, dateOccurrence, everyTwoWeek, isLastOCcurence), isLastOCcurence,
                             (course.containsKey(EVERY_TWO_WEEK))
                                     ? course.getBoolean(EVERY_TWO_WEEK)
                                     : false, stringJsonObjectEither -> mongo.save(collection, course, res -> {
@@ -352,7 +350,7 @@ public class EdtMongoHelper extends MongoDbCrudService {
         splitDates.put("endTime", dateHelper.DATE_FORMATTER.format( endCalendarDate.getTime()));
         return splitDates;
     }
-    private JsonObject getDatesForExcludeOccurrence( JsonObject oldCourse,JsonObject newCourse, String date, Boolean everyTwoWeek ) {
+    private JsonObject getDatesForExcludeOccurrence(JsonObject oldCourse,JsonObject newCourse, String date, Boolean everyTwoWeek, Boolean isLastOCcurence) {
         JsonObject splitDates = new JsonObject();
         Calendar occurrenceDate  = dateHelper.longToCalendar(Long.parseLong(date));
         Calendar oldCourseEnd = Calendar.getInstance();
@@ -361,18 +359,17 @@ public class EdtMongoHelper extends MongoDbCrudService {
         Calendar newCourseEnd = dateHelper.lastOccurrenceDate(newCourse);
         oldCourseEnd.setTime(dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(END_DATE)));
         newCourseStart.setTime(dateHelper.getCombineDate(occurrenceDate.getTime(), oldCourse.getString(START_DATE)));
-//        if (everyTwoWeek) {
-//            oldCourseEnd.add(Calendar.DAY_OF_WEEK, -14);
-//        } else {
-//            oldCourseEnd.add(Calendar.DAY_OF_WEEK, -7);
-//        }
-//        if (everyTwoWeek) {
-//            newCourseStart.add(Calendar.DAY_OF_WEEK, +14);
-//        } else {
-//            newCourseStart.add(Calendar.DAY_OF_WEEK, +7);
-//        }
-        oldCourseEnd.add(Calendar.DAY_OF_WEEK, -7);
-        newCourseStart.add(Calendar.DAY_OF_WEEK, +7);
+
+        if (everyTwoWeek && !isLastOCcurence) {
+            oldCourseEnd.add(Calendar.DAY_OF_WEEK, -14);
+        } else {
+            oldCourseEnd.add(Calendar.DAY_OF_WEEK, -7);
+        }
+        if (everyTwoWeek && !isLastOCcurence) {
+            newCourseStart.add(Calendar.DAY_OF_WEEK, +14);
+        } else {
+            newCourseStart.add(Calendar.DAY_OF_WEEK, +7);
+        }
         splitDates.put("oldEndTime", dateHelper.DATE_FORMATTER.format( oldCourseEnd.getTime()));
         splitDates.put("oldStartTime", dateHelper.DATE_FORMATTER.format( oldCourseStart.getTime()));
         splitDates.put("newEndTime",dateHelper.DATE_FORMATTER.format( newCourseEnd.getTime()));
