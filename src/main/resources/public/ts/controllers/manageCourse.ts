@@ -337,27 +337,29 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && $scope.course.timeSlot.end !== undefined
                     ) && ($scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour)
                 )
-                && ( $scope.course.subjectId !== lang.translate("exceptionnal.id")
+                && ($scope.course.subjectId !== lang.translate("exceptionnal.id")
                     || ( $scope.course.subjectId === lang.translate("exceptionnal.id")
                         && $scope.course.exceptionnal
                         && $scope.course.exceptionnal.length > 0
-                        && $scope.course.exceptionnal !== " ") )
+                        && $scope.course.exceptionnal !== " ")
+                )
                 && (
-                    (
-                        $scope.course.is_recurrent
+                    ($scope.course.is_recurrent
                         && $scope.course.courseOccurrences
                         && $scope.course.courseOccurrences.length > 0
                         && Utils.isValidDate($scope.course.startDate, $scope.course.endDate)
                     )
                     ||
                     (!$scope.course.is_recurrent
-                        && ($scope.display.freeSchedule
+                        && (
+                            ($scope.display.freeSchedule
                             && isNaN($scope.courseOccurrenceForm.startTime._d)
                             && isNaN($scope.courseOccurrenceForm.endTime._d)
                         )
                         || (!$scope.display.freeSchedule
                             && $scope.course.timeSlot.start !== undefined
                             && $scope.course.timeSlot.end !== undefined
+                        )
                         )
                     )
                 )
