@@ -136,6 +136,15 @@ export let main = ng.controller('EdtController',
 
         $scope.switchStructure = (structure: Structure) => {
             $scope.timeSlots = new TimeSlots($scope.structure.id);
+            $scope.params = {
+                user: [],
+                group: [],
+                oldGroup:[],
+                oldUser: [],
+                coursesToDelete:[],
+                updateItem: null,
+                dateFromCalendar: null
+            };
             if (structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
 
@@ -239,11 +248,8 @@ export let main = ng.controller('EdtController',
             }
 
             if (!isUpdateData && $scope.isTeacher()) {
-                let found = _.find($scope.structure.teachers.all, function (teacher) {
-                    return teacher.id == model.me.userId;
-                });
-                if (found && $scope.params.user.indexOf(found) == -1)
-                    $scope.params.user.push(found);
+                const {userId, username} = model.me;
+                $scope.params.user =  [{id: userId, displayName: username}];
             }
 
             $scope.calendarLoader.display();

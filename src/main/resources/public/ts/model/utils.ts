@@ -72,7 +72,7 @@ export class Utils {
     }
 
     static getLastCalendarDay () :any {
-        return moment(model.calendar.firstDay).add(1, model.calendar.increment+'s');
+        return moment(model.calendar.firstDay).endOf('week');
     }
 
     static isCourseInExclusions(course, exclusions): boolean {

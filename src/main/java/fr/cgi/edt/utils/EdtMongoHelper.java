@@ -1,6 +1,5 @@
 package fr.cgi.edt.utils;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.EventBus;
