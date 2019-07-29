@@ -171,7 +171,7 @@ export class CalendarItems {
                                 }
                             }
                         }
-                    })
+                    });
                     return item;
                 })
             }
