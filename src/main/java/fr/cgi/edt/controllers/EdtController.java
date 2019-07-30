@@ -22,6 +22,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.http.filter.ResourceFilter;
+import org.entcore.common.http.filter.Trace;
 import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.user.UserUtils;
@@ -83,6 +84,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Post("/course")
     @SecuredAction(modify)
+    @Trace("POST_COURSE")
     @ApiDoc("Create a course with 1 or more occurrences")
     public void create(final HttpServerRequest request) {
         RequestUtils.bodyToJsonArray(request, body -> edtService.create(body, getServiceHandler(request)));
@@ -90,6 +92,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Put("/course")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace("PUT_COURSE")
     @ResourceFilter(ManageCourseWorkflowAction.class)
     @ApiDoc("Update course")
     public void update (final HttpServerRequest request) {
@@ -98,6 +101,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Put("/occurrence/:timestamp")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace("PUT_OCCURRENCE")
     @ResourceFilter(ManageCourseWorkflowAction.class)
     @ApiDoc("Update course occurrence")
     public void updateOccurrence (final HttpServerRequest request) {
@@ -116,6 +120,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Delete("/course/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace("DELETE_COURSE")
     @ResourceFilter(ManageSettingsWorkflowAction.class)
     @ApiDoc("Delete a course")
     public void delete (final HttpServerRequest request) {
@@ -130,6 +135,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Delete("/occurrence/:timestamp/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace("DELETE_OCCURRENCE")
     @ResourceFilter(ManageCourseWorkflowAction.class)
     @ApiDoc("delete course occurrence")
     public void deleteOccurrence (final HttpServerRequest request) {
@@ -174,6 +180,7 @@ public class EdtController extends MongoDbControllerHelper {
 
     @Post("/sts")
     @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
+    @Trace("POST_STS")
     @ApiDoc("Import sts file")
     public void importSts (final HttpServerRequest request) {
         StsService stsService = new StsServiceImpl(vertx, eb, log);
