@@ -5,8 +5,6 @@ import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from "./structure";
 import {Moment} from "moment";
 
-
-
 export class Course {
     _id: string;
     classes: string[] = [];
@@ -29,8 +27,6 @@ export class Course {
     courseOccurrences : CourseOccurrence[] = [];
     created: string = '';
     modified: string = '';
-    lastUser: string;
-    author: string;
     is_recurrent:boolean = undefined;
     canManage:boolean;
     display: any;
@@ -52,7 +48,7 @@ export class Course {
     async update (occurrenceDate?) {
         try {
             let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}` : '/edt/course';
-            await http.put(url, [this.toJSON(false)]);
+            await http.put(url, [this.toJSON()]);
             return;
         } catch (e) {
             notify.error('edt.notify.update.err');
@@ -60,7 +56,7 @@ export class Course {
     }
     async create () {
         try {
-            await http.post('/edt/course', [this.toJSON(true)]);
+            await http.post('/edt/course', [this.toJSON()]);
             return;
         } catch (e) {
             notify.error('edt.notify.create.err');
@@ -113,7 +109,7 @@ export class Course {
         }
     }
 
-    toJSON (isNew) {
+    toJSON () {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
@@ -133,13 +129,6 @@ export class Course {
             o.structureId = this.structure.id;
         }
 
-        if(isNew){
-            o.created = moment();
-            o.author = model.me.login
-        }else {
-            o.created = this.created;
-            o.author = this.author;
-        }
        if( this.is_recurrent ){
            if(this.dayOfWeek - moment(this.startDate).day() < 0)
                o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day() + 7);
@@ -173,7 +162,7 @@ export class Course {
            let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i], this.display, this.courseOccurrences);
             if (i!==0)
                 delete newCourse._id;
-            courses.all.push(newCourse.toJSON(true));
+            courses.all.push(newCourse.toJSON());
         }
         return courses
     }
@@ -284,4 +273,4 @@ export class Courses {
             notify.error('edt.notify.update.err');
         }
     }
-    }
+}
