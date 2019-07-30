@@ -136,15 +136,6 @@ export let main = ng.controller('EdtController',
 
         $scope.switchStructure = (structure: Structure) => {
             $scope.timeSlots = new TimeSlots($scope.structure.id);
-            $scope.params = {
-                user: [],
-                group: [],
-                oldGroup:[],
-                oldUser: [],
-                coursesToDelete:[],
-                updateItem: null,
-                dateFromCalendar: null
-            };
             if (structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
 
@@ -236,12 +227,12 @@ export let main = ng.controller('EdtController',
         $scope.syncCourses = async () => {
             let arrayIds =[];
             $scope.params.coursesToDelete = [];
-            if (!isUpdateData && $scope.isRelative()) {
-                if($scope.child){
-                    arrayIds.push($scope.child.idClasses)
-                }else{
-                    arrayIds =   model.me.classes
 
+            if (!isUpdateData && $scope.isRelative()) {
+                if($scope.child) {
+                    arrayIds.push($scope.child.idClasses)
+                } else {
+                    arrayIds =   model.me.classes
                 }
                 let groups = $scope.structure.groups.all;
                 $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
@@ -278,10 +269,7 @@ export let main = ng.controller('EdtController',
                     });
                 });
 
-
-
-
-            if($scope.params.group.length > 0){
+            if($scope.params.group.length > 0) {
                 await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
                 $scope.params.deletedGroups.groupsDeleted.map(g =>{
                     $scope.params.group.map(gg  => {
