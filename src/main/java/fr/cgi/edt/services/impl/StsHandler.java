@@ -6,6 +6,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import static fr.cgi.edt.sts.STSFields.*;
 import static fr.wseduc.webutils.Utils.isNotEmpty;
 
 public class StsHandler extends DefaultHandler {
@@ -73,50 +74,50 @@ public class StsHandler extends DefaultHandler {
 
         switch (localName) {
 
-            case "EDT_STS":
+            case EDT_STS:
                 fileType = "EDT_STS";
                 break;
-            case "STS_EDT":
+            case STS_EDT:
                 fileType = "STS_EDT";
                 break;
 
 
-            case "ALTERNANCE":
+            case ALTERNANCE:
                 currentEntityType = localName;
                 currentEntity = o;
                 alternanceMapping = new JsonObject();
                 tmpMapping = new JsonArray();
                 break;
 
-            case "DIVISION":
+            case DIVISION:
                 currentEntityType = localName;
                 currentEntity = o;
                 currentDivision = new JsonArray();
-                currentDivision.add(currentEntity.getString("CODE"));
-                currentRegroupement = "DIVISION";
+                currentDivision.add(currentEntity.getString(CODE));
+                currentRegroupement = DIVISION;
                 break;
 
-            case "GROUPE":
+            case GROUPE:
                 currentEntityType = localName;
                 currentEntity = o;
                 currentGroupe = new JsonArray();
-                currentGroupe.add(currentEntity.getString("CODE"));
-                currentRegroupement = "GROUPE";
+                currentGroupe.add(currentEntity.getString(CODE));
+                currentRegroupement = GROUPE;
                 break;
 
-            case "MATIERE":
+            case MATIERE:
                 currentEntityType = localName;
                 currentEntity = o;
                 matiereMapping = new JsonObject();
-                currentMatiere = currentEntity.getString("CODE");
+                currentMatiere = currentEntity.getString(CODE);
                 matiereMapping.put("code_matiere", currentMatiere);
                 break;
 
-            case "INDIVIDU":
+            case INDIVIDU:
                 currentEntityType = localName;
                 currentEntity = o;
                 individuMapping = new JsonObject();
-                currentIndividuId = currentEntity.getString("ID");
+                currentIndividuId = currentEntity.getString(ID);
                 individuMapping.put("id", currentIndividuId);
                 break;
         }
@@ -126,13 +127,13 @@ public class StsHandler extends DefaultHandler {
     public void characters (char ch[], int start, int length) throws SAXException {
 
         switch (currentTag) {
-            case "UAJ":
+            case UAJ:
                 if(length > 1) {
                     UAI = new String(ch, start, length);
                     stsServiceImpl.addCodeUAI(UAI);
                 }
                 break;
-            case "DATE_DEBUT_SEMAINE":
+            case DATE_DEBUT_SEMAINE:
                 JsonObject t = new JsonObject();
                 nbSemaines += 1;
                 buffer = new String(ch, start, length);
@@ -140,13 +141,13 @@ public class StsHandler extends DefaultHandler {
                 tmpMapping.add(t);
                 break;
 
-            case "DIVISIONS_APPARTENANCE":
+            case DIVISIONS_APPARTENANCE:
                 tmpAppartenances = new JsonArray();
                 appartenances = new JsonArray();
                 break;
 
-            case "DIVISION_APPARTENANCE":
-                String tmpAppartenance = currentEntity.getJsonArray(currentTag).getJsonObject(cmptAppartenance).getString("CODE");
+            case DIVISION_APPARTENANCE:
+                String tmpAppartenance = currentEntity.getJsonArray(currentTag).getJsonObject(cmptAppartenance).getString(CODE);
                 if (divisionAppartenance != tmpAppartenance) {
                     tmpAppartenances.add(tmpAppartenance);
                     cmptAppartenance += 1;
@@ -155,22 +156,22 @@ public class StsHandler extends DefaultHandler {
                 }
                 break;
 
-            case "SERVICE":
-                currentService = currentEntity.getJsonArray(currentTag).getJsonObject(cmptCourses).getString("CODE_MATIERE");
+            case SERVICE:
+                currentService = currentEntity.getJsonArray(currentTag).getJsonObject(cmptCourses).getString(CODE_MATIERE);
                 cmptCourses += 1;
                 break;
 
-            case "CO_ENS":
+            case CO_ENS:
                 coens = new String(ch, start, length);
                 break;
 
-            case "ENSEIGNANTS":
+            case ENSEIGNANTS:
                 teachers = new JsonArray();
                 break;
 
-            case "ENSEIGNANT":
+            case ENSEIGNANT:
                 tmpTeachers = new JsonArray(); // TODO voir pour déplacer dans case ENSEIGNANTS (plus coherent)
-                String tmpTeacher = currentEntity.getJsonArray(currentTag).getJsonObject(cmptEns).getString("ID");
+                String tmpTeacher = currentEntity.getJsonArray(currentTag).getJsonObject(cmptEns).getString(ID);
                 if (currentTeacher != tmpTeacher) {
                     cmptEns += 1;
                     tmpTeachers.add(tmpTeacher);
@@ -178,31 +179,31 @@ public class StsHandler extends DefaultHandler {
                 }
                 break;
 
-            case "COURS":
+            case COURS:
                 //cours = new JsonObject();
                 finalCourse = new JsonObject();
                 break;
 
-            case "CODE_ALTERNANCE":
+            case CODE_ALTERNANCE:
                 buffer = new String(ch, start, length);
                 currentCodeAlternance = buffer;
                 break;
 
-            case "JOUR":
+            case JOUR:
                 jour = new String(ch, start, length);
                 break;
 
-            case "HEURE_DEBUT":
+            case HEURE_DEBUT:
                 heure = new String(ch, start, length);
                 break;
 
-            case "DUREE":
+            case DUREE:
                 duree = new String(ch, start, length);
 
                 finalCourse.put("uai",UAI);
-                if ("DIVISION".equals(currentRegroupement)) {
+                if (DIVISION.equals(currentRegroupement)) {
                     finalCourse.put("divisions",currentDivision);
-                } else if ("GROUPE".equals(currentRegroupement)) {
+                } else if (GROUPE.equals(currentRegroupement)) {
                     finalCourse.put("groupes", currentGroupe);
                     if (tmpAppartenances != null) {
                         finalCourse.put("divisions", tmpAppartenances);
@@ -212,7 +213,7 @@ public class StsHandler extends DefaultHandler {
                 }
                 finalCourse.put("duree",duree);
                 break;
-            case "CODE_SALLE":
+            case CODE_SALLE:
                 finalCourse.put("salle", duree = new String(ch, start, length));
                 finalCourse.put("service", currentService);
                 finalCourse.put("teachers", tmpTeachers);
@@ -221,25 +222,25 @@ public class StsHandler extends DefaultHandler {
                 finalCourse.put("heure_debut", heure);
                 stsServiceImpl.addCourse(finalCourse);
                 break;
-            case "LIBELLE_COURT":
-                if (currentEntityType.equals("MATIERE")){
+            case LIBELLE_COURT:
+                if (currentEntityType.equals(MATIERE)){
                     nbMatiere +=1;
                     buffer = new String(ch, start, length);
                     matiereMapping.put("matiere", buffer);
                 }
                 break;
 
-            case "NOM_USAGE":
+            case NOM_USAGE:
                 buffer = new String(ch, start, length);
                 individuMapping.put("nom", buffer);
                 break;
 
-            case "PRENOM":
+            case PRENOM:
                 buffer = new String(ch, start, length);
                 individuMapping.put("prenom", buffer);
                 break;
 
-            case "DATE_NAISSANCE":
+            case DATE_NAISSANCE:
                 buffer = new String(ch, start, length);
                 individuMapping.put("date_naissance", buffer);
                 break;
@@ -264,28 +265,28 @@ public class StsHandler extends DefaultHandler {
         if (localName.equals(currentEntityType)) {
             currentEntityType = "";
             switch (localName) {
-                case "ALTERNANCE":
-                    currentAlternance = currentEntity.getString("CODE");
+                case ALTERNANCE:
+                    currentAlternance = currentEntity.getString(CODE);
                     alternanceMapping.put("code", currentAlternance);
                     alternanceMapping.put("semaines", tmpMapping);
                     stsServiceImpl.addAlternanceTable(alternanceMapping);
                     break;
 
-                case "DIVISION":
+                case DIVISION:
                     cmptCourses = 0;
                     cmptEns = 0;
                     break;
-                case "GROUPE":
+                case GROUPE:
                     cmptCourses = 0;
                     cmptEns = 0;
                     cmptAppartenance = 0;
                     break;
 
-                case "MATIERE":
+                case MATIERE:
                     stsServiceImpl.addMatieresTable(matiereMapping);
                     break;
 
-                case "INDIVIDU":
+                case INDIVIDU:
                     stsServiceImpl.addIndividusTable(individuMapping);
                     break;
             }
