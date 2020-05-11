@@ -194,7 +194,7 @@ public class StsServiceImpl implements StsService {
                             if (teachersResults == null || !teachersResults.containsKey("found") || teachersResults.getJsonObject("found") == null) {
                                 String error = "No teachers available";
                                 if (teachersResults.containsKey("notFound")) {
-                                    error += ": " + teachersResults.getJsonObject("notFound").toString();
+                                    error += ": " + teachersResults.getJsonArray("notFound").toString();
                                 }
                                 finalHandler.handle(new Either.Left<>(error));
                             }
@@ -566,13 +566,13 @@ public class StsServiceImpl implements StsService {
     private void getTeacherId(String lastName, String firstName, String birthDate, Handler<Either<String, JsonArray>> handler) {
         StringBuilder query = new StringBuilder();
 
-        query.append("MATCH (u:User) WHERE u.lastNameSearchField = {lastName} AND u.firstNameSearchField = {firstName} AND u.birthDate = {birthDate}" +
-                " RETURN u.id AS id, u.lastName AS lastName, u.firstName AS firstName, u.DisplayName AS displayname;");
+        query.append("MATCH (u:User) WHERE toLower(u.lastName) = {lastName} AND toLower(u.firstName) = {firstName} AND u.birthDate = {birthDate}" +
+                " RETURN u.id AS id, u.lastName AS lastName, u.firstName AS firstName, u.displayName AS displayname;");
 
         JsonObject params = new JsonObject()
-                .put("lastName", lastName.toLowerCase())
-                .put("firstName", firstName.toLowerCase())
-                .put("birthDate", birthDate);
+                .put("lastName", lastName.trim().toLowerCase())
+                .put("firstName", firstName.trim().toLowerCase())
+                .put("birthDate", birthDate.trim());
 
         neo4j.execute(query.toString(), params, Neo4jResult.validResultHandler(handler));
     }
