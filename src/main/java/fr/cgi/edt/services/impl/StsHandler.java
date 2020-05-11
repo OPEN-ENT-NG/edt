@@ -147,6 +147,8 @@ public class StsHandler extends DefaultHandler {
                 break;
 
             case DIVISION_APPARTENANCE:
+                // In case of group entity type, break. Otherwise the course contains group and class
+                if (GROUPE.equals(currentEntityType)) break;
                 String tmpAppartenance = currentEntity.getJsonArray(currentTag).getJsonObject(cmptAppartenance).getString(CODE);
                 if (divisionAppartenance != tmpAppartenance) {
                     tmpAppartenances.add(tmpAppartenance);

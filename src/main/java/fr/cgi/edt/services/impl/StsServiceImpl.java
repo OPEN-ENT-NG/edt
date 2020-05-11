@@ -43,6 +43,7 @@ public class StsServiceImpl implements StsService {
     private JsonObject finalCourse;
     private JsonArray roomValue;
 
+    // TODO Refactor coursesTable and use List instead of Map...
     private Map<String, JsonObject> alternances;
     private Map<String, JsonObject> coursesTable;
     private Map<String, JsonObject> tableMatieres;
@@ -283,10 +284,10 @@ public class StsServiceImpl implements StsService {
 
     private void getCourses(Map<String, JsonObject> coursesTable, JsonObject structure, JsonObject periodes, JsonObject subjects, JsonObject teachers, Handler<JsonObject> handler) {
         final List<Future> futureMyResponse1Lst = new ArrayList<>();
-        for (int i = 0; i <= coursesTable.size(); i++) {
+        for (String id : coursesTable.keySet()) {
             Future<Integer> courseFutureComposite = Future.future();
             futureMyResponse1Lst.add(courseFutureComposite);
-            JsonObject course = coursesTable.get(String.valueOf(i));
+            JsonObject course = coursesTable.get(id);
             if (course != null && !course.isEmpty()) {
                 createCourse(course, structure, periodes, subjects, teachers, courseFutureComposite);
             } else {
@@ -379,8 +380,8 @@ public class StsServiceImpl implements StsService {
 
 
         if (finalCourse.containsKey("structureId") && finalCourse.containsKey("teacherIds") && !finalCourse.getJsonArray("teacherIds").isEmpty()
-                && finalCourse.containsKey("subjectId")  && finalCourse.containsKey("dayOfWeek") &&
-                (finalCourse.containsKey("classes") || finalCourse.containsKey("group"))) {
+                && finalCourse.containsKey("subjectId") && finalCourse.containsKey("dayOfWeek") &&
+                (finalCourse.containsKey("classes") || finalCourse.containsKey("groups"))) {
             if (periodes != null && periodeFromCourse != null && periodes.containsKey(periodeFromCourse)) {
                 JsonArray datesFromPeriodes = periodes.getJsonArray(periodeFromCourse);
                 for (int j = 0; j < datesFromPeriodes.size(); j++) {
@@ -389,7 +390,7 @@ public class StsServiceImpl implements StsService {
                                 .put("structureId", finalCourse.getString("structureId"))
                                 .put("teacherIds", finalCourse.getJsonArray("teacherIds"))
                                 .put("subjectId", finalCourse.getString("subjectId"))
-                                .put("classes", finalCourse.getJsonArray("classes"))
+                                .put("classes", finalCourse.getJsonArray("classes", new JsonArray()))
                                 .put("dayOfWeek", finalCourse.getString("dayOfWeek"))
                                 .put("roomLabels", finalCourse.getJsonArray("roomLabels"))
                                 .put("source", "STS");
