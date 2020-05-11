@@ -1,0 +1,50 @@
+Rapport d'éxecution de l'import {{source}} pour l'établissement UAI {{UAI}} du {{#datetime}}{{date}}{{/datetime}}
+
+Début: {{#datetime}}{{startTime}}{{/datetime}}
+Fin: {{#datetime}}{{endTime}}{{/datetime}}
+Durée: {{runTime}}
+
+===================================================== PROFESSEURS =====================================================
+
+{{teachersFound}} professeurs ont été trouvés.
+
+{{#unknownTeachers}}
+{{#-first}}
+Les enseignants suivants n’ont pas été retrouvés dans votre établissement (les noms, prénoms et date de naissance doivent être identiques).
+Les cours correspondants ne seront pas créés.
+
+{{/-first}}
+  {{id}} - {{lastName}} {{firstName}} né(e) le {{birthDate}}
+{{/unknownTeachers}}
+
+======================================================== COURS ========================================================
+
+{{coursesCreated}} cours ont été créés soit {{courseOccurrencesCount}} occurrences.
+{{coursesDeleted}} occurrences de cours ont été supprimées.
+{{coursesIgnored}} cours ont été ignorés à cause d'une erreur (ex. pas d'enseignant).
+
+
+{{#unknownSubjects}}
+{{#-first}}
+======================================================= MATIÈRES ======================================================
+
+Les matières suivantes n'ont pas été trouvées:
+{{/-first}}
+  {{code}} - {{name}}
+{{/unknownSubjects}}
+
+================================================== ALTERNANCES TRAITÉES ==================================================
+
+{{#alternations}}
+{{#-first}}
+Les alternances suivantes ont été traitées:
+{{/-first}}
+
+{{name}} - {{label}}
+{{#weeks}}
+  {{start}}
+{{/weeks}}
+{{/alternations}}
+{{^alternations}}
+Aucune alternance n'a été traitée.
+{{/alternations}}

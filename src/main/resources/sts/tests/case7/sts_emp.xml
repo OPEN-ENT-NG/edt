@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<STS_EDT>
+    <PARAMETRES>
+        <UAJ CODE="0771991W">
+            <ACADEMIE>
+                <CODE>
+                    024
+                </CODE>
+                <LIBELLE>
+                    CRETEIL
+                </LIBELLE>
+            </ACADEMIE>
+            <SIGLE>
+                CLG
+            </SIGLE>
+            <DENOM_PRINC>
+                COLLEGE
+            </DENOM_PRINC>
+            <DENOM_COMPL>
+                LOUIS ARAGON
+            </DENOM_COMPL>
+            <CODE_NATURE>
+                340
+            </CODE_NATURE>
+            <CODE_CATEGORIE>
+                CLG
+            </CODE_CATEGORIE>
+            <MENTION_DISTRIBUTION/>
+            <ADRESSE>
+                ALLEE DE LA CARAVELLE
+            </ADRESSE>
+            <COMMUNE>
+                TORCY
+            </COMMUNE>
+            <CODE_POSTAL>
+                77200
+            </CODE_POSTAL>
+            <BOITE_POSTALE/>
+            <CEDEX>
+                N
+            </CEDEX>
+            <TELEPHONE>
+                0160375870
+            </TELEPHONE>
+            <STATUT>
+                public
+            </STATUT>
+            <ETABLISSEMENT_SENSIBLE>
+                false
+            </ETABLISSEMENT_SENSIBLE>
+        </UAJ>
+        <ANNEE_SCOLAIRE ANNEE="2018">
+            <DATE_DEBUT>
+                2018-09-01
+            </DATE_DEBUT>
+            <DATE_FIN>
+                2019-08-31
+            </DATE_FIN>
+        </ANNEE_SCOLAIRE>
+    </PARAMETRES>
+    <NOMENCLATURES>
+        <TYPES_AHE>
+            <TYPE_AHE CODE="4112">
+                <LIBELLE_COURT>
+                    ASSO.EPS
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    HEURES ASSOCIATIONS SPORTIVES
+                </LIBELLE_LONG>
+            </TYPE_AHE>
+        </TYPES_AHE>
+        <CIVILITES>
+            <CIVILITE CODE=".">
+                <LIBELLE_COURT>
+                    M.
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    M.
+                </LIBELLE_LONG>
+            </CIVILITE>
+            <CIVILITE CODE="1">
+                <LIBELLE_COURT>
+                    M.
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    M.
+                </LIBELLE_LONG>
+            </CIVILITE>
+            <CIVILITE CODE="2">
+                <LIBELLE_COURT>
+                    MME
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    Mme
+                </LIBELLE_LONG>
+            </CIVILITE>
+            <CIVILITE CODE="3">
+                <LIBELLE_COURT>
+                    MME
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    Mme
+                </LIBELLE_LONG>
+            </CIVILITE>
+            <CIVILITE CODE="L">
+                <LIBELLE_COURT>
+                    MME
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    Mme
+                </LIBELLE_LONG>
+            </CIVILITE>
+            <CIVILITE CODE="M">
+                <LIBELLE_COURT>
+                    MME
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    Mme
+                </LIBELLE_LONG>
+            </CIVILITE>
+        </CIVILITES>
+        <MEFSTATS4>
+            <MEFSTAT4 CODE="23C1">
+                <LIBELLE_COURT>
+                    1BMA2
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    BMA EN 2 ANS : 1ERE ANNEE
+                </LIBELLE_LONG>
+                <INDEMNITE_PP_AUTORISEE>
+                    true
+                </INDEMNITE_PP_AUTORISEE>
+            </MEFSTAT4>
+        </MEFSTATS4>
+        <TAUX_PONDS>
+            <TAUX_POND TAUX="1.25">
+                <CPGE_BTS>
+                    bts
+                </CPGE_BTS>
+            </TAUX_POND>
+        </TAUX_PONDS>
+        <MODS_COURS>
+            <MOD_COURS CODE="AI">
+                <LIBELLE_COURT>
+                    AIDE IND
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    AIDE INDIVIDUALISEE - SOUTIEN
+                </LIBELLE_LONG>
+                <CO_ENS>
+                    true
+                </CO_ENS>
+            </MOD_COURS>
+        </MODS_COURS>
+        <MATIERES>
+            <MATIERE CODE="020700">
+                <CODE_GESTION>
+                    FRANC
+                </CODE_GESTION>
+                <LIBELLE_COURT>
+                    FRANCAIS
+                </LIBELLE_COURT>
+                <LIBELLE_LONG>
+                    FRANCAIS
+                </LIBELLE_LONG>
+                <LIBELLE_EDITION>
+                    Français
+                </LIBELLE_EDITION>
+            </MATIERE>
+        </MATIERES>
+        <MEFS>
+            <MEF CODE="10310019110">
+                <FORMATION>
+                    3EME
+                </FORMATION>
+                <SPECIALITE/>
+                <LIBELLE_LONG>
+                    3EME
+                </LIBELLE_LONG>
+                <LIBELLE_EDITION>
+                    3ème
+                </LIBELLE_EDITION>
+                <MEFSTAT11>
+                    21160010019
+                </MEFSTAT11>
+                <MEFSTAT4>
+                    2116
+                </MEFSTAT4>
+            </MEF>
+        </MEFS>
+        <PROGRAMMES>
+            <PROGRAMME>
+                <CODE_MEF>
+                    10310019110
+                </CODE_MEF>
+                <CODE_MATIERE>
+                    030102
+                </CODE_MATIERE>
+                <HORAIRE>
+                    2.50
+                </HORAIRE>
+            </PROGRAMME>
+        </PROGRAMMES>
+    </NOMENCLATURES>
+    <DONNEES>
+        <INDIVIDUS>
+            <INDIVIDU ID="69881" TYPE="epp">
+                <SEXE>
+                    2
+                </SEXE>
+                <CIVILITE>
+                    2
+                </CIVILITE>
+                <NOM_USAGE>
+                    DOE
+                </NOM_USAGE>
+                <NOM_PATRONYMIQUE>
+                    BOUILLON
+                </NOM_PATRONYMIQUE>
+                <PRENOM>
+                    Jane
+                </PRENOM>
+                <DATE_NAISSANCE>
+                    1975-02-27
+                </DATE_NAISSANCE>
+                <GRADE>
+                    CERT. CL N
+                </GRADE>
+                <FONCTION>
+                    ENS
+                </FONCTION>
+                <DISCIPLINES>
+                    <DISCIPLINE CODE="L0202">
+                        <LIBELLE_COURT>
+                            LET MODERN
+                        </LIBELLE_COURT>
+                        <NB_HEURES>
+                            18.00
+                        </NB_HEURES>
+                    </DISCIPLINE>
+                </DISCIPLINES>
+            </INDIVIDU>
+            <INDIVIDU ID="153667" TYPE="epp">
+                <SEXE>
+                    2
+                </SEXE>
+                <CIVILITE>
+                    2
+                </CIVILITE>
+                <NOM_USAGE>
+                    DOE
+                </NOM_USAGE>
+                <NOM_PATRONYMIQUE>
+                    GAZCHI
+                </NOM_PATRONYMIQUE>
+                <PRENOM>
+                    John
+                </PRENOM>
+                <DATE_NAISSANCE>
+                    1958-09-17
+                </DATE_NAISSANCE>
+                <GRADE>
+                    AC2C2
+                </GRADE>
+                <FONCTION>
+                    ENS
+                </FONCTION>
+                <DISCIPLINES>
+                    <DISCIPLINE CODE="L0422">
+                        <LIBELLE_COURT>
+                            ANGLAIS
+                        </LIBELLE_COURT>
+                        <NB_HEURES>
+                            15.00
+                        </NB_HEURES>
+                    </DISCIPLINE>
+                </DISCIPLINES>
+            </INDIVIDU>
+        </INDIVIDUS>
+        <STRUCTURE>
+            <DIVISIONS>
+                <DIVISION CODE="3A">
+                    <LIBELLE_LONG>
+                        3EMEA
+                    </LIBELLE_LONG>
+                    <EFFECTIF_PREVU>
+                        28
+                    </EFFECTIF_PREVU>
+                    <EFFECTIF_CALCULE>
+                        24
+                    </EFFECTIF_CALCULE>
+                    <MEFS_APPARTENANCE>
+                        <MEF_APPARTENANCE CODE="10310019110">
+                            <EFFECTIF_PREVU>
+                                28
+                            </EFFECTIF_PREVU>
+                            <EFFECTIF_CALCULE>
+                                24
+                            </EFFECTIF_CALCULE>
+                        </MEF_APPARTENANCE>
+                    </MEFS_APPARTENANCE>
+                    <SERVICES/>
+                </DIVISION>
+            </DIVISIONS>
+            <GROUPES/>
+        </STRUCTURE>
+        <SUPPLEANTS/>
+    </DONNEES>
+</STS_EDT>

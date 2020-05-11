@@ -1,34 +1,80 @@
-<div class="ten cell">
+<div class="ten cell edt-settings">
     <article class="row">
 
         <h3 class="row margin-bottom-lg">
             [[lang.translate('edt.admin.importsts.title')]]
         </h3>
 
-        <div class="cell twelve-mobile twelve">
-            <h4>[[lang.translate('edt.admin.importsts.fileupload')]] :</h4>
-            <input type="file"
-                   files-input-change="getFile1(this.emp_sts)"
-                   ng-model="emp_sts" name="emp_sts"
-                   accept=".xml"/>
-            <br/>
-            <input type="file"
-                   files-input-change="getFile2(this.sts_emp)"
-                   ng-model="sts_emp" name="sts_emp"
-                   accept=".xml"/>
-            <p ng-show="request_result">
-                <b>[[lang.translate('edt.admin.importsts.coursesWritten')]]:</b> [[request_result.coursesWritten]]<br/>
-                <b>[[lang.translate('edt.admin.importsts.teachersNotFound')]]:</b> [[request_result.teachersNotFound]]<br/>
-                <b>[[lang.translate('edt.admin.importsts.subjectsNotFound')]]:</b> [[request_result.subjectsNotFound]]<br/>
-            </p>
+        <div class="[[ result.state ]] cell twelve" ng-show="result.state !== null">
+            <div ng-show="result.state === 'success'">
+                <i18n>edt.sts.import.success</i18n>
+                <a ng-click="display.report = result.content; display.lightbox = true">
+                    <i18n>edt.sts.import.success.link</i18n>
+                </a>
+            </div>
+
+            <div ng-show="result.state === 'alert'">
+                <i18n>edt.sts.import.error</i18n>
+                [[ lang.translate(result.content) ]]
+            </div>
         </div>
 
         <div class="cell twelve-mobile twelve">
-            <br/>
-            <button ng-click="submitStsFiles()">
-                [[lang.translate('edt.admin.importsts.submit')]]
-            </button>
+            <div class="row vertical-spacing-four">
+                <div class="cell four-mobile right-spacing-four">
+                    <i18n>edt.admin.importsts.file.sts-emp</i18n>
+                </div>
+                <div class="cell"><input type="file"
+                                         files-input-change="getFile1(this.emp_sts)"
+                                         ng-model="emp_sts" name="emp_sts"
+                                         accept=".xml"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell four-mobile right-spacing-four">
+                    <i18n>edt.admin.importsts.file.emp-sts</i18n>
+                </div>
+                <div class="cell">
+                    <input type="file"
+                           files-input-change="getFile2(this.sts_emp)"
+                           ng-model="sts_emp" name="sts_emp"
+                           accept=".xml"/>
+                </div>
+            </div>
+
+            <div class="cell twelve-mobile twelve vertical-spacing row">
+                <button ng-click="submitStsFiles()" ng-show="!display.loading">
+                    [[lang.translate('edt.admin.importsts.submit')]]
+                </button>
+                <img src="[[skin.basePath + '/img/illustrations/loading.gif']]" alt="loading" ng-show="display.loading"
+                     class="action-cell">
+            </div>
         </div>
 
+        <div class="cell twelve twelve-mobile loading-list no-padding vertical-spacing-twice"
+             ng-if="reports.length > 0">
+            <h4>
+                <i18n>edt.sts.previous.reports</i18n>
+            </h4>
+            <ul>
+                <li ng-repeat="report in reports" class="no-margin"
+                    ng-click="display.report = report.report; display.lightbox = true">
+                    <div class="icon">
+                        <i class="unknown"></i>
+                    </div>
+                    <div class="title">
+                        <i18n>edt.sts.report.from</i18n>
+                        [[formatDate(report.created)]]
+                    </div>
+                </li>
+            </ul>
+        </div>
     </article>
+    <div class="report-lightbox">
+        <lightbox show="display.lightbox" on-close="display.lightbox = false;">
+        <pre>
+            [[display.report]]
+        </pre>
+        </lightbox>
+    </div>
 </div>

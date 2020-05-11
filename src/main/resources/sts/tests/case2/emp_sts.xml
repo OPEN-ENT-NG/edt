@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<EDT_STS>
+    <PARAMETRES>
+        <UAJ>0771991W</UAJ>
+        <ANNEE_SCOLAIRE>2018</ANNEE_SCOLAIRE>
+        <APPLICATION_SOURCE>EDITEUR_PRIVE</APPLICATION_SOURCE>
+    </PARAMETRES>
+    <DONNEES>
+        <HORAIRES>
+            <HORAIRE JOUR="1">
+                <DEBUT_COURS>0830</DEBUT_COURS>
+                <FIN_COURS>1705</FIN_COURS>
+            </HORAIRE>
+            <HORAIRE JOUR="2">
+                <DEBUT_COURS>0830</DEBUT_COURS>
+                <FIN_COURS>1705</FIN_COURS>
+            </HORAIRE>
+            <HORAIRE JOUR="3">
+                <DEBUT_COURS>0830</DEBUT_COURS>
+                <FIN_COURS>1230</FIN_COURS>
+            </HORAIRE>
+            <HORAIRE JOUR="4">
+                <DEBUT_COURS>0830</DEBUT_COURS>
+                <FIN_COURS>1705</FIN_COURS>
+            </HORAIRE>
+            <HORAIRE JOUR="5">
+                <DEBUT_COURS>0830</DEBUT_COURS>
+                <FIN_COURS>1705</FIN_COURS>
+            </HORAIRE>
+        </HORAIRES>
+        <ALTERNANCES>
+            <ALTERNANCE CODE="H">
+                <LIBELLE_COURT>Cours Hebd</LIBELLE_COURT>
+                <LIBELLE_LONG>Cours Hebdomadaire</LIBELLE_LONG>
+                <SEMAINES>
+                    <DATE_DEBUT_SEMAINE>2099-09-03</DATE_DEBUT_SEMAINE>
+                </SEMAINES>
+            </ALTERNANCE>
+        </ALTERNANCES>
+        <SALLES_COURS>
+            <SALLE_COURS CODE="03">
+                <GROUPE_SALLE></GROUPE_SALLE>
+                <LOCALISATION></LOCALISATION>
+            </SALLE_COURS>
+        </SALLES_COURS>
+        <INDIVIDUS>
+            <INDIVIDU ID="69881">
+                <INDEMNITES>
+                    <INDEMNITE>
+                        <CODE_STRUCTURE>4E</CODE_STRUCTURE>
+                        <MEFSTAT4>2115</MEFSTAT4>
+                    </INDEMNITE>
+                </INDEMNITES>
+                <ARES/>
+            </INDIVIDU>
+        </INDIVIDUS>
+        <STRUCTURE>
+            <GROUPES>
+                <GROUPE CODE="3B_G2">
+                    <LIBELLE_LONG/>
+                    <EFFECTIF_PREVU>18</EFFECTIF_PREVU>
+                    <EFFECTIF_MAX_EDT>0</EFFECTIF_MAX_EDT>
+                    <DIVISIONS_APPARTENANCE>
+                        <DIVISION_APPARTENANCE CODE="3B">
+                            <EFFECTIF_PREVU>6</EFFECTIF_PREVU>
+                        </DIVISION_APPARTENANCE>
+                    </DIVISIONS_APPARTENANCE>
+                    <SERVICES>
+                        <SERVICE CODE_MATIERE="020700" CODE_MOD_COURS="CG">
+                            <HEURES_STRUCTURE>2.50</HEURES_STRUCTURE>
+                            <CO_ENS>false</CO_ENS>
+                            <ENSEIGNANTS>
+                                <ENSEIGNANT TYPE="epp" ID="69881">
+                                    <HEURES_AGENT>2.50</HEURES_AGENT>
+                                    <COURS_RATTACHES>
+                                        <COURS>
+                                            <CODE_ALTERNANCE>H</CODE_ALTERNANCE>
+                                            <JOUR>4</JOUR>
+                                            <HEURE_DEBUT>1513</HEURE_DEBUT>
+                                            <DUREE>0100</DUREE>
+                                            <CODE_SALLE>23</CODE_SALLE>
+                                        </COURS>
+                                    </COURS_RATTACHES>
+                                </ENSEIGNANT>
+                            </ENSEIGNANTS>
+                        </SERVICE>
+                    </SERVICES>
+                </GROUPE>
+            </GROUPES>
+        </STRUCTURE>
+    </DONNEES>
+</EDT_STS>

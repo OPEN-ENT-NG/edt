@@ -1,14 +1,22 @@
 package fr.cgi.edt.controllers;
 
+import fr.cgi.edt.security.UserInStructure;
 import fr.cgi.edt.security.WorkflowActionUtils;
 import fr.cgi.edt.security.workflow.ManageCourseWorkflowAction;
 import fr.cgi.edt.security.workflow.ManageSettingsWorkflowAction;
 import fr.cgi.edt.services.EdtService;
-import fr.cgi.edt.services.UserService;
+import fr.cgi.edt.services.StructureService;
 import fr.cgi.edt.services.StsService;
+import fr.cgi.edt.services.UserService;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
-import fr.cgi.edt.services.impl.StsServiceImpl;
+import fr.cgi.edt.services.impl.StructureServiceNeo4jImpl;
+import fr.cgi.edt.services.impl.StsServiceMongoImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
+import fr.cgi.edt.sts.StsDAO;
+import fr.cgi.edt.sts.StsErrorResponse;
+import fr.cgi.edt.sts.StsImport;
+import fr.cgi.edt.sts.bean.Report;
+import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.rs.*;
 import fr.wseduc.security.ActionType;
 import fr.wseduc.security.SecuredAction;
@@ -16,19 +24,20 @@ import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.Trace;
 import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
+import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.user.UserUtils;
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.json.JsonObject;
 
 import java.io.File;
 import java.util.UUID;
@@ -43,14 +52,17 @@ public class EdtController extends MongoDbControllerHelper {
 
     private final EdtService edtService;
     private final UserService userService;
+    private StructureService structureService = new StructureServiceNeo4jImpl();
+    private StsService stsService = new StsServiceMongoImpl();
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
 
     private static final String
-            read_only 			= "edt.view",
-            modify 				= "edt.manage";
+            read_only = "edt.view",
+            modify = "edt.manage";
 
     /**
      * Creates a new controller.
+     *
      * @param collection Name of the collection stored in the mongoDB database.
      */
     public EdtController(String collection, EventBus eb) {
@@ -169,8 +181,7 @@ public class EdtController extends MongoDbControllerHelper {
                         && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
                     slots = body.getJsonObject("result").getJsonArray("slots");
                     Renders.renderJson(request, slots);
-                }
-                else {
+                } else {
                     LOGGER.error("[EDT@DefaultRegistrerService] Failed to retrieve slot profile");
                     String message = "[Edt@DefaultRegisterService] Failed to parse slots";
                     handler.handle(new Either.Left<>(message));
@@ -178,23 +189,60 @@ public class EdtController extends MongoDbControllerHelper {
             });
     }
 
-    @Post("/sts")
-    @SecuredAction(value = "", type = ActionType.AUTHENTICATED)
-    @Trace("POST_STS")
+    @Post("/structures/:id/sts")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(UserInStructure.class)
+    @Trace(value = "POST_STS", body = false)
     @ApiDoc("Import sts file")
-    public void importSts (final HttpServerRequest request) {
-        StsService stsService = new StsServiceImpl(vertx, eb, log);
+    public void importSts(final HttpServerRequest request) {
+        String structure = request.getParam("id");
+        StsDAO dao = new StsDAO(Neo4j.getInstance(), MongoDb.getInstance());
+        StsImport stsImport = new StsImport(vertx, dao);
+        stsImport.setRequestStructure(structure);
         final String importId = UUID.randomUUID().toString();
         final String path = config.getString("import-folder", "/tmp") + File.separator + importId;
-        stsService.uploadImport(vertx, request, path, new Handler<AsyncResult>() {
-            @Override
-            public void handle(AsyncResult event) {
-                if (event.succeeded()) {
-                    Handler<Either<String, JsonObject>> handler = DefaultResponseHandler.defaultResponseHandler(request);
-                    stsService.readSts(vertx, path, handler);
-                } else
-                    badRequest(request, event.cause().getMessage());
+        stsImport.upload(request, path, event -> {
+            if (event.succeeded()) {
+                stsImport.importFiles(path, ar -> {
+                    if (ar.failed()) {
+                        if (StsErrorResponse.UNAUTHORIZED.equals(ar.cause().getMessage())) unauthorized(request);
+                        else renderError(request, new JsonObject().put("error", ar.cause().getMessage()));
+                        return;
+                    }
+
+                    Report report = ar.result();
+                    report.generate(rep -> {
+                        if (rep.failed()) {
+                            renderError(request, new JsonObject().put("error", rep.cause().getMessage()));
+                            return;
+                        }
+
+                        renderJson(request, new JsonObject().put("report", rep.result()));
+                        report.save(s -> {
+                            if (s.failed()) log.error("Failed to save sts report " + importId);
+                        });
+                    });
+                });
+            } else
+                badRequest(request, event.cause().getMessage());
+        });
+    }
+
+    @Get("/structures/:id/sts/reports")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(UserInStructure.class)
+    @ApiDoc("Retrieve STS import report based on given structure")
+    public void report(HttpServerRequest request) {
+        String id = request.getParam("id");
+        structureService.retrieveUAI(id, evt -> {
+            if (evt.isLeft()) {
+                renderError(request);
+                return;
             }
+
+            String uai = evt.right().getValue();
+
+            stsService.reports(uai, arrayResponseHandler(request));
         });
     }
 }
