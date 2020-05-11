@@ -216,6 +216,11 @@ div.illustration{
       }
     }
   }
+
+  .report-lightbox lightbox .content {
+    max-width: 100%;
+    width: fit-content;
+  }
 }
 
 .times-slot {

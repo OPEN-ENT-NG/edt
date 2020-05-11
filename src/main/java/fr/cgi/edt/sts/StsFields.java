@@ -1,6 +1,6 @@
 package fr.cgi.edt.sts;
 
-public class STSFields {
+public class StsFields {
 
     // File types
     public static final String EDT_STS = "EDT_STS";

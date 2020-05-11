@@ -33,7 +33,7 @@ buildNode () {
 }
 
 buildGradle () {
-  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle shadowJar install publishToMavenLocal
+  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test shadowJar install publishToMavenLocal
 }
 
 publish () {
@@ -45,6 +45,10 @@ publish () {
     echo "sonatypePassword=$NEXUS_SONATYPE_PASSWORD" >> "?/.gradle/gradle.properties"
   fi
   docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle publish
+}
+
+test () {
+  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test
 }
 
 for param in "$@"
@@ -64,6 +68,9 @@ do
       ;;
     publish)
       publish
+      ;;
+    test)
+      test
       ;;
     *)
       echo "Invalid argument : $param"

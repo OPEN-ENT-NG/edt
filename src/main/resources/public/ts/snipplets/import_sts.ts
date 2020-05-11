@@ -1,29 +1,80 @@
-import {Utils} from "../model";
 import http from "axios";
+import {idiom as lang, moment, skin, toasts} from "entcore";
 
 console.log("init importSts");
+
+declare const model: any;
+
+let that;
 
 export const importSts = {
     title: 'Import Sts interface',
     description: "Interface to import sts files data",
     request_result: null,
     controller: {
+        reports: [],
+        result: {
+            state: null,
+            content: null
+        },
+        display: {
+            lightbox: false,
+            report: null,
+            loading: false
+        },
+        init: function () {
+            that = this;
+            this.skin = skin;
+            this.lang = lang;
+            this.loadReports();
+            this.$watch(() => model.vieScolaire.structure.id, () => {
+                that.loadReports();
+                that.result = {
+                    state: null,
+                    content: null
+                };
+            });
+        },
+        loadReports: async function () {
+            try {
+                const {data} = await http.get(`/edt/structures/${model.vieScolaire.structure.id}/sts/reports`);
+                that.reports = data;
+                that.safeApply();
+            } catch (err) {
+                toasts.warning("edt.sts.load.reports.failed");
+                throw err;
+            }
+        },
         getFile1: function (file) {
             this.file1 = file[0];
         },
         getFile2: function (file) {
             this.file2 = file[0];
         },
+        formatDate: function (date) {
+            return moment(date).format("LLLL");
+        },
         submitStsFiles: async function () {
+            this.display.loading = true;
+            this.result.state = null;
             let scope = this;
-            scope.request_result = null;
+            scope.report = null;
             const formData = new FormData();
             formData.append('file1', scope.file1);
             formData.append('file2', scope.file2);
 
-            let {data} = await http.post('/edt/sts', formData);
-            this.request_result = data;
-            this.safeApply();
+            try {
+                let {data} = await http.post(`/edt/structures/${model.vieScolaire.structure.id}/sts`, formData);
+                scope.report = data.report;
+                scope.result.state = 'success';
+                scope.result.content = data.report;
+            } catch (err) {
+                scope.result.state = 'alert';
+                scope.result.content = err.response.data.error;
+            } finally {
+                scope.display.loading = false;
+                this.loadReports();
+            }
         },
 
         safeApply: function (): Promise<any> {
