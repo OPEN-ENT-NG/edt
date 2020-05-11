@@ -364,6 +364,8 @@ public class StsServiceImpl implements StsService {
             }
         }
 
+        finalCourse.put("roomLabels", cours.containsKey("salle") ? new JsonArray().add(cours.getString("salle")) : new JsonArray());
+
         if (classesFromCourse != null && !classesFromCourse.isEmpty()) {
             finalCourse.put("classes", classesFromCourse);
         }
@@ -389,6 +391,7 @@ public class StsServiceImpl implements StsService {
                                 .put("subjectId", finalCourse.getString("subjectId"))
                                 .put("classes", finalCourse.getJsonArray("classes"))
                                 .put("dayOfWeek", finalCourse.getString("dayOfWeek"))
+                                .put("roomLabels", finalCourse.getJsonArray("roomLabels"))
                                 .put("source", "STS");
 
                         if(finalCourse.getJsonArray("groups") != null){
