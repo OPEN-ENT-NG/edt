@@ -210,15 +210,17 @@ public class StsHandler extends DefaultHandler {
                 } else {
                     // TODO error message
                 }
+                finalCourse.put("duree",duree);
+                break;
+            case "CODE_SALLE":
+                finalCourse.put("salle", duree = new String(ch, start, length));
                 finalCourse.put("service", currentService);
                 finalCourse.put("teachers", tmpTeachers);
                 finalCourse.put("codeAlternance", currentCodeAlternance);
                 finalCourse.put("jour", jour);
                 finalCourse.put("heure_debut", heure);
-                finalCourse.put("duree",duree);
                 stsServiceImpl.addCourse(finalCourse);
                 break;
-
             case "LIBELLE_COURT":
                 if (currentEntityType.equals("MATIERE")){
                     nbMatiere +=1;
