@@ -20,7 +20,9 @@ public enum StsError {
     // Unauthorized error. The structure UAI is not the same as the structure identifier provided in http endpoint
     UNAUTHORIZED("edt.sts.import.error.unauthorized"),
     // Something happened during files upload. Check logs
-    UPLOAD_FAILED("edt.sts.import.upload.failed");
+    UPLOAD_FAILED("edt.sts.import.upload.failed"),
+    // The user uploads the same file twice
+    UPLOAD_SAME_FILE("edt.sts.import.upload.same.file");
 
     private final String key;
 

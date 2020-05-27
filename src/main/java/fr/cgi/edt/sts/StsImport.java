@@ -59,6 +59,9 @@ public class StsImport {
 
             if (!filenames.contains(upload.filename())) {
                 filenames.add(upload.filename());
+            } else {
+                handler.handle(Future.failedFuture(new RuntimeException(StsError.UPLOAD_SAME_FILE.key())));
+                return;
             }
 
             Future future = futures.get(filenames.indexOf(upload.filename()));

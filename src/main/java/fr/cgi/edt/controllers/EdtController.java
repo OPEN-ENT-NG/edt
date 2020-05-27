@@ -13,7 +13,6 @@ import fr.cgi.edt.services.impl.StructureServiceNeo4jImpl;
 import fr.cgi.edt.services.impl.StsServiceMongoImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
 import fr.cgi.edt.sts.StsDAO;
-import fr.cgi.edt.sts.StsError;
 import fr.cgi.edt.sts.StsImport;
 import fr.cgi.edt.sts.bean.Report;
 import fr.wseduc.mongodb.MongoDb;
@@ -223,7 +222,7 @@ public class EdtController extends MongoDbControllerHelper {
                     });
                 });
             } else
-                renderError(request, new JsonObject().put("error", StsError.UPLOAD_FAILED.key()));
+                renderError(request, new JsonObject().put("error", event.cause().getMessage()));
         });
     }
 
