@@ -39,8 +39,6 @@ public class Case7 extends StsCase {
                 .add(DefaultSubject.DEFAULT_SUBJECT)
                 .add(DefaultSubject.DEFAULT_SUBJECT_2);
         super.mockSubjects(subjects);
-
-        super.mockStructure();
     }
 
     @Test

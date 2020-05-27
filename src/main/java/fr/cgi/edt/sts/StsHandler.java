@@ -106,7 +106,7 @@ public class StsHandler extends DefaultHandler {
                 if (course != null) course.setDuration(value);
                 break;
             case CODE_SALLE:
-                if (course != null) course.setRoom(new String(ch, start, length));
+                if (course != null) course.setRoom(value);
                 break;
             case LIBELLE_COURT:
                 if (subject != null) subject.setName(value);

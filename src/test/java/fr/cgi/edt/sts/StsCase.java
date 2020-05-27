@@ -22,6 +22,23 @@ public class StsCase {
         this.vertx = Vertx.vertx();
         this.dao = dao;
         this.sts = new StsImport(vertx, dao);
+
+        mockSubjects();
+        mockTeachers();
+        mockStructure();
+        mockDropFutureCourses();
+    }
+
+    protected void mockDropFutureCourses(Integer value) {
+        Mockito.doAnswer(invocation -> {
+            Handler<AsyncResult<Integer>> handler = invocation.getArgument(1);
+            handler.handle(Future.succeededFuture(value));
+            return null;
+        }).when(dao).dropFutureCourses(Mockito.anyString(), Mockito.any(Handler.class));
+    }
+
+    protected void mockDropFutureCourses() {
+        mockDropFutureCourses(1024);
     }
 
     protected void mockTeachers(JsonArray teachers) {
@@ -30,12 +47,6 @@ public class StsCase {
             future.complete(teachers);
             return null;
         }).when(dao).retrieveTeachers(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
-
-        Mockito.doAnswer(invocation -> {
-            Handler<AsyncResult<Integer>> handler = invocation.getArgument(1);
-            handler.handle(Future.succeededFuture(1024));
-            return null;
-        }).when(dao).dropPastCourses(Mockito.anyString(), Mockito.any(Handler.class));
     }
 
     protected void mockTeachers() {
@@ -77,5 +88,15 @@ public class StsCase {
             async.complete();
             return null;
         }).when(dao).insertCourses(Mockito.any(JsonArray.class), Mockito.any(Handler.class));
+    }
+
+    protected void expectedError(TestContext ctx, String path, StsError expected) {
+        Async async = ctx.async();
+        sts.importFiles(path, ar -> {
+            if (ar.failed()) {
+                ctx.assertEquals(ar.cause().getMessage(), expected.key());
+            } else ctx.fail("StsImport should trigger " + expected.name());
+            async.complete();
+        });
     }
 }

@@ -9,7 +9,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -25,18 +24,6 @@ public class Case8 extends StsCase {
      */
     public Case8() {
         super(Mockito.mock(StsDAO.class));
-    }
-
-    @Before
-    public void init() {
-        super.mockTeachers();
-
-        JsonArray subjects = new JsonArray()
-                .add(DefaultSubject.DEFAULT_SUBJECT)
-                .add(DefaultSubject.DEFAULT_SUBJECT_2);
-        super.mockSubjects(subjects);
-
-        super.mockStructure();
     }
 
     @Test

@@ -53,7 +53,7 @@ public class StsImport {
         request.exceptionHandler(getExceptionHandler(path, handler));
         request.uploadHandler(upload -> {
             if (!upload.filename().toLowerCase().endsWith(".xml")) {
-                handler.handle(new DefaultAsyncResult(new RuntimeException(StsErrorResponse.INVALID_FILE_EXTENSION)));
+                handler.handle(new DefaultAsyncResult(new RuntimeException(StsError.INVALID_FILE_EXTENSION.key())));
                 return;
             }
 
@@ -74,13 +74,13 @@ public class StsImport {
             if (event.succeeded()) {
                 request.resume();
             } else {
-                handler.handle(new DefaultAsyncResult(new RuntimeException(StsErrorResponse.FOLDER_CREATION_FAILED, event.cause())));
+                handler.handle(new DefaultAsyncResult(new RuntimeException(StsError.FOLDER_CREATION_FAILED.key(), event.cause())));
             }
         });
 
         CompositeFuture.all(futures).setHandler(ar -> {
             if (ar.failed()) {
-                handler.handle(new DefaultAsyncResult(new RuntimeException(StsErrorResponse.UPLOAD_FAILED)));
+                handler.handle(new DefaultAsyncResult(new RuntimeException(StsError.UPLOAD_FAILED.key())));
             } else {
                 handler.handle(ar);
             }
@@ -115,7 +115,7 @@ public class StsImport {
                 } catch (IOException | SAXException | NullPointerException e) {
                     report.end();
                     log.error("Failed to parse STS files", e);
-                    handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.PARSING_ERROR)));
+                    handler.handle(Future.failedFuture(new RuntimeException(StsError.PARSING_ERROR.key())));
                     return;
                 }
 
@@ -141,13 +141,13 @@ public class StsImport {
                         report.end();
                         if (insertResult.failed()) {
                             log.error("Failed to insert STS courses", insertResult.cause().getMessage());
-                            handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.INSERTION_ERROR)));
+                            handler.handle(Future.failedFuture(new RuntimeException(StsError.INSERTION_ERROR.key())));
                         } else handler.handle(Future.succeededFuture(report));
                     });
                 });
             } else {
                 log.error("Failed to read import directory: " + path, event.cause().getMessage());
-                handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.DIRECTORY_READING_ERROR)));
+                handler.handle(Future.failedFuture(new RuntimeException(StsError.DIRECTORY_READING_ERROR.key())));
             }
         });
     }
@@ -160,7 +160,7 @@ public class StsImport {
         CompositeFuture.all(structureFuture, subjectsFuture, teachersFuture).setHandler(ar -> {
             if (ar.failed()) {
                 log.error("Failed to retrieve STS infos", ar.cause());
-                handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.IMPORT_SERVER_ERROR)));
+                handler.handle(Future.failedFuture(new RuntimeException(StsError.IMPORT_SERVER_ERROR.key())));
                 return;
             }
 
@@ -169,13 +169,13 @@ public class StsImport {
             JsonArray teachers = teachersFuture.result();
 
             if (structure == null) {
-                handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.UNKNOWN_STRUCTURE_ERROR)));
+                handler.handle(Future.failedFuture(new RuntimeException(StsError.UNKNOWN_STRUCTURE_ERROR.key())));
                 log.error("Structure is null for uai " + cache.uai());
                 return;
             }
 
             if (!structure.equals(this.requestStructure)) {
-                handler.handle(Future.failedFuture(StsErrorResponse.UNAUTHORIZED));
+                handler.handle(Future.failedFuture(StsError.UNAUTHORIZED.key()));
                 return;
             }
 
@@ -185,10 +185,10 @@ public class StsImport {
             }
 
 
-            dao.dropPastCourses(structure, dropAR -> {
+            dao.dropFutureCourses(structure, dropAR -> {
                 if (dropAR.failed()) {
                     log.error("Failed to delete past courses in STS import for UAI " + cache.uai());
-                    handler.handle(Future.failedFuture(new RuntimeException(StsErrorResponse.DELETE_FUTURE_COURSES_ERROR)));
+                    handler.handle(Future.failedFuture(new RuntimeException(StsError.DELETE_FUTURE_COURSES_ERROR.key())));
                     return;
                 }
 
@@ -245,10 +245,10 @@ public class StsImport {
     }
 
     private JsonArray formatFromWeeks(Course course) {
-        JsonArray courses = new JsonArray();
+        JsonArray occurrences = new JsonArray();
         Alternation alternation = cache.alternation(course.alternation());
         // In case of alternation is null, return. Impossible case because in case of the alternation does not exists, files are not valid
-        if (alternation == null) return courses;
+        if (alternation == null) return occurrences;
 
         Integer startTimeHour = getTimeValue(course.startTime(), TimeValue.HOUR);
         Integer startTimeMin = getTimeValue(course.startTime(), TimeValue.MIN);
@@ -257,7 +257,7 @@ public class StsImport {
 
         if (startTimeHour == null || startTimeMin == null || durationHour == null || durationMin == null) {
             log.error("An error occurred when parsing course.startTime() or course.duration(). One value is null");
-            return courses;
+            return occurrences;
         }
 
         Calendar calendar = Calendar.getInstance();
@@ -274,10 +274,10 @@ public class StsImport {
             calendar.add(Calendar.HOUR_OF_DAY, durationHour);
             calendar.add(Calendar.MINUTE, durationMin);
             course.setEndDate(sdf.format(calendar.getTime()));
-            courses.add(course.toJSON());
+            occurrences.add(course.toJSON());
         }
 
-        return courses;
+        return occurrences;
     }
 
     public StsImport setRequestStructure(String structure) {
