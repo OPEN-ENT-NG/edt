@@ -9,7 +9,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -27,14 +26,7 @@ public class Case6 extends StsCase {
     public Case6() {
         super(Mockito.mock(StsDAO.class));
     }
-
-    @Before
-    public void init() {
-        mockStructure();
-        mockSubjects();
-        mockTeachers();
-    }
-
+    
     @Test
     public void importSts_Should_Import_TwoCoursesWithAGroup(TestContext ctx) {
         String path = "./src/main/resources/sts/tests/case6";

@@ -13,7 +13,7 @@ import fr.cgi.edt.services.impl.StructureServiceNeo4jImpl;
 import fr.cgi.edt.services.impl.StsServiceMongoImpl;
 import fr.cgi.edt.services.impl.UserServiceNeo4jImpl;
 import fr.cgi.edt.sts.StsDAO;
-import fr.cgi.edt.sts.StsErrorResponse;
+import fr.cgi.edt.sts.StsError;
 import fr.cgi.edt.sts.StsImport;
 import fr.cgi.edt.sts.bean.Report;
 import fr.wseduc.mongodb.MongoDb;
@@ -205,8 +205,7 @@ public class EdtController extends MongoDbControllerHelper {
             if (event.succeeded()) {
                 stsImport.importFiles(path, ar -> {
                     if (ar.failed()) {
-                        if (StsErrorResponse.UNAUTHORIZED.equals(ar.cause().getMessage())) unauthorized(request);
-                        else renderError(request, new JsonObject().put("error", ar.cause().getMessage()));
+                        renderError(request, new JsonObject().put("error", ar.cause().getMessage()));
                         return;
                     }
 
@@ -224,7 +223,7 @@ public class EdtController extends MongoDbControllerHelper {
                     });
                 });
             } else
-                badRequest(request, event.cause().getMessage());
+                renderError(request, new JsonObject().put("error", StsError.UPLOAD_FAILED.key()));
         });
     }
 

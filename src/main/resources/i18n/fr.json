@@ -157,5 +157,9 @@
   "edt.sts.import.directory.reading.error": "La lecture du dossier d'import a échoué.",
   "edt.sts.import.server.error": "La récupération des informations a échouée.",
   "edt.sts.import.unknown.structure": "Etablissement inconnu.",
-  "edt.sts.import.error.delete.future.courses": "La suppression des cours futurs a échouée."
+  "edt.sts.import.error.delete.future.courses": "La suppression des cours futurs a échouée.",
+  "edt.sts.import.error.unauthorized": "Les fichiers STS ne correspondent pas à l'établissement indiqué.",
+  "edt.sts.import.mkdir.error": "Une erreur est survenue lors de la création du dossier d'import.",
+  "edt.sts.import.invalid.file.extension": "Les fichiers importés ne sont pas des fichiers XML. Merci de suffixer les fichiers par .xml",
+  "edt.sts.import.upload.failed": "Le téléchargement des fichiers a échoué."
 }

@@ -86,7 +86,7 @@ public class StsDAO {
         }));
     }
 
-    public void dropPastCourses(String structure, Handler<AsyncResult<Integer>> handler) {
+    public void dropFutureCourses(String structure, Handler<AsyncResult<Integer>> handler) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = sdf.format(new Date());
         JsonObject dateMatcher = new JsonObject()
