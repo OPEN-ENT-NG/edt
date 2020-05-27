@@ -161,5 +161,6 @@
   "edt.sts.import.error.unauthorized": "Les fichiers STS ne correspondent pas à l'établissement indiqué.",
   "edt.sts.import.mkdir.error": "Une erreur est survenue lors de la création du dossier d'import.",
   "edt.sts.import.invalid.file.extension": "Les fichiers importés ne sont pas des fichiers XML. Merci de suffixer les fichiers par .xml",
-  "edt.sts.import.upload.failed": "Le téléchargement des fichiers a échoué."
+  "edt.sts.import.upload.failed": "Le téléchargement des fichiers a échoué.",
+  "edt.sts.import.upload.same.file": "Vous avez téléchargé deux fois le même fichier. Merci de recommencer avec les fichiers STS-EMP et EMP-STS."
 }

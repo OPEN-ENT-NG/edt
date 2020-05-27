@@ -94,7 +94,8 @@ public class StsDAO {
 
         JsonObject matcher = new JsonObject()
                 .put("structureId", structure)
-                .put("startDate", dateMatcher);
+                .put("startDate", dateMatcher)
+                .put("source", "STS");
         mongoDb.delete(COLLECTION, matcher, MongoDbResult.validActionResultHandler(evt -> {
             if (evt.isLeft()) handler.handle(Future.failedFuture(evt.left().getValue()));
             else handler.handle(Future.succeededFuture(evt.right().getValue().getInteger("number")));
