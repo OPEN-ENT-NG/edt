@@ -74,6 +74,7 @@ export const importSts = {
             } finally {
                 scope.display.loading = false;
                 this.loadReports();
+                that.safeApply();
             }
         },
 
