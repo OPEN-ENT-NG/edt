@@ -52,6 +52,7 @@ public class Case7 extends StsCase {
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID)
                 .put("dayOfWeek", 4)
+                .put("theoretical", false)
                 .put("startDate", "2099-09-03T14:02:00")
                 .put("endDate", "2099-09-03T15:02:00")
                 .put("source", "STS");
@@ -63,6 +64,7 @@ public class Case7 extends StsCase {
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID)
                 .put("dayOfWeek", 4)
+                .put("theoretical", false)
                 .put("startDate", "2099-09-10T14:02:00")
                 .put("endDate", "2099-09-10T15:02:00")
                 .put("source", "STS");
@@ -75,6 +77,7 @@ public class Case7 extends StsCase {
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID_2)
                 .put("dayOfWeek", 2)
+                .put("theoretical", false)
                 .put("startDate", "2099-09-01T15:13:00")
                 .put("endDate", "2099-09-01T17:13:00")
                 .put("source", "STS");
@@ -86,6 +89,7 @@ public class Case7 extends StsCase {
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID_2)
                 .put("dayOfWeek", 2)
+                .put("theoretical", false)
                 .put("startDate", "2099-09-15T15:13:00")
                 .put("endDate", "2099-09-15T17:13:00")
                 .put("source", "STS");

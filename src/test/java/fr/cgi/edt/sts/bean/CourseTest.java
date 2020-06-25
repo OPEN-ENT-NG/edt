@@ -17,6 +17,7 @@ public class CourseTest {
             .put("classes", new JsonArray())
             .put("groups", new JsonArray())
             .put("source", "STS")
+            .put("theoretical", false)
             .put("teacherIds", new JsonArray())
             .put("roomLabels", new JsonArray());
 
