@@ -1,6 +1,6 @@
-import { model, moment, _, notify } from 'entcore';
+import {_, model, moment, notify} from 'entcore';
 import http from 'axios';
-import { Mix } from 'entcore-toolkit';
+import {Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from "./structure";
 import {Moment} from "moment";
@@ -113,16 +113,17 @@ export class Course {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
-            teacherIds: _.pluck(this.teachers, 'id' ),
-            classes : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
-            groups : _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name'),
+            teacherIds: _.pluck(this.teachers, 'id'),
+            classes: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
+            groups: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name'),
             roomLabels: this.roomLabels,
-            dayOfWeek: this.is_recurrent ?parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
+            dayOfWeek: this.is_recurrent ? parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
+            theoretical: false,
             everyTwoWeek: this.everyTwoWeek,
-            exceptionnal: (this.exceptionnal)? this.exceptionnal : undefined,
+            exceptionnal: (this.exceptionnal) ? this.exceptionnal : undefined,
             updated: moment(),
-            lastUser :model.me.login
+            lastUser: model.me.login
         };
 
         if(!this.structureId && this.structure && this.structure.id){
