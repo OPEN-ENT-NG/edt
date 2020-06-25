@@ -130,7 +130,8 @@ public class Course {
                 .put("classes", this.classes)
                 .put("groups", this.groups)
                 .put("teacherIds", this.teacherIds)
-                .put("roomLabels", this.roomLabels);
+                .put("roomLabels", this.roomLabels)
+                .put("theoretical", false);
 
         if (this.structureId != null) json.put("structureId", this.structureId);
         if (this.subjectId != null) json.put("subjectId", this.subjectId);
