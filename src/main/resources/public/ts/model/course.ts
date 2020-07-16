@@ -160,24 +160,18 @@ export class Course {
     getCourseForEachOccurrence ():Courses {
         let courses = new Courses();
         for(let i = 0; i < this.courseOccurrences.length ; i++){
-           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i], this.display, this.courseOccurrences);
+           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i]);
             if (i!==0)
                 delete newCourse._id;
             courses.all.push(newCourse.toJSON());
         }
         return courses
     }
-    syncCourseWithOccurrence (occurrence, display, courseOcurrence) :Course {
+    syncCourseWithOccurrence (occurrence) :Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        if (this.display && !this.display.freeSchedule) {
-            this.startDate = moment(moment(this.startDate).format('YYYY-MM-DD') + " " +  this.timeSlot.start.startHour);
-            this.endDate = moment(moment(this.endDate).format('YYYY-MM-DD') + " " + this.timeSlot.end.endHour);
-        }
-        else {
-            this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
-            this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
-        }
+        this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
+        this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
         return this;
     }
     isRecurrent (): boolean {
