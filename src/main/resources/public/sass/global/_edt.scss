@@ -1,14 +1,5 @@
-@import './specifics/mixins';
-
 body.edt {
-  @import './specifics/select';
-  @import './specifics/utils';
-  @import './specifics/custom';
-  @import './specifics/switch';
-  @import './specifics/atomic';
-  @import './specifics/fixCalendarHRFirefox';
-  @import './specifics/circleInfo';
-  @import './specifics/calendarItem';
+  @import 'components/index';
 
   .schedule .days .day.single {
     width: 100%
@@ -71,8 +62,8 @@ body.edt {
   }
 
   .cyan{
-    background: $cyan !important;
-    color : $white !important;
+    background: $cyan;
+    color : $white;
   }
   .green{
     background: $green !important;
@@ -204,9 +195,6 @@ div.illustration{
 }
 
 .edt-settings {
-  @import './specifics/loader';
-
-
   table {
     th {
       i::before {

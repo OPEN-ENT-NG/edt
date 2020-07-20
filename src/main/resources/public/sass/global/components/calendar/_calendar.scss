@@ -1,0 +1,137 @@
+.application-title{
+  color: $black;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.datepicker table thead tr {
+  background: $edt-dark-blue;
+
+  th:hover {
+    background: $edt-light-grey;
+  }
+}
+
+#calendar-view {
+
+  background: $edt-white;
+
+  i.calendar::before {
+    color: $edt-dark-blue;
+  }
+
+  .calendar-current-week {
+    background: $edt-white;
+    padding-right: 0;
+    margin-bottom: 8px;
+    line-height: 39px;
+
+    .cyan {
+      background-color: $edt-dark-blue;
+
+      &:hover {
+        background-color: $edt-dark-blue;
+      }
+    }
+
+    .calendarFiltersButtons {
+
+      background: $edt-white;
+
+      .displayModeButtons {
+        margin: 0;
+      }
+
+      .nextPrevious {
+        button {
+          background-color: $edt-dark-blue;
+
+          &:hover {
+            background-color: $edt-dark-blue;
+          }
+        }
+      }
+
+      .displayOptionsButtons {
+        button {
+          background-color: $edt-dark-blue;
+
+          &:hover {
+            background-color: $edt-dark-blue;
+          }
+        }
+      }
+    }
+
+    button {
+      color: $edt-white;
+      border-radius: 0px;
+      padding: 8px 15px 8px;
+
+      i18n {
+        text-transform: uppercase;
+      }
+    }
+
+    span[ng-if="display.mode === 'week'"] {
+      color: $edt-white;
+      background-color: $edt-dark-blue;
+      height: 100%;
+      display: inline-block;
+      padding: 0 10px;
+    }
+  }
+
+  .next-timeslots, .previous-timeslots {
+    margin-bottom: 0;
+    background: $edt-dark-blue;
+
+    &:hover {
+      background: $edt-dark-blue;
+    }
+
+    &:disabled {
+      background: $edt-light-grey;
+
+      &:hover {
+        background: $edt-light-grey;
+      }
+
+      &::before {
+        content: " ";
+      }
+    }
+  }
+
+  .schedule {
+    legend.timeslots {
+      background: $edt-white;
+      color: $black;
+    }
+  }
+
+  .days {
+    height: auto;
+
+    .day {
+      legend {
+        background: $edt-white;
+        color: $black;
+        text-transform: uppercase;
+      }
+
+      .timeslots {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .timeslot {
+          background: $edt-white;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+        }
+      }
+    }
+  }
+}

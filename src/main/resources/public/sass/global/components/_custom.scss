@@ -1,11 +1,12 @@
 multi-combo .multi-combo-root-button {
   min-width: 50px;
+  background-color: $edt-dark-blue;
 }
 .schedule .next-timeslots {
   width: 100%;
   position: relative;
   z-index: 800;
-  height: 30px;
+  height: 20px;
   margin: 0;
 }
 .schedule .previous-timeslots {
