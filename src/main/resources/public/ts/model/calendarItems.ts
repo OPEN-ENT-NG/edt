@@ -133,6 +133,7 @@ export class CalendarItems {
             filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
         if (group.length > 0)
             filter += this.getFilterGroup(group);
+        filter += '&union=true';
         if(isAllStructure){
             if(filter) {
                 let uris = []
