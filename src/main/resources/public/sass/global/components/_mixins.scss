@@ -35,6 +35,7 @@ $edt-magenta-lighter: rgba(109, 33, 79, 0.7);
 $edt-darker-blue-lighter: rgba(24, 44, 97, 0.7);
 $edt-pink-lighter: rgba(252, 66, 123, 0.7);
 $edt-solid-purple-lighter: rgba(130, 88, 159, 0.7);
+$edt-filter-unactive : rgba(160, 167, 179, 1);
 
 @mixin keyframes($animationName){
   @-webkit-keyframes #{$animationName} {

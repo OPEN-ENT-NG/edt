@@ -91,19 +91,20 @@ export class CalendarItems {
                             }
                         });
 
-                        deletedGroup.classes.map( c =>{
-                            if(item.id_classe === c.id ){
-                                isAGroupOfANewClass = true;
-                            }
-                        });
+                        if(deletedGroup != null) {
+                            deletedGroup.classes.map(c => {
+                                if (item.id_classe === c.id) {
+                                    isAGroupOfANewClass = true;
+                                }
+                            });
+                        }
 
-
-                        if(!isAGroupOfANewClass){
+                        if(!isAGroupOfANewClass && deletedGroup != null){
                             deletedGroup.groupsDeleted.map((gg,index)=>{
                                 if(gg.name === groupName){
                                     deletedGroup.groupsDeleted.splice(index,1);
                                 }
-                            })
+                            });
                         }
                         if(!isAlreadyInGroups){
                             let grip =new Group(item.id_groups[index],groupName,"");
