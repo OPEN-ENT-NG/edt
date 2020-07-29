@@ -1,9 +1,8 @@
 <div class="sidebar ">
     <div class="row">
-        <section id="display-section" class="twelve">
+        <div id="display-section" class="twelve">
             <div ng-if="checkAccess() && structures.all.length > 1">
-                <select
-                        ng-model="structure"
+                <select ng-model="structure"
                         id="structure-list"
                         class="twelve margin-left-2 margin-bottom-mid"
                         ng-change="switchStructure(structure)"
@@ -14,9 +13,7 @@
                 </select>
             </div>
             <div ng-if="children" class="row display-inline-block">
-
-                <select
-                        ng-model="child"
+                <select ng-model="child"
                         id="children-list"
                         class="twelve margin-left-2 margin-bottom-mid"
                         ng-change="switchChild(child)"
@@ -26,7 +23,7 @@
                     </option>
                 </select>
             </div>
-            <div ng-if="::isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="row display-inline-block">
+            <div ng-if="isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="row display-inline-block">
                 <label class="twelve small">
                     <multi-combo
                             class="twelve"
@@ -37,7 +34,7 @@
                             order-by="lastName"
                             filtered-model="params.user"
                             labels="comboLabels"
-                            ng-click="updateDatas();"
+                            ng-click="updateDatas()"
                     ></multi-combo>
                     <div class="select-blocks">
                         <div ng-repeat="teacher in params.user"
@@ -47,48 +44,46 @@
                     </div>
                 </label>
             </div>
-            <div ng-if="::isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="row display-inline-block">
-                <label class="twelve small">
-                    <multi-combo
-                            title="[[translate('utils.groups')]]"
-                            id="group-list-teacher"
-                            combo-model="structure.groups.all"
-                            search-on="displayName"
-                            order-by="type_group && displayName"
-                            filtered-model="params.group"
-                            labels="comboLabels"
-                            ng-click="updateDatas();"
-                    ></multi-combo>
-                    <!--<button ng-if ="isTeacher()" ng-click="displayAllClass()"><i18n>showMore</i18n></button>-->
-                    <div class="select-blocks">
-                        <div ng-repeat="group in params.group" class="[[group.color]]"
-                             ng-click="dropGroup(group)">[[group.name]]</div>
-                    </div>
-                </label>
+            <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="row display-inline-block">
+
+                <span class="sidebar-header">[[translate('utils.groups') | uppercase]]</span>
+                <button ng-disabled="!(params.group.length > 0)" class="twelve padding-sm deselect-button"
+                        ng-click="deselectAllFilters()">
+                    <i18n>edt.utils.deselect.all</i18n>
+                </button>
             </div>
 
-        </section>
-    </div>
-    <section ng-if="isPersonnel()" id="add-section" class="row">
-        <div class="cell twelve ">
-            <div class="row cell">
-                <div class="twelve cell small">
-                    <button class="twelve padding-sm" ng-click="createCourse()">
-                        <!--workflow="diary.manageHomework"-->
-                        <i18n>edt.schedule.create</i18n>
-                    </button>
+            <div ng-if="isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="edt-filters">
+                <div ng-repeat="group in structure.groups.all | orderBy"
+                     ng-class="(group.type_groupe == 1) ? 'group-filter' : 'class-filter'">
+                    <div ng-class="(isFilterActive(group)) ? '' : 'unactive'"
+                         class="button-filter [[group.color]]"
+                         ng-click="toogleFilter(group)">
+                        [[group.name]]
+                    </div>
                 </div>
             </div>
+            </section>
         </div>
-    </section>
+        <section ng-if="isPersonnel()" id="add-section" class="row">
+            <div class="cell twelve ">
+                <div class="row cell">
+                    <div class="twelve cell small">
+                        <button class="twelve padding-sm" ng-click="createCourse()">
+                            <i18n>edt.schedule.create</i18n>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <section ng-if="isPersonnel()" id="delete-section" class="row">
-        <div class="cell twelve ">
-            <button ng-disabled="! (params.coursesToDelete.length > 0)" class="twelve padding-sm" ng-click="openDeleteForm()">
-
-                <i18n>edt.utils.delete.selected</i18n>
-
-            </button>
-        </div>
-    </section>
+        <section ng-if="isPersonnel()" id="delete-section" class="row">
+            <div class="cell twelve ">
+                <button ng-disabled="! (params.coursesToDelete.length > 0)" class="twelve padding-sm"
+                        ng-click="openDeleteForm()">
+                    <i18n>edt.utils.delete.selected</i18n>
+                </button>
+            </div>
+        </section>
+    </div>
 </div>

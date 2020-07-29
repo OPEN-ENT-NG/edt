@@ -73,6 +73,7 @@
   "edt.utils.back":"Retour",
   "edt.utils.save": "Sauvegarder",
   "edt.utils.modify": "Modifier",
+  "edt.utils.deselect.all": "Tout déselectionner",
   "Week":"Semaine",
   "edt.first.occurrence":"1ère occurrence",
   "edt.utils.delete": "Supprimer",

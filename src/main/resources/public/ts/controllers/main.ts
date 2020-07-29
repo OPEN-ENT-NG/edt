@@ -227,6 +227,7 @@ export let main = ng.controller('EdtController',
         $scope.syncCourses = async () => {
             let arrayIds =[];
             $scope.params.coursesToDelete = [];
+            await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
 
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child) {
@@ -271,6 +272,17 @@ export let main = ng.controller('EdtController',
 
             if($scope.params.group.length > 0) {
                 await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
+
+                $scope.params.group.forEach(group => { //swap groups with corresponding groups with color
+                    $scope.params.group.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
+                });
+
+                $scope.params.group.forEach(group => { //clean groups without color
+                    if(group.color == '') {
+                        $scope.params.group.splice($scope.params.group.findIndex(res => group.name == res.name),1);
+                    }
+                });
+
                 $scope.params.deletedGroups.groupsDeleted.map(g =>{
                     $scope.params.group.map(gg  => {
                         if(g.id == gg.id){
@@ -317,7 +329,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.dropGroup = (group: Group): void => {
 
-            if(group.type_groupe != 0 || group.type_groupe === undefined)
+            if((group.type_groupe != 0 || group.type_groupe === undefined) && group.color != "")
                 $scope.params.deletedGroups.groupsDeleted.push(group);
 
             $scope.params.deletedGroups.classes.map((c,index) => {
@@ -677,8 +689,6 @@ export let main = ng.controller('EdtController',
         $scope.updateDatas = async () => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
-                if($scope.params.group.length > $scope.params.oldGroup.length){
-                }
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldGroup = angular.copy($scope.params.group);
@@ -691,6 +701,47 @@ export let main = ng.controller('EdtController',
                 $scope.params.oldUser = angular.copy($scope.params.user);
             }
         };
+
+        /**
+         * Toogle a group/class filter
+         * @param {Group} filter selected filter to toggle
+         */
+        $scope.toogleFilter = async function (filter : Group) : Promise<void> {
+            $scope.calendarLoader.display();
+            if (!$scope.isFilterActive(filter)) {
+                $scope.params.group.push(filter);
+            } else {
+                let groups : Group[] = [filter];
+                $scope.dropGroup(filter);
+                await $scope.structure.calendarItems.getGroups(groups,$scope.params.deletedGroups);
+                groups.splice(0,1);
+                groups.forEach(group => {
+                    groups.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
+                });
+                groups.forEach(
+                    group => $scope.dropGroup(group)
+                );
+            }
+            await $scope.updateDatas();
+            $scope.calendarLoader.hide();
+        };
+
+        /**
+         * Check if a filter has been activated
+         * @param {Group} filter filter to check
+         */
+        $scope.isFilterActive = (filter : Group) : boolean => {
+            return ($scope.params.group.indexOf(filter) !== -1);
+        }
+
+        /**
+         * Deselect every currently selected filters
+         */
+        $scope.deselectAllFilters = () : void => {
+            $scope.params.group = [];
+            $scope.updateDatas();
+        }
+
 
         $scope.getMomentFromDate = function (date,time) {
             return  moment([
