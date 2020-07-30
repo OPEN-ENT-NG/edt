@@ -227,7 +227,9 @@ export let main = ng.controller('EdtController',
         $scope.syncCourses = async () => {
             let arrayIds =[];
             $scope.params.coursesToDelete = [];
-            await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
+            if($scope.structure.groups.all.length === 0) {
+                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
+            }
 
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child) {
