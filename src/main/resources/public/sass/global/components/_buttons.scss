@@ -16,3 +16,22 @@ button, a.button {
     color: $edt-white;
   }
 }
+
+
+.header-buttons {
+
+  float: right;
+
+  #delete-section {
+    float: left ;
+  }
+
+  #add-section {
+    float: right;
+    margin-left: 10px;
+  }
+
+  .button-header {
+    width: fit-content;
+  }
+}
