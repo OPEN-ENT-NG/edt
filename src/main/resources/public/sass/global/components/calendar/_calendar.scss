@@ -2,6 +2,13 @@
   color: $black;
   font-size: 36px;
   font-weight: bold;
+  float: right;
+}
+
+.application-logo{
+  max-height: 56px;
+  margin-right: 10px;
+  float: left;
 }
 
 .datepicker table thead tr {
