@@ -1,44 +1,92 @@
-.sidebar-header {
-  color: $edt-white;
-  background-color: $edt-dark-blue;
-  width: 100%;
-  display: inline-block;
-  padding: 5px 0 5px 10px;
-  font-size: 14pt;
-  margin-bottom: 10px;
-}
+#display-section {
+  height: 100%;
 
-.deselect-button {
-  width: 50%;
-  border-radius: 5px;
-}
+  .sidebar-header {
+    color: $edt-white;
+    background-color: $edt-dark-blue;
+    width: 100%;
+    display: inline-block;
+    padding: 5px 0 5px 10px;
+    font-size: 12pt;
+    margin-bottom: 10px;
 
-.edt-filters {
-  overflow-y: scroll;
-  height: 500px;
-
-  .button-filter {
-    color: white;
-    border-radius: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-top: 3px;
-
-    &:hover {
-      cursor: pointer;
-    }
-
-    &.unactive {
-      background-color: $edt-filter-unactive !important;
+    &.top {
+      border-radius: 8px 8px 0 0;
     }
   }
-}
 
-.class-filter {
-  font-weight: bold;
-  font-size: 14px;
-}
+  .sidebar-section {
+    &.full {
+      height: 83%;
+    }
 
-.group-filter {
-  font-size: 11px;
+    &.half {
+      height: 38%;
+    }
+
+    .section-content {
+      padding: 10px;
+
+      &.scroll {
+        overflow-y: scroll;
+        height: 80%;
+      }
+
+      .teacher-results {
+        padding: 5px;
+        margin: 0;
+        font-weight: bold;
+        list-style-type: none;
+        display: flow-root;
+
+        .teacher-name {
+          float: left;
+        }
+
+        .close {
+          cursor: pointer;
+          float: right;
+        }
+      }
+    }
+
+    #select-all-groups {
+      height: 30px;
+      margin-left: 10px;
+    }
+  }
+
+
+  .deselect-button {
+    width: fit-content;
+    border-radius: 5px;
+  }
+
+  .edt-filters {
+
+    .class-filter {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .group-filter {
+      font-size: 11px;
+    }
+
+    .button-filter {
+      color: white;
+      border-radius: 20px;
+      padding-left: 10px;
+      padding-right: 10px;
+      margin-top: 3px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &.unactive {
+        background-color: $edt-filter-unactive !important;
+      }
+    }
+  }
 }
