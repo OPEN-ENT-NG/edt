@@ -1,6 +1,12 @@
 multi-combo .multi-combo-root-button {
   min-width: 50px;
-  background-color: $edt-dark-blue;
+  color: black;
+  border: none !important;
+}
+
+multi-combo .multi-combo-root-panel {
+  position: fixed;
+  top: 128px !important;
 }
 .schedule .next-timeslots {
   width: 100%;
@@ -16,4 +22,16 @@ multi-combo .multi-combo-root-button {
   left: 0;
   top: 60px;
   z-index: 800;
+}
+
+.sidebar {
+  padding: 0px;
+  margin-right: 10px;
+  border-radius: 8px;
+  height: 700px;
+  display: flex;
+}
+
+.calendar {
+  width: 82%;
 }

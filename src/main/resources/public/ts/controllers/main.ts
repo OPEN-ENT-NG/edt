@@ -280,7 +280,7 @@ export let main = ng.controller('EdtController',
                 });
 
                 $scope.params.group.forEach(group => { //clean groups without color
-                    if(group.color == '') {
+                    if(group.color === '' || group.color === undefined) {
                         $scope.params.group.splice($scope.params.group.findIndex(res => group.name == res.name),1);
                     }
                 });

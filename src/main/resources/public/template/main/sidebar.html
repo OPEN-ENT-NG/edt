@@ -1,65 +1,59 @@
 <div class="sidebar ">
     <div class="row">
         <div id="display-section" class="twelve">
-            <div ng-if="checkAccess() && structures.all.length > 1">
-                <select ng-model="structure"
-                        id="structure-list"
-                        class="twelve margin-left-2 margin-bottom-mid"
-                        ng-change="switchStructure(structure)"
-                        ng-options="structure as structure.name for structure in structures.all">
-                    <option value="" disabled selected>
-                        [[translate('utils.structure.choose.one')]]
-                    </option>
-                </select>
+            <div ng-if="checkAccess() && structures.all.length > 1" class="sidebar-section">
+                <span class="sidebar-header top">[[translate('utils.facility') | uppercase]]</span>
+                <div class="section-content">
+                    <select ng-model="structure"
+                            id="structure-list"
+                            class="twelve margin-left-2 margin-bottom-mid"
+                            ng-change="switchStructure(structure)"
+                            ng-options="structure as structure.name for structure in structures.all">
+                        <option value="" disabled selected>
+                            [[translate('utils.structure.choose.one')]]
+                        </option>
+                    </select>
+                </div>
             </div>
-            <div ng-if="children" class="row display-inline-block">
+            <div ng-if="children" class="row display-inline-block section-content">
                 <select ng-model="child"
                         id="children-list"
                         class="twelve margin-left-2 margin-bottom-mid"
                         ng-change="switchChild(child)"
                         ng-options="child as child.displayName for child in children">
-                    <option value="" disabled selected>
-                        [[translate('utils.child.choose.one')]]
-                    </option>
+                    <option value="" disabled selected>[[translate('utils.child.choose.one')]]</option>
                 </select>
             </div>
-            <div ng-if="isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="row display-inline-block">
-                <label class="twelve small">
-                    <multi-combo
-                            class="twelve"
-                            title="[[translate('utils.teachers')]]"
-                            id="user-list"
-                            combo-model="structure.teachers.all"
-                            search-on="lastName"
-                            order-by="lastName"
-                            filtered-model="params.user"
-                            labels="comboLabels"
-                            ng-click="updateDatas()"
-                    ></multi-combo>
-                    <div class="select-blocks">
-                        <div ng-repeat="teacher in params.user"
-                             ng-click="dropTeacher(teacher)">
-                            [[teacher.displayName]]
-                        </div>
+
+            <div ng-if="(isTeacher() || isPersonnel()) && (params.user.length > 0)" ng-show="!isAllStructure" class="sidebar-section half">
+                <span class="sidebar-header">[[translate('utils.teachers') | uppercase]]</span>
+
+                <div class="row display-inline-block section-content scroll">
+                    <div ng-repeat="teacher in params.user" class="teacher-results">
+                        <span class="teacher-name">[[teacher.displayName]]</span>
+                        <i class="close" ng-click="dropTeacher(teacher)"></i>
                     </div>
-                </label>
+                </div>
             </div>
-            <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="row display-inline-block">
 
+            <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="sidebar-section"
+                ng-class="(params.user.length > 0) ? 'half' : 'full'">
                 <span class="sidebar-header">[[translate('utils.groups') | uppercase]]</span>
-                <button ng-disabled="!(params.group.length > 0)" class="twelve padding-sm deselect-button"
-                        ng-click="deselectAllFilters()">
-                    <i18n>edt.utils.deselect.all</i18n>
-                </button>
-            </div>
+                <div class="row display-inline-block" id="select-all-groups">
+                    <button ng-disabled="!(params.group.length > 0)" class="twelve padding-sm deselect-button"
+                            ng-click="deselectAllFilters()">
+                        <i18n>edt.utils.deselect.all</i18n>
+                    </button>
+                </div>
 
-            <div ng-if="isTeacher() || isPersonnel() " ng-show="!isAllStructure" class="edt-filters">
-                <div ng-repeat="group in structure.groups.all | orderBy"
-                     ng-class="(group.type_groupe == 1) ? 'group-filter' : 'class-filter'">
-                    <div ng-class="(isFilterActive(group)) ? '' : 'unactive'"
-                         class="button-filter [[group.color]]"
-                         ng-click="toogleFilter(group)">
-                        [[group.name]]
+                <div class="edt-filters section-content scroll">
+                    <div ng-repeat="group in structure.groups.all | orderBy"
+                         ng-class="(group.type_groupe == 1) ? 'group-filter' : 'class-filter'">
+                        <div ng-class="(isFilterActive(group)) ? '' : 'unactive'"
+                             class="button-filter [[group.color]]"
+                             ng-click="toogleFilter(group)">
+                            [[group.name]]
+                        </div>
                     </div>
                 </div>
             </div>

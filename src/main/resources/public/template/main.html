@@ -8,8 +8,34 @@
                 </h1>
             </app-title>
         </div>
-        <div class="loader" ng-show="calendarLoader.show">
-            <div class="four cell">
+        <div class="four cell search-bars">
+            <label class="twelve small">
+                <multi-combo
+                        title="[[translate('utils.teachers')]]"
+                        id="user-list"
+                        combo-model="structure.teachers.all"
+                        search-on="lastName"
+                        order-by="lastName"
+                        filtered-model="params.user"
+                        labels="comboLabels"
+                        ng-click="updateDatas()"></multi-combo>
+            </label>
+            <label class="twelve small">
+                <multi-combo
+                        title="[[translate('utils.groups')]]"
+                        id="group-list-teacher"
+                        combo-model="structure.groups.all"
+                        search-on="displayName"
+                        order-by="displayName"
+                        filtered-model="params.group"
+                        labels="comboLabels"
+                        ng-click="updateDatas()"
+                ></multi-combo>
+            </label>
+
+        </div>
+        <div class="loader four cell" ng-show="calendarLoader.show">
+            <div>
                 <h4>
                     <i class="spinner margin-right-md"></i>
                     <i18n>edt.calendar.loading</i18n>
@@ -17,7 +43,7 @@
             </div>
         </div>
 
-        <div class="header-buttons">
+        <div class="header-buttons" ng-show="!calendarLoader.show">
             <section ng-if="isPersonnel()" id="delete-section" class="button-header four cell">
                 <div class="cell twelve ">
                     <button ng-show="(params.coursesToDelete.length > 0)" class="twelve padding-sm"
@@ -44,12 +70,12 @@
 </div>
 <div class="row">
 
-    <article ng-if="::checkAccess()" class="cell two twelve-mobile"
+    <article ng-if="::checkAccess()" class="cell two twelve-mobile sidebar"
              static-include="/edt/public/template/main/sidebar.html">
     </article>
 
     <!-- Calendar View -->
-    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{ten: checkAccess(), twelve: !checkAccess()}">
+    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile" ng-class="{calendar: checkAccess(), twelve: !checkAccess()}">
         <calendar
                 enable-display-modes="true"
                 display-template="calendar/course-item"
