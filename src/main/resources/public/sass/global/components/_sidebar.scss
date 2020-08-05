@@ -27,11 +27,10 @@
       height: 38%;
 
       .edt-filters {
-        height: 70% !important;
+        height: 55% !important;
       }
 
     }
-
 
     &#teacher-section {
       height: fit-content;
@@ -42,7 +41,7 @@
     }
 
     &#group-section {
-      flex: 1;
+      flex: auto !important;
     }
 
     .section-content {
@@ -50,13 +49,14 @@
 
       &.scroll {
         overflow-y: scroll;
-        height: 80%;
+        height: 70%;
       }
 
       .teacher-results {
         padding: 5px;
         margin: 0;
         font-weight: bold;
+        font-size: 14px;
         list-style-type: none;
         display: flow-root;
 
