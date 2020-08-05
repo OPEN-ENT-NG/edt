@@ -15,7 +15,7 @@ public class WorkflowActionUtils {
      * @param action workflow action
      * @return returns if user got provided workflow action
      */
-    public boolean hasRight (UserInfos user, String action) {
+    public boolean hasRight(UserInfos user, String action) {
         List<UserInfos.Action> actions = user.getAuthorizedActions();
         for (UserInfos.Action userAction : actions) {
             if (action.equals(userAction.getDisplayName())) {

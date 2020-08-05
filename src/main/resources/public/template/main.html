@@ -8,30 +8,29 @@
                 </h1>
             </app-title>
         </div>
-        <div class="four cell search-bars">
-            <label class="twelve small">
-                <multi-combo
-                        title="[[translate('utils.teachers')]]"
-                        id="user-list"
-                        combo-model="structure.teachers.all"
-                        search-on="lastName"
-                        order-by="lastName"
-                        filtered-model="params.user"
-                        labels="comboLabels"
-                        ng-click="updateDatas()"></multi-combo>
-            </label>
-            <label class="twelve small">
-                <multi-combo
-                        title="[[translate('utils.groups')]]"
-                        id="group-list-teacher"
-                        combo-model="structure.groups.all"
-                        search-on="displayName"
-                        order-by="displayName"
-                        filtered-model="params.group"
-                        labels="comboLabels"
-                        ng-click="updateDatas()"
-                ></multi-combo>
-            </label>
+        <div class="five cell search-bars" ng-show="!calendarLoader.show">
+            <div workflow="edt.edtSearch" class="search-inputs">
+                <div class="search-input twelve small">
+                    <async-autocomplete data-ng-disabled="false"
+                                        data-ng-model="autocomplete.teacher"
+                                        data-ng-change="selectTeacher"
+                                        data-options="autocomplete.teacherOptions"
+                                        data-on-search="filterTeacherOptions"
+                                        data-placeholder="edt.search.teacher"
+                                        data-search="autocomplete.teacher">
+                    </async-autocomplete>
+                </div>
+                <div class="search-input twelve small">
+                    <async-autocomplete data-ng-disabled="false"
+                                        data-ng-model="autocomplete.class"
+                                        data-ng-change="selectClass"
+                                        data-options="autocomplete.classOptions"
+                                        on-search="filterClassOptions"
+                                        data-placeholder="edt.search.group"
+                                        search="autocomplete.class">
+                    </async-autocomplete>
+                </div>
+            </div>
 
         </div>
         <div class="loader four cell" ng-show="calendarLoader.show">
@@ -43,7 +42,7 @@
             </div>
         </div>
 
-        <div class="header-buttons" ng-show="!calendarLoader.show">
+        <div class="header-buttons">
             <section ng-if="isPersonnel()" id="delete-section" class="button-header four cell">
                 <div class="cell twelve ">
                     <button ng-show="(params.coursesToDelete.length > 0)" class="twelve padding-sm"

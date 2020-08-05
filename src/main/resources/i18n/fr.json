@@ -111,6 +111,8 @@
   "edt.settings.exclusion.start_date": "Date de début",
   "edt.settings.exclusion.end_date": "Date de fin",
   "edt.settings.exclusion.title": "Exclusion de périodes",
+  "edt.search.teacher": "Rechercher un enseignant",
+  "edt.search.group": "Rechercher une classe",
   "edt.choose.edition.type.message": "Souhaitez vous modifier :",
   "edt.choose.edition.type.choice1": "Ce cours seulement",
   "edt.choose.edition.type.choice2": "Toutes les occurrences de ce cours (excepté les cours déjà passés)",
