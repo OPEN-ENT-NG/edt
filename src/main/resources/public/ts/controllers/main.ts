@@ -13,6 +13,7 @@ import {
 } from '../model';
 import http from "axios";
 import {TimeSlots} from "../model/timeSlots";
+import { AutocompleteUtils } from "../model/autocompleteUtils";
 
 
 
@@ -28,6 +29,11 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
+
+        //const WORKFLOW_RIGHTS = Behaviours.applicationsBehaviours.edt.rights.workflow;
+
+        $scope.autocomplete = AutocompleteUtils;
+
         $scope.chronoEnd = true;
         async function getMainStruct() {
             let {data} =  await http.get(`/directory/user/${model.me.userId}?_=1556865888485`);
@@ -74,6 +80,7 @@ export let main = ng.controller('EdtController',
         $scope.syncStructure = async (structure: Structure) => {
             $scope.structure = structure;
             $scope.timeSlots.structure_id = $scope.structure.id;
+            AutocompleteUtils.init(structure);
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
             await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
             await $scope.timeSlots.syncTimeSlots();
@@ -275,15 +282,15 @@ export let main = ng.controller('EdtController',
             if($scope.params.group.length > 0) {
                 await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
 
-                $scope.params.group.forEach(group => { //swap groups with corresponding groups with color
-                    $scope.params.group.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
-                });
+                for (let i = 0 ; i < $scope.params.group.length; i++) {
 
-                $scope.params.group.forEach(group => { //clean groups without color
-                    if(group.color === '' || group.color === undefined) {
-                        $scope.params.group.splice($scope.params.group.findIndex(res => group.name == res.name),1);
+                    let group = $scope.params.group[i];
+
+                    //swap groups with corresponding groups with color
+                    if(group.color === '' || group.color === undefined || $scope.structure.groups.all.indexOf(group) === -1) {
+                        $scope.params.group[i] = ($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
                     }
-                });
+                }
 
                 $scope.params.deletedGroups.groupsDeleted.map(g =>{
                     $scope.params.group.map(gg  => {
@@ -320,7 +327,10 @@ export let main = ng.controller('EdtController',
             $scope.currentStudent = null;
         }
 
-
+        /**
+         * Drop a teacher in teachers list
+         * @param {Teacher} teacher Teacher to drop
+         */
         $scope.dropTeacher = (teacher: Teacher): void => {
             $scope.params.user = _.without($scope.params.user, teacher);
             $scope.updateDatas();
@@ -344,6 +354,7 @@ export let main = ng.controller('EdtController',
             $scope.params.group = _.without($scope.params.group, group);
 
         };
+
         /**
          * Course creation
          */
@@ -353,6 +364,55 @@ export let main = ng.controller('EdtController',
                 $scope.goTo('/create');
                 $scope.hideTimeSlot = false;
             }
+        };
+
+        /**
+         * Retrieve teachers list for the search bar
+         * @param value the user input
+         */
+        $scope.filterTeacherOptions = async (value : string) : Promise<void> => {
+            await AutocompleteUtils.filterTeacherOptions(value);
+            Utils.safeApply($scope);
+        };
+
+        /**
+         * Retrieve class/group list for the search bar
+         * @param value the user input
+         */
+        $scope.filterClassOptions = async (value : string) : Promise<void> => {
+            await AutocompleteUtils.filterClassOptions(value);
+            Utils.safeApply($scope);
+        };
+
+        /**
+         * Select teacher and refresh calendar
+         * @param model the user input
+         * @param teacher the selected teacher
+         */
+        $scope.selectTeacher = async (model : string, teacher : Teacher) : Promise<void> => {
+            if(!$scope.params.user.some(user => user.id === teacher.id)){
+                $scope.params.user.push(teacher);
+                $scope.updateDatas();
+            }
+            AutocompleteUtils.resetSearchFields();
+        };
+
+        /**
+         * Select class/group and refresh calendar
+         * @param model the user input
+         * @param teacher the selected class/group
+         */
+        $scope.selectClass = async (model : string, group : Group) : Promise<void> => {
+            $scope.toogleFilter($scope.getGroupFromId(group.id))
+            AutocompleteUtils.resetSearchFields();
+        };
+
+        /**
+         * Get group object from an id
+         * @param id id of the group
+         */
+        $scope.getGroupFromId = (id: string) : Group => {
+            return $scope.structure.groups.all.find(group => group.id === id);
         };
 
         $scope.goTo = (state: string) => {
@@ -437,8 +497,6 @@ export let main = ng.controller('EdtController',
                 $scope.params.oldUser = angular.copy($scope.params.user);
                 model.calendar.setDate(moment());
             }
-            //  if ( $scope.isTeacher() || $scope.isStudent())
-            //  return ;
             model.calendar.eventer.off('calendar.create-item');
             model.calendar.eventer.on('calendar.create-item', () => {
                 if ($location.path() !== '/create') {

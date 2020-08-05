@@ -5,4 +5,29 @@
   label  {
     margin-right: 10px;
   }
+
+  .search-inputs {
+
+    display: flex;
+    width: 100%;
+
+    .search-input {
+      background: $white;
+      padding: 7px;
+      vertical-align: middle;
+      width: 100%;
+
+      input {
+        margin: auto;
+      }
+
+      &.small {
+        margin-right: 15px;
+      }
+    }
+  }
+
+
+
+
 }

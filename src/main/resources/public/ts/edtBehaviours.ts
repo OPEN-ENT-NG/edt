@@ -10,7 +10,9 @@ export const edtBehaviours = {
         workflow: {
                 access: 'fr.cgi.edt.controllers.EdtController|view',
                 view: 'fr.cgi.edt.controllers.EdtController|view',
-                manage: 'fr.cgi.edt.controllers.EdtController|create'
+                manage: 'fr.cgi.edt.controllers.EdtController|create',
+                edtSearch: 'fr.cgi.edt.controllers.SearchController|searchUsers'
+
         },
         resource: {
             read: {
