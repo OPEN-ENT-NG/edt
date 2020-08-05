@@ -25,7 +25,7 @@
                 </select>
             </div>
 
-            <div ng-if="(isTeacher() || isPersonnel()) && (params.user.length > 0)" ng-show="!isAllStructure" class="sidebar-section half">
+            <div ng-if="(isTeacher() || isPersonnel()) && (params.user.length > 0)" ng-show="!isAllStructure" class="sidebar-section half" id="teacher-section">
                 <span class="sidebar-header">[[translate('utils.teachers') | uppercase]]</span>
 
                 <div class="row display-inline-block section-content scroll">
@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="sidebar-section"
+            <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="sidebar-section" id="group-section"
                 ng-class="(params.user.length > 0) ? 'half' : 'full'">
                 <span class="sidebar-header">[[translate('utils.groups') | uppercase]]</span>
                 <div class="row display-inline-block" id="select-all-groups">

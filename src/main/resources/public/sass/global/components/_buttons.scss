@@ -21,14 +21,14 @@ button, a.button {
 .header-buttons {
 
   float: right;
-
+  margin: 10px;
   #delete-section {
     float: left ;
   }
 
   #add-section {
     float: right;
-    margin: 10px;
+    margin-left: 10px;
   }
 
   .button-header {
