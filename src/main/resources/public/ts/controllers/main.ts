@@ -323,6 +323,7 @@ export let main = ng.controller('EdtController',
 
         $scope.dropTeacher = (teacher: Teacher): void => {
             $scope.params.user = _.without($scope.params.user, teacher);
+            $scope.updateDatas();
         };
 
         /**
