@@ -1,6 +1,6 @@
 <div class="row">
     <div class="twelve cell">
-        <div class="four cell">
+        <div class="cell">
             <app-title class="zero-mobile">
                 <img class="application-logo" ng-src="/edt/public/img/uni-edt.png" alt=""/>
                 <h1 class="application-title">
@@ -8,9 +8,9 @@
                 </h1>
             </app-title>
         </div>
-        <div class="five cell search-bars" ng-show="!calendarLoader.show">
+        <div class="seven cell search-bars" ng-show="!calendarLoader.show">
             <div workflow="edt.edtSearch" class="search-inputs">
-                <div class="search-input twelve small">
+                <div class="search-input small">
                     <async-autocomplete data-ng-disabled="false"
                                         data-ng-model="autocomplete.teacher"
                                         data-ng-change="selectTeacher"
@@ -20,7 +20,7 @@
                                         data-search="autocomplete.teacher">
                     </async-autocomplete>
                 </div>
-                <div class="search-input twelve small">
+                <div class="search-input small">
                     <async-autocomplete data-ng-disabled="false"
                                         data-ng-model="autocomplete.class"
                                         data-ng-change="selectClass"
