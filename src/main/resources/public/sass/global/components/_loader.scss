@@ -3,14 +3,15 @@
   height: 100%;
   width: 100%;
   position: absolute;
-  background-color: $white;
+  background-color: $edt-white;
   z-index: 1000;
   align-items: center;
   justify-content: center;
   text-align: center;
+  margin: auto;
 
   i.spinner{
-    color: $cyan;
+    color: $edt-dark-blue;
     animation: spinner 1.25s linear infinite;
     font-size: 22px;
 
