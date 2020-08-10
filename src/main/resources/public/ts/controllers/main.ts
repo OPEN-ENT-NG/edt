@@ -30,8 +30,6 @@ export let main = ng.controller('EdtController',
             dateFromCalendar: null
         };
 
-        //const WORKFLOW_RIGHTS = Behaviours.applicationsBehaviours.edt.rights.workflow;
-
         $scope.autocomplete = AutocompleteUtils;
 
         $scope.chronoEnd = true;
@@ -125,7 +123,6 @@ export let main = ng.controller('EdtController',
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
                     $scope.structures.all.unshift(allStructures);
                     $scope.switchStructure($scope.structures.all[0]);
-                    // $scope.structure = $scope.structures.all[0];
                 }
             }
             if (!$scope.isPersonnel()) {
