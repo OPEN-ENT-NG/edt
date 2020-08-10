@@ -21,7 +21,13 @@ button, a.button {
 .header-buttons {
 
   float: right;
-  margin: 10px;
+  margin: auto 15px auto auto;
+  display: flex;
+
+  button {
+    padding: 8px 18px 10px;
+  }
+
   #delete-section {
     float: left ;
   }
