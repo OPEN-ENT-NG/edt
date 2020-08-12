@@ -22,7 +22,7 @@ export class TimeSlots {
         this.all = [];
     }
 
-    async syncTimeSlots () {
+     syncTimeSlots =  async () : Promise<void> => {
         try {
             let response = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
             if (response.status === 200) {
@@ -30,7 +30,6 @@ export class TimeSlots {
             }
             else if (response.status === 204) {
                 this.all = [];
-                console.log("pas de plage définie");
             }
         } catch (e) {
             notify.error('edt.error.time.slots');
