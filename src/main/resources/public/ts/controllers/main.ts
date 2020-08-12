@@ -228,7 +228,7 @@ export let main = ng.controller('EdtController',
          * Get timetable bases on $scope.params object
          * @returns {Promise<void>}
          */
-        $scope.syncCourses = async () => {
+        $scope.syncCourses = async () : Promise<void> => {
             let arrayIds =[];
             $scope.params.coursesToDelete = [];
             if($scope.structure.groups.all.length === 0) {
@@ -314,7 +314,6 @@ export let main = ng.controller('EdtController',
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group, $scope.structures, $scope.isAllStructure);
 
             filterCourses();
-            // $scope.structure = $scope.structures.all[0];
             $scope.calendarLoader.hide();
             await   Utils.safeApply($scope);
 

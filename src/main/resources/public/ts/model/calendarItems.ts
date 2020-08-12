@@ -209,41 +209,46 @@ export class CalendarItems {
         return;
     }
 
-    getFilterTeacher = (table) => {
-        let filter = '';
-        let name = 'teacherId=';
+    getFilterTeacher = (table : Teacher[]) : string => {
+        let filter : string = '';
+        let name : string = 'teacherId=';
         for (let i = 0; i < table.length; i++) {
             filter += `${name}${table[i].id}`;
             if (i !== table.length - 1)
                 filter += '&';
         }
-        return filter
+        return filter;
     };
 
-    getFilterGroup = (table) => {
-        let filter = '';
-        let name = 'group=';
+    getFilterGroup = (table : Group[]) : string => {
+        let filter : string = '';
+        let name : string = 'group=';
         for (let i = 0; i < table.length; i++) {
             if (table[i]) {
-                filter += `${name}${table[i].name}`;
-                if (i !== table.length - 1)
-                    filter += '&';
+
+                if(!(model.me.type === USER_TYPES.student && (model.me.groupsIds.indexOf(table[i].id) === -1 && table[i].type_groupe !== 0))) {
+                    filter += `${name}${table[i].name}`;
+                    if (i !== table.length - 1) {
+                        filter += '&';
+                    }
+                }
             }
         }
-        return filter
+        return filter;
     };
 
-    getFilterClass = (table) => {
-        let filter = '';
-        let name = 'classes=';
+    getFilterClass = (table : Group[]) : string => {
+        let filter : string = '';
+        let name : string = 'classes=';
         for (let i = 0; i < table.length; i++) {
             if (table[i]) {
                 filter += `${name}${table[i].id}`;
 
-                if (i !== table.length - 1)
+                if (i !== table.length - 1) {
                     filter += '&';
+                }
             }
         }
-        return filter
+        return filter;
     };
 }
