@@ -1,5 +1,5 @@
 import {notify} from 'entcore';
-import http from 'axios';
+import http, {AxiosPromise, AxiosResponse} from 'axios';
 import {Mix} from "entcore-toolkit";
 
 export class TimeSlot {
@@ -22,9 +22,12 @@ export class TimeSlots {
         this.all = [];
     }
 
+    /**
+     * Fetch the structure time slots.
+     */
      syncTimeSlots =  async () : Promise<void> => {
         try {
-            let response = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
+            let response : AxiosResponse = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
             if (response.status === 200) {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }
@@ -36,7 +39,10 @@ export class TimeSlots {
         }
     }
 
-    haveSlot () {
+    /**
+     * Checks if the structure has defined time slots.
+     */
+    haveSlot = (): boolean => {
         return this.all && this.all.length > 0;
     }
 }

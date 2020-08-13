@@ -75,7 +75,7 @@ export let main = ng.controller('EdtController',
         /**
          * Synchronize a structure.
          */
-        $scope.syncStructure = async (structure: Structure) => {
+        $scope.syncStructure = async (structure: Structure) : Promise<void> => {
             $scope.structure = structure;
             $scope.timeSlots.structure_id = $scope.structure.id;
             AutocompleteUtils.init(structure);
@@ -119,15 +119,13 @@ export let main = ng.controller('EdtController',
 
             if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
 
-                let allStructures = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
+                let allStructures : Structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
                     $scope.structures.all.unshift(allStructures);
                     $scope.switchStructure($scope.structures.all[0]);
                 }
             }
-            if (!$scope.isPersonnel()) {
-                $scope.syncCourses();
-            } else {
+            if ($scope.isPersonnel()) {
                 Utils.safeApply($scope);
             }
         };
@@ -138,24 +136,23 @@ export let main = ng.controller('EdtController',
             $scope.syncCourses();
         };
 
-        $scope.switchStructure = (structure: Structure) => {
+        /**
+         * Changes current structure
+         * @param structure selected structure
+         */
+        $scope.switchStructure = (structure: Structure) : void => {
             $scope.timeSlots = new TimeSlots($scope.structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
 
                 $scope.syncStructure(structure);
-
                 $scope.isAllStructure = false;
-                $scope.timeSlots.syncTimeSlots();
             }
             else if (structure.id == lang.translate("all.structures.id")) {
-                // $scope.syncStructure(structure);
-
                 $scope.isAllStructure = true;
-                $scope.syncCourses();
                 $scope.structure = structure;
-
             };
+            $scope.syncCourses();
         };
 
         /**
@@ -229,7 +226,7 @@ export let main = ng.controller('EdtController',
          * @returns {Promise<void>}
          */
         $scope.syncCourses = async () : Promise<void> => {
-            let arrayIds =[];
+            let arrayIds : string[] =[];
             $scope.params.coursesToDelete = [];
             if($scope.structure.groups.all.length === 0) {
                 await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
@@ -239,15 +236,15 @@ export let main = ng.controller('EdtController',
                 if($scope.child) {
                     arrayIds.push($scope.child.idClasses)
                 } else {
-                    arrayIds =   model.me.classes
+                    arrayIds = model.me.classes
                 }
-                let groups = $scope.structure.groups.all;
-                $scope.params.group = groups.filter((item) => arrayIds.indexOf(item.id) > -1);
+                let groups : Group[] = $scope.structure.groups.all;
+                $scope.params.group = groups.filter((item : Group) => arrayIds.indexOf(item.id) > -1);
             }
 
             if (!isUpdateData && $scope.isTeacher()) {
                 const {userId, username} = model.me;
-                $scope.params.user =  [{id: userId, displayName: username}];
+                $scope.params.user = [{id: userId, displayName: username}];
             }
 
             $scope.calendarLoader.display();
@@ -268,7 +265,7 @@ export let main = ng.controller('EdtController',
                     }
 
                     $scope.params.deletedGroups.classes.map(c => {
-                        $scope.params.deletedGroups.groupsDeleted.map((gg,index) => {
+                        $scope.params.deletedGroups.groupsDeleted.map((gg,index : number) => {
                             if(gg.id === c.id)
                                 $scope.params.deletedGroups.groupsDeleted.splice(index,1);
 
@@ -281,7 +278,7 @@ export let main = ng.controller('EdtController',
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
-                    let group = $scope.params.group[i];
+                    let group : Group = $scope.params.group[i];
 
                     //swap groups with corresponding groups with color
                     if(group.color === '' || group.color === undefined || $scope.structure.groups.all.indexOf(group) === -1) {
@@ -289,7 +286,7 @@ export let main = ng.controller('EdtController',
                     }
                 }
 
-                $scope.params.deletedGroups.groupsDeleted.map(g =>{
+                $scope.params.deletedGroups.groupsDeleted.map((g : Group) => {
                     $scope.params.group.map(gg  => {
                         if(g.id == gg.id){
                             $scope.params.group = _.without($scope.params.group, gg);
@@ -298,7 +295,7 @@ export let main = ng.controller('EdtController',
                 })
             }
             //add classes after filter groups
-            $scope.params.group.map(g => {
+            $scope.params.group.map((g : Group) => {
                 let isInClass = false;
 
                 $scope.params.deletedGroups.classes.map(c => {
@@ -315,7 +312,7 @@ export let main = ng.controller('EdtController',
 
             filterCourses();
             $scope.calendarLoader.hide();
-            await   Utils.safeApply($scope);
+            await Utils.safeApply($scope);
 
         };
 

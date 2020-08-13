@@ -8,7 +8,7 @@
                 </h1>
             </app-title>
         </div>
-        <div class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'">
+        <div class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'" ng-if="!isAllStructure">
             <div workflow="edt.edtSearch" class="search-inputs">
                 <div class="search-input small">
                     <async-autocomplete data-ng-disabled="false"
