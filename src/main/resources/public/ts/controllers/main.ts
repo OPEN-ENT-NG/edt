@@ -125,8 +125,10 @@ export let main = ng.controller('EdtController',
                     $scope.switchStructure($scope.structures.all[0]);
                 }
             }
-            if ($scope.isPersonnel()) {
-                Utils.safeApply($scope);
+
+            Utils.safeApply($scope);
+            if (!$scope.isPersonnel()) {
+                $scope.syncCourses();
             }
         };
 
@@ -152,7 +154,6 @@ export let main = ng.controller('EdtController',
                 $scope.isAllStructure = true;
                 $scope.structure = structure;
             };
-            $scope.syncCourses();
         };
 
         /**
@@ -691,17 +692,14 @@ export let main = ng.controller('EdtController',
             }
             // --End -- Calendar Drag and Drop
         };
+
+        /**
+         * Subscriber to directive calendar changes event
+         */
         model.calendar.on('date-change'  , async function(){
             await $scope.syncCourses();
             initTriggers();
-
-
-        });      /**
-         * Subscriber to directive calendar changes event
-         */
-
-
-
+        });
 
 
         $scope.isNotPast = (item) =>{
