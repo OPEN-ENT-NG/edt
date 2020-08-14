@@ -87,15 +87,29 @@ export class Course {
             }
         });
     };
-    async delete (occurrenceDate?, deleteOnlyOneCourses?) {
-        let timesToDelete = occurrenceDate;
 
-        if (occurrenceDate && occurrenceDate.length && !deleteOnlyOneCourses){
+    /**
+     * Delete course.
+     * @param occurrenceDate Dates of course occurrences.
+     * @param deleteOnlyOneCourses Optional. If true delete only one course.
+     * @param deleteAllOccurrences Optional. If true delete all occurrences.
+     */
+    delete = async (occurrenceDate?: string[], deleteOnlyOneCourses?: boolean, deleteAllOccurrences?: boolean): Promise<void> => {
+        let timesToDelete: string[] = occurrenceDate;
+
+        if (occurrenceDate && occurrenceDate.length && !deleteOnlyOneCourses) {
             try {
                 for (let i = 0; i < timesToDelete.length; i++) {
                     let url = `/edt/occurrence/${moment(timesToDelete[i]).format('x')}/${this._id}`;
                     await http.delete(url);
                 }
+            } catch (e) {
+                notify.error('edt.notify.delete.err');
+            }
+        } else if (deleteAllOccurrences) {
+            try {
+                let url = `/edt/course/${this._id}`;
+                await http.delete(url);
             } catch (e) {
                 notify.error('edt.notify.delete.err');
             }
@@ -107,7 +121,7 @@ export class Course {
                 notify.error('edt.notify.delete.err');
             }
         }
-    }
+    };
 
     toJSON () {
         let o: any = {
