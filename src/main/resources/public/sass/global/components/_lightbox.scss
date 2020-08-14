@@ -1,0 +1,28 @@
+section.lightbox {
+  .content {
+    padding: 0px;
+
+    .lightbox-container {
+      padding: 15px;
+    }
+
+    .lightbox-header {
+      color: $edt-white;
+      background-color: $edt-dark-blue;
+      width: 100%;
+      display: inline-block;
+      padding: 5px 0 5px 10px;
+      font-size: 15pt;
+      margin-bottom: 10px;
+
+      &.top {
+        border-radius: 8px 8px 0 0;
+      }
+    }
+
+    .close-lightbox {
+      color: $edt-white;
+    }
+  }
+}
+

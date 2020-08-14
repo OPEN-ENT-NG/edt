@@ -12,8 +12,9 @@ import {
     Utils
 } from '../model';
 import http from "axios";
-import {TimeSlots} from "../model/timeSlots";
-import { AutocompleteUtils } from "../model/autocompleteUtils";
+import {TimeSlots} from '../model/timeSlots';
+import { AutocompleteUtils } from '../model/autocompleteUtils';
+import { Moment } from 'moment/moment';
 
 
 
@@ -60,7 +61,8 @@ export let main = ng.controller('EdtController',
         };
         $scope.show = {
             home_lightbox : false,
-            delete_lightbox: false
+            delete_lightbox: false,
+            isDeleteOccurrenceLightbox: false
         };
         $scope.calendarLoader = {
             show: false,
@@ -428,20 +430,28 @@ export let main = ng.controller('EdtController',
 
         template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
         template.open('deletePagePopUp', 'main/delete-courses-popup');
+        template.open('deleteOccurrencePagePopup', 'main/occurrence-or-course-delete-popup');
 
-        $scope.chooseTypeEdit = (itemId,  start?, end?, isDrag?) => {
+        /**
+         * Determines if the course edition for occurrences popup must be displayed or if the edit page must be called.
+         * @param itemId Id of the course
+         * @param start Start date of the course occurrences
+         * @param end End date of the course occurrences
+         * @param isDrag Is true if the course has been dragged by user
+         */
+        $scope.chooseTypeEdit = (itemId: string, start?: string, end?: string, isDrag?: boolean): void => {
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
-                start : start,
-                end : end
+                start: start,
+                end: end
             };
             $scope.courseToEdit.isDragged = (isDrag);
             $scope.editOccurrence = true;
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
-            if($scope.ableToChooseEditionType($scope.courseToEdit,start)){
+            if ($scope.isAbleToChooseEditionType($scope.courseToEdit, start)) {
                 $scope.show.home_lightbox = true;
-            }else{
+            } else {
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
             }
             Utils.safeApply($scope);
@@ -455,26 +465,39 @@ export let main = ng.controller('EdtController',
         $scope.cancelDeleteLightbox = () =>{
             $scope.show.delete_lightbox = false;
             Utils.safeApply($scope);
+        };
+
+        /**
+         * Close the delete course occurrences popup.
+         */
+        $scope.cancelDeleteOccurrenceLightbox = () : void =>{
+            $scope.show.isDeleteOccurrenceLightBox = false;
+            Utils.safeApply($scope);
         }
 
-        $scope.ableToChooseEditionType = (course: Course,start):boolean => {
-            let now = moment();
-            if(!start){
+        /**
+         * Checks if a course mutiple occurences can be edited
+         * @param course the course to edit
+         * @param start the date from which courses should be edited
+         */
+        $scope.isAbleToChooseEditionType = (course: Course, start: string): boolean => {
+            let now: Moment = moment();
+            if (!start) {
                 start = moment(course.startDate);
             }
-            let previousOccurrence = course.getPreviousOccurrenceDate(start);
-            let atLeastOnePreviousOccurence = moment(previousOccurrence).isAfter(moment(start));
-            let upcomingOccurrence = course.getNextOccurrenceDate(start);
-            let atLeastOneOccurence = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start)) ;
+            let previousOccurrence: string = course.getPreviousOccurrenceDate(start);
+            let atLeastOnePreviousOccurence: boolean = moment(previousOccurrence).isAfter(moment(start));
+            let upcomingOccurrence: string = course.getNextOccurrenceDate(start);
+            let atLeastOneOccurence: boolean = moment(course.getNextOccurrenceDate(upcomingOccurrence)).isBefore(moment(start));
 
 
-            let newDay = moment(start).format("DD");
-            let previousDay= moment(course.startDate).format("DD");
+            let newDay: string = moment(start).format("DD");
+            let previousDay: string = moment(course.startDate).format("DD");
             return course.isRecurrent() &&
-                ((  atLeastOneOccurence  && moment(upcomingOccurrence).isAfter(now))
-                    || ( moment(previousOccurrence).isAfter(now)  && atLeastOnePreviousOccurence )
+                ((atLeastOneOccurence && moment(upcomingOccurrence).isAfter(now))
+                    || (moment(previousOccurrence).isAfter(now) && atLeastOnePreviousOccurence)
                     || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start))
-                    || (moment(start).isAfter(now) && atLeastOneOccurence ));
+                    || (moment(start).isAfter(now) && atLeastOneOccurence));
         };
 
         $scope.getSimpleDateFormat = (date) => {
@@ -621,7 +644,7 @@ export let main = ng.controller('EdtController',
 
                         $scope.editOccurrence = true;
                         let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-                        if($scope.ableToChooseEditionType(courseToDelete,start)){
+                        if($scope.isAbleToChooseEditionType(courseToDelete,start)){
                             courseToDelete.occurrenceDate =  occurrenceDate
                         }
 
@@ -685,10 +708,6 @@ export let main = ng.controller('EdtController',
                 $('body').on('mousedown', '.schedule-item-content', prepareToDelete);
                 $('body').on('mousedown', '.schedule-item-content.selected', cancelDelete);
                 $('body').on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
-
-
-                /*    $('calendar .previous-timeslots').mousedown(()=> {initTriggers()});
-                    $('calendar .next-timeslots').mousedown(()=> {initTriggers()});*/
             }
             // --End -- Calendar Drag and Drop
         };
@@ -706,8 +725,29 @@ export let main = ng.controller('EdtController',
             return(moment(item.startDate).isAfter(moment()));
 
         }
-        $scope.openDeleteForm = () =>{
-            $scope.show.delete_lightbox = true;
+
+        /**
+         * Open the proper delete form (either the delete all occurrences form or the delete one course form).
+         */
+        $scope.openDeleteForm = (): void => {
+
+            if ($scope.params.coursesToDelete.length === 1) {
+                let course: any = $scope.params.coursesToDelete[0];
+                $scope.courseToEdit = course;
+
+                let startTime: string = course.startDate.split('T')[1];
+                let occurenceDate: string = moment(course.occurrenceDate).format("YYYY-MM-DD") + "T" + startTime;
+                $scope.occurrenceDate = occurenceDate;
+
+                if (course.occurrenceDate !== undefined) {
+                    $scope.show.isDeleteOccurrenceLightbox = true;
+                } else {
+                    $scope.show.delete_lightbox = true;
+                }
+            } else {
+                $scope.show.delete_lightbox = true;
+            }
+
             Utils.safeApply($scope);
         };
 
@@ -722,7 +762,11 @@ export let main = ng.controller('EdtController',
             })
         }
 
-        $scope.deleteCourses = async () =>{
+
+        /**
+         * Delete the selected courses.
+         */
+        $scope.deleteCourses = async () : Promise<void> => {
             $scope.show.delete_lightbox = false;
             $scope.params.coursesToDelete.map(async c => {
                 orderDeletes(c)
@@ -735,10 +779,26 @@ export let main = ng.controller('EdtController',
                 $scope.syncCourses();
                 Utils.safeApply($scope);
             });
+        };
 
+        /**
+         * Check if usen selected the delete all occurrences option and calls the corresponding method
+         * @param deleteOccurrence if true all occurrences of the selected course  must be deleted
+         */
+        $scope.deleteCourseOccurrences = async (deleteOccurrence : boolean) : Promise<void> => {
 
-        }
-        $scope.updateDatas = async () => {
+            $scope.show.isDeleteOccurrenceLightbox = false;
+
+            if (deleteOccurrence) {
+                await $scope.courseToEdit.delete(_,_,true);
+                $scope.syncCourses();
+                Utils.safeApply($scope);
+            } else {
+                $scope.deleteCourses();
+            }
+        };
+
+        $scope.updateDatas = async () : Promise<void> => {
             isUpdateData = true;
             if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
                 await $scope.syncCourses();
@@ -758,15 +818,15 @@ export let main = ng.controller('EdtController',
          * Toogle a group/class filter
          * @param {Group} filter selected filter to toggle
          */
-        $scope.toogleFilter = async function (filter : Group) : Promise<void> {
+        $scope.toogleFilter = async (filter: Group): Promise<void> => {
             $scope.calendarLoader.display();
             if (!$scope.isFilterActive(filter)) {
                 $scope.params.group.push(filter);
             } else {
-                let groups : Group[] = [filter];
+                let groups: Group[] = [filter];
                 $scope.dropGroup(filter);
-                await $scope.structure.calendarItems.getGroups(groups,$scope.params.deletedGroups);
-                groups.splice(0,1);
+                await $scope.structure.calendarItems.getGroups(groups, $scope.params.deletedGroups);
+                groups.splice(0, 1);
                 groups.forEach(group => {
                     groups.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
                 });
@@ -891,7 +951,6 @@ export let main = ng.controller('EdtController',
                     $scope.course.is_recurrent = false;
                 }else{
                     $scope.editOccurrence = false;
-
                 }
                 template.open('main', 'manage-course');
                 Utils.safeApply($scope);

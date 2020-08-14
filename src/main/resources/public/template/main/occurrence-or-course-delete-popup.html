@@ -1,11 +1,12 @@
 <h1 class="centered eight row lightbox-header">
-    <i18n>edt.schedule.update</i18n>
+    <i18n>edt.schedule.delete.unique</i18n>
 </h1>
+
 <div class="lightbox-container">
     <div class="twelve cell ">
 
         <div class="cell twelve twelve-mobile vertical-spacing">
-            <i18n>edt.choose.edition.type.message</i18n>
+            <i18n>edt.delete.course.type.message</i18n>
         </div>
 
         <!--SELECT OPTIONS-->
@@ -23,6 +24,7 @@
                 </label>
             </div>
         </div>
+
     </div>
 
     <!--DISPLAY BAR FOR OCCURRENCES-->
@@ -45,13 +47,12 @@
 
     <!--SUBMIT AND DELETE BUTTONS-->
     <div class="right-magnet vertical-spacing">
-        <button class="cancel" type="button" ng-click="cancelEditionLightbox()">
+        <button class="cancel" type="button" ng-click="cancelDeleteOccurrenceLightbox()">
             <i18n>edt.utils.cancel</i18n>
         </button>
 
-        <button type="submit"
-                ng-click="calendarUpdateItem(courseToEdit._id, paramEdition.start, paramEdition.end, editOccurrence )">
-            <i18n>edt.utils.modify</i18n>
+        <button type="submit" ng-click="deleteCourseOccurrences(!editOccurrence)">
+            <i18n>edt.utils.delete</i18n>
         </button>
     </div>
 </div>
