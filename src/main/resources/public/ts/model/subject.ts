@@ -1,5 +1,5 @@
 import { model, notify, _ } from 'entcore';
-import http from 'axios';
+import http, {AxiosResponse} from 'axios';
 import { USER_TYPES } from "./user-types";
 
 export class Subject {
@@ -28,14 +28,15 @@ export class Subjects {
     /**
      * Synchronize subjects provides by the structure
      * @param structureId structure id
+     * @param teacherIds Optional. List of teachers identifiers.
      * @returns {Promise<void>}
      */
-    async sync (structureId: string, teacherIds?: Array<string> ): Promise<void> {
-        if (typeof structureId !== 'string') { return; }
+    sync = async (structureId: string, teacherIds?: Array<string> ): Promise<void> => {
+        if (typeof structureId !== 'string' || structureId === 'all_Structures') { return; }
         try {
-            let url = `/directory/timetable/subjects/${structureId}`;
+            let url : string = `/directory/timetable/subjects/${structureId}`;
             if(teacherIds) url += `?${this.getFilterTeacher(teacherIds)}`;
-            let subjects = await http.get(url);
+            let subjects : AxiosResponse = await http.get(url);
             this.all = [];
             subjects.data.forEach((subject) => {
                 this.all.push(new Subject(subject.subjectId, subject.subjectLabel, subject.subjectCode, subject.teacherId));
@@ -46,7 +47,8 @@ export class Subjects {
             notify.error('app.notify.e500');
         }
     }
-    getFilterTeacher = (ids) => {
+
+    getFilterTeacher = (ids : string[]) : string => {
         let filter  ='';
         let name = 'teacherId=';
         for(let i=0; i<ids.length; i++){
