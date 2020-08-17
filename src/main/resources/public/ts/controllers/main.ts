@@ -904,25 +904,24 @@ export let main = ng.controller('EdtController',
 
 
         route({
-            main:  () => {
+            main:  () : void => {
                 template.open('main', 'main');
                 if(!$scope.pageInitialized)
                     setTimeout(function(){  initTriggers(true); }, 1000);
 
             },
-            create:async () => {
+            create: async () : Promise<void> => {
                 let startDate = $scope.initDateCreatCourse();
                 const roundedDown = Math.floor(startDate.minute() / 15) * 15;
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
 
-                $scope.params.group.sort((g,gg) =>{
-                    if (g.displayName && !gg.displayName){
+                $scope.params.group.sort((g, gg) => {
+                    if (g.displayName && !gg.displayName) {
                         return -1;
-                    }
-                    else if(gg.displayName && !g.displayName){
+                    } else if (gg.displayName && !g.displayName) {
                         return 1;
-                    }else{
+                    } else {
                         return 0;
                     }
                 });
@@ -938,24 +937,29 @@ export let main = ng.controller('EdtController',
                 if ($scope.structure && $scope.structures.all.length === 1)
                     $scope.course.structureId = $scope.structure.id;
 
-                template.open('main', 'manage-course');
+                if ($scope.isPersonnel()) {
+                    template.open('main', 'manage-course');
+                }
                 Utils.safeApply($scope);
             },
-            edit: async  (params) => {
-                $scope.course =  new Course();
+            edit: async (params: any) : Promise<void> => {
+                $scope.course = new Course();
                 await $scope.course.sync(params.idCourse, $scope.structure);
-                $scope.initDateCreatCourse( params, $scope.course );
-                if (params.type === 'occurrence'){
+                $scope.initDateCreatCourse(params, $scope.course);
+                if (params.type === 'occurrence') {
                     $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
                     $scope.editOccurrence = true;
                     $scope.course.is_recurrent = false;
-                }else{
+                } else {
                     $scope.editOccurrence = false;
                 }
-                template.open('main', 'manage-course');
+
+                if ($scope.isPersonnel()) {
+                    template.open('main', 'manage-course');
+                }
                 Utils.safeApply($scope);
             },
-            importSts: () => {
+            importSts: () : void => {
                 template.open('main', 'sniplet-sts');
             }
         });
