@@ -864,18 +864,21 @@ export let main = ng.controller('EdtController',
                 time.minute()
             ])
         };
-        $scope.initDateCreatCourse = (param?, course?: Course) => {
 
-            if(model.calendar.newItem || (param && param["beginning"] && param["end"]) ) {
-                let TimeslotInfo =  {
-                    beginning : param ? param.beginning: model.calendar.newItem.beginning.format('x'),
-                    end : param ? param.end : model.calendar.newItem.end.format('x')};
-                let startTime = (moment.utc(TimeslotInfo["beginning"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+        $scope.initDateCreatCourse = (param?: any, course?: Course): void => {
 
-                let endTime = (moment.utc(TimeslotInfo["end"], 'x').add('hours',- moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+            if (model.calendar.newItem || (param && param["beginning"] && param["end"])) {
+                let timeSlotInfo : {beginning : string, end : string} = {
+                    beginning: param ? param.beginning : model.calendar.newItem.beginning.format('x'),
+                    end: param ? param.end : model.calendar.newItem.end.format('x')
+                };
 
-                let dayOfWeek=  moment(TimeslotInfo["beginning"], 'x').day();
-                let roomLabel = course ? course.roomLabels[0] : '';
+                let startTime: Moment = (moment.utc(timeSlotInfo["beginning"], 'x').add('hours', -moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
+                let endTime: Moment = (moment.utc(timeSlotInfo["end"], 'x').add('hours', -moment().format('Z').split(':')[0])).minute(60).seconds(0).millisecond(0);
+
+
+                let dayOfWeek: number = moment(timeSlotInfo["beginning"], 'x').day();
+                let roomLabel: string = course ? course.roomLabels[0] : '';
 
                 $scope.courseOccurrenceForm = new CourseOccurrence(
                     dayOfWeek,
@@ -883,17 +886,19 @@ export let main = ng.controller('EdtController',
                     startTime.toDate(),
                     endTime.toDate()
                 );
+
                 delete model.calendar.newItem;
-                return  moment(TimeslotInfo["beginning"], 'x');
-            }else {
-                if(course && !course.is_recurrent) {
+                return moment(timeSlotInfo["beginning"], 'x');
+
+            } else {
+                if (course && !course.is_recurrent) {
                     $scope.courseOccurrenceForm = new CourseOccurrence(
                         course.dayOfWeek,
                         course.roomLabels[0],
                         moment(course.startDate).utc().toDate(),
                         moment(course.endDate).utc().toDate()
                     );
-                }else
+                } else
                     $scope.courseOccurrenceForm = new CourseOccurrence();
                 return moment();
             }
