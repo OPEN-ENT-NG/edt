@@ -1,7 +1,9 @@
 import { _, idiom as lang,model, moment} from 'entcore';
 import http, {AxiosPromise, AxiosResponse} from 'axios';
 import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
-import {Structures} from "./structure";
+import {Structures} from './structure';
+import {DateUtils} from '../utils/date';
+import {DATE_FORMAT} from '../core/constants/dateFormat';
 
 export class CalendarItem {
 
@@ -126,11 +128,9 @@ export class CalendarItems {
      * @returns {Promise<void>} Returns a promise.
      */
     async sync(structure: Structure, teacher: Array<Teacher> = [], group: Array<Group> = [], structures: Structures, isAllStructure: boolean): Promise<void> {
-        let firstDate: string = Utils.getFirstCalendarDay();
-        firstDate = moment(firstDate).format('YYYY-MM-DD');
-        let endDate: string = Utils.getLastCalendarDay();
-        endDate = moment(endDate).format('YYYY-MM-DD');
-        if (!structure || (teacher.length <= 0 && model.me.type !== USER_TYPES.teacher) && group.length <= 0 || !firstDate || !endDate) return;
+        let firstDate: string = DateUtils.format(Utils.getFirstCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
+        let endDate: string =  DateUtils.format(Utils.getLastCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
+        if (!structure || teacher.length <= 0 && group.length <= 0 || !firstDate || !endDate) return;
         let filter: string = '';
         if (teacher.length > 0)
             filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
