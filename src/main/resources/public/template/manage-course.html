@@ -1,85 +1,109 @@
 <div ng-controller="manageCourseCtrl" id="occurrences-creation">
-    <h1 class="centered eight row">
+
+    <!--PAGE TITLE-->
+    <h1 class="centered eight row application-title">
         <i18n ng-show="::isAnUpdate">edt.schedule.update</i18n>
         <i18n ng-show="::!isAnUpdate">edt.schedule.create</i18n>
     </h1>
+
+    <!--CREATE/EDIT COURSE FORM-->
     <form>
         <article class="remove-padding-bottom">
+
+            <!--STRUCTURE SELECT-->
             <div ng-if="::structures.all.length > 1" class="row form-row">
                 <label for="select-structure" class="cell two twelve-mobile asterisk obligatoire">
                     Structure
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <select ng-model="course.structure" id="select-structure" ng-change="switchStructure(course.structure)" required
+                    <select ng-model="course.structure" id="select-structure"
+                            ng-change="switchStructure(course.structure)" required
                             ng-options="structure.name for structure in structures.all">
-                        <option ng-if="!course.structure" value="" disabled selected>[[translate('edt.creation.structure.choose')]]</option>
+                        <option ng-if="!course.structure" value="" disabled selected>
+                            [[translate('edt.creation.structure.choose')]]
+                        </option>
                     </select>
                 </div>
             </div>
+
+            <!--TEACHER SELECT-->
             <div class="row form-row remove-padding-bottom">
                 <label for="combo-teacher" class="cell two twelve-mobile">
-                    <i18n>utils.teachers</i18n>*
+                    <i18n>utils.teachers</i18n>
+                    *
                 </label>
                 <div class="cell twelve-mobile ten">
-                    <multi-combo title="[[translate('edt.creation.teachers.choose')]]" id="combo-teacher" combo-model="structure.teachers.all"
+                    <multi-combo title="[[translate('edt.creation.teachers.choose')]]" id="combo-teacher"
+                                 combo-model="structure.teachers.all"
                                  search-on="displayName" order-by="displayName" filtered-model="course.teachers"
                                  labels="comboLabels"
                                  selection-event="syncSubjects()"
                                  deselection-event="syncSubjects()"></multi-combo>
                     <div class="select-blocks remove-margin-bottom">
                         <div ng-repeat="teacher in course.teachers"
-                             ng-click="dropTeacher(teacher, course.teachers)">[[teacher.displayName]]</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row form-row remove-padding-bottom">
-                <label for="combo-groups" class="cell two twelve-mobile">
-                    <i18n>utils.groups</i18n>*
-                </label>
-                <div class="cell twelve-mobile ten">
-                    <multi-combo title="[[translate('edt.creation.groups.choose')]]" id="combo-groups" combo-model="structure.groups.all"
-                                 search-on="name" order-by="name" filtered-model="course.groups"
-                                 labels="comboLabels"></multi-combo>
-                    <div class="select-blocks remove-margin-bottom">
-                        <div ng-repeat="group in course.groups"
-                             ng-click="dropGroup(group)">[[group.name]]</div>
+                             ng-click="dropTeacher(teacher, course.teachers)">[[teacher.displayName]]
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!--GROUP SELECT-->
+            <div class="row form-row remove-padding-bottom">
+                <label for="combo-groups" class="cell two twelve-mobile">
+                    <i18n>utils.groups</i18n>
+                    *
+                </label>
+                <div class="cell twelve-mobile ten">
+                    <multi-combo title="[[translate('edt.creation.groups.choose')]]" id="combo-groups"
+                                 combo-model="structure.groups.all"
+                                 search-on="name" order-by="name" filtered-model="course.groups"
+                                 labels="comboLabels"></multi-combo>
+                    <div class="select-blocks remove-margin-bottom">
+                        <div ng-repeat="group in course.groups"
+                             ng-click="dropGroup(group)">[[group.name]]
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--SUBJECT SELECT-->
             <div class="row form-row remove-padding-bottom">
                 <label for="select-subject" class="cell two twelve-mobile">
-                    <i18n>subject</i18n>*
+                    <i18n>subject</i18n>
+                    *
                 </label>
                 <div class="cell twelve-mobile ten">
 
                     <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                         <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
-                             ng-value="subject.subjectId" >[[subject.subjectLabel]]</option>
+                                ng-value="subject.subjectId">[[subject.subjectLabel]]
+                        </option>
                         <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
                         <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'"
                                 ng-selected="course.subjectId == subject.subjectId"
-                                ng-value="subject.subjectId">[[subject.subjectLabel]]</option>
-                        <!--<option i18n-value="exceptionnal.id">[[translate('exceptionnal.label')]]</option>-->
-
+                                ng-value="subject.subjectId">[[subject.subjectLabel]]
+                        </option>
                     </select>
-
-
                 </div>
-
             </div>
+
+            <!--EXCEPTIONAL SUBJECT INPUT-->
             <div ng-show="isExceptionnalSubject()" class="row form-row remove-padding-bottom">
                 <label class="cell two twelve-mobile">
-                    <i18n>exceptionnal.subject</i18n>*
+                    <i18n>exceptionnal.subject</i18n>
+                    *
                 </label>
-                <div  class="cell twelve-mobile three">
-                    <input type="text" class="cell twelve-mobile ten"  ng-model="course.exceptionnal">
+                <div class="cell twelve-mobile three">
+                    <input type="text" class="cell twelve-mobile ten" ng-model="course.exceptionnal">
                 </div>
             </div>
+
+            <!--COURSE TYPE OPTION-->
             <div class="row form-row" ng-show="editOccurrence !== true">
                 <label class="cell two twelve-mobile">
-                    <i18n>edt.type</i18n>*
+                    <i18n>edt.type</i18n>
+                    *
                 </label>
                 <div class="cell twelve-mobile">
                     <label class="margin-right-md">
@@ -89,7 +113,8 @@
                 </div>
                 <div class="cell twelve-mobile">
                     <label>
-                        <input type="radio" ng-model="course.is_recurrent" ng-value="true" ng-change="makeRecurrentCourse();">
+                        <input type="radio" ng-model="course.is_recurrent" ng-value="true"
+                               ng-change="makeRecurrentCourse();">
                         <i18n>edt.type.recurrent</i18n>
                     </label>
                 </div>
@@ -103,9 +128,11 @@
                 </div>
             </div>
 
+            <!--COURSE DATE INPUTS-->
             <div ng-if="!course.is_recurrent" class="row form-row">
                 <label class="cell two twelve-mobile">
-                    <i18n>date</i18n>*
+                    <i18n>date</i18n>
+                    *
                 </label>
                 <div class="cell twelve-mobile ten">
                     <i18n>the</i18n>
@@ -125,7 +152,8 @@
                         <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                     </select>
 
-                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.startTime" class="margin-left-lg margin-right-lg" required/>
+                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.startTime"
+                           class="margin-left-lg margin-right-lg" required/>
 
                     <i18n>to2</i18n>
 
@@ -137,7 +165,8 @@
                         <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                     </select>
 
-                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.endTime" class="margin-left-lg margin-right-lg" required/>
+                    <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.endTime"
+                           class="margin-left-lg margin-right-lg" required/>
 
                     <span class="warning four" ng-if="!startTimeIsAfterEndTime()"><i18n>error.timeAfterBefore</i18n></span>
                     <span class="warning four" ng-if="!isPastDate()"><i18n>error.PastDate</i18n></span>
@@ -152,16 +181,21 @@
                 </div>
             </div>
 
+            <!--COURSE ROOM INPUT-->
             <div ng-if="!course.is_recurrent" class="row form-row remove-padding">
                 <label class="cell two twelve-mobile">
                     <i18n>edt.utils.room</i18n>
                 </label>
-                <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7" maxlength="50" ng-model="courseOccurrenceForm.roomLabels[0]"/>
+                <div class="cell twelve-mobile ten"><input type="text" class="text-center remove-padding width-7"
+                                                           maxlength="50"
+                                                           ng-model="courseOccurrenceForm.roomLabels[0]"/>
                 </div>
             </div>
 
             <div ng-if="course.is_recurrent" class="row form-row remove-padding">
                 <div class="cell twelve">
+
+                    <!--COURSES DATE INPUTS-->
                     <div class="row form-row remove-padding-bottom">
                         <label class="cell two twelve-mobile">
                             <i18n>date</i18n>
@@ -174,10 +208,10 @@
                                              ng-model="course.startDate"
                                              class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                                 <i18n>to</i18n>
-                                <date-picker  ng-init="course.endDate=getSimpleDateFormat(course.endDate);"
-                                              ng-change="changeDate()"
-                                              ng-model="course.endDate"
-                                              class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
+                                <date-picker ng-init="course.endDate=getSimpleDateFormat(course.endDate);"
+                                             ng-change="changeDate()"
+                                             ng-model="course.endDate"
+                                             class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             </div>
                             <div class="cell twelve-mobile" ng-show="display.checkbox">
                                 <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
@@ -187,10 +221,10 @@
                             </div>
                             <div class="cell four twelve-mobile margin-left-lg">
                                 <span ng-if="course.is_recurrent && course.everyTwoWeek"
-                                     class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
+                                      class="circleInfo infoLetter three cell twelve-mobile horizontal-spacing">
                                 </span>
                                 <span ng-if="course.is_recurrent && course.everyTwoWeek"
-                                     class="red-text padding-top-sm ten cell twelve-mobile horizontal-spacing ">
+                                      class="red-text padding-top-sm ten cell twelve-mobile horizontal-spacing ">
                                     <i18n>edt.first.occurrence</i18n> : [[getSimpleFRDateFormat(info.firstOccurrenceDate)]] (<i18n>Week</i18n>
                                     [[((info.firstWeekNumber%2)==0)? translate('edt.info.week.peer'):translate('edt.info.week.odd')]])
                                 </span>
@@ -198,6 +232,7 @@
                         </div>
                     </div>
 
+                    <!--DATE WARNINGS-->
                     <div ng-if="!Utils.isValidDate(course.startDate, course.endDate);" class="warning ">
                         <i18n>edt.error.date.is.not.a.week.after</i18n>
                     </div>
@@ -205,18 +240,23 @@
                     <div ng-show="Utils.isCourseInExclusions(course, structure.exclusions.all);" class="warning">
                         <i18n>edt.course.on.exclusion.message</i18n>
                     </div>
+
+                    <!--LIST OF OCCURRENCES INPUTS-->
                     <div class="row form-row remove-padding">
                         <table class="twelve list-view" style="text-align: center">
                             <thead>
                             <tr>
                                 <td>
-                                    <i18n>edt.utils.day</i18n>*
+                                    <i18n>edt.utils.day</i18n>
+                                    *
                                 </td>
                                 <td>
-                                    <i18n>edt.utils.start.time</i18n>*
+                                    <i18n>edt.utils.start.time</i18n>
+                                    *
                                 </td>
                                 <td>
-                                    <i18n>edt.utils.end.time</i18n>*
+                                    <i18n>edt.utils.end.time</i18n>
+                                    *
                                 </td>
                                 <td>
                                     <i18n>edt.utils.room</i18n>
@@ -229,7 +269,8 @@
                                 <td>[[daysOfWeek.get(courseOccurrence.dayOfWeek)]]</td>
                                 <td>[[courseOccurrence.getFormattedStartTime()]]</td>
                                 <td>[[courseOccurrence.getFormattedEndTime()]]</td>
-                                <td>[[courseOccurrence.roomLabels.length > 0 ? courseOccurrence.roomLabels[0] : '']]</td>
+                                <td>[[courseOccurrence.roomLabels.length > 0 ? courseOccurrence.roomLabels[0] : '']]
+                                </td>
                                 <td class="drop-line" ng-click="dropOccurrence(courseOccurrence)"></td>
                             </tr>
                             <tr>
@@ -243,49 +284,59 @@
                                     </select>
                                 </td>
                                 <!-- Free Schedule -->
-                                <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.startTime" required/></td>
+                                <td ng-show="display.freeSchedule"><input type="time"
+                                                                          ng-model="courseOccurrenceForm.startTime"
+                                                                          required/></td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
                                     <select
                                             ng-model="course.timeSlot.start"
                                             ng-options="item.name + ' : ' + item.startHour for item in course.timeSlots.all | orderBy:'startHour'"
                                             ng-change="selectStartTime()">
-                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]
+                                        </option>
                                     </select>
                                 </td>
                                 <!-- Free Schedule -->
-                                <td ng-show="display.freeSchedule"><input type="time" ng-model="courseOccurrenceForm.endTime" required/></td>
+                                <td ng-show="display.freeSchedule"><input type="time"
+                                                                          ng-model="courseOccurrenceForm.endTime"
+                                                                          required/></td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
                                     <select
                                             ng-model="course.timeSlot.end"
                                             ng-change="formatEndDate();"
                                             ng-options="item.name + ' : ' + item.endHour for item in course.timeSlots.all | orderBy:'endHour'">
-                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
+                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]
+                                        </option>
                                     </select>
                                 </td>
-                                <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" maxlength="50" class="text-center remove-padding width-7"/></td>
+                                <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" maxlength="50"
+                                           class="text-center remove-padding width-7"/></td>
                                 <td>
-                                    <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display) || !courseOccurrenceForm.isNotPastTime()" ng-click="submit_CourseOccurrence_Form()">
+                                    <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display) || !courseOccurrenceForm.isNotPastTime()"
+                                            ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
                                     </button>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
-                        <div ng-show="!courseOccurrenceForm.isValidTime(course, display)" class="warning"> <i18n>error.timeAfterBefore</i18n> </div>
-                        <div ng-show="!courseOccurrenceForm.isNotPastTime()" class="warning"> <i18n>error.PastDate</i18n> </div>
-
+                        <div ng-show="!courseOccurrenceForm.isValidTime(course, display)" class="warning">
+                            <i18n>error.timeAfterBefore</i18n>
+                        </div>
+                        <div ng-show="!courseOccurrenceForm.isNotPastTime()" class="warning">
+                            <i18n>error.PastDate</i18n>
+                        </div>
                     </div>
                 </div>
             </div>
-
-
         </article>
 
+        <!--SUBMIT/CANCEL BUTTONS-->
         <div class="right-magnet">
 
-            <button   class="cancel" type="button" ng-click="cancelCreation()">
+            <button class="cancel" type="button" ng-click="cancelCreation()">
                 <i18n ng-show="course.canManage || !isAnUpdate">edt.utils.cancel</i18n>
                 <i18n ng-show="!course.canManage && isAnUpdate">edt.utils.back</i18n>
             </button>
