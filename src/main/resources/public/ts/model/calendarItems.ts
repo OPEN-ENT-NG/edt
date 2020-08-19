@@ -71,14 +71,15 @@ export class CalendarItems {
     /**
      * Get groups from class
      * @param {Array<Group>} group cannot be null
+     * @param deletedGroup   groups which are deleted from the filter
      * @returns {Promise<void>}
      */
-    async getGroups( group: Array<Group> = [] , deletedGroup){
+    getGroups = async ( group: Array<Group> = [] , deletedGroup : any) : Promise<void> => {
         if(group.length <=0) return ;
-        let filter = "";
-        filter += this.getFilterClass(group);
-        let uri = `/viescolaire/group/from/class?${filter}`;
-        let {data} = await http.get(uri);
+        let filter : string = this.getFilterClass(group);
+        if (filter === "") return;
+        let uri : string = `/viescolaire/group/from/class?${filter}`;
+        let {data} : AxiosResponse = await http.get(uri);
 
         if (data.length > 0) {
             this.all = data.map((item) => {
@@ -258,7 +259,7 @@ export class CalendarItems {
         let filter : string = '';
         let name : string = 'classes=';
         for (let i = 0; i < classes.length; i++) {
-            if (classes[i]) {
+            if (classes[i] && classes[i].type_groupe === 0) {
                 filter += `${name}${classes[i].id}`;
 
                 if (i !== classes.length - 1) {
