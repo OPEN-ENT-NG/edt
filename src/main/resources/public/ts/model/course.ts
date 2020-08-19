@@ -3,7 +3,9 @@ import http from 'axios';
 import {Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from "./structure";
-import {Moment} from "moment";
+import {Moment} from 'moment';
+import {DateUtils} from '../utils/date';
+import {DATE_FORMAT} from '../core/constants/dateFormat';
 
 export class Course {
     _id: string;
@@ -123,13 +125,18 @@ export class Course {
         }
     };
 
-    toJSON () {
+    /**
+     * Returns the Course JSON object.
+     */
+    toJSON () : any {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
             teacherIds: _.pluck(this.teachers, 'id'),
             classes: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
-            groups: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP']}), 'name'),
+            groups: _.pluck(_.filter(this.groups, (group) => {
+                return _.contains([Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'], Utils.getClassGroupTypeMap()['MANUAL_GROUP']], group.type_groupe)
+            }), 'name'),
             roomLabels: this.roomLabels,
             dayOfWeek: this.is_recurrent ? parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
@@ -140,12 +147,12 @@ export class Course {
             lastUser: model.me.login
         };
 
-        if(!this.structureId && this.structure && this.structure.id){
+        if (!this.structureId && this.structure && this.structure.id){
             o.structureId = this.structure.id;
         }
 
-       if( this.is_recurrent ){
-           if(this.dayOfWeek - moment(this.startDate).day() < 0)
+       if (this.is_recurrent ){
+           if (this.dayOfWeek - moment(this.startDate).day() < 0)
                o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day() + 7);
            else
            o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
@@ -156,8 +163,8 @@ export class Course {
                o.endDate = moment(o.endDate).add(-7,"days");
 
 
-       }else{
-           let date = moment(this.startDate).format('YYYY-MM-DD');
+       } else {
+           let date : string = DateUtils.format(this.startDate, DATE_FORMAT["YEAR-MONTH-DAY"]);
            o.startDate = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
            o.endDate = moment(date +'T'+ moment(this.endDate).format('HH:mm:ss')) ;
        }

@@ -256,7 +256,7 @@ export let main = ng.controller('EdtController',
             //add groups to classes
             if (model.me.type === USER_TYPES.personnel || model.me.type === USER_TYPES.teacher)
                 $scope.params.group.map(g => {
-                    let isInClass = false;
+                    let isInClass : boolean = false;
                     $scope.params.deletedGroups.classes.map(c => {
                         if (c.id === g.id ){
                             isInClass = true;
@@ -291,7 +291,7 @@ export let main = ng.controller('EdtController',
 
                 $scope.params.deletedGroups.groupsDeleted.map((g : Group) => {
                     $scope.params.group.map(gg  => {
-                        if(g.id == gg.id){
+                        if(g.id === gg.id && gg.type_groupe !== Utils.getClassGroupTypeMap()['MANUAL_GROUP']){
                             $scope.params.group = _.without($scope.params.group, gg);
                         }
                     })
