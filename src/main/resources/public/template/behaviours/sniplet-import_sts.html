@@ -51,6 +51,17 @@
             </div>
         </div>
 
+        <!-- Access to admin console to import EDT / UDT -->
+        <h3 class="row">
+            [[lang.translate('edt.admin.import.edt.udt')]]
+        </h3>
+
+        <div class="cell twelve-mobile twelve vertical-spacing row">
+            <button ng-click="redirectToAdminConsole()">
+                [[lang.translate('edt.admin.access.import')]]
+            </button>
+        </div>
+
         <div class="cell twelve twelve-mobile loading-list no-padding vertical-spacing-twice"
              ng-if="reports.length > 0">
             <h4>

@@ -1,5 +1,6 @@
 import http from "axios";
 import {idiom as lang, moment, skin, toasts} from "entcore";
+import {Utils} from "../model";
 
 console.log("init importSts");
 
@@ -77,6 +78,11 @@ export const importSts = {
                 that.safeApply();
             }
         },
+        redirectToAdminConsole: function (): void {
+            let structureId: string = model.vieScolaire.structure.id;
+            let url: string = `/admin/${structureId}/management/import-edt`;
+            window.location.href = url;
+        },
 
         safeApply: function (): Promise<any> {
             return new Promise((resolve, reject) => {
@@ -95,4 +101,4 @@ export const importSts = {
             });
         }
     }
-}
+};
