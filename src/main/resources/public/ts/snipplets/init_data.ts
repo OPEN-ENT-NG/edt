@@ -1,7 +1,9 @@
 import {Utils} from "../model";
-import http from "axios";
+import {AxiosResponse} from "axios";
 import {toasts} from 'entcore';
-console.log("init data");
+import {structureService} from "../services";
+
+declare let window: any;
 
 export const initData = {
     title: 'Init data edt',
@@ -40,8 +42,9 @@ export const initData = {
             return response;
         },
 
-        initData: async function () {
-            let response = await http.get(`edt/init`);
+        initData: async function (): Promise<void> {
+            let structure_id: string = window.model.vieScolaire.structure.id;
+            let response: AxiosResponse = await structureService.initStructureData(structure_id);
             this.toastHttpCall(Utils.setToastMessage(response,'edt.data.init.success', 'edt.data.init.error'));
             this.safeApply();
         }
