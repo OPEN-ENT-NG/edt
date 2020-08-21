@@ -27,7 +27,7 @@ public class Edt extends BaseServer {
         super.start();
         eb = getEventBus(vertx);
         addController(new EdtController(EDT_COLLECTION, eb));
-        addController(new InitController(new DefaultInitImpl("edt")));
+        addController(new InitController(new DefaultInitImpl("edt"), vertx));
         addController(new SearchController(eb));
 
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
