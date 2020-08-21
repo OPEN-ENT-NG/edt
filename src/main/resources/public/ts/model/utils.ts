@@ -1,6 +1,4 @@
-import { moment, model, Behaviours, _ } from 'entcore';
-import {Course} from "./index";
-import {Mix} from "entcore-toolkit";
+import {model, moment} from 'entcore';
 
 export class Utils {
 
@@ -91,10 +89,23 @@ export class Utils {
                 let courses = course.getCourseForEachOccurrence();
                 for (let j = 0, jmax = courses.all.length; j < jmax; j++) {
                     let course = courses.all[j];
-                    if(this.occurrenceInExclusionsDay(course, exclusion) == true){
+                    if (this.occurrenceInExclusionsDay(course, exclusion) == true) {
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+
+    static isOccurrenceInExclusions(occurrence, exclusions): boolean {
+        if (!exclusions || !exclusions.length) {
+            return false;
+        }
+        for (let i = 0, imax = exclusions.length; i < imax; i++) {
+            let exclusion = exclusions[i];
+            if (this.occurrenceInExclusionsDay(occurrence, exclusion) == true) {
+                return true;
             }
         }
         return false;
@@ -106,7 +117,7 @@ export class Utils {
      * @param exclusion
      * @returns {boolean}
      */
-    static occurrenceInExclusionsDay (occurrence, exclusion): boolean {
+    static occurrenceInExclusionsDay(occurrence, exclusion): boolean {
         let exclusionStart = moment(exclusion.start_date),
             exclusionEnd = moment(exclusion.end_date),
             occurrenceStart = moment(occurrence.startDate),
@@ -123,4 +134,11 @@ export class Utils {
         }
         return true;
     };
+
+    static uuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
 }

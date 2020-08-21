@@ -98,7 +98,8 @@ public class EdtController extends MongoDbControllerHelper {
     @Trace("POST_COURSE")
     @ApiDoc("Create a course with 1 or more occurrences")
     public void create(final HttpServerRequest request) {
-        RequestUtils.bodyToJsonArray(request, body -> edtService.create(body, getServiceHandler(request)));
+        ok(request);
+//        RequestUtils.bodyToJsonArray(request, body -> edtService.create(body, getServiceHandler(request)));
     }
 
     @Put("/course")
