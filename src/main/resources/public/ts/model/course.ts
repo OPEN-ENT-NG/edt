@@ -134,9 +134,13 @@ export class Course {
             subjectId: this.subjectId,
             teacherIds: _.pluck(this.teachers, 'id'),
             classes: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
+            classesExternalIds: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'externalId'),
             groups: _.pluck(_.filter(this.groups, (group) => {
                 return _.contains([Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'], Utils.getClassGroupTypeMap()['MANUAL_GROUP']], group.type_groupe)
             }), 'name'),
+            groupsExternalIds: _.pluck(_.filter(this.groups, (group) => {
+                return _.contains([Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'], Utils.getClassGroupTypeMap()['MANUAL_GROUP']], group.type_groupe)
+            }), 'externalId'),
             roomLabels: this.roomLabels,
             dayOfWeek: this.is_recurrent ? parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
