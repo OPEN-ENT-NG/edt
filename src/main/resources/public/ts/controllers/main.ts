@@ -1,4 +1,4 @@
-import {_, Behaviours, idiom as lang, model, moment, ng, template, angular , toasts} from 'entcore';
+import {_, Behaviours, idiom as lang, model, moment, ng, template, angular , toasts, Me} from 'entcore';
 import {
     Course,
     CourseOccurrence,
@@ -15,6 +15,7 @@ import http from "axios";
 import {TimeSlots} from '../model/timeSlots';
 import { AutocompleteUtils } from '../model/autocompleteUtils';
 import { Moment } from 'moment/moment';
+import { PreferencesUtils } from '../utils/preference/preferences';
 
 
 
@@ -78,7 +79,16 @@ export let main = ng.controller('EdtController',
          * Synchronize a structure.
          */
         $scope.syncStructure = async (structure: Structure) : Promise<void> => {
-            $scope.structure = structure;
+
+            let preferenceStructure : Structure = await Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE);
+            let preferenceStructureId : string = preferenceStructure ? preferenceStructure['id'] : null;
+
+            if (preferenceStructureId !== "all_Structures") {
+                let structurePref : Structure = $scope.structures.all.length > 1 &&
+                preferenceStructureId ? $scope.structures.all.find((s) => s.id === preferenceStructureId) : $scope.structures.first();
+                $scope.structure = structurePref;
+            }
+
             $scope.timeSlots.structure_id = $scope.structure.id;
             AutocompleteUtils.init(structure);
             $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
@@ -124,7 +134,9 @@ export let main = ng.controller('EdtController',
                 let allStructures : Structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
                 if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
                     $scope.structures.all.unshift(allStructures);
-                    $scope.switchStructure($scope.structures.all[0]);
+                    if (preferenceStructureId === "all_Structures") {
+                        $scope.switchStructure($scope.structures.all[0]);
+                    }
                 }
             }
 
@@ -144,7 +156,7 @@ export let main = ng.controller('EdtController',
          * Changes current structure
          * @param structure selected structure
          */
-        $scope.switchStructure = (structure: Structure) : void => {
+        $scope.switchStructure = async (structure: Structure) : Promise<void> => {
             $scope.timeSlots = new TimeSlots($scope.structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
@@ -156,6 +168,8 @@ export let main = ng.controller('EdtController',
                 $scope.isAllStructure = true;
                 $scope.structure = structure;
             }
+
+            await PreferencesUtils.updateStructure({id : structure.id, name : structure.name});
         };
 
         /**
