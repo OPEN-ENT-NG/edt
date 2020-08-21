@@ -4,36 +4,37 @@ import {Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from "./structure";
 import {Moment} from 'moment';
-import {DateUtils} from '../utils/date';
-import {DATE_FORMAT} from '../core/constants/dateFormat';
+
+declare const window: any;
 
 export class Course {
     _id: string;
     classes: string[] = [];
     groups: string[] | Group [] = [];
     teachers: Teacher [] = [];
-    subjectLabel : string = '' ;
+    subjectLabel: string = '';
     exceptionnal ?: string;
     dayOfWeek: number = null;
-    endDate:string | object ;
-    startDate: string | object ;
+    endDate: string | object;
+    startDate: string | object;
     idStartSlot: string;
     idEndSlot: string;
     timeSlot: any;
-    everyTwoWeek:boolean = undefined;
+    everyTwoWeek: boolean = undefined;
     structure: Structure = null;
     structureId: string = undefined;
-    teacherIds: string[]= [];
+    teacherIds: string[] = [];
     subjectId: string = '';
     roomLabels: string[] = [];
-    courseOccurrences : CourseOccurrence[] = [];
+    courseOccurrences: CourseOccurrence[] = [];
     created: string = '';
     modified: string = '';
-    is_recurrent:boolean = undefined;
-    canManage:boolean;
+    is_recurrent: boolean = undefined;
+    recurrence: string;
+    canManage: boolean;
     display: any;
 
-    constructor (obj?: object) {
+    constructor(obj?: object) {
         if (obj && obj instanceof Object) {
             for (let key in obj) {
                 this[key] = obj[key];
@@ -151,67 +152,88 @@ export class Course {
             lastUser: model.me.login
         };
 
-        if (!this.structureId && this.structure && this.structure.id){
+        if (!this.structureId && this.structure && this.structure.id) {
             o.structureId = this.structure.id;
         }
 
-       if (this.is_recurrent ){
-           if (this.dayOfWeek - moment(this.startDate).day() < 0)
-               o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day() + 7);
-           else
-           o.startDate = moment(this.startDate).add('days', this.dayOfWeek - moment(this.startDate).day());
-           o.endDate = moment(this.endDate).day( this.dayOfWeek );
-           o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
-           o.endDate = moment( o.endDate).format('YYYY-MM-DDTHH:mm:ss');
-           if(moment(o.endDate).isAfter(moment(this.endDate)))
-               o.endDate = moment(o.endDate).add(-7,"days");
-
-
-       } else {
-           let date : string = DateUtils.format(this.startDate, DATE_FORMAT["YEAR-MONTH-DAY"]);
-           o.startDate = moment(date +'T'+ moment(this.startDate).format('HH:mm:ss')) ;
-           o.endDate = moment(date +'T'+ moment(this.endDate).format('HH:mm:ss')) ;
-       }
         if (this._id) {
             o._id = this._id;
         }
 
-        o.startDate = moment(o.startDate).format('YYYY-MM-DDTHH:mm:ss');
-        o.endDate = moment(o.endDate).format('YYYY-MM-DDTHH:mm:ss');
+        if (this.recurrence) {
+            o.reccurrence = this.recurrence;
+        }
+
+        o.startDate = moment(this.startDate).format('YYYY-MM-DDTHH:mm:ss');
+        o.endDate = moment(this.endDate).format('YYYY-MM-DDTHH:mm:ss');
         o.idStartSlot = this.idStartSlot;
         o.idEndSlot = this.idEndSlot;
         return o;
     }
-    getCourseForEachOccurrence ():Courses {
+
+    getCourseForEachOccurrence(): Courses {
         let courses = new Courses();
-        for(let i = 0; i < this.courseOccurrences.length ; i++){
-           let newCourse= _.clone(this).syncCourseWithOccurrence(this.courseOccurrences[i]);
-            if (i!==0)
-                delete newCourse._id;
-            courses.all.push(newCourse.toJSON());
+        for (let i = 0; i < this.courseOccurrences.length; i++) {
+            let newCourses = this.splitOccurrenceInMultipleCourse(this.courseOccurrences[i]);
+            courses.all.push(...newCourses);
         }
         return courses
     }
-    syncCourseWithOccurrence (occurrence) :Course {
+
+    splitOccurrenceInMultipleCourse(occurrence): Course[] {
+        let courses = [];
+        let weekCount = moment(occurrence.endTime).diff(moment(occurrence.startTime), 'week') + 1;
+        let recurrence = Utils.uuid();
+        //TODO Manage one course every two weeks
+        for (let i = 0; i < weekCount; i++) {
+            let course = _.clone(this);
+            let startTimeDayOfWeek = parseInt(occurrence.dayOfWeek);
+            let startDate = moment(this.startDate).day(startTimeDayOfWeek).add(i * 7, 'days');
+            if (this.isOccurrenceLowerThanStartDate(startDate) || this.isOccurrenceGreaterThanEndDate(startDate)) continue;
+            let endDate = startDate.clone();
+            course.startDate = moment(moment(startDate).format("YYYY-MM-DD") + "T" + moment(occurrence.startTime).format("HH:mm"));
+            course.endDate = moment(moment(endDate).format("YYYY-MM-DD") + "T" + moment(occurrence.endTime).format("HH:mm"));
+            course.roomLabels = occurrence.roomLabels;
+            course.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(startDate).day();
+            course.reccurrence = recurrence;
+            if (Utils.isOccurrenceInExclusions(course, window.structure.exclusions.all)) continue;
+            courses.push(course);
+        }
+
+        return courses;
+    }
+
+    private isOccurrenceGreaterThanEndDate(occurrenceStartDate) {
+        return occurrenceStartDate.diff(moment(this.endDate), 'days') > 0
+    }
+
+    private isOccurrenceLowerThanStartDate(occurrenceStartDate) {
+        return moment(this.startDate).diff(occurrenceStartDate, 'days') > 0
+    }
+
+    syncCourseWithOccurrence(occurrence): Course {
         this.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(this.startDate).day();
         this.roomLabels = occurrence.roomLabels;
-        this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.startTime).format("HH:mm"));
-        this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD")+ "T" +moment(occurrence.endTime).format("HH:mm"));
+        this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD") + "T" + moment(occurrence.startTime).format("HH:mm"));
+        this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD") + "T" + moment(occurrence.endTime).format("HH:mm"));
         return this;
     }
-    isRecurrent (): boolean {
+
+    isRecurrent(): boolean {
         return moment(this.endDate).diff(moment(this.startDate), 'days') != 0;
     }
-    canIManageCourse () :boolean {
+
+    canIManageCourse(): boolean {
         let now = moment();
-        return (!this.isRecurrent() && moment(this.startDate).isAfter( now ))
-            ||  (this.isRecurrent() &&
-               moment(this.getLastOccurrence().startTime).isAfter(now) )
+        return (!this.isRecurrent() && moment(this.startDate).isAfter(now))
+            || (this.isRecurrent() &&
+                moment(this.getLastOccurrence().startTime).isAfter(now))
     };
-    isInFuture () :boolean {
+
+    isInFuture(): boolean {
         let now = moment();
-        return !this.isRecurrent() && moment(this.startDate).isAfter( now )
-            ||  (this.isRecurrent() && now.isBefore(moment(this.startDate).day(this.dayOfWeek)) )
+        return !this.isRecurrent() && moment(this.startDate).isAfter(now)
+            || (this.isRecurrent() && now.isBefore(moment(this.startDate).day(this.dayOfWeek)))
 
     };
 

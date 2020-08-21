@@ -1,4 +1,4 @@
-import {_, Behaviours, idiom as lang, model, moment, ng, template, angular , toasts, Me} from 'entcore';
+import {_, angular, Behaviours, idiom as lang, Me, model, moment, ng, template, toasts} from 'entcore';
 import {
     Course,
     CourseOccurrence,
@@ -13,21 +13,21 @@ import {
 } from '../model';
 import http from "axios";
 import {TimeSlots} from '../model/timeSlots';
-import { AutocompleteUtils } from '../model/autocompleteUtils';
-import { Moment } from 'moment/moment';
-import { PreferencesUtils } from '../utils/preference/preferences';
+import {AutocompleteUtils} from '../model/autocompleteUtils';
+import {Moment} from 'moment/moment';
+import {PreferencesUtils} from '../utils/preference/preferences';
 
-
+declare const window: any;
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'route', '$location', '$timeout', async  ($scope, route, $location, $timeout) => {
+    ['$scope', 'route', '$location', '$timeout', async ($scope, route, $location, $timeout) => {
         $scope.structures = new Structures();
         $scope.params = {
             user: [],
             group: [],
-            oldGroup:[],
+            oldGroup: [],
             oldUser: [],
-            coursesToDelete:[],
+            coursesToDelete: [],
             updateItem: null,
             dateFromCalendar: null
         };
@@ -159,17 +159,17 @@ export let main = ng.controller('EdtController',
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
             $scope.timeSlots = new TimeSlots($scope.structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
-                (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||   $scope.isPersonnel() || $scope.isTeacher() )) {
+                (($scope.params.group.length !== 0 || $scope.params.user.length !== 0) || $scope.isPersonnel() || $scope.isTeacher())) {
 
                 $scope.syncStructure(structure);
                 $scope.isAllStructure = false;
-            }
-            else if (structure.id == lang.translate("all.structures.id")) {
+            } else if (structure.id == lang.translate("all.structures.id")) {
                 $scope.isAllStructure = true;
                 $scope.structure = structure;
             }
 
-            await PreferencesUtils.updateStructure({id : structure.id, name : structure.name});
+            await PreferencesUtils.updateStructure({id: structure.id, name: structure.name});
+            window.structure = structure;
         };
 
         /**

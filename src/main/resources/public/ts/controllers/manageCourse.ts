@@ -1,11 +1,11 @@
-import { ng, _,idiom as lang, moment } from 'entcore';
-import {
-    DAYS_OF_WEEK, COMBO_LABELS, Teacher, Group, CourseOccurrence, Utils, Course, Subjects, Structure
-} from '../model';
+import {_, idiom as lang, moment, ng} from 'entcore';
+import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subjects, Teacher, Utils} from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
 
+declare const window: any;
+
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
-    ['$scope', '$location','$routeParams',  ($scope, $location, $routeParams) => {
+    ['$scope', '$location', '$routeParams', ($scope, $location, $routeParams) => {
 
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
@@ -39,6 +39,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.switchStructure = async (structure) => {
             $scope.course.structure = structure;
+            window.structure = structure;
             await $scope.syncStructure(structure);
             $scope.editTimeSlot();
         };
