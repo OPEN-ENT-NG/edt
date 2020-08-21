@@ -3,7 +3,8 @@ package fr.cgi.edt.utils;
 public enum EdtWorkflowActions {
 
     VIEW ("edt.view"),
-    MANAGE ("edt.manage");
+    MANAGE ("edt.manage"),
+    SEARCH ("edt.search");
 
     private final String actionName;
 
