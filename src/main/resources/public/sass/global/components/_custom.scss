@@ -36,3 +36,9 @@ multi-combo .multi-combo-root-panel {
 .calendar {
   width: 82%;
 }
+
+.no-cursor {
+  .timeslot {
+    cursor: default;
+  }
+}
