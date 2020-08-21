@@ -19,7 +19,7 @@ import { Moment } from 'moment/moment';
 
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'route', '$location', async  ($scope, route, $location ) => {
+    ['$scope', 'route', '$location', '$timeout', async  ($scope, route, $location, $timeout) => {
         $scope.structures = new Structures();
         $scope.params = {
             user: [],
@@ -155,7 +155,7 @@ export let main = ng.controller('EdtController',
             else if (structure.id == lang.translate("all.structures.id")) {
                 $scope.isAllStructure = true;
                 $scope.structure = structure;
-            };
+            }
         };
 
         /**
@@ -710,7 +710,13 @@ export let main = ng.controller('EdtController',
                 $('body').on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
             }
             // --End -- Calendar Drag and Drop
+
+            /**
+             * Refresh view when mouse on calendar courses (for displaying tooltips)
+             */
+            $('.schedule-item').mousemove(() => { $timeout(()=>{Utils.safeApply($scope);}, 500 )});
         };
+
 
         /**
          * Subscriber to directive calendar changes event

@@ -1,7 +1,7 @@
 package fr.cgi.edt.controllers;
 
 import fr.cgi.edt.Edt;
-import fr.cgi.edt.security.workflow.ManageSettingsWorkflowAction;
+import fr.cgi.edt.security.workflow.ManageSearchWorkflowAction;
 import fr.cgi.edt.services.SearchService;
 import fr.cgi.edt.services.impl.DefaultSearchService;
 import fr.wseduc.rs.ApiDoc;
@@ -61,7 +61,7 @@ public class SearchController extends ControllerHelper {
     @Get("/search")
     @ApiDoc("Search for a group")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
-    @ResourceFilter(ManageSettingsWorkflowAction.class)
+    @ResourceFilter(ManageSearchWorkflowAction.class)
     public void search(HttpServerRequest request) {
         if (request.params().contains("q") && !"".equals(request.params().get("q").trim())
                 && request.params().contains("structureId")) {
