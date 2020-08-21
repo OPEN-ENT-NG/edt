@@ -99,6 +99,7 @@ public class EdtController extends MongoDbControllerHelper {
     @ApiDoc("Create a course with 1 or more occurrences")
     public void create(final HttpServerRequest request) {
         ok(request);
+        //TODO REMOVE THAT
 //        RequestUtils.bodyToJsonArray(request, body -> edtService.create(body, getServiceHandler(request)));
     }
 
