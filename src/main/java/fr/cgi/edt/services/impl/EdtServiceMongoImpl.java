@@ -63,4 +63,11 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     public void deleteCourse(String id, Handler<Either<String, JsonObject>> handler) {
         super.delete(id, handler);
     }
+
+    @Override
+    public void deleteRecurrence(String id, Handler<Either<String, JsonObject>> handler) {
+        JsonObject matcher = new JsonObject()
+                .put("recurrence", id);
+        MongoDb.getInstance().delete(this.collection, matcher, MongoDbResult.validResultHandler(handler));
+    }
 }
