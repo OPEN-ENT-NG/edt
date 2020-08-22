@@ -254,8 +254,18 @@ public class EdtController extends MongoDbControllerHelper {
     @Put("/courses/:id")
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
+    @Trace("PUT_COURSE")
     public void updateCourse(HttpServerRequest request) {
         String id = request.getParam("id");
         RequestUtils.bodyToJson(request, course -> edtService.update(id, course, defaultResponseHandler(request)));
+    }
+
+    @Delete("/courses/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @Trace("DELETE_COURSE")
+    public void deleteCourse(HttpServerRequest request) {
+        String id = request.getParam("id");
+        edtService.deleteCourse(id, defaultResponseHandler(request));
     }
 }

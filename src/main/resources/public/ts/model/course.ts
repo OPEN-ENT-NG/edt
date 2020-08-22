@@ -121,7 +121,7 @@ export class Course {
             }
         } else {
             try {
-                let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/course/${this._id}`;
+                let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/courses/${this._id}`;
                 await http.delete(url);
             } catch (e) {
                 notify.error('edt.notify.delete.err');

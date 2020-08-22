@@ -50,4 +50,6 @@ public interface EdtService {
     void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler);
 
     void update(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
+
+    void deleteCourse(String id, Handler<Either<String, JsonObject>> handler);
 }
