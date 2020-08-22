@@ -41,8 +41,7 @@ import org.entcore.common.user.UserUtils;
 import java.io.File;
 import java.util.UUID;
 
-import static org.entcore.common.http.response.DefaultResponseHandler.arrayResponseHandler;
-import static org.entcore.common.http.response.DefaultResponseHandler.notEmptyResponseHandler;
+import static org.entcore.common.http.response.DefaultResponseHandler.*;
 
 /**
  * Vert.x backend controller for the application using Mongodb.
@@ -250,5 +249,13 @@ public class EdtController extends MongoDbControllerHelper {
     public void getRecurrences(HttpServerRequest request) {
         String recurrence = request.getParam("id");
         edtService.retrieveRecurrences(recurrence, arrayResponseHandler(request));
+    }
+
+    @Put("/courses/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    public void updateCourse(HttpServerRequest request) {
+        String id = request.getParam("id");
+        RequestUtils.bodyToJson(request, course -> edtService.update(id, course, defaultResponseHandler(request)));
     }
 }
