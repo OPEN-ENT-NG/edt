@@ -52,4 +52,6 @@ public interface EdtService {
     void update(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
 
     void deleteCourse(String id, Handler<Either<String, JsonObject>> handler);
+
+    void deleteRecurrence(String id, Handler<Either<String, JsonObject>> handler);
 }

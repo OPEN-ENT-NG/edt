@@ -268,4 +268,12 @@ public class EdtController extends MongoDbControllerHelper {
         String id = request.getParam("id");
         edtService.deleteCourse(id, defaultResponseHandler(request));
     }
+
+    @Delete("/courses/recurrences/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @Trace("DELETE_RECURRENCE")
+    public void deleteRecurrence(HttpServerRequest request) {
+        String id = request.getParam("id");
+    }
 }
