@@ -143,4 +143,30 @@
       }
     }
   }
+
+  container[template="calendarDefaultDisplayOptionsTemplate"] {
+    > div {
+      float: left;
+      width: 100%;
+
+      h2 {
+        background: $edt-dark-blue;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 10px 5px;
+        color: $edt-white;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        text-indent: 20px;
+
+        ~ div {
+          padding-left: 20px;
+
+          &:last-child {
+            margin-bottom: 20px !important;
+          }
+        }
+      }
+    }
+  }
 }
