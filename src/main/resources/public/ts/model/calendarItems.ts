@@ -1,6 +1,6 @@
-import { _, idiom as lang,model, moment} from 'entcore';
+import {_, idiom as lang, model, moment} from 'entcore';
 import http, {AxiosPromise, AxiosResponse} from 'axios';
-import { USER_TYPES, Structure, Teacher, Group, Utils, Course} from './index';
+import {Course, Group, Structure, Teacher, USER_TYPES, Utils} from './index';
 import {Structures} from './structure';
 import {DateUtils} from '../utils/date';
 import {DATE_FORMAT} from '../core/constants/dateFormat';
@@ -36,10 +36,11 @@ export class CalendarItem {
         let course = new Course();
         if (obj instanceof Object) {
             for (let key in obj) {
-                course.hasOwnProperty(key) || key == '_id' ? course[key] = obj[key] : this[key] = obj[key];
+                this[key] = obj[key];
+                // course.hasOwnProperty(key) || key == '_id' ? course[key] = obj[key] : this[key] = obj[key];
             }
         }
-        this.course = new Course(course);
+        this.course = new Course(this);
         this.course.endDate = this.endCourse;
         this.course.startDate = this.startCourse;
         this.locked = true;
