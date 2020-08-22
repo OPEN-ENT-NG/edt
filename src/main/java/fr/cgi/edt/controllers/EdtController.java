@@ -165,26 +165,15 @@ public class EdtController extends MongoDbControllerHelper {
                 .put("action", "timeslot.getSlotProfiles")
                 .put("structureId", structureId);
 
-        Handler<Either<String, JsonArray>> handler = DefaultResponseHandler.arrayResponseHandler(request);
-            eb.send("viescolaire", action, (Handler<AsyncResult<Message<JsonObject>>>) event -> {
-                String status = event.result().body().getString("status");
-                JsonObject body = event.result().body();
-                JsonArray slots = new JsonArray();
-                if ("ok".equals(status)
-                        && (body.getJsonObject("result") == null || body.getJsonObject("result").isEmpty())
-                        || (body.getJsonObject("result").getJsonArray("slots").isEmpty())) {
-                    Renders.noContent(request);
-                }
-                else if ("ok".equals(status) && body.getJsonObject("result").containsKey("slots")
-                        && !body.getJsonObject("result").getJsonArray("slots").isEmpty()) {
-                    slots = body.getJsonObject("result").getJsonArray("slots");
-                    Renders.renderJson(request, slots);
-                } else {
-                    LOGGER.error("[EDT@DefaultRegistrerService] Failed to retrieve slot profile");
-                    String message = "[Edt@DefaultRegisterService] Failed to parse slots";
-                    handler.handle(new Either.Left<>(message));
-                }
-            });
+        eb.send("viescolaire", action, event -> {
+            JsonObject body = (JsonObject) event.result().body();
+            if (event.failed() || "error".equals(body.getString("status"))) {
+                log.error("[EDT@EdtController::getSlots] Failed to fetch time slots via viescolaire event bus");
+                renderError(request);
+            } else {
+                Renders.renderJson(request, body.getJsonObject("result").getJsonArray("slots", new JsonArray()));
+            }
+        });
     }
 
     @Post("/structures/:id/sts")

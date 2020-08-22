@@ -1,6 +1,7 @@
 <div class="sidebar ">
     <div class="row">
         <div id="display-section" class="twelve">
+            <!-- choose structure section -->
             <div ng-if="checkAccess() && structures.all.length > 1" class="sidebar-section">
                 <span class="sidebar-header top">[[translate('utils.facility') | uppercase]]</span>
                 <div class="section-content">
@@ -9,12 +10,14 @@
                             class="twelve margin-left-2 margin-bottom-mid"
                             ng-change="switchStructure(structure)"
                             ng-options="structure as structure.name for structure in structures.all">
-                        <option value="" disabled selected>
+                        <option value="">
                             [[translate('utils.structure.choose.one')]]
                         </option>
                     </select>
                 </div>
             </div>
+
+            <!-- choose children section -->
             <div ng-if="children" class="row display-inline-block section-content">
                 <select ng-model="child"
                         id="children-list"
@@ -25,6 +28,7 @@
                 </select>
             </div>
 
+            <!-- teacher fetched -->
             <div ng-if="(isTeacher() || isPersonnel()) && (params.user.length > 0)" ng-show="!isAllStructure" class="sidebar-section half" id="teacher-section">
                 <span class="sidebar-header">[[translate('utils.teachers') | uppercase]]</span>
 
@@ -36,6 +40,7 @@
                 </div>
             </div>
 
+            <!-- list of classes -->
             <div ng-if="isTeacher() || isPersonnel()" ng-show="!isAllStructure" class="sidebar-section" id="group-section"
                 ng-class="(params.user.length > 0) ? 'half' : 'full'">
                 <span class="sidebar-header">[[translate('utils.groups') | uppercase]]</span>
@@ -57,7 +62,6 @@
                     </div>
                 </div>
             </div>
-            </section>
         </div>
     </div>
 </div>
