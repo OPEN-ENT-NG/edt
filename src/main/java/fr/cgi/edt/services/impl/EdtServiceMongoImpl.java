@@ -58,4 +58,9 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
         MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
     }
+
+    @Override
+    public void deleteCourse(String id, Handler<Either<String, JsonObject>> handler) {
+        super.delete(id, handler);
+    }
 }
