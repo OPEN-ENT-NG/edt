@@ -1,5 +1,6 @@
 import {_, angular, Behaviours, idiom as lang, Me, model, moment, ng, template, toasts} from 'entcore';
 import {
+    CalendarItem,
     Course,
     CourseOccurrence,
     Group,
@@ -11,7 +12,6 @@ import {
     UtilDragAndDrop,
     Utils
 } from '../model';
-import http from "axios";
 import {TimeSlots} from '../model/timeSlots';
 import {AutocompleteUtils} from '../model/autocompleteUtils';
 import {Moment} from 'moment/moment';
@@ -35,27 +35,25 @@ export let main = ng.controller('EdtController',
         $scope.autocomplete = AutocompleteUtils;
 
         $scope.chronoEnd = true;
-        async function getMainStruct() {
-            let {data} =  await http.get(`/directory/user/${model.me.userId}?_=1556865888485`);
-            model.me.idMainStructure = data.functions[0][1][0];
-            $scope.structure = $scope.structures.first();
-            $scope.syncStructure( $scope.structure)
-        }
 
         let isUpdateData = false;
         $scope.isAllStructure = false;
         $scope.structures.sync();
+        
         //GroupsDeleted =groups wich are deleted from the filter
         //classes : classes for wich the groups are deleted
         $scope.params.deletedGroups = {
             groupsDeleted: [],
             classes: []
         };
-        if(model.me.type === "PERSEDUCNAT"){
-            getMainStruct()
-        }
 
         $scope.structure = $scope.structures.first();
+
+        /**
+         * Returns time slot by structure
+         */
+        $scope.timeSlots = new TimeSlots($scope.structure.id);
+        $scope.timeSlot = undefined;
 
         $scope.display = {
             showQuarterHours : true
@@ -79,37 +77,36 @@ export let main = ng.controller('EdtController',
          * Synchronize a structure.
          */
         $scope.syncStructure = async (structure: Structure) : Promise<void> => {
-            
-            let preferenceStructure : Structure = await Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE);
-            let preferenceStructureId : string = preferenceStructure ? preferenceStructure['id'] : null;
 
-            if (preferenceStructureId !== "all_Structures") {
-                let structurePref : Structure = $scope.structures.all.length > 1 &&
-                preferenceStructureId ? $scope.structures.all.find((s) => s.id === preferenceStructureId) : $scope.structures.first();
-                $scope.structure = structurePref;
-            }
+            // let preferenceStructure : Structure = await Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE);
+            // let preferenceStructureId : string = preferenceStructure ? preferenceStructure['id'] : null;
+            //
+            // if (preferenceStructureId !== "all_Structures") {
+            //     $scope.structure = $scope.structures.all.length > 1 &&
+            //     preferenceStructureId ? $scope.structures.all.find((s) => s.id === preferenceStructureId) : $scope.structures.first();
+            // }
 
-            $scope.timeSlots.structure_id = $scope.structure.id;
+            $scope.timeSlots.structure_id = structure.id;
             AutocompleteUtils.init(structure);
-            $scope.structure.eventer.once('refresh', () =>   Utils.safeApply($scope));
-            await $scope.structure.sync(model.me.type === USER_TYPES.teacher);
-            await $scope.timeSlots.syncTimeSlots();
+            const promises: Promise<void>[] = [];
+            promises.push($scope.structure.sync(model.me.type === USER_TYPES.teacher));
+            promises.push($scope.timeSlots.syncTimeSlots());
+            await Promise.all(promises);
             switch (model.me.type) {
+                // student case
                 case USER_TYPES.student : {
-                    $scope.params.group = $scope.structure.groups.all;
-
+                    $scope.params.group = structure.groups.all;
                     break;
                 }
-
+                // relative
                 case USER_TYPES.relative : {
                     if ($scope.structure.students.all.length > 0) {
                         if( model.me.type === USER_TYPES.relative && !$scope.children){
-                            $scope.children = $scope.structure.students.all;
+                            $scope.children = structure.students.all;
                             $scope.children.sort( (c,cc) => {
                                 if (c.lastName < cc.lastName)
                                     return -1;
-                                else if (c.lastName === cc.lastName)
-                                {
+                                else if (c.lastName === cc.lastName) {
                                     if (c.firstName < cc.firstName)
                                         return -1;
                                     else
@@ -117,38 +114,35 @@ export let main = ng.controller('EdtController',
                                 }else
                                     return 1;
                             })
-                            $scope.child = $scope.structure.students.all[0];
+                            $scope.child = structure.students.all[0];
                         }
-                        $scope.params.group = _.map($scope.structure.students.all[0].classes, (groupid) => {
-                            return _.findWhere($scope.structure.groups.all, {id: groupid});
-
+                        $scope.params.group = _.map(structure.students.all[0].classes, (groupid) => {
+                            return _.findWhere(structure.groups.all, {id: groupid});
                         });
-                        $scope.currentStudent = $scope.structure.students.all[0];
+                        $scope.currentStudent = structure.students.all[0];
                     }
                     break;
                 }
             }
 
-            if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
-
-                let allStructures : Structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
-                if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
-                    $scope.structures.all.unshift(allStructures);
-                    if (preferenceStructureId === "all_Structures") {
-                        $scope.switchStructure($scope.structures.all[0]);
-                    }
-                }
-            }
-
-            Utils.safeApply($scope);
+            // if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
+            //
+            //     let allStructures : Structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
+            //     if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
+            //         $scope.structures.all.unshift(allStructures);
+            //         // if (preferenceStructureId === "all_Structures") {
+            //             $scope.switchStructure($scope.structures.all[0]);
+            //         // }
+            //     }
+            // }
             if (!$scope.isPersonnel()) {
-                $scope.syncCourses();
+                $timeout(async () => await $scope.syncCourses())
             }
+            $scope.safeApply();
         };
 
-        $scope.switchChild = (child: Student) =>{
-            $scope.child= child;
-
+        $scope.switchChild = (child: Student) => {
+            $scope.child = child;
             $scope.syncCourses();
         };
 
@@ -157,38 +151,21 @@ export let main = ng.controller('EdtController',
          * @param structure selected structure
          */
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
-            $scope.timeSlots = new TimeSlots($scope.structure.id);
+            $scope.structure = structure;
+            $scope.timeSlots = new TimeSlots(structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
-                (($scope.params.group.length !== 0 || $scope.params.user.length !== 0) || $scope.isPersonnel() || $scope.isTeacher())) {
-
-                $scope.syncStructure(structure);
+                (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||
+                    $scope.isPersonnel() || $scope.isTeacher())) {
+                await $scope.syncStructure($scope.structure);
+                $scope.safeApply();
                 $scope.isAllStructure = false;
             } else if (structure.id == lang.translate("all.structures.id")) {
                 $scope.isAllStructure = true;
-                $scope.structure = structure;
             }
 
             await PreferencesUtils.updateStructure({id: structure.id, name: structure.name});
             window.structure = structure;
         };
-
-        /**
-         * Returns time slot by structure
-         */
-        $scope.timeSlots = new TimeSlots($scope.structure.id);
-        $scope.timeSlot = undefined;
-
-        $scope.timeSlots.syncTimeSlots().then(() => {
-            if ($scope.timeSlots.haveSlot()) {
-                for (let i = 0; i < $scope.timeSlots.all.length; i ++) {
-                    if ($scope.timeSlots.all[i].default) {
-                        $scope.timeSlot = $scope.timeSlots.all[i];
-                        Utils.safeApply($scope);
-                        return;
-                    }
-                }
-            }
-        });
 
         /**
          * Returns if current user is a personnel
@@ -230,8 +207,8 @@ export let main = ng.controller('EdtController',
          */
         $scope.getStudentGroup = (user: Student): Group =>  _.findWhere($scope.structure.groups.all, { externalId: user.classes[0] });
 
-        function filterCourses() {
-            $scope.structure.calendarItems.all.map((item,i) =>{
+        function filterCourses(): void {
+            $scope.structure.calendarItems.all.map((item: CalendarItem, i: number) =>{
                 if( item && moment(item.endCourse).isBefore(item.endDate)|| item &&  !item.startMoment){
                     $scope.structure.calendarItems.all.splice(i,1);
                 }
@@ -290,7 +267,7 @@ export let main = ng.controller('EdtController',
                     });
                 });
 
-            if($scope.params.group.length > 0) {
+            if ($scope.params.group.length > 0) {
                 await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
@@ -320,16 +297,17 @@ export let main = ng.controller('EdtController',
                         isInClass = true;
                     }
                 });
-                if(!isInClass){
+                if (!isInClass) {
                     $scope.params.deletedGroups.classes.push(g);
                 }
             });
 
-            await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group, $scope.structures, $scope.isAllStructure);
+            await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group,
+                $scope.structures, $scope.isAllStructure);
 
             filterCourses();
             $scope.calendarLoader.hide();
-            await Utils.safeApply($scope);
+            Utils.safeApply($scope);
 
         };
 
@@ -410,9 +388,9 @@ export let main = ng.controller('EdtController',
         /**
          * Select class/group and refresh calendar
          * @param model the user input
-         * @param teacher the selected class/group
+         * @param group the selected class/group
          */
-        $scope.selectClass = async (model : string, group : Group) : Promise<void> => {
+        $scope.selectClass = async (model: string, group: Group): Promise<void> => {
             $scope.toogleFilter($scope.getGroupFromId(group.id))
             AutocompleteUtils.resetSearchFields();
         };
@@ -622,9 +600,10 @@ export let main = ng.controller('EdtController',
                     .mousemove((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging))
                     .mouseenter((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging));
 
+                let $body: JQuery = $('body');
                 var mousemoveCalendarHr = (e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging);
-                $('body').off('mousemove', 'calendar hr', mousemoveCalendarHr);
-                $('body').on('mousemove', 'calendar hr', mousemoveCalendarHr);
+                $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
+                $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
 
                 var mouseupCalendar = (e) => {
                     if(e.which === 3){
@@ -645,8 +624,8 @@ export let main = ng.controller('EdtController',
                         initVar();
                     }
                 };
-                $('body').off('mouseup', 'calendar', mouseupCalendar);
-                $('body').on('mouseup', 'calendar', mouseupCalendar);
+                $body.off('mouseup', 'calendar', mouseupCalendar);
+                $body.on('mouseup', 'calendar', mouseupCalendar);
 
                 var mousedownCalendarScheduleItem = (e) => {
                     if(e.which === 3){
@@ -663,8 +642,8 @@ export let main = ng.controller('EdtController',
                     }
                 };
 
-                $('body').off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
-                $('body').on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+                $body.off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+                $body.on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
                 $('body calendar .schedule-item').css('cursor', 'move');
 
 
@@ -747,25 +726,29 @@ export let main = ng.controller('EdtController',
                 }
 
                 //left click on icon
-                $('body').off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
-                $('body').on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
-                $('body').on('mousedown', '.schedule-item-content', prepareToDelete);
-                $('body').on('mousedown', '.schedule-item-content.selected', cancelDelete);
-                $('body').on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
+                $body.off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+                $body.on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+                $body.on('mousedown', '.schedule-item-content', prepareToDelete);
+                $body.on('mousedown', '.schedule-item-content.selected', cancelDelete);
+                $body.on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
             }
             // --End -- Calendar Drag and Drop
 
             /**
              * Refresh view when mouse on calendar courses (for displaying tooltips)
              */
-            $('.schedule-item').mousemove(() => { $timeout(()=>{Utils.safeApply($scope);}, 500 )});
+            $('.schedule-item').mousemove(() => {
+                $timeout(() => {
+                    Utils.safeApply($scope);
+                }, 500)
+            });
         };
 
 
         /**
          * Subscriber to directive calendar changes event
          */
-        model.calendar.on('date-change'  , async function(){
+        model.calendar.on('date-change', async function() {
             await $scope.syncCourses();
             initTriggers();
         });
@@ -786,8 +769,7 @@ export let main = ng.controller('EdtController',
                 $scope.courseToEdit = course;
 
                 let startTime: string = course.startDate.split('T')[1];
-                let occurenceDate: string = moment(course.occurrenceDate).format("YYYY-MM-DD") + "T" + startTime;
-                $scope.occurrenceDate = occurenceDate;
+                $scope.occurrenceDate = moment(course.occurrenceDate).format("YYYY-MM-DD") + "T" + startTime;
 
                 if (course.occurrenceDate !== undefined) {
                     $scope.show.isDeleteOccurrenceLightbox = true;
@@ -956,10 +938,19 @@ export let main = ng.controller('EdtController',
 
         $scope.syncStructure($scope.structure);
 
-
+        $scope.safeApply = function (fn?) {
+            const phase = $scope.$root.$$phase;
+            if (phase == '$apply' || phase == '$digest') {
+                if (fn && (typeof (fn) === 'function')) {
+                    fn();
+                }
+            } else {
+                $scope.$apply(fn);
+            }
+        };
 
         route({
-            main:  () : void => {
+            main: () : void => {
                 template.open('main', 'main');
                 if(!$scope.pageInitialized)
                     setTimeout(function(){  initTriggers(true); }, 1000);

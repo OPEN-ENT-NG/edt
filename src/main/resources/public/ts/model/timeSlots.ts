@@ -25,9 +25,9 @@ export class TimeSlots {
     /**
      * Fetch the structure time slots.
      */
-     syncTimeSlots =  async () : Promise<void> => {
+     syncTimeSlots = async (): Promise<void> => {
         try {
-            let response : AxiosResponse = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
+            let response: AxiosResponse = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
             if (response.status === 200) {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }

@@ -54,16 +54,15 @@ export class Utils {
      * @param $scope
      * @returns {any}
      */
-    static safeApply($scope: any): any {
-        if ( $scope.$root ) {
-            let phase = $scope.$root.$$phase ;
-            if ( phase !== '$apply' && phase !== '$digest') {
-                $scope.$apply();
+    static safeApply($scope: any, fn?): any {
+        const phase = $scope.$root.$$phase;
+        if (phase == '$apply' || phase == '$digest') {
+            if (fn && (typeof (fn) === 'function')) {
+                fn();
             }
         } else {
-            setTimeout(()=>{Utils.safeApply($scope); }, 2000);
+            $scope.$apply(fn);
         }
-
     };
 
     static getFirstCalendarDay () :any {

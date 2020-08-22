@@ -1,9 +1,8 @@
-import { model, idiom as lang } from 'entcore';
+import { model } from 'entcore';
 import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES , Exclusions} from './index';
 import { Eventer } from 'entcore-toolkit';
 import {CalendarItems} from "./calendarItems";
 import {PeriodeAnnee} from "./periodeAnnee";
-import {Subject} from "./subject";
 
 
 export class Structure {
@@ -46,40 +45,16 @@ export class Structure {
      * synchronization.
      * @returns {Promise<T>|Promise}
      */
-    sync (isTeacher?: boolean): Promise<any> {
-        return new Promise((resolve, reject) => {
-            let syncedCollections = {
-                subjects: false,
-                groups: false,
-                teachers: false,
-                students: model.me.type !== USER_TYPES.relative,
-                exclusions: false,
-                periodeAnnee: false
-            };
-
-            let endSync = () => {
-                let _b: boolean = syncedCollections.subjects
-                && syncedCollections.groups
-                && syncedCollections.teachers
-                && syncedCollections.students
-                && syncedCollections.exclusions
-                && syncedCollections.periodeAnnee;
-                if (_b) {
-                    resolve();
-                    this.eventer.trigger('refresh');
-                }
-            };
-            let exceptionnalSubject = new Subject(lang.translate("exceptionnal.id"), lang.translate("exceptionnal.label"), "", "");
-
-            this.subjects.sync(this.id).then(() => { syncedCollections.subjects = true; this.subjects.all.push(exceptionnalSubject); endSync(); });
-            this.groups.sync(this.id,(isTeacher )? isTeacher : false).then(() => { syncedCollections.groups = true; endSync(); });
-            this.teachers.sync(this).then(() => { syncedCollections.teachers = true; endSync(); });
-            this.exclusions.sync(this.id).then(() => { syncedCollections.exclusions = true; endSync(); });
-            if (model.me.type === USER_TYPES.relative) {
-                this.students.sync().then(() => { syncedCollections.students = true; endSync(); });
-            }
-            this.periodeAnnee.sync(this.id).then(() => { syncedCollections.periodeAnnee = true; endSync(); });
-        });
+    async sync(isTeacher?: boolean): Promise<void> {
+        const promises: Promise<void>[] = [];
+        promises.push(this.groups.sync(this.id,(isTeacher )? isTeacher : false));
+        promises.push(this.teachers.sync(this));
+        promises.push(this.exclusions.sync(this.id));
+        if (model.me.type === USER_TYPES.relative) {
+            promises.push(this.students.sync());
+        }
+        promises.push(this.periodeAnnee.sync(this.id));
+        await Promise.all(promises);
     }
 }
 
