@@ -184,11 +184,11 @@ export class Course {
         let courses = [];
         let weekCount = moment(occurrence.endTime).diff(moment(occurrence.startTime), 'week') + 1;
         let recurrence = Utils.uuid();
-        //TODO Manage one course every two weeks
+        let courseDelta = this.everyTwoWeek ? 14 : 7;
         for (let i = 0; i < weekCount; i++) {
             let course = _.clone(this);
             let startTimeDayOfWeek = parseInt(occurrence.dayOfWeek);
-            let startDate = moment(this.startDate).day(startTimeDayOfWeek).add(i * 7, 'days');
+            let startDate = moment(this.startDate).day(startTimeDayOfWeek).add(i * courseDelta, 'days');
             if (this.isOccurrenceLowerThanStartDate(startDate) || this.isOccurrenceGreaterThanEndDate(startDate)) continue;
             let endDate = startDate.clone();
             course.startDate = moment(moment(startDate).format("YYYY-MM-DD") + "T" + moment(occurrence.startTime).format("HH:mm"));
