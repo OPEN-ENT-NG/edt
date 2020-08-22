@@ -44,21 +44,23 @@ export class Course {
         }
     }
 
-    async save () {
+    async save() {
         if (this._id) await this.update();
         else await this.create();
 
     }
-    async update (occurrenceDate?) {
+
+    async update(id?) {
         try {
-            let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}` : '/edt/course';
+            let url = id ? `/edt/courses/${id}` : '/edt/course';
             await http.put(url, [this.toJSON()]);
             return;
         } catch (e) {
             notify.error('edt.notify.update.err');
         }
     }
-    async create () {
+
+    async create() {
         try {
             await http.post('/edt/course', [this.toJSON()]);
             return;
