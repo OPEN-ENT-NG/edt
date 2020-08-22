@@ -33,13 +33,14 @@ export class Course {
     recurrence: string;
     canManage: boolean;
     display: any;
+    recurrenceObject: any;
 
     constructor(obj?: object) {
         if (obj && obj instanceof Object) {
             for (let key in obj) {
                 this[key] = obj[key];
             }
-            this.is_recurrent = this.isRecurrent();
+            this.is_recurrent = this.recurrence !== undefined ? true : this.isRecurrent();
         }
     }
 
@@ -161,7 +162,7 @@ export class Course {
         }
 
         if (this.recurrence) {
-            o.reccurrence = this.recurrence;
+            o.recurrence = this.recurrence;
         }
 
         o.startDate = moment(this.startDate).format('YYYY-MM-DDTHH:mm:ss');
@@ -257,25 +258,36 @@ export class Course {
     }
 
 
-    getPreviousOccurrenceDate (date: Moment|Object|string) :string {
+    getPreviousOccurrenceDate(date: Moment | Object | string): string {
         let momentDate = moment(date);
-        let occurrence = moment( _.clone(momentDate));
+        let occurrence = moment(_.clone(momentDate));
         occurrence.day(this.dayOfWeek);
-        if( momentDate.isBefore(occurrence)  ) {
-            occurrence.add('days',this.everyTwoWeek? -14 : -7);
+        if (momentDate.isBefore(occurrence)) {
+            occurrence.add('days', this.everyTwoWeek ? -14 : -7);
         }
         return occurrence.format('YYYY-MM-DD');
     }
-    getLastOccurrence() :CourseOccurrence{
-        let date = moment( this.endDate).day(this.dayOfWeek);
-        if(date.isAfter(moment(this.endDate)))
-            date = moment( this.endDate).subtract({days : 7}).day(this.dayOfWeek);
+
+    getLastOccurrence(): CourseOccurrence {
+        let date = moment(this.endDate).day(this.dayOfWeek);
+        if (date.isAfter(moment(this.endDate)))
+            date = moment(this.endDate).subtract({days: 7}).day(this.dayOfWeek);
         return new CourseOccurrence(
             this.dayOfWeek,
             '',
-          moment(date.format('YYYY-MM-DD') + 'T' + moment(this.startDate).format('HH:mm:ss')).toDate(),
-          moment( this.endDate).toDate()
+            moment(date.format('YYYY-MM-DD') + 'T' + moment(this.startDate).format('HH:mm:ss')).toDate(),
+            moment(this.endDate).toDate()
         )
+    }
+
+    async retrieveRecurrence(): Promise<Course[]> {
+        try {
+            if (!this.recurrence) return [];
+            const {data} = await http.get(`/edt/courses/recurrences/${this.recurrence}`);
+            return Mix.castArrayAs(Course, data);
+        } catch (e) {
+            return [];
+        }
     }
 }
 

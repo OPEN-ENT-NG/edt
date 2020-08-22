@@ -435,9 +435,9 @@ export let main = ng.controller('EdtController',
         $scope.calendarUpdateItem = (itemId, start?, end?,occurrence? ) => {
             if(itemId) {
                 $scope.show.home_lightbox = false;
-                let type = occurrence? 'occurrence' : 'course' ;
+                let type = occurrence ? 'occurrence' : 'course';
                 let url = `/edit/${type}/${itemId}`;
-                if(start && end) url += `/${start.format('x')}/${end.format('x')}`;
+                if (start && end) url += `/${start.format('x')}/${end.format('x')}`;
                 $scope.goTo(url);
             }
         };
@@ -446,6 +446,31 @@ export let main = ng.controller('EdtController',
         template.open('deletePagePopUp', 'main/delete-courses-popup');
         template.open('deleteOccurrencePagePopup', 'main/occurrence-or-course-delete-popup');
 
+        function formatRecurrenceForLightBox(recurrence: Course[]): { start: any, end: any } {
+            if (recurrence.length === 0) {
+                return null;
+            }
+
+            let start: Moment = moment(recurrence[0].startDate);
+            let end: Moment = moment(recurrence[0].endDate);
+
+            for (let i = 0; i < recurrence.length; i++) {
+                let course = recurrence[i];
+                if (moment(course.startDate).diff(start) < 0) {
+                    start = moment(course.startDate);
+                }
+
+                if (end.diff(moment(course.endDate)) < 0) {
+                    end = moment(course.endDate);
+                }
+            }
+
+            return {
+                start: start.format(),
+                end: end.format()
+            };
+        }
+
         /**
          * Determines if the course edition for occurrences popup must be displayed or if the edit page must be called.
          * @param itemId Id of the course
@@ -453,7 +478,7 @@ export let main = ng.controller('EdtController',
          * @param end End date of the course occurrences
          * @param isDrag Is true if the course has been dragged by user
          */
-        $scope.chooseTypeEdit = (itemId: string, start?: string, end?: string, isDrag?: boolean): void => {
+        $scope.chooseTypeEdit = async (itemId: string, start?: string, end?: string, isDrag?: boolean): Promise<void> => {
             $scope.courseToEdit = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
             $scope.paramEdition = {
                 start: start,
@@ -464,7 +489,12 @@ export let main = ng.controller('EdtController',
             $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
 
             if ($scope.isAbleToChooseEditionType($scope.courseToEdit, start)) {
-                $scope.show.home_lightbox = true;
+                if ($scope.courseToEdit.recurrenceObject === undefined) {
+                    $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call
+                    const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
+                    $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
+                    $scope.show.home_lightbox = true;
+                }
             } else {
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
             }
@@ -507,7 +537,7 @@ export let main = ng.controller('EdtController',
 
             let newDay: string = moment(start).format("DD");
             let previousDay: string = moment(course.startDate).format("DD");
-            return course.isRecurrent() &&
+            return course.recurrence !== undefined &&
                 ((atLeastOneOccurence && moment(upcomingOccurrence).isAfter(now))
                     || (moment(previousOccurrence).isAfter(now) && atLeastOnePreviousOccurence)
                     || (newDay != previousDay && moment(course.getNextOccurrenceDate(upcomingOccurrence)).isAfter(start))

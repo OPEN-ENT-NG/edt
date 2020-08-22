@@ -37,11 +37,15 @@ public interface EdtService {
      * @param dateOccurrence the date of the occurrence to replace
      * @param handler
      */
-     void updateOccurrence(JsonObject course, String dateOccurrence,  Handler<Either<String, JsonObject>> handler);
+    void updateOccurrence(JsonObject course, String dateOccurrence, Handler<Either<String, JsonObject>> handler);
+
     /**
      * delete occurrence
+     *
      * @param id
      * @param handler
      */
-    void deleteOccurrence(String id, String dateOccurrence, Handler<Either<String, JsonObject>> handler  );
+    void deleteOccurrence(String id, String dateOccurrence, Handler<Either<String, JsonObject>> handler);
+
+    void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler);
 }

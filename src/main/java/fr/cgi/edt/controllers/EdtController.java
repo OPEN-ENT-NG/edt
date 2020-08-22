@@ -243,4 +243,12 @@ public class EdtController extends MongoDbControllerHelper {
             stsService.reports(uai, arrayResponseHandler(request));
         });
     }
+
+    @Get("/courses/recurrences/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    public void getRecurrences(HttpServerRequest request) {
+        String recurrence = request.getParam("id");
+        edtService.retrieveRecurrences(recurrence, arrayResponseHandler(request));
+    }
 }

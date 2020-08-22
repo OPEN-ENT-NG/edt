@@ -395,7 +395,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.tryDropCourse = () => {
-            $scope.openedLightbox = !$scope.openedLightbox;
             $scope.openedLightbox = true;
         };
 
