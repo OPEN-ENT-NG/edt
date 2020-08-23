@@ -68,6 +68,12 @@ public class DateHelper {
         return this.daysBetween(start, end);
     }
 
+    public int msBetween(String startDate, String endDate) {
+        long start = this.getCalendar(startDate, this.DATE_FORMATTER).getTimeInMillis();
+        long end = this.getCalendar(endDate, this.DATE_FORMATTER).getTimeInMillis();
+        return (int) TimeUnit.MILLISECONDS.toMillis(end - start);
+    }
+
     public Date getDate(String dateString, SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{

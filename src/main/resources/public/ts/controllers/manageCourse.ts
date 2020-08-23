@@ -325,6 +325,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
 
         $scope.isValidForm = () => {
+            //TODO STOP HERE !!!
             return $scope.course
                 && $scope.course.teachers
                 && $scope.course.groups

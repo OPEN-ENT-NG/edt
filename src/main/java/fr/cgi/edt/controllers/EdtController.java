@@ -246,7 +246,16 @@ public class EdtController extends MongoDbControllerHelper {
     @Trace("PUT_COURSE")
     public void updateCourse(HttpServerRequest request) {
         String id = request.getParam("id");
-        RequestUtils.bodyToJson(request, course -> edtService.update(id, course, defaultResponseHandler(request)));
+        RequestUtils.bodyToJson(request, course -> edtService.updateCourse(id, course, defaultResponseHandler(request)));
+    }
+
+    @Put("/courses/recurrences/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @Trace("PUT_RECURRENCE")
+    public void updateRecurrence(HttpServerRequest request) {
+        String id = request.getParam("id");
+        RequestUtils.bodyToJson(request, course -> edtService.updateRecurrence(id, course, defaultResponseHandler(request)));
     }
 
     @Delete("/courses/:id")

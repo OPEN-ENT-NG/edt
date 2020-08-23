@@ -29,7 +29,7 @@ public interface EdtService {
      * @param id
      * @param handler
      */
-    void delete(String id,  Handler<Either<String, JsonObject>> handler  );
+    void delete(String id,  Handler<Either<String, JsonObject>> handler);
 
     /**
      * Update an occurrence
@@ -49,7 +49,21 @@ public interface EdtService {
 
     void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler);
 
-    void update(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
+    /**
+     * Updates course
+     * @param id
+     * @param course JsonArray containing courses
+     * @param handler handler
+     */
+    void updateCourse(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Updates recurrence of courses
+     * @param id
+     * @param course course
+     * @param handler handler
+     */
+    void updateRecurrence(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
 
     void deleteCourse(String id, Handler<Either<String, JsonObject>> handler);
 
