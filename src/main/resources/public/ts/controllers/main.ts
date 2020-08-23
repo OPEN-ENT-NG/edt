@@ -79,7 +79,7 @@ export let main = ng.controller('EdtController',
          * Synchronize a structure.
          */
         $scope.syncStructure = async (structure: Structure) : Promise<void> => {
-
+            
             let preferenceStructure : Structure = await Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE);
             let preferenceStructureId : string = preferenceStructure ? preferenceStructure['id'] : null;
 

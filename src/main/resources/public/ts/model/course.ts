@@ -50,10 +50,10 @@ export class Course {
 
     }
 
-    async update(id?) {
+    async update() {
         try {
-            let url = id ? `/edt/courses/${id}` : '/edt/course';
-            await http.put(url, [this.toJSON()]);
+            let url = `/edt/courses/${this._id}`;
+            await http.put(url, this.toJSON());
             return;
         } catch (e) {
             notify.error('edt.notify.update.err');
