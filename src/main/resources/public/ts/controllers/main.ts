@@ -248,18 +248,18 @@ export let main = ng.controller('EdtController',
                 $scope.params.group.map(g => {
                     let isInClass : boolean = false;
                     $scope.params.deletedGroups.classes.map(c => {
-                        if (c.id === g.id ){
+                        if ((c && g) && c.id === g.id ){
                             isInClass = true;
                         }
                     });
 
-                    if(!isInClass  && g.type_groupe !== 0 && g.users ){
+                    if(!isInClass && g.type_groupe !== 0 && g.users) {
                         $scope.params.deletedGroups.classes.push(g);
                     }
 
                     $scope.params.deletedGroups.classes.map(c => {
                         $scope.params.deletedGroups.groupsDeleted.map((gg,index : number) => {
-                            if(gg.id === c.id)
+                            if((gg && c) && gg.id === c.id)
                                 $scope.params.deletedGroups.groupsDeleted.splice(index,1);
 
                         });
@@ -305,6 +305,12 @@ export let main = ng.controller('EdtController',
                 $scope.structures, $scope.isAllStructure);
 
             filterCourses();
+
+            /* trigger tooltip to show up */
+            let $scheduleItems: JQuery = $('.schedule-items');
+            $scheduleItems.mousemove(() => {
+               $timeout(() => $scope.safeApply(), 500)
+            });
             Utils.safeApply($scope);
         };
 
@@ -732,6 +738,8 @@ export let main = ng.controller('EdtController',
                 initTriggers();
             });
         });
+
+
 
         $scope.$on('$destroy', () => model.calendar.callbacks['date-change'] = []);
 
