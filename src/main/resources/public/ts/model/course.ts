@@ -31,6 +31,7 @@ export class Course {
     modified: string = '';
     is_recurrent: boolean = undefined;
     recurrence: string;
+    newRecurrence: string;
     canManage: boolean;
     display: any;
     recurrenceObject: any;
@@ -202,6 +203,7 @@ export class Course {
         this.roomLabels = occurrence.roomLabels;
         this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD") + "T" + moment(occurrence.startTime).format("HH:mm"));
         this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD") + "T" + moment(occurrence.endTime).format("HH:mm"));
+        this.newRecurrence = Utils.uuid(); // TODO changer d'endroit peut-être
         return this;
     }
 
