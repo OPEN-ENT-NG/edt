@@ -15,6 +15,7 @@ import {TimeSlots} from '../model/timeSlots';
 import {AutocompleteUtils} from '../model/autocompleteUtils';
 import {Moment} from 'moment/moment';
 import {DragAndDrop} from "../utils/dragAndDrop";
+import {PreferencesUtils} from "../utils/preference/preferences";
 
 declare const window: any;
 
@@ -46,7 +47,8 @@ export let main = ng.controller('EdtController',
             classes: []
         };
 
-        $scope.structure = $scope.structures.first();
+        // setting preference structure in or the first()
+        $scope.structure = getStructure();
 
         /**
          * Returns time slot by structure
@@ -76,15 +78,6 @@ export let main = ng.controller('EdtController',
          * Synchronize a structure.
          */
         $scope.syncStructure = async (structure: Structure) : Promise<void> => {
-
-            // let preferenceStructure : Structure = await Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE);
-            // let preferenceStructureId : string = preferenceStructure ? preferenceStructure['id'] : null;
-            //
-            // if (preferenceStructureId !== "all_Structures") {
-            //     $scope.structure = $scope.structures.all.length > 1 &&
-            //     preferenceStructureId ? $scope.structures.all.find((s) => s.id === preferenceStructureId) : $scope.structures.first();
-            // }
-
             $scope.timeSlots.structure_id = structure.id;
             AutocompleteUtils.init(structure);
             const promises: Promise<void>[] = [];
@@ -123,17 +116,6 @@ export let main = ng.controller('EdtController',
                     break;
                 }
             }
-
-            // if ($scope.structures.all.length > 1 && $scope.isTeacher()) {
-            //
-            //     let allStructures : Structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
-            //     if (allStructures && $scope.structures.all.filter(i => i.id == allStructures.id).length < 1){
-            //         $scope.structures.all.unshift(allStructures);
-            //         // if (preferenceStructureId === "all_Structures") {
-            //             $scope.switchStructure($scope.structures.all[0]);
-            //         // }
-            //     }
-            // }
             if (!$scope.isPersonnel()) {
                 $timeout(async () => await $scope.syncCourses())
             }
@@ -152,18 +134,26 @@ export let main = ng.controller('EdtController',
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
             $scope.calendarLoader.hide();
             $scope.structure = structure;
-            $scope.timeSlots = new TimeSlots(structure.id);
-            if (structure.id != lang.translate("all.structures.id") &&
+            // 1# if null then we figure we are in all_structure
+            if ($scope.structure == null) {
+                $scope.structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
+            }
+            $scope.timeSlots = new TimeSlots($scope.structure.id);
+            // case we found our structure
+            if ($scope.structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||
                     $scope.isPersonnel() || $scope.isTeacher())) {
                 await $scope.syncStructure($scope.structure);
                 $scope.safeApply();
                 $scope.isAllStructure = false;
-            } else if (structure.id == lang.translate("all.structures.id")) {
+            } else if ($scope.structure.id == lang.translate("all.structures.id")) {
+                // (cf 1#), we are in the case where it is all_structure
                 $scope.isAllStructure = true;
+                await $scope.syncCourses();
+                $scope.safeApply();
             }
 
-            await PreferencesUtils.updateStructure({id: structure.id, name: structure.name});
+            await PreferencesUtils.updateStructure({id : $scope.structure.id, name : $scope.structure.name});
             window.structure = structure;
         };
 
@@ -652,6 +642,7 @@ export let main = ng.controller('EdtController',
             }
             await $scope.updateDatas();
             $scope.calendarLoader.hide();
+            $scope.safeApply();
         };
 
         /**
@@ -753,6 +744,24 @@ export let main = ng.controller('EdtController',
                 $scope.$apply(fn);
             }
         };
+
+        function getStructure(): Structure {
+            if (window.preferenceStructure && window.preferenceStructure.id) {
+                let structure: Structure = $scope.structures.all.find((structure: Structure) =>
+                    structure.id === window.preferenceStructure.id);
+                if (structure) {
+                    // return the structure fetched from preferebce
+                    return structure;
+                } else {
+                    // Case we are in all_structure
+                    $scope.isAllStructure = true;
+                    return new Structure(window.preferenceStructure.id, window.preferenceStructure.name)
+                }
+            } else {
+                // return first structure since we haven't found any
+                return $scope.structures.first();
+            }
+        }
 
         route({
             main: () : void => {

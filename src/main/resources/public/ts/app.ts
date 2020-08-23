@@ -1,7 +1,14 @@
-import {model, ng, routes, Behaviours } from 'entcore';
+import {model, ng, routes, Behaviours, Me} from 'entcore';
 import * as controllers from './controllers';
 import * as directives from './directives';
 import * as services from './services';
+import {PreferencesUtils} from "./utils/preference/preferences";
+
+declare let window: any;
+
+Me.preference(PreferencesUtils.PREFERENCE_KEYS.EDT_STRUCTURE).then((value: any) => {
+    window.preferenceStructure = value;
+});
 
 for (let controller in controllers) {
     ng.controllers.push(controllers[controller]);
