@@ -1,0 +1,319 @@
+import {_, angular, Behaviours, model, moment, toasts} from "entcore";
+import {Utils} from "../model";
+
+export class DragAndDrop {
+    static init = (init: boolean, $scope, $location): void => {
+        if (init) {
+            $scope.pageInitialized = true;
+            $scope.params.oldGroup = angular.copy($scope.params.group);
+            $scope.params.oldUser = angular.copy($scope.params.user);
+            model.calendar.setDate(moment());
+        }
+        model.calendar.eventer.off('calendar.create-item');
+        model.calendar.eventer.on('calendar.create-item', () => {
+            if ($location.path() !== '/create') {
+                $scope.createCourse();
+                $scope.hideTimeSlot = true;
+            }
+        });
+
+
+        Utils.safeApply($scope);
+
+        // --Start -- Calendar Drag and Drop
+
+        function getDayOfWeek() {
+            let dayOfWeek = 0;
+            switch (model.calendar.days.all[0].name) {
+                case "monday":
+                    dayOfWeek = 1;
+                    break;
+                case "tuesday":
+                    dayOfWeek = 2;
+
+                    break;
+                case "wednesday":
+                    dayOfWeek = 3;
+
+                    break;
+                case "thursday":
+                    dayOfWeek = 4;
+
+                    break;
+                case "friday":
+                    dayOfWeek = 5;
+
+                    break;
+                case "saturday":
+                    dayOfWeek = 6;
+
+                    break;
+                default:
+                    dayOfWeek = 7;
+                    break;
+
+            }
+            return dayOfWeek;
+        }
+
+        if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+            let $dragging = null;
+            let topPositionnement = 0;
+            let startPosition = {top: null, left: null};
+            let $timeslots = $('calendar .timeslot');
+            $timeslots.removeClass('selecting-timeslot');
+            let initVar = () => {
+                $dragging = null;
+                topPositionnement = 0;
+                $timeslots.removeClass('selecting-timeslot');
+                $('calendar .selected-timeslot').remove();
+            };
+
+            $timeslots
+                .mousemove((e) => topPositionnement = DragAndDrop.drag(e, $dragging))
+                .mouseenter((e) => topPositionnement = DragAndDrop.drag(e, $dragging));
+
+            let $body: JQuery = $('body');
+            var mousemoveCalendarHr = (e) => topPositionnement = DragAndDrop.drag(e, $dragging);
+            $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
+            $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
+
+            var mouseupCalendar = (e) => {
+                if (e.which === 3) {
+                    return;
+                }
+                if ($dragging) {
+                    let coursItem;
+                    $('.timeslot').removeClass('selecting-timeslot');
+                    if (model.calendar.increment === "day") {
+                        let dayOfWeek = getDayOfWeek();
+
+                        coursItem = DragAndDrop.drop(e, $dragging, topPositionnement, startPosition, dayOfWeek);
+                    } else {
+                        coursItem = DragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                    }
+                    if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
+                    initVar();
+                }
+            };
+            $body.off('mouseup', 'calendar', mouseupCalendar);
+            $body.on('mouseup', 'calendar', mouseupCalendar);
+
+            var mousedownCalendarScheduleItem = (e) => {
+                if (e.which === 3) {
+                    return;
+                }
+                if ($(e.target).hasClass("notpast") || $(e.target).hasClass("inside-schedule")) {
+                    $dragging = DragAndDrop.takeSchedule(e, $timeslots);
+                    startPosition = $dragging.offset();
+                    let calendar = $('calendar');
+                    calendar.off('mousemove', (e) => DragAndDrop.moveScheduleItem(e, $dragging));
+                    calendar.on('mousemove', (e) => DragAndDrop.moveScheduleItem(e, $dragging));
+                } else {
+                    return;
+                }
+            };
+
+            $body.off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+            $body.on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+            $('body calendar .schedule-item').css('cursor', 'move');
+
+
+            var mouseDownEditIcon = (e) => {
+
+                if (e.which === 1) {//check left click
+                    e.stopPropagation();
+                    $scope.chooseTypeEdit($(e.currentTarget).data('id'), moment(e.target.children[0].innerHTML), moment(e.target.children[1].innerHTML));
+                    $(e.currentTarget).unbind('mousedown');
+                }
+            };
+            var prepareToDelete = (event) => {
+                let start = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+
+                if (event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
+                    event.stopPropagation();
+                    let itemId = $(event.currentTarget).data("id");
+                    $(event.currentTarget).addClass("selected");
+                    let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
+
+
+                    $scope.editOccurrence = true;
+                    let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
+                    if ($scope.isAbleToChooseEditionType(courseToDelete, start)) {
+                        courseToDelete.occurrenceDate = occurrenceDate
+                    }
+
+                    (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
+
+                    courseToDelete.timeToDelete.push(moment(start).format("YYYY/MM/DD"));
+
+                    $scope.params.coursesToDelete.push(courseToDelete)
+                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function (el, i, a) {
+                        return i === a.indexOf(el)
+                    })
+
+                } else if (event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment()) && $scope.chronoEnd) {
+                    event.stopPropagation();
+                    $scope.chronoEnd = false;
+                    setTimeout((function () {
+                        $scope.chronoEnd = true;
+                    }), 100);
+                    toasts.info("edt.cantDelete.courses");
+
+                }
+
+                Utils.safeApply($scope);
+            };
+
+
+            var cancelDelete = (event) => {
+                let start = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+
+                if (event.which == 3 && $(event.currentTarget).hasClass("selected")) {
+                    event.stopPropagation();
+                    $(event.currentTarget).removeClass("selected");
+                    let idToDelete = $(event.currentTarget).data("id")
+                    $scope.params.coursesToDelete.map((course, i) => {
+                        if (course._id === idToDelete) {
+                            let currentCourse = $scope.params.coursesToDelete[i];
+                            if (currentCourse.timeToDelete.length > 1) {
+                                currentCourse.timeToDelete.map((t, ii) => {
+                                    if (moment(start).format("YYYY/MM/DD") === t) {
+                                        $scope.params.coursesToDelete[i].timeToDelete.splice(ii, 1);
+                                    }
+                                })
+
+                            } else {
+                                $scope.params.coursesToDelete[i].timeToDelete = [];
+                                $scope.params.coursesToDelete.splice(i, 1);
+                            }
+                        }
+                    })
+
+                }
+                if (event.which == 3 && $(event.currentTarget).hasClass("cantDelete")) {
+                    event.stopPropagation();
+                    $(event.currentTarget).removeClass("cantDelete");
+                }
+                Utils.safeApply($scope);
+
+            }
+
+            //left click on icon
+            $body.off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+            $body.on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+            $body.on('mousedown', '.schedule-item-content', prepareToDelete);
+            $body.on('mousedown', '.schedule-item-content.selected', cancelDelete);
+            $body.on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
+        }
+        // --End -- Calendar Drag and Drop
+    };
+
+    static moveScheduleItem = (e,dragging) => {
+        if(dragging){
+            let positionScheduleItem = {
+                top: e.pageY - dragging.height()/2,
+                left: e.pageX - dragging.width()/2
+            };
+            dragging.offset(positionScheduleItem);
+        }
+    };
+
+    static drag = (e,dragging,  ) => {
+        let topPositionnement=0;
+        if(dragging){
+            $('calendar .selected-timeslot').remove();
+            let curr = $(e.currentTarget);
+            let currDivHr = curr.children('hr');
+            let notFound = true;
+            let i:number = 0;
+            let prev = curr;
+            let next  ;
+            while ( notFound && i < currDivHr.length  ){
+                next = $(currDivHr)[i];
+                if(!($(prev).offset().top <= e.pageY && e.pageY > $(next).offset().top  ))
+                    notFound = false;
+                prev = next;
+                i++
+            }
+            let top = Math.floor(dragging.height()/2);
+            for(let z= 0; z <= 5 ; z++){
+                if ( ((top + z) % 10) === 0 )
+                {
+                    top = top + z;
+                    break;
+                }
+                else if(((top - z) % 10) === 0){
+                    top = top - z;
+                    break;
+                }
+            }
+            topPositionnement = DragAndDrop.getTopPositioning(dragging);
+            if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
+                $(prev).before(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
+            }else if( i >= currDivHr.length && notFound === true ){
+                $(next).after(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
+            }else{
+                $(prev).append(`<div class="selected-timeslot"  style="height: ${dragging.height()}px; top:-20px;"></div>`);
+            }
+        }
+        return topPositionnement;
+    };
+
+    static getTopPositioning = (dragging) => {
+        let top = Math.floor(dragging.height()/2);
+        for(let z= 0; z <= 5 ; z++){
+            if ( ((top + z) % 10) === 0 )
+            {
+                top = top + z;
+                break;
+            }
+            else if(((top - z) % 10) === 0){
+                top = top - z;
+                break;
+            }
+        }
+        return top;
+    };
+
+    static takeSchedule = (e, timeslots) => {
+        timeslots.addClass( 'selecting-timeslot' );
+        $(document).mousedown((e) => {return false;});
+        return $(e.currentTarget);
+    };
+
+    static getCalendarAttributes = ( selectedTimeslot, selectedSchedule, topPositionnement,dayOfWeek?) => {
+        if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
+            let indexHr = $(selectedTimeslot).prev('hr').index();
+            let dayOfweek = dayOfWeek ? dayOfWeek : $(selectedTimeslot).parents('div.day').index();
+            let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
+            let startCourse = moment($(selectedTimeslot).parents('.timeslot').index());
+            startCourse = startCourse.year(moment(model.calendar.firstDay).format("YYYY"))
+                .date(moment(model.calendar.firstDay).date()).month(moment(model.calendar.firstDay).month()).hour(timeslot.start).minute(indexHr * 15 -15 ).second(0)
+                .day(dayOfweek);
+
+            let endCourse = moment(model.calendar.firstDay);
+            endCourse = moment(startCourse);
+            endCourse = endCourse.add(selectedSchedule.height()*3/2,"minutes");
+
+            return {
+                itemId :$($(selectedSchedule).find('.schedule-item-content')).data('id'),
+                start:startCourse,
+                end:endCourse
+            };
+        }
+    };
+
+    static drop = (e, dragging, topPositionnement, startPosition, dayOfWeek?) => {
+        let actualPosition = dragging.offset();
+        if(actualPosition && startPosition.top === actualPosition.top && startPosition.left === actualPosition.left)
+            return undefined;
+        let selected_timeslot = $('calendar .selected-timeslot');
+        let positionShadowSchedule = selected_timeslot.offset();
+        let courseEdit = DragAndDrop.getCalendarAttributes(selected_timeslot, dragging, topPositionnement,dayOfWeek);
+        dragging.offset(positionShadowSchedule);
+        selected_timeslot.remove();
+        $(document).unbind("mousedown");
+        return courseEdit;
+    };
+}
