@@ -100,32 +100,15 @@ export class Course {
      * @param deleteOnlyOneCourses Optional. If true delete only one course.
      * @param deleteAllOccurrences Optional. If true delete all occurrences.
      */
-    delete = async (occurrenceDate?: string[], deleteOnlyOneCourses?: boolean, deleteAllOccurrences?: boolean): Promise<void> => {
-        let timesToDelete: string[] = occurrenceDate;
+    delete = async (id?: string, recurrence?: string): Promise<void> => {
+        if (!id && !recurrence) {
+            throw "Unable to find course identifier or recurrence identifier";
+        }
 
-        if (occurrenceDate && occurrenceDate.length && !deleteOnlyOneCourses) {
-            try {
-                for (let i = 0; i < timesToDelete.length; i++) {
-                    let url = `/edt/occurrence/${moment(timesToDelete[i]).format('x')}/${this._id}`;
-                    await http.delete(url);
-                }
-            } catch (e) {
-                notify.error('edt.notify.delete.err');
-            }
-        } else if (deleteAllOccurrences) {
-            try {
-                let url = `/edt/course/${this._id}`;
-                await http.delete(url);
-            } catch (e) {
-                notify.error('edt.notify.delete.err');
-            }
-        } else {
-            try {
-                let url = occurrenceDate ? `/edt/occurrence/${moment(occurrenceDate).format('x')}/${this._id}` : `/edt/courses/${this._id}`;
-                await http.delete(url);
-            } catch (e) {
-                notify.error('edt.notify.delete.err');
-            }
+        try {
+            await http.delete(id ? `/edt/courses/${id}` : `/edt/courses/recurrences/${recurrence}`);
+        } catch (e) {
+            throw e;
         }
     };
 

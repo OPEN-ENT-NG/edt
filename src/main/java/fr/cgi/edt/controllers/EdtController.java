@@ -275,5 +275,6 @@ public class EdtController extends MongoDbControllerHelper {
     @Trace("DELETE_RECURRENCE")
     public void deleteRecurrence(HttpServerRequest request) {
         String id = request.getParam("id");
+        edtService.deleteRecurrence(id, defaultResponseHandler(request));
     }
 }

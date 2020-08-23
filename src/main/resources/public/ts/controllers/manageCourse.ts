@@ -399,10 +399,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             $scope.openedLightbox = true;
         };
 
-        $scope.dropCourse = async (course: Course, deleteOnlyOneCourse) => {
-            if( course.canManage) {
-                $scope.editOccurrence ? await course.delete($scope.occurrenceDate, deleteOnlyOneCourse):  await course.delete();
-                delete  $scope.course;
+        $scope.dropCourse = async (course: Course) => {
+            if (course.canManage) {
+                $scope.editOccurrence ? await course.delete(course._id) : await course.delete(null, course.recurrence);
+                delete $scope.course;
                 $scope.goTo('/');
                 $scope.syncCourses();
             }

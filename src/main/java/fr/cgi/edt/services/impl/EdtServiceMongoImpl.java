@@ -1,6 +1,7 @@
 package fr.cgi.edt.services.impl;
 
 import fr.cgi.edt.services.EdtService;
+import fr.cgi.edt.utils.DateHelper;
 import fr.cgi.edt.utils.EdtMongoHelper;
 import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
@@ -10,6 +11,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
+
+import java.util.Date;
 
 /**
  * MongoDB implementation of the REST service.
@@ -66,8 +69,13 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     @Override
     public void deleteRecurrence(String id, Handler<Either<String, JsonObject>> handler) {
+        String now = new DateHelper().DATE_FORMATTER.format(new Date());
+        JsonObject $gt = new JsonObject()
+                .put("$gt", now);
         JsonObject matcher = new JsonObject()
-                .put("recurrence", id);
+                .put("recurrence", id)
+                .put("startDate", $gt);
+        
         MongoDb.getInstance().delete(this.collection, matcher, MongoDbResult.validResultHandler(handler));
     }
 }
