@@ -90,7 +90,7 @@ export let main = ng.controller('EdtController',
             AutocompleteUtils.init(structure);
             const promises: Promise<void>[] = [];
             promises.push($scope.structure.sync(model.me.type === USER_TYPES.teacher));
-            promises.push($scope.timeSlots.syncTimeSlots());
+            promises.push(initTimeSlots());
             await Promise.all(promises);
             switch (model.me.type) {
                 // student case
@@ -151,6 +151,7 @@ export let main = ng.controller('EdtController',
          * @param structure selected structure
          */
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
+            $scope.calendarLoader.hide();
             $scope.structure = structure;
             $scope.timeSlots = new TimeSlots(structure.id);
             if (structure.id != lang.translate("all.structures.id") &&
@@ -220,7 +221,9 @@ export let main = ng.controller('EdtController',
          * @returns {Promise<void>}
          */
         $scope.syncCourses = async () : Promise<void> => {
-            let arrayIds : string[] =[];
+            let arrayIds: string[] =[];
+            $scope.structure.calendarItems.all = [];
+
             $scope.params.coursesToDelete = [];
             if($scope.structure.groups.all.length === 0) {
                 await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
@@ -240,9 +243,6 @@ export let main = ng.controller('EdtController',
                 const {userId, username} = model.me;
                 $scope.params.user = [{id: userId, displayName: username}];
             }
-
-            $scope.calendarLoader.display();
-            $scope.structure.calendarItems.all = [];
 
             //add groups to classes
             if (model.me.type === USER_TYPES.personnel || model.me.type === USER_TYPES.teacher)
@@ -306,9 +306,7 @@ export let main = ng.controller('EdtController',
                 $scope.structures, $scope.isAllStructure);
 
             filterCourses();
-            $scope.calendarLoader.hide();
             Utils.safeApply($scope);
-
         };
 
         if ($scope.isRelative()) {
@@ -733,30 +731,10 @@ export let main = ng.controller('EdtController',
                 $body.on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
             }
             // --End -- Calendar Drag and Drop
-
-            /**
-             * Refresh view when mouse on calendar courses (for displaying tooltips)
-             */
-            $('.schedule-item').mousemove(() => {
-                $timeout(() => {
-                    Utils.safeApply($scope);
-                }, 500)
-            });
         };
 
-
-        /**
-         * Subscriber to directive calendar changes event
-         */
-        model.calendar.on('date-change', async function() {
-            await $scope.syncCourses();
-            initTriggers();
-        });
-
-
-        $scope.isNotPast = (item) =>{
+        $scope.isNotPast = (item) => {
             return(moment(item.startDate).isAfter(moment()));
-
         }
 
         /**
@@ -936,7 +914,26 @@ export let main = ng.controller('EdtController',
             }
         };
 
-        $scope.syncStructure($scope.structure);
+        const initTimeSlots = async (): Promise<void> => {
+            await $scope.timeSlots.syncTimeSlots();
+            if ($scope.timeSlots.all.length > 0) {
+                model.calendar.setTimeslots($scope.timeSlots.all);
+            } else $scope.timeSlots.all = null;
+        };
+
+        /**
+         * Subscriber to directive calendar changes event
+         */
+        model.calendar.on('date-change', async () => {
+            $timeout(async () => {
+                await $scope.syncStructure($scope.structure);
+                await $scope.syncCourses();
+                $scope.safeApply();
+                initTriggers();
+            });
+        });
+
+        $scope.$on('$destroy', () => model.calendar.callbacks['date-change'] = []);
 
         $scope.safeApply = function (fn?) {
             const phase = $scope.$root.$$phase;
