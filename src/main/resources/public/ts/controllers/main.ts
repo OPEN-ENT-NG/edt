@@ -9,13 +9,12 @@ import {
     Student,
     Teacher,
     USER_TYPES,
-    UtilDragAndDrop,
     Utils
 } from '../model';
 import {TimeSlots} from '../model/timeSlots';
 import {AutocompleteUtils} from '../model/autocompleteUtils';
 import {Moment} from 'moment/moment';
-import {PreferencesUtils} from '../utils/preference/preferences';
+import {DragAndDrop} from "../utils/dragAndDrop";
 
 declare const window: any;
 
@@ -527,210 +526,11 @@ export let main = ng.controller('EdtController',
             return moment(date).format('DD/MM/YYYY');
         };
 
-        let initTriggers = (init ?: boolean) => {
-            if(init){
-                $scope.pageInitialized = true;
-                $scope.params.oldGroup = angular.copy($scope.params.group);
-                $scope.params.oldUser = angular.copy($scope.params.user);
-                model.calendar.setDate(moment());
-            }
-            model.calendar.eventer.off('calendar.create-item');
-            model.calendar.eventer.on('calendar.create-item', () => {
-                if ($location.path() !== '/create') {
-                    $scope.createCourse();
-                    $scope.hideTimeSlot = true;
-                }
-            });
-
-
-            Utils.safeApply($scope);
-
-            // --Start -- Calendar Drag and Drop
-
-            function getDayOfWeek() {
-                let dayOfWeek = 0;
-                switch(model.calendar.days.all[0].name){
-                    case "monday":
-                        dayOfWeek = 1;
-                        break;
-                    case "tuesday":
-                        dayOfWeek = 2;
-
-                        break;
-                    case "wednesday":
-                        dayOfWeek = 3;
-
-                        break;
-                    case "thursday":
-                        dayOfWeek = 4;
-
-                        break;
-                    case "friday":
-                        dayOfWeek = 5;
-
-                        break;
-                    case "saturday":
-                        dayOfWeek = 6;
-
-                        break;
-                    default:
-                        dayOfWeek = 7;
-                        break;
-
-                }
-                return dayOfWeek;
-            }
-
-            if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
-                let $dragging = null;
-                let topPositionnement = 0;
-                let startPosition = {top: null, left: null};
-                let $timeslots = $('calendar .timeslot');
-                $timeslots.removeClass('selecting-timeslot');
-                let initVar = () => {
-                    $dragging = null;
-                    topPositionnement = 0;
-                    $timeslots.removeClass('selecting-timeslot');
-                    $('calendar .selected-timeslot').remove();
-                };
-
-                $timeslots
-                    .mousemove((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging))
-                    .mouseenter((e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging));
-
-                let $body: JQuery = $('body');
-                var mousemoveCalendarHr = (e) => topPositionnement = UtilDragAndDrop.drag(e, $dragging);
-                $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
-                $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
-
-                var mouseupCalendar = (e) => {
-                    if(e.which === 3){
-                        return;
-                    }
-                    if ($dragging) {
-                        let coursItem;
-                        $('.timeslot').removeClass('selecting-timeslot');
-                        if(model.calendar.increment === "day"){
-                            let dayOfWeek = getDayOfWeek();
-
-                            coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition,dayOfWeek);
-                        }
-                        else{
-                            coursItem = UtilDragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
-                        }
-                        if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
-                        initVar();
-                    }
-                };
-                $body.off('mouseup', 'calendar', mouseupCalendar);
-                $body.on('mouseup', 'calendar', mouseupCalendar);
-
-                var mousedownCalendarScheduleItem = (e) => {
-                    if(e.which === 3){
-                        return;
-                    }
-                    if($(e.target).hasClass("notpast") || $(e.target).hasClass("inside-schedule")) {
-                        $dragging = UtilDragAndDrop.takeSchedule(e, $timeslots);
-                        startPosition = $dragging.offset();
-                        let calendar = $('calendar');
-                        calendar.off('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                        calendar.on('mousemove', (e) => UtilDragAndDrop.moveScheduleItem(e, $dragging));
-                    }else{
-                        return;
-                    }
-                };
-
-                $body.off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
-                $body.on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
-                $('body calendar .schedule-item').css('cursor', 'move');
-
-
-                var mouseDownEditIcon = (e) => {
-
-                    if (e.which === 1) {//check left click
-                        e.stopPropagation();
-                        $scope.chooseTypeEdit($(e.currentTarget).data('id'),moment(e.target.children[0].innerHTML),moment(e.target.children[1].innerHTML));
-                        $(e.currentTarget).unbind('mousedown');
-                    }
-                };
-                var prepareToDelete = (event) =>{
-                    let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
-
-                    if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
-                        event.stopPropagation();
-                        let itemId = $(event.currentTarget).data("id");
-                        $(event.currentTarget).addClass("selected");
-                        let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
-
-
-                        $scope.editOccurrence = true;
-                        let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-                        if($scope.isAbleToChooseEditionType(courseToDelete,start)){
-                            courseToDelete.occurrenceDate =  occurrenceDate
-                        }
-
-                        (!courseToDelete.timeToDelete) ?  courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
-
-                        courseToDelete.timeToDelete.push(moment(start).format("YYYY/MM/DD"));
-
-                        $scope.params.coursesToDelete.push(courseToDelete)
-                        $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function(el,i,a){return i===a.indexOf(el)})
-
-                    }else if(event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment()) && $scope.chronoEnd) {
-                        event.stopPropagation();
-                        $scope.chronoEnd = false ;
-                        setTimeout((function (){
-                            $scope.chronoEnd = true;
-                        }),100);
-                        toasts.info("edt.cantDelete.courses");
-
-                    }
-
-                    Utils.safeApply($scope);
-                };
-
-
-                var cancelDelete = (event) =>{
-                    let start =  moment( event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
-
-                    if(event.which == 3 && $(event.currentTarget).hasClass("selected")) {
-                        event.stopPropagation();
-                        $(event.currentTarget).removeClass("selected");
-                        let idToDelete =  $(event.currentTarget).data("id")
-                        $scope.params.coursesToDelete.map((course,i) => {
-                            if(course._id  === idToDelete){
-                                let currentCourse = $scope.params.coursesToDelete[i];
-                                if( currentCourse.timeToDelete.length > 1){
-                                    currentCourse.timeToDelete.map((t,ii) => {
-                                        if (moment(start).format("YYYY/MM/DD") === t){
-                                            $scope.params.coursesToDelete[i].timeToDelete.splice(ii,1);
-                                        }
-                                    })
-
-                                }else{
-                                    $scope.params.coursesToDelete[i].timeToDelete = [];
-                                    $scope.params.coursesToDelete.splice(i,1);
-                                }
-                            }
-                        })
-
-                    }
-                    if(event.which == 3 && $(event.currentTarget).hasClass("cantDelete")) {
-                        event.stopPropagation();
-                        $(event.currentTarget).removeClass("cantDelete");
-                    }
-                    Utils.safeApply($scope);
-
-                }
-
-                //left click on icon
-                $body.off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
-                $body.on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
-                $body.on('mousedown', '.schedule-item-content', prepareToDelete);
-                $body.on('mousedown', '.schedule-item-content.selected', cancelDelete);
-                $body.on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
-            }
-            // --End -- Calendar Drag and Drop
+        /**
+         * Drag & drop method
+         */
+        let initTriggers = (init?: boolean) => {
+            DragAndDrop.init(init, $scope, $location);
         };
 
         $scope.isNotPast = (item) => {
