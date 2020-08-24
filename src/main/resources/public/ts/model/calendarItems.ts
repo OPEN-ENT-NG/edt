@@ -72,10 +72,9 @@ export class CalendarItems {
     /**
      * Get groups from class
      * @param {Array<Group>} group cannot be null
-     * @param deletedGroup   groups which are deleted from the filter
      * @returns {Promise<void>}
      */
-    getGroups = async ( group: Array<Group> = [] , deletedGroup : any) : Promise<void> => {
+    getGroups = async ( group: Array<Group> = []) : Promise<void> => {
         if(group.length <=0) return ;
         let filter : string = this.getFilterClass(group);
         if (filter === "") return;
