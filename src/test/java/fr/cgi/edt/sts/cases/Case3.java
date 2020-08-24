@@ -31,7 +31,9 @@ public class Case3 extends StsCase {
         String path = "./src/main/resources/sts/tests/case3";
         JsonObject course1 = new JsonObject()
                 .put("classes", new JsonArray().add("3A"))
+                .put("classesExternalIds", new JsonArray().add(String.format("%d$3A", STRUCTURE_EXTERNAL_ID_CODE)))
                 .put("groups", new JsonArray())
+                .put("groupsExternalIds", new JsonArray())
                 .put("teacherIds", new JsonArray().add(DefaultTeacher.TEACHER_ID))
                 .put("roomLabels", new JsonArray().add("15"))
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
@@ -43,7 +45,9 @@ public class Case3 extends StsCase {
                 .put("source", "STS");
         JsonObject course2 = new JsonObject()
                 .put("classes", new JsonArray().add("3A"))
+                .put("classesExternalIds", new JsonArray().add(String.format("%d$3A", STRUCTURE_EXTERNAL_ID_CODE)))
                 .put("groups", new JsonArray())
+                .put("groupsExternalIds", new JsonArray())
                 .put("teacherIds", new JsonArray().add(DefaultTeacher.TEACHER_ID))
                 .put("roomLabels", new JsonArray().add("15"))
                 .put("structureId", DefaultStructure.STRUCTURE_ID)

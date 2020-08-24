@@ -13,7 +13,12 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import org.mockito.Mockito;
 
+import java.util.List;
+
 public class StsCase {
+
+    protected Integer STRUCTURE_EXTERNAL_ID_CODE = 3312;
+
     protected Vertx vertx;
     protected StsImport sts;
     protected StsDAO dao;
@@ -26,6 +31,7 @@ public class StsCase {
         mockSubjects();
         mockTeachers();
         mockStructure();
+        mockAudiences();
         mockDropFutureCourses();
     }
 
@@ -47,6 +53,23 @@ public class StsCase {
             future.complete(teachers);
             return null;
         }).when(dao).retrieveTeachers(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
+    }
+
+    protected void mockAudiences() {
+        Mockito.doAnswer(invocation -> {
+            List<String> audiences = invocation.getArgument(1);
+            Future future = invocation.getArgument(2);
+
+            JsonArray response = new JsonArray();
+            for (String audience : audiences) {
+                response.add(new JsonObject()
+                        .put("name", audience)
+                        .put("externalId", String.format("%d$%s", STRUCTURE_EXTERNAL_ID_CODE, audience)));
+            }
+
+            future.complete(response);
+            return null;
+        }).when(dao).retrieveAudiences(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
     }
 
     protected void mockTeachers() {

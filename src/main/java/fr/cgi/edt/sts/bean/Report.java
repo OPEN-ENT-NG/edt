@@ -25,6 +25,7 @@ public class Report {
 
     private Vertx vertx;
     private TemplateProcessor templateProcessor;
+    private List<String> unknownAudiences = new ArrayList<>();
     private HashMap<String, Teacher> unknownTeachers = new HashMap<>();
     private HashMap<String, Subject> unknownSubjects = new HashMap<>();
     private List<Course> ignoredCourses = new ArrayList<>();
@@ -65,6 +66,18 @@ public class Report {
 
     public List<Subject> unknownSubjects() {
         return new ArrayList<>(unknownSubjects.values());
+    }
+
+    public Report addUnknownAudience(String audience) {
+        if (!unknownAudiences.contains(audience)) {
+            unknownAudiences.add(audience);
+        }
+
+        return this;
+    }
+
+    public List<String> unknownAudiences() {
+        return this.unknownAudiences;
     }
 
     public Report setUAI(String uai) {
@@ -151,7 +164,6 @@ public class Report {
     }
 
     public void generate(Handler<AsyncResult<String>> handler) {
-        //nbTeachersFound = teacherCount - unknownTeachers.size();
         JsonObject params = new JsonObject()
                 .put("source", SOURCE)
                 .put("UAI", this.uai())
@@ -161,7 +173,8 @@ public class Report {
                 .put("runTime", this.runTime())
                 .put("alternations", new JsonArray(this.alternations.stream().map(Alternation::toJSON).collect(Collectors.toList())))
                 .put("teachersFound", this.teacherCount() - unknownTeachers.size())
-                .put("unknownTeachers", this.unknownTeachers().stream().map(Teacher::toJSON).collect(Collectors.toList()))
+                .put("unknownTeachers", new JsonArray(this.unknownTeachers().stream().map(Teacher::toJSON).collect(Collectors.toList())))
+                .put("unknownAudiences", new JsonArray(this.unknownAudiences))
                 .put("coursesCreated", createdCourses.size())
                 .put("courseOccurrencesCount", this.count())
                 .put("coursesDeleted", this.deletion)

@@ -12,13 +12,14 @@ public class Course {
     private JsonArray teacherIds;
     private JsonArray classes;
     private JsonArray groups;
+    private JsonArray classesExternalIds;
+    private JsonArray groupsExternalIds;
     private JsonArray roomLabels;
     private Integer dayOfWeek;
     private String startDate;
     private String endDate;
 
     private String stsTeacher;
-    private String tmpSubject;
     private String alternation;
     private String startTime;
     private String serviceCode;
@@ -27,7 +28,9 @@ public class Course {
     public Course() {
         this.roomLabels = new JsonArray();
         this.classes = new JsonArray();
+        this.classesExternalIds = new JsonArray();
         this.groups = new JsonArray();
+        this.groupsExternalIds = new JsonArray();
         this.teacherIds = new JsonArray();
     }
 
@@ -125,10 +128,30 @@ public class Course {
         return this;
     }
 
+    public JsonArray groups() {
+        return this.groups;
+    }
+
+    public JsonArray classes() {
+        return this.classes;
+    }
+
+    public Course setGroupsExternalIds(JsonArray externalIds) {
+        this.groupsExternalIds = externalIds;
+        return this;
+    }
+
+    public Course setClassesExternalIds(JsonArray externalIds) {
+        this.classesExternalIds = externalIds;
+        return this;
+    }
+
     public JsonObject toJSON() {
         JsonObject json = new JsonObject()
                 .put("classes", this.classes)
+                .put("classesExternalIds", this.classesExternalIds)
                 .put("groups", this.groups)
+                .put("groupsExternalIds", this.groupsExternalIds)
                 .put("teacherIds", this.teacherIds)
                 .put("roomLabels", this.roomLabels)
                 .put("theoretical", false);

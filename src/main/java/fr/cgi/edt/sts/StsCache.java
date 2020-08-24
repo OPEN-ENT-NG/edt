@@ -15,6 +15,7 @@ public class StsCache {
      * Fluent class
      */
     private String uai;
+    private List<String> audiences = new ArrayList<>();
     private List<Course> courses = new ArrayList<>();
     private Map<String, Alternation> alternations = new HashMap<>();
     private Map<String, Subject> subjects = new HashMap<>();
@@ -44,6 +45,16 @@ public class StsCache {
         this.teachers.put(teacher.id(), teacher);
         return this;
     }
+
+    public StsCache addAudience(String audience) {
+        this.audiences.add(audience);
+        return this;
+    }
+
+    public List<String> audiences() {
+        return this.audiences;
+    }
+
 
     public String uai() {
         return this.uai;
