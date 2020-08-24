@@ -1,4 +1,4 @@
-import {_, angular, Behaviours, idiom as lang, Me, model, moment, ng, template, toasts} from 'entcore';
+import {_, angular, Behaviours, idiom as lang, model, moment, ng, template} from 'entcore';
 import {
     CalendarItem,
     Course,
@@ -536,17 +536,19 @@ export let main = ng.controller('EdtController',
         /**
          * Open the proper delete form (either the delete all occurrences form or the delete one course form).
          */
-        $scope.openDeleteForm = (): void => {
-
+        $scope.openDeleteForm = async (): Promise<void> => {
             if ($scope.params.coursesToDelete.length === 1) {
-                let course: any = $scope.params.coursesToDelete[0];
-                $scope.courseToEdit = course;
-
-                let startTime: string = course.startDate.split('T')[1];
-                $scope.occurrenceDate = moment(course.occurrenceDate).format("YYYY-MM-DD") + "T" + startTime;
-
-                if (course.occurrenceDate !== undefined) {
-                    $scope.show.isDeleteOccurrenceLightbox = true;
+                let course: Course = $scope.params.coursesToDelete[0];
+                if (course.is_recurrent) {
+                    if ($scope.isAbleToChooseEditionType(course, course.startDate)) {
+                        $scope.courseToEdit = course;
+                        if ($scope.courseToEdit.recurrenceObject === undefined) {
+                            $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call Duplication code. Clean up later
+                            const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
+                            $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
+                            $scope.show.isDeleteOccurrenceLightbox = true;
+                        }
+                    }
                 } else {
                     $scope.show.delete_lightbox = true;
                 }
@@ -574,17 +576,10 @@ export let main = ng.controller('EdtController',
          */
         $scope.deleteCourses = async () : Promise<void> => {
             $scope.show.delete_lightbox = false;
-            $scope.params.coursesToDelete.map(async c => {
-                orderDeletes(c)
-                if(c.occurrenceDate){
-                    await c.delete(c.timeToDelete);
-                }
-                else
-                    await c.delete();
-
-                $scope.syncCourses();
-                Utils.safeApply($scope);
-            });
+            const promises = [];
+            $scope.params.coursesToDelete.map((course: Course) => promises.push(course.delete(course._id)));
+            await Promise.all(promises)
+            $scope.syncCourses();
         };
 
         /**
@@ -596,9 +591,8 @@ export let main = ng.controller('EdtController',
             $scope.show.isDeleteOccurrenceLightbox = false;
 
             if (deleteOccurrence) {
-                await $scope.courseToEdit.delete(_,_,true);
+                await $scope.courseToEdit.delete(null, $scope.courseToEdit.recurrence);
                 $scope.syncCourses();
-                Utils.safeApply($scope);
             } else {
                 $scope.deleteCourses();
             }
