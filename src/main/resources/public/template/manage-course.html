@@ -354,19 +354,41 @@
         </div>
 
         <lightbox show="openedLightbox" on-close="!openedLightbox">
-            <p>
-                <i18n>edt.choose.delete.course</i18n>
-            </p>
+            <h1 class="centered eight row lightbox-header">
+                <i18n>edt.schedule.delete.unique</i18n>
+            </h1>
 
-            <button class="marginFive magnet-right"
-                    ng-click="dropCourse(course)">
-                <i18n>edt.utils.ok</i18n>
-            </button>
+            <div class="lightbox-container">
+                <div class="twelve cell ">
+                    <div class="cell twelve twelve-mobile vertical-spacing">
+                        <i18n>edt.choose.delete.course</i18n>
+                    </div>
+                </div>
+            </div>
+            <!--SUBMIT AND DELETE BUTTONS-->
+            <div class="right-magnet vertical-spacing horizontal-spacing">
+                <button class="cancel" type="button" ng-click="closeLightbox()">
+                    <i18n>edt.utils.cancel</i18n>
+                </button>
 
-            <button ng-click="closeLightbox()"
-                    class="right-magnet cancel">
-                <span><i18n>edt.utils.cancel</i18n></span>
-            </button>
+                <button type="submit" ng-click="dropCourse(course)">
+                    <i18n>edt.utils.delete</i18n>
+                </button>
+            </div>
+
+            <!--            <p>-->
+            <!--                <i18n>edt.choose.delete.course</i18n>-->
+            <!--            </p>-->
+
+            <!--            <button class="marginFive magnet-right"-->
+            <!--                    ng-click="dropCourse(course)">-->
+            <!--                <i18n>edt.utils.ok</i18n>-->
+            <!--            </button>-->
+
+            <!--            <button ng-click="closeLightbox()"-->
+            <!--                    class="right-magnet cancel">-->
+            <!--                <span><i18n>edt.utils.cancel</i18n></span>-->
+            <!--            </button>-->
         </lightbox>
     </form>
 
