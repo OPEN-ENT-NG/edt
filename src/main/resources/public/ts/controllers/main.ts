@@ -39,6 +39,13 @@ export let main = ng.controller('EdtController',
         let isUpdateData = false;
         $scope.isAllStructure = false;
         $scope.structures.sync();
+        //GroupsDeleted =groups wich are deleted from the filter
+        //classes : classes for wich the groups are deleted
+        $scope.params.deletedGroups = {
+            groupsDeleted: [],
+            classes: []
+        };
+
 
         // setting preference structure in or the first()
         $scope.structure = getStructure();
