@@ -39,13 +39,6 @@ export let main = ng.controller('EdtController',
         let isUpdateData = false;
         $scope.isAllStructure = false;
         $scope.structures.sync();
-        
-        //GroupsDeleted =groups wich are deleted from the filter
-        //classes : classes for wich the groups are deleted
-        $scope.params.deletedGroups = {
-            groupsDeleted: [],
-            classes: []
-        };
 
         // setting preference structure in or the first()
         $scope.structure = getStructure();
@@ -216,7 +209,7 @@ export let main = ng.controller('EdtController',
 
             $scope.params.coursesToDelete = [];
             if($scope.structure.groups.all.length === 0) {
-                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all,null);
+                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all);
             }
 
             if (!isUpdateData && $scope.isRelative()) {
@@ -258,7 +251,7 @@ export let main = ng.controller('EdtController',
                 });
 
             if ($scope.params.group.length > 0) {
-                await $scope.structure.calendarItems.getGroups($scope.params.group,$scope.params.deletedGroups);
+                await $scope.structure.calendarItems.getGroups($scope.params.group);
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
@@ -278,19 +271,6 @@ export let main = ng.controller('EdtController',
                     })
                 })
             }
-            //add classes after filter groups
-            $scope.params.group.map((g : Group) => {
-                let isInClass = false;
-
-                $scope.params.deletedGroups.classes.map(c => {
-                    if (g && c && c.id === g.id){
-                        isInClass = true;
-                    }
-                });
-                if (!isInClass) {
-                    $scope.params.deletedGroups.classes.push(g);
-                }
-            });
 
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group,
                 $scope.structures, $scope.isAllStructure);
@@ -334,7 +314,6 @@ export let main = ng.controller('EdtController',
             });
 
             $scope.params.group = _.without($scope.params.group, group);
-
         };
 
         /**
@@ -603,14 +582,13 @@ export let main = ng.controller('EdtController',
 
         $scope.updateDatas = async () : Promise<void> => {
             isUpdateData = true;
-            if(!angular.equals($scope.params.oldGroup, $scope.params.group)){
+            if(!angular.equals($scope.params.oldGroup, $scope.params.group)) {
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldGroup = angular.copy($scope.params.group);
             }
 
-            if(!angular.equals($scope.params.oldUser, $scope.params.user)){
-
+            if(!angular.equals($scope.params.oldUser, $scope.params.user)) {
                 await $scope.syncCourses();
                 initTriggers();
                 $scope.params.oldUser = angular.copy($scope.params.user);
@@ -628,7 +606,7 @@ export let main = ng.controller('EdtController',
             } else {
                 let groups: Group[] = [filter];
                 $scope.dropGroup(filter);
-                await $scope.structure.calendarItems.getGroups(groups, $scope.params.deletedGroups);
+                await $scope.structure.calendarItems.getGroups(groups);
                 groups.splice(0, 1);
                 groups.forEach(group => {
                     groups.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
