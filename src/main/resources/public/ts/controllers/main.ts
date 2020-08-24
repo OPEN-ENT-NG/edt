@@ -464,8 +464,9 @@ export let main = ng.controller('EdtController',
                     $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call
                     const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
                     $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
-                    $scope.show.home_lightbox = true;
                 }
+
+                $scope.show.home_lightbox = true;
             } else {
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
             }
@@ -474,9 +475,10 @@ export let main = ng.controller('EdtController',
 
         $scope.cancelEditionLightbox = () =>{
             $scope.show.home_lightbox = false;
-            model.calendar.setDate(model.calendar.firstDay)
+            // model.calendar.setDate(model.calendar.firstDay)
             Utils.safeApply($scope);
         };
+
         $scope.cancelDeleteLightbox = () =>{
             $scope.show.delete_lightbox = false;
             Utils.safeApply($scope);
@@ -717,7 +719,10 @@ export let main = ng.controller('EdtController',
          */
         model.calendar.on('date-change', async () => {
             $timeout(async () => {
-                await $scope.syncStructure($scope.structure);
+                if (!$scope.structure.synced) {
+                    await $scope.syncStructure($scope.structure);
+                }
+
                 await $scope.syncCourses();
                 $scope.safeApply();
                 initTriggers();
