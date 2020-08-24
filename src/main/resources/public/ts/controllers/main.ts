@@ -119,6 +119,7 @@ export let main = ng.controller('EdtController',
             if (!$scope.isPersonnel()) {
                 $timeout(async () => await $scope.syncCourses())
             }
+            window.structure = $scope.structure;
             $scope.safeApply();
         };
 
@@ -154,7 +155,6 @@ export let main = ng.controller('EdtController',
             }
 
             await PreferencesUtils.updateStructure({id : $scope.structure.id, name : $scope.structure.name});
-            window.structure = structure;
         };
 
         /**
