@@ -763,7 +763,8 @@ export let main = ng.controller('EdtController',
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
 
-                $scope.params.group.filter(g => g !== undefined)
+                $scope.params.group
+                    .filter(g => g !== undefined)
                     .sort((g, gg) => {
                     if (g.displayName && !gg.displayName) {
                         return -1;
@@ -773,6 +774,7 @@ export let main = ng.controller('EdtController',
                         return 0;
                     }
                 });
+
                 $scope.course = new Course({
                     structure: _.clone($scope.structure),
                     teachers: _.clone($scope.params.user),
