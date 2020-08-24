@@ -783,15 +783,29 @@ export let main = ng.controller('EdtController',
                 Utils.safeApply($scope);
             },
             edit: async (params: any) : Promise<void> => {
-                $scope.course = new Course();
-                await $scope.course.sync(params.idCourse, $scope.structure);
+                $scope.course = $scope.structure.calendarItems.all.find(course => course._id === params.idCourse);
+                if (!$scope.course) {
+                    $scope.goTo('/');
+                    return;
+                }
+
+                $scope.course = new Course($scope.course);
+                $scope.course.mapWithStructure(window.structure);
                 $scope.initDateCreatCourse(params, $scope.course);
-                if (params.type === 'occurrence') {
-                    $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-                    $scope.editOccurrence = true;
-                    $scope.course.is_recurrent = false;
-                } else {
+                if ($scope.course.is_recurrent) {
+                    let recurrenceObject = $scope.course.recurrenceObject;
+                    if (!recurrenceObject) {
+                        recurrenceObject = {}; // Weird trick to stop multiple call
+                        const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
+                        recurrenceObject = formatRecurrenceForLightBox(recurrence);
+                    }
+                    // $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
+                    $scope.course.startDate = moment(recurrenceObject.start);
+                    $scope.course.endDate = moment(recurrenceObject.end);
                     $scope.editOccurrence = false;
+                    $scope.course.is_recurrent = true;
+                } else {
+                    $scope.editOccurrence = true;
                 }
 
                 if ($scope.isPersonnel()) {
