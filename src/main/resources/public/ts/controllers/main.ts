@@ -327,8 +327,8 @@ export let main = ng.controller('EdtController',
             if((group.type_groupe != 0 || group.type_groupe === undefined) && group.color != "")
                 $scope.params.deletedGroups.groupsDeleted.push(group);
 
-            $scope.params.deletedGroups.classes.map((c,index) => {
-                if(c.id == group.id){
+            $scope.params.deletedGroups.classes.map((c, index: number) => {
+                if(c && c.id == group.id) {
                     $scope.params.deletedGroups.classes.splice(index,1);
                 }
             });
