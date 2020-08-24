@@ -90,7 +90,7 @@ export class CalendarItems {
                         let isAlreadyInGroups = false;
 
                         group.map( g => {
-                            if(g.name === groupName){
+                            if(g && g.name === groupName){
                                 isAlreadyInGroups = true;
                             }
                         });

@@ -244,7 +244,7 @@ export let main = ng.controller('EdtController',
                         }
                     });
 
-                    if(!isInClass && g.type_groupe !== 0 && g.users) {
+                    if(!isInClass && g && g.type_groupe !== 0 && g.users) {
                         $scope.params.deletedGroups.classes.push(g);
                     }
 
@@ -265,14 +265,14 @@ export let main = ng.controller('EdtController',
                     let group : Group = $scope.params.group[i];
 
                     //swap groups with corresponding groups with color
-                    if(group.color === '' || group.color === undefined || $scope.structure.groups.all.indexOf(group) === -1) {
+                    if(group && (group.color === '' || group.color === undefined || $scope.structure.groups.all.indexOf(group) === -1)) {
                         $scope.params.group[i] = ($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
                     }
                 }
 
-                $scope.params.deletedGroups.groupsDeleted.map((g : Group) => {
+                $scope.params.deletedGroups.groupsDeleted.map((g: Group) => {
                     $scope.params.group.map(gg  => {
-                        if(g.id === gg.id && gg.type_groupe !== Utils.getClassGroupTypeMap()['MANUAL_GROUP']){
+                        if((g && gg) && (g.id === gg.id && gg.type_groupe !== Utils.getClassGroupTypeMap()['MANUAL_GROUP'])){
                             $scope.params.group = _.without($scope.params.group, gg);
                         }
                     })
@@ -324,11 +324,11 @@ export let main = ng.controller('EdtController',
          */
         $scope.dropGroup = (group: Group): void => {
 
-            if((group.type_groupe != 0 || group.type_groupe === undefined) && group.color != "")
+            if(group && (group.type_groupe != 0 || group.type_groupe === undefined) && group.color != "")
                 $scope.params.deletedGroups.groupsDeleted.push(group);
 
             $scope.params.deletedGroups.classes.map((c, index: number) => {
-                if(c && c.id == group.id) {
+                if((group && c) && (c.id == group.id)) {
                     $scope.params.deletedGroups.classes.splice(index,1);
                 }
             });
