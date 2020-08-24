@@ -255,7 +255,7 @@ public class EdtController extends MongoDbControllerHelper {
     @Trace("PUT_RECURRENCE")
     public void updateRecurrence(HttpServerRequest request) {
         String id = request.getParam("id");
-        RequestUtils.bodyToJson(request, course -> edtService.updateRecurrence(id, course, defaultResponseHandler(request)));
+        RequestUtils.bodyToJson(request, course -> edtService.updateRecurrence(id, course, arrayResponseHandler(request)));
     }
 
     @Delete("/courses/:id")

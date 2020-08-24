@@ -53,7 +53,7 @@ export class Course {
 
     async update() {
         try {
-            let url = `/edt/courses/${this._id}`;
+            let url = `/edt/courses/${this.recurrence ? `recurrences/${this.recurrence}` : this._id}`;
             await http.put(url, this.toJSON());
             return;
         } catch (e) {
@@ -151,6 +151,10 @@ export class Course {
             o.recurrence = this.recurrence;
         }
 
+        if (this.newRecurrence) {
+            o.newRecurrence = this.newRecurrence;
+        }
+
         o.startDate = moment(this.startDate).format('YYYY-MM-DDTHH:mm:ss');
         o.endDate = moment(this.endDate).format('YYYY-MM-DDTHH:mm:ss');
         o.idStartSlot = this.idStartSlot;
@@ -203,7 +207,6 @@ export class Course {
         this.roomLabels = occurrence.roomLabels;
         this.startDate = moment(moment(this.startDate).format("YYYY-MM-DD") + "T" + moment(occurrence.startTime).format("HH:mm"));
         this.endDate = moment(moment(this.endDate).format("YYYY-MM-DD") + "T" + moment(occurrence.endTime).format("HH:mm"));
-        this.newRecurrence = Utils.uuid(); // TODO changer d'endroit peut-être
         return this;
     }
 

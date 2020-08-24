@@ -63,7 +63,7 @@ public interface EdtService {
      * @param course course
      * @param handler handler
      */
-    void updateRecurrence(String id, JsonObject course, Handler<Either<String, JsonObject>> handler);
+    void updateRecurrence(String id, JsonObject course, Handler<Either<String, JsonArray>> handler);
 
     void deleteCourse(String id, Handler<Either<String, JsonObject>> handler);
 
