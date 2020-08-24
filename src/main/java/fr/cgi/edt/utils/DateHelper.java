@@ -74,6 +74,20 @@ public class DateHelper {
         return (int) TimeUnit.MILLISECONDS.toMillis(end - start);
     }
 
+    public String now() {
+        return new DateHelper().DATE_FORMATTER.format(new Date());
+    }
+
+    public Date now(SimpleDateFormat dateFormat) {
+        return getDate(now(), dateFormat);
+    }
+
+    public int isBefore(String a, String b) {
+        Date dateA = getDate(a, DATE_FORMATTER);
+        Date dateB = getDate(b, DATE_FORMATTER);
+        return dateA.before(dateB) ? 1 : -1;
+    }
+
     public Date getDate(String dateString, SimpleDateFormat dateFormat ){
         Date date= new Date();
         try{
@@ -83,6 +97,7 @@ public class DateHelper {
         }
         return date ;
     }
+
     Calendar getCalendar(String dateString, SimpleDateFormat dateFormat){
         Calendar date= Calendar.getInstance();
         try{
