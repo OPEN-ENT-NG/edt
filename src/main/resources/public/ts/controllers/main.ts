@@ -549,8 +549,8 @@ export let main = ng.controller('EdtController',
                             $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call Duplication code. Clean up later
                             const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
                             $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
-                            $scope.show.isDeleteOccurrenceLightbox = true;
                         }
+                        $scope.show.isDeleteOccurrenceLightbox = true;
                     }
                 } else {
                     $scope.show.delete_lightbox = true;
