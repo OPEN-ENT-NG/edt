@@ -47,6 +47,7 @@ export class Structure {
      */
     async sync(isTeacher?: boolean): Promise<void> {
         const promises: Promise<void>[] = [];
+        promises.push(this.subjects.sync(this.id));
         promises.push(this.groups.sync(this.id,(isTeacher )? isTeacher : false));
         promises.push(this.teachers.sync(this));
         promises.push(this.exclusions.sync(this.id));
