@@ -85,8 +85,7 @@ export class CalendarItems {
         if (data.length > 0) {
             this.all = data.map((item) => {
                 if(item.name_groups.length > 0){
-                    item.name_groups.map((groupName, index)=>{
-                        let isAGroupOfANewClass = false;
+                    item.name_groups.map((groupName, index) => {
                         let isAlreadyInGroups = false;
 
                         group.map( g => {
@@ -95,23 +94,8 @@ export class CalendarItems {
                             }
                         });
 
-                        if(deletedGroup != null) {
-                            deletedGroup.classes.map(c => {
-                                if (c && item.id_classe === c.id) {
-                                    isAGroupOfANewClass = true;
-                                }
-                            });
-                        }
-
-                        if(!isAGroupOfANewClass && deletedGroup != null){
-                            deletedGroup.groupsDeleted.map((gg,index)=>{
-                                if(gg.name === groupName){
-                                    deletedGroup.groupsDeleted.splice(index,1);
-                                }
-                            });
-                        }
-                        if(!isAlreadyInGroups){
-                            let grip =new Group(item.id_groups[index],groupName,"");
+                        if (!isAlreadyInGroups) {
+                            let grip = new Group(item.id_groups[index],groupName,"");
                             group.push(grip);
                         }
                     })
