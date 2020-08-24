@@ -255,9 +255,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 $scope.course.idStartSlot = $scope.course.timeSlot.start.id;
                 $scope.course.idEndSlot = $scope.course.timeSlot.end.id;
             }
-            $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
+            // $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
+            $scope.course.courseOccurrences.push($scope.courseOccurrenceForm);
             $scope.courseOccurrenceForm = new CourseOccurrence();
-            $scope.changeDate();
+            // $scope.changeDate();
         };
 
         /**
