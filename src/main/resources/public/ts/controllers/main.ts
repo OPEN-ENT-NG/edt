@@ -258,7 +258,7 @@ export let main = ng.controller('EdtController',
                 });
 
             if ($scope.params.group.length > 0) {
-                await $scope.structure.calendarItems.getGroups($scope.params.group);
+                await $scope.structure.calendarItems.getGroups($scope.params.group.filter(g => g !== undefined));
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
@@ -737,7 +737,7 @@ export let main = ng.controller('EdtController',
                 let structure: Structure = $scope.structures.all.find((structure: Structure) =>
                     structure.id === window.preferenceStructure.id);
                 if (structure) {
-                    // return the structure fetched from preferebce
+                    // return the structure fetched from preference
                     return structure;
                 } else {
                     // Case we are in all_structure
@@ -763,7 +763,8 @@ export let main = ng.controller('EdtController',
                 startDate.minute(roundedDown).second(0);
                 let endDate = moment(startDate).add(1, 'hours');
 
-                $scope.params.group.sort((g, gg) => {
+                $scope.params.group.filter(g => g !== undefined)
+                    .sort((g, gg) => {
                     if (g.displayName && !gg.displayName) {
                         return -1;
                     } else if (gg.displayName && !g.displayName) {

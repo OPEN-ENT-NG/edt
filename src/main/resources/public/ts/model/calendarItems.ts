@@ -100,6 +100,7 @@ export class CalendarItems {
                     })
                 }
             });
+            this.all = this.all.filter(item => item !== undefined);
         }
     }
 
