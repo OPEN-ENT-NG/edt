@@ -720,13 +720,15 @@ export let main = ng.controller('EdtController',
          */
         model.calendar.on('date-change', async () => {
             $timeout(async () => {
+                $scope.calendarLoader.display();
                 if (!$scope.structure.synced) {
                     await $scope.syncStructure($scope.structure);
                 }
-
                 await $scope.syncCourses();
                 $scope.safeApply();
                 initTriggers();
+                $scope.calendarLoader.hide();
+                $scope.safeApply();
             });
         });
 
