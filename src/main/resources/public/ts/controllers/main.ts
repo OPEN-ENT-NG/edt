@@ -39,13 +39,13 @@ export let main = ng.controller('EdtController',
         let isUpdateData = false;
         $scope.isAllStructure = false;
         $scope.structures.sync();
-        //GroupsDeleted =groups wich are deleted from the filter
-        //classes : classes for wich the groups are deleted
+
+        //GroupsDeleted : groups which are deleted from the filter
+        //classes : classes for which the groups are deleted
         $scope.params.deletedGroups = {
             groupsDeleted: [],
             classes: []
         };
-
 
         // setting preference structure in or the first()
         $scope.structure = getStructure();
@@ -105,7 +105,7 @@ export let main = ng.controller('EdtController',
                                         return 1;
                                 }else
                                     return 1;
-                            })
+                            });
                             $scope.child = structure.students.all[0];
                         }
                         $scope.params.group = _.map(structure.students.all[0].classes, (groupid) => {
@@ -143,7 +143,7 @@ export let main = ng.controller('EdtController',
             // case we found our structure
             if ($scope.structure.id != lang.translate("all.structures.id") &&
                 (($scope.params.group.length !== 0 ||  $scope.params.user.length !== 0) ||
-                    $scope.isPersonnel() || $scope.isTeacher())) {
+                    $scope.isPersonnel() || $scope.isTeacher() || $scope.isStudent())) {
                 await $scope.syncStructure($scope.structure);
                 $scope.safeApply();
                 $scope.isAllStructure = false;
@@ -182,11 +182,16 @@ export let main = ng.controller('EdtController',
          */
         $scope.isRelative = (): boolean => model.me.type === USER_TYPES.relative;
 
-        $scope.isAParentWhoNeedSidebar = () =>{
-
+        /**
+         * Returns if current user is a relative profile and has more than 1 child
+         * @returns {boolean}
+         */
+        $scope.isAParentWhoNeedSidebar = () => {
             return $scope.isRelative() && ($scope.structures.all.length > 1 || model.me.childrenIds.length > 1)
-        }
+        };
+
         $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher() ||   $scope.isAParentWhoNeedSidebar()};
+
         $scope.checkTwelve = () => {
             return $scope.isStudent() || ($scope.isRelative() && $scope.structures.all.length < 2)
         };
@@ -385,7 +390,7 @@ export let main = ng.controller('EdtController',
          * @param group the selected class/group
          */
         $scope.selectClass = async (model: string, group: Group): Promise<void> => {
-            $scope.toogleFilter($scope.getGroupFromId(group.id))
+            $scope.toogleFilter($scope.getGroupFromId(group.id));
             AutocompleteUtils.resetSearchFields();
         };
 
@@ -491,7 +496,7 @@ export let main = ng.controller('EdtController',
         $scope.cancelDeleteOccurrenceLightbox = () : void =>{
             $scope.show.isDeleteOccurrenceLightBox = false;
             Utils.safeApply($scope);
-        }
+        };
 
         /**
          * Checks if a course mutiple occurences can be edited
@@ -534,7 +539,7 @@ export let main = ng.controller('EdtController',
 
         $scope.isNotPast = (item) => {
             return(moment(item.startDate).isAfter(moment()));
-        }
+        };
 
         /**
          * Open the proper delete form (either the delete all occurrences form or the delete one course form).
@@ -562,18 +567,6 @@ export let main = ng.controller('EdtController',
             Utils.safeApply($scope);
         };
 
-        function orderDeletes(c: any) {
-            c.timeToDelete.sort((t,tt) => {
-                if(moment(t).isAfter(moment(tt))){
-                    return 1;
-                }else if(moment(t).isBefore(moment(tt))){
-                    return -1;
-                }else
-                    return 0;
-            })
-        }
-
-
         /**
          * Delete the selected courses.
          */
@@ -581,7 +574,7 @@ export let main = ng.controller('EdtController',
             $scope.show.delete_lightbox = false;
             const promises = [];
             $scope.params.coursesToDelete.map((course: Course) => promises.push(course.delete(course._id)));
-            await Promise.all(promises)
+            await Promise.all(promises);
             $scope.syncCourses();
         };
 
@@ -653,7 +646,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.isFilterActive = (filter : Group) : boolean => {
             return ($scope.params.group.indexOf(filter) !== -1);
-        }
+        };
 
         /**
          * Deselect every currently selected filters
@@ -661,7 +654,7 @@ export let main = ng.controller('EdtController',
         $scope.deselectAllFilters = () : void => {
             $scope.params.group = [];
             $scope.updateDatas();
-        }
+        };
 
 
         $scope.getMomentFromDate = function (date,time) {

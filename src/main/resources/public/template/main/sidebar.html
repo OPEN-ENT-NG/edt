@@ -15,17 +15,6 @@
                 </div>
             </div>
 
-            <!-- choose children section -->
-            <div ng-if="children" class="row display-inline-block section-content">
-                <select ng-model="child"
-                        id="children-list"
-                        class="twelve margin-left-2 margin-bottom-mid"
-                        ng-change="switchChild(child)"
-                        ng-options="child as child.displayName for child in children">
-                    <option value="" disabled selected>[[translate('utils.child.choose.one')]]</option>
-                </select>
-            </div>
-
             <!-- teacher fetched -->
             <div ng-if="(isTeacher() || isPersonnel()) && (params.user.length > 0)" ng-show="!isAllStructure" class="sidebar-section half" id="teacher-section">
                 <span class="sidebar-header">[[translate('utils.teachers') | uppercase]]</span>

@@ -8,8 +8,9 @@
                 </h1>
             </app-title>
         </div>
-        <div class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'" ng-if="!isAllStructure">
-            <div workflow="edt.edtSearch" class="search-inputs">
+        <div ng-if="!isAllStructure" workflow="edt.edtSearch"
+             class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'">
+            <div class="search-inputs">
                 <div class="search-input small">
                     <async-autocomplete data-ng-disabled="false"
                                         data-ng-model="autocomplete.teacher"
@@ -31,8 +32,35 @@
                     </async-autocomplete>
                 </div>
             </div>
-
         </div>
+
+        <!-- choose children section -->
+        <div ng-if="isRelative()" class="cell margin-select-child">
+            <div ng-if="children && children.length > 1" class="row display-inline-block section-content">
+                <select ng-model="child"
+                        id="children-list"
+                        class="twelve margin-left-2 margin-bottom-mid remove-border-select-child"
+                        ng-change="switchChild(child)"
+                        ng-options="child as child.displayName for child in children">
+                    <option value="" disabled selected>[[translate('utils.child.choose.one')]]</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- choose structure section -->
+        <!-- when fetch child's structure in relative view, add "isRelative()" to the condition -->
+        <div ng-if="isStudent() && structures.all.length > 1" class="cell margin-select-child">
+            <div class="row display-inline-block section-content">
+                <select ng-model="structure"
+                        id="structure-list"
+                        class="twelve margin-left-2 margin-bottom-mid remove-border-select-child"
+                        ng-change="switchStructure(structure)"
+                        ng-options="structure as structure.name for structure in structures.all">
+                    <option value="">[[translate('utils.structure.choose.one')]]</option>
+                </select>
+            </div>
+        </div>
+
         <div class="loader four cell" ng-show="calendarLoader.show">
             <div>
                 <h4>
