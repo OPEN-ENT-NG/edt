@@ -24,6 +24,25 @@ multi-combo .multi-combo-root-panel {
   z-index: 800;
 }
 
+.schedule {
+  .legend {
+    .month-day {
+      background-color: $edt-dark-blue;
+    }
+  }
+}
+
+#occurrences-creation {
+  td {
+    background: $edt-white;
+    color: black;
+  }
+}
+
+.manage-title {
+  display: contents;
+}
+
 .sidebar {
   padding: 0px;
   margin-right: 10px;
