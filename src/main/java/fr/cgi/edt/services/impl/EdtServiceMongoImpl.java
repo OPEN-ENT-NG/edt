@@ -1,10 +1,15 @@
 package fr.cgi.edt.services.impl;
 
+import fr.cgi.edt.helper.FutureHelper;
 import fr.cgi.edt.services.EdtService;
+import fr.cgi.edt.sts.StsError;
 import fr.cgi.edt.utils.DateHelper;
 import fr.cgi.edt.utils.EdtMongoHelper;
 import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.webutils.DefaultAsyncResult;
 import fr.wseduc.webutils.Either;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
@@ -12,7 +17,10 @@ import io.vertx.core.json.JsonObject;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
 
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * MongoDB implementation of the REST service.
@@ -69,30 +77,64 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     }
 
     @Override
-    public void updateRecurrence(String id, JsonObject course, Handler<Either<String, JsonObject>> handler) {
-        getCourse(course.getString("_id"), result -> {
+    public void updateRecurrence(String id, JsonObject course, Handler<Either<String, JsonArray>> handler) {
+        getRecurrence(id, result -> {
             if (result.isLeft()) {
                 handler.handle(new Either.Left<>("An error occurred when updating recurrence data"));
                 return;
             }
+            List<Future<JsonObject>> updateFutures = new ArrayList<>();
+            Map<String, JsonObject> coursesMap = new HashMap<>();
+            result.right().getValue().forEach(oCourse -> {
+                JsonObject courseOccurrence = (JsonObject) oCourse;
+                coursesMap.put(courseOccurrence.getString("_id"), courseOccurrence);
+            });
 
-            JsonObject courseResult = result.right().getValue();
+            JsonObject originalCourse = coursesMap.get(course.getString("_id"));
 
             // We get difference (in ms) between start/end date of the original data, to add or subtract time for each
             // recurrence to update
-            int msStartDifference = dateHelper.msBetween(course.getString("startDate"), courseResult.getString("startDate"));
-            int msEndDifference = dateHelper.msBetween(course.getString("endDate"), courseResult.getString("endDate"));
+            int msStartDifference = dateHelper.msBetween(originalCourse.getString("startDate"), course.getString("startDate"));
+            int msEndDifference = dateHelper.msBetween(originalCourse.getString("endDate"), course.getString("endDate"));
 
-            course.put("recurrence", course.getString("newRecurrence"));
-            // If difference between start/end date is negative, we subtract ("$subtract") time
-            // (in ms), else, we add ("$add") time
-            course.put("startDate", new JsonObject().put(msStartDifference < 0 ? "$subtract" : "$add",
-                    new JsonArray().add("$date").add(Math.abs(msStartDifference))));
-            course.put("endDate", new JsonObject().put(msEndDifference < 0 ? "$subtract" : "$add",
-                    new JsonArray().add("$date").add(Math.abs(msEndDifference))));
-            course.remove("newRecurrence");
+            Calendar time = Calendar.getInstance();
+            coursesMap.values().forEach(courseOccurrence -> {
+                courseOccurrence.put("recurrence", course.getString("newRecurrence"));
 
-            MongoDb.getInstance().update(this.collection, matcherFutureRecurrence(id), course, MongoDbResult.validResultHandler(handler));
+                Date startDate = dateHelper.getDate(courseOccurrence.getString("startDate"), dateHelper.DATE_FORMATTER);
+                time.setTimeInMillis(startDate.getTime() + msStartDifference);
+                courseOccurrence.put("startDate", dateHelper.DATE_FORMATTER.format(time.getTime()));
+
+                Date endDate = dateHelper.getDate(courseOccurrence.getString("endDate"), dateHelper.DATE_FORMATTER);
+                time.setTimeInMillis(endDate.getTime() + msEndDifference);
+                courseOccurrence.put("endDate", dateHelper.DATE_FORMATTER.format(time.getTime()));
+
+                Future<JsonObject> updateFuture = Future.future();
+                updateFutures.add(updateFuture);
+
+                MongoDb.getInstance().update(
+                        this.collection,
+                        new JsonObject()
+                                .put("_id", courseOccurrence.getString("_id"))
+                                .put("startDate", mongoGtNowCondition()),
+                        courseOccurrence,
+                        MongoDbResult.validResultHandler(updateResult -> {
+                            if (updateResult.isLeft()) {
+                                updateFuture.fail(updateResult.left().getValue());
+                                return;
+                            }
+                            updateFuture.complete(updateResult.right().getValue());
+                        })
+                );
+            });
+
+            FutureHelper.all(updateFutures).setHandler(updates -> {
+                if (updates.failed()) {
+                    handler.handle(new Either.Left<>(updates.cause().getMessage()));
+                    return;
+                }
+                handler.handle(new Either.Right<>(new JsonArray(updates.result().list())));
+            });
         });
     }
 
@@ -123,5 +165,16 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 .put("_id", id);
 
         MongoDb.getInstance().findOne(this.collection, query, MongoDbResult.validResultHandler(handler));
-    };
+    }
+
+    ;
+
+    private void getRecurrence(String id, Handler<Either<String, JsonArray>> handler) {
+        JsonObject query = new JsonObject()
+                .put("recurrence", id);
+
+        MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
+    }
+
+    ;
 }

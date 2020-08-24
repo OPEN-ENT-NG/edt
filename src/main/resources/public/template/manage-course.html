@@ -100,7 +100,7 @@
             </div>
 
             <!--COURSE TYPE OPTION-->
-            <div class="row form-row" ng-show="editOccurrence !== true">
+            <div class="row form-row" ng-show="editOccurrence !== true && !isUpdateRecurrence()">
                 <label class="cell two twelve-mobile">
                     <i18n>edt.type</i18n>
                     *
@@ -233,7 +233,7 @@
                     </div>
 
                     <!--DATE WARNINGS-->
-                    <div ng-if="!Utils.isValidDate(course.startDate, course.endDate);" class="warning ">
+                    <div ng-show="!isUpdateRecurrence() && !Utils.isValidDate(course.startDate, course.endDate);" class="warning ">
                         <i18n>edt.error.date.is.not.a.week.after</i18n>
                     </div>
 
@@ -265,7 +265,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="courseOccurrence in course.courseOccurrences">
+                            <tr ng-if="!isUpdateRecurrence()" ng-repeat="courseOccurrence in course.courseOccurrences">
                                 <td>[[daysOfWeek.get(courseOccurrence.dayOfWeek)]]</td>
                                 <td>[[courseOccurrence.getFormattedStartTime()]]</td>
                                 <td>[[courseOccurrence.getFormattedEndTime()]]</td>
@@ -313,7 +313,7 @@
                                 </td>
                                 <td><input type="text" ng-model="courseOccurrenceForm.roomLabels[0]" maxlength="50"
                                            class="text-center remove-padding width-7"/></td>
-                                <td>
+                                <td ng-if="!isUpdateRecurrence()">
                                     <button ng-disabled="!courseOccurrenceForm.isValidTime(course, display) || !courseOccurrenceForm.isNotPastTime()"
                                             ng-click="submit_CourseOccurrence_Form()">
                                         <i18n>edt.utils.add</i18n>
