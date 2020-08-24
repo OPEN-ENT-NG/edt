@@ -1,6 +1,6 @@
-import { model } from 'entcore';
-import { Courses, Subjects, Groups, Teachers, Students, USER_TYPES , Exclusions} from './index';
-import { Eventer } from 'entcore-toolkit';
+import {model} from 'entcore';
+import {Courses, Exclusions, Groups, Students, Subjects, Teachers, USER_TYPES} from './index';
+import {Eventer} from 'entcore-toolkit';
 import {CalendarItems} from "./calendarItems";
 import {PeriodeAnnee} from "./periodeAnnee";
 
@@ -18,6 +18,7 @@ export class Structure {
     eventer: Eventer = new Eventer();
     exclusions: Exclusions;
     periodeAnnee: PeriodeAnnee;
+    synced: boolean;
 
     /**
      * Structure constructor. Can take an id and a name in parameter
@@ -38,6 +39,7 @@ export class Structure {
             this.students = new Students();
         }
         this.periodeAnnee = new PeriodeAnnee();
+        this.synced = false;
     }
 
     /**
@@ -56,6 +58,7 @@ export class Structure {
         }
         promises.push(this.periodeAnnee.sync(this.id));
         await Promise.all(promises);
+        this.synced = true;
     }
 }
 
