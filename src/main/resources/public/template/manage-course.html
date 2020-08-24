@@ -59,7 +59,7 @@
                                  search-on="name" order-by="name" filtered-model="course.groups"
                                  labels="comboLabels"></multi-combo>
                     <div class="select-blocks remove-margin-bottom">
-                        <div ng-repeat="group in course.groups"
+                        <div ng-repeat="group in course.groups track by group.id"
                              ng-click="dropGroup(group)">[[group.name]]
                         </div>
                     </div>
