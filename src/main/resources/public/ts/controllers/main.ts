@@ -155,6 +155,7 @@ export let main = ng.controller('EdtController',
             }
 
             await PreferencesUtils.updateStructure({id : $scope.structure.id, name : $scope.structure.name});
+            $timeout(() => $scope.safeApply());
         };
 
         /**
