@@ -33,6 +33,16 @@ Les matières suivantes n'ont pas été trouvées:
   {{code}} - {{name}}
 {{/unknownSubjects}}
 
+
+{{#unknownAudiences}}
+{{#-first}}
+======================================================= CLASSES/GROUPES ======================================================
+
+Les classes/groupes suivants n'ont pas été trouvés:
+{{/-first}}
+{{.}}
+{{/unknownAudiences}}
+
 ================================================== ALTERNANCES TRAITÉES ==================================================
 
 {{#alternations}}

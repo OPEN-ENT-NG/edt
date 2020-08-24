@@ -79,6 +79,20 @@ public class StsDAO {
         }));
     }
 
+    public void retrieveAudiences(String uai, List<String> audiences, Future handler) {
+        String query = "MATCH (g)-[:BELONGS|:DEPENDS]->(s:Structure {UAI:{uai}}) " +
+                "WHERE g.name IN {audiences} AND (g:Class OR g:FunctionalGroup)" +
+                "RETURN g.name as name, g.externalId as externalId";
+        JsonObject params = new JsonObject()
+                .put("uai", uai)
+                .put("audiences", audiences);
+        
+        neo4j.execute(query, params, Neo4jResult.validResultHandler(evt -> {
+            if (evt.isLeft()) handler.fail(evt.left().getValue());
+            else handler.complete(evt.right().getValue());
+        }));
+    }
+
     public void insertCourses(JsonArray courses, Handler<AsyncResult<Void>> handler) {
         mongoDb.insert(COLLECTION, courses, MongoDbResult.validActionResultHandler(evt -> {
             if (evt.isLeft()) handler.handle(Future.failedFuture(evt.left().getValue()));

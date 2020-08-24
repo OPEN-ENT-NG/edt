@@ -55,8 +55,10 @@ public class StsHandler extends DefaultHandler {
 
                 if (AudienceType.CLASS.equals(audience.type())) {
                     course.setClasses(new JsonArray().add(audience.name()));
+                    cache.addAudience(audience.name());
                 } else if (AudienceType.GROUP.equals(audience.type())) {
                     course.setGroups(new JsonArray().add(audience.name()));
+                    cache.addAudience(audience.name());
                 } else {
                     log.error("Neither classes nor groups found in the course object");
                 }

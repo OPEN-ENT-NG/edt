@@ -159,6 +159,7 @@ public class StsImport {
         Future<JsonObject> structureFuture = Future.future();
         Future<JsonArray> subjectsFuture = Future.future();
         Future<JsonArray> teachersFuture = Future.future();
+        Future<JsonArray> audienceFuture = Future.future();
 
         CompositeFuture.all(structureFuture, subjectsFuture, teachersFuture).setHandler(ar -> {
             if (ar.failed()) {
@@ -170,6 +171,7 @@ public class StsImport {
             String structure = structureFuture.result().getString("id", null);
             JsonArray subjects = subjectsFuture.result();
             JsonArray teachers = teachersFuture.result();
+            JsonArray audiences = audienceFuture.result();
 
             if (structure == null) {
                 handler.handle(Future.failedFuture(new RuntimeException(StsError.UNKNOWN_STRUCTURE_ERROR.key())));
@@ -182,8 +184,8 @@ public class StsImport {
                 return;
             }
 
-            if (subjects.isEmpty() || teachers.isEmpty()) {
-                insufficiency(teachers, subjects, handler);
+            if (subjects.isEmpty() || teachers.isEmpty() || audiences.isEmpty()) {
+                insufficiency(teachers, subjects, audiences, handler);
                 return;
             }
 
@@ -196,16 +198,17 @@ public class StsImport {
                 }
 
                 report.setDeletion(dropAR.result());
-                handler.handle(Future.succeededFuture(processCourses(structure, mapTeachers(teachers), mapSubjects(subjects))));
+                handler.handle(Future.succeededFuture(processCourses(structure, mapTeachers(teachers), mapSubjects(subjects), mapAudiences(audiences))));
             });
         });
 
+        dao.retrieveAudiences(cache.uai(), cache.audiences(), audienceFuture);
         dao.retrieveStructureIdentifier(cache.uai(), structureFuture);
         dao.retrieveSubjects(cache.uai(), cache.subjects(), subjectsFuture);
         dao.retrieveTeachers(cache.uai(), cache.teachers(), teachersFuture);
     }
 
-    private void insufficiency(JsonArray teachers, JsonArray subjects, Handler<AsyncResult<JsonArray>> handler) {
+    private void insufficiency(JsonArray teachers, JsonArray subjects, JsonArray audiences, Handler<AsyncResult<JsonArray>> handler) {
         if (teachers.isEmpty()) {
             log.error("Teacher list is empty. No teacher is found in the database for UAI " + cache.uai());
             cache.teachers().forEach(report::addUnknownTeacher);
@@ -216,10 +219,15 @@ public class StsImport {
             cache.subjects().forEach(report::addUnknownSubject);
         }
 
+        if (audiences.isEmpty()) {
+            log.error("Audience list is empty. No audience is found in the database for UAI" + cache.uai());
+            cache.audiences().forEach(report::addUnknownAudience);
+        }
+
         handler.handle(Future.succeededFuture(new JsonArray()));
     }
 
-    private JsonArray processCourses(String structure, Map<String, JsonObject> teachersMap, Map<String, JsonObject> subjectsMap) {
+    private JsonArray processCourses(String structure, Map<String, JsonObject> teachersMap, Map<String, JsonObject> subjectsMap, HashMap<String, String> audiences) {
         JsonArray courses = new JsonArray();
         cache.courses().forEach(course -> {
             course.setStructureId(structure);
@@ -239,12 +247,38 @@ public class StsImport {
                 return;
             } else course.setSubjectId(subject.getString("id"));
 
+            if (!course.groups().isEmpty() || !course.classes().isEmpty()) {
+                JsonArray groupsExternalIds = getAudienceExternalId(course.groups(), audiences);
+                JsonArray classesExternalIds = getAudienceExternalId(course.classes(), audiences);
+
+                if (groupsExternalIds.isEmpty() && classesExternalIds.isEmpty()) {
+                    report.addIgnoredCourse(course);
+                    return;
+                }
+
+                course.setClassesExternalIds(classesExternalIds)
+                        .setGroupsExternalIds(groupsExternalIds);
+            }
+
             JsonArray createdCourses = formatFromWeeks(course);
             courses.addAll(createdCourses);
             if (!createdCourses.isEmpty()) report.addCreatedCourse(course);
         });
 
         return courses;
+    }
+
+    private JsonArray getAudienceExternalId(JsonArray audiences, HashMap<String, String> audienceMap) {
+        JsonArray externalIds = new JsonArray();
+        for (int i = 0; i < audiences.size(); i++) {
+            String name = audiences.getString(i);
+            String externalId = audienceMap.get(name);
+            if (externalId != null) {
+                externalIds.add(externalId);
+            }
+        }
+
+        return externalIds;
     }
 
     private JsonArray formatFromWeeks(Course course) {
@@ -314,6 +348,17 @@ public class StsImport {
             String key = lastName + "-" + firstName + "-" + birthDate;
             map.put(key, teacher);
         });
+        return map;
+    }
+
+    private HashMap<String, String> mapAudiences(JsonArray audiences) {
+        HashMap<String, String> map = new HashMap<>();
+        ((List<JsonObject>) audiences.getList()).forEach(audience -> {
+            String name = audience.getString("name");
+            String externalId = audience.getString("externalId");
+            map.put(name, externalId);
+        });
+
         return map;
     }
 

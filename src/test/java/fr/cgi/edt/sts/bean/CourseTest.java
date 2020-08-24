@@ -15,7 +15,9 @@ public class CourseTest {
 
     JsonObject EMPTY_TOJSON = new JsonObject()
             .put("classes", new JsonArray())
+            .put("classesExternalIds", new JsonArray())
             .put("groups", new JsonArray())
+            .put("groupsExternalIds", new JsonArray())
             .put("source", "STS")
             .put("theoretical", false)
             .put("teacherIds", new JsonArray())
