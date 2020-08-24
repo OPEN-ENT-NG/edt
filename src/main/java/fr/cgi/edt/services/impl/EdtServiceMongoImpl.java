@@ -91,6 +91,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
             Date newOriginalCourseStart = setNewDayRecurrence(originalCourse.getString("startDate"), course.getString("startDate"), course.getInteger("dayOfWeek"));
             Date newOriginalCourseEnd = setNewDayRecurrence(originalCourse.getString("endDate"), course.getString("endDate"), course.getInteger("dayOfWeek"));
 
+            //TODO PISTE ICI  (PISTE LA PLUS IMPORTANTE)
             int msStartDifference = dateHelper.msBetween(originalCourse.getString("startDate"), newOriginalCourseStart.toString());
             int msEndDifference = dateHelper.msBetween(originalCourse.getString("endDate"), newOriginalCourseEnd.toString());
 
@@ -199,6 +200,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                                   int msStartDifference, Calendar calendarEnd, Date endDate, int msEndDifference, Future<JsonObject> updateFuture) {
         courseOccurrence.put("recurrence", course.getString("newRecurrence"));
 
+        //TODO PISTE ICI (car c'est ici qu'on ajoute la nouvelle date (start / end))
         calendarStart.setTimeInMillis(startDate.getTime() + msStartDifference);
         courseOccurrence.put("startDate", dateHelper.DATE_FORMATTER.format(calendarStart.getTime()));
 
@@ -244,11 +246,13 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
         extremitiesCalendar.setTime(dateHelper.getDate(earliestCourse.getString("startDate"), dateHelper.DATE_FORMATTER));
         newStartCalendar.setTime(newStart);
+        newStartCalendar.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek"));
 
         int startDifferenceNumber = extremitiesCalendar.get(Calendar.WEEK_OF_YEAR) - newStartCalendar.get(Calendar.WEEK_OF_YEAR);
 
         extremitiesCalendar.setTime(dateHelper.getDate(latestCourse.getString("startDate"), dateHelper.DATE_FORMATTER));
         newEndCalendar.setTime(newEnd);
+        newEndCalendar.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek"));
 
         int endDifferenceNumber =  newEndCalendar.get(Calendar.WEEK_OF_YEAR) - extremitiesCalendar.get(Calendar.WEEK_OF_YEAR);
 
@@ -280,10 +284,11 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     private void createCourseByWeekNumber(JsonObject course, Calendar createStartCalendar, Calendar createEndCalendar,
                                           int weekNumber, Future<JsonObject> createFuture) {
+        //TODO PISTE ICI (car c'est ici qu'on ajoute la nouvelle date (start / end))
         createStartCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
         createEndCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
-        course.put("startDate", dateHelper.DATE_FORMATTER.format(createStartCalendar));
-        course.put("endDate", dateHelper.DATE_FORMATTER.format(createEndCalendar));
+        course.put("startDate", dateHelper.DATE_FORMATTER.format(createStartCalendar.getTime()));
+        course.put("endDate", dateHelper.DATE_FORMATTER.format(createEndCalendar.getTime()));
 
         MongoDb.getInstance().save(collection, course, MongoDbResult.validResultHandler(createResult -> {
             if (createResult.isLeft()) {
