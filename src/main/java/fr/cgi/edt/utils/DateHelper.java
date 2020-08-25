@@ -4,7 +4,6 @@ import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.joda.time.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -118,7 +117,7 @@ public class DateHelper {
         } catch (ParseException e) {
             LOGGER.error("error when casting date: ", e);
         }
-        return date ;
+        return date;
     }
 
     public int getHour(Date date) {
@@ -126,6 +125,13 @@ public class DateHelper {
         calendar.setTime(date);
         return calendar.get(Calendar.HOUR_OF_DAY);
     }
+
+    public int getMinutes(Date date) {
+        Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+        calendar.setTime(date);
+        return calendar.get(Calendar.MINUTE);
+    }
+
     public int getSecond(Date date) {
         Calendar calendar = Calendar.getInstance(Locale.FRANCE);
         calendar.setTime(date);

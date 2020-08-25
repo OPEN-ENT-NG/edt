@@ -292,6 +292,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             if (!$scope.isValidForm())
                 return;
             course.display = $scope.display;
+
+            if (!$scope.display.freeSchedule) {
+                course.idStartSlot = $scope.course.timeSlot.start.id;
+                course.idEndSlot = $scope.course.timeSlot.end.id;
+            }
+
             if ($scope.editOccurrence === true) {
                 course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
                 delete course.recurrence;
@@ -309,8 +315,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 if (!$scope.display.freeSchedule) {
                     course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.start.startHour);
                     course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour);
-                    course.idStartSlot = $scope.course.timeSlot.start.id;
-                    course.idEndSlot = $scope.course.timeSlot.end.id;
                 } else {
                     course.startDate = moment(moment(course.startDate).format('YYYY-MM-DD') + ' ' + moment($scope.courseOccurrenceForm.startTime).format('HH:mm:ss'));
                     course.endDate = moment(moment(course.endDate).format('YYYY-MM-DD') + ' ' + moment($scope.courseOccurrenceForm.endTime).format('HH:mm:ss'));
@@ -402,7 +406,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.dropCourse = async (course: Course) => {
-            if (course.canManage) {
+            if (course.canIManageCourse()) {
                 $scope.editOccurrence || !course.is_recurrent ? await course.delete(course._id) : await course.delete(null, course.recurrence);
                 delete $scope.course;
                 $scope.goTo('/');
