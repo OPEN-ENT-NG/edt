@@ -208,11 +208,11 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 createEndCalendar = Calendar.getInstance(Locale.FRANCE);
 
         JsonObject earliestCourse = (JsonObject) occurrences.stream().min((courseA, courseB) ->
-                dateHelper.isBefore(((JsonObject) courseA).getString("startDate"), ((JsonObject) courseB).getString("startDate"))
+                dateHelper.isBefore(((JsonObject) courseB).getString("startDate"), ((JsonObject) courseA).getString("startDate"))
         ).get();
 
         JsonObject latestCourse = (JsonObject) occurrences.stream().max((courseA, courseB) ->
-                dateHelper.isBefore(((JsonObject) courseA).getString("startDate"), ((JsonObject) courseB).getString("startDate"))
+                dateHelper.isBefore(((JsonObject) courseB).getString("startDate"), ((JsonObject) courseA).getString("startDate"))
         ).get();
 
         extremitiesCalendar.setTime(formatDate(earliestCourse.getString("startDate")));
@@ -233,9 +233,15 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         createStartCalendar.setTime(formatDate(course.getString("startDate")));
         createEndCalendar.setTime(formatDate(course.getString("endDate")));
 
+        // add course before earliestCourse start date => ex: earliestCourseWeek = 33, newWeek = 30
+        // we have to have to had course of week 30 + i = 0, 30 + i = 1, 30 + i = 2 (i corresponding to the index of loop)
+        //isAddI = true corresponding to "+ i"
         createCoursesFromNumber(startDifferenceNumber, course, newStartCalendar.get(Calendar.WEEK_OF_YEAR), true,
                 createStartCalendar, createEndCalendar, futures);
 
+        // add course after latestCourse start date => ex: earliestCourseWeek = 40, newWeek = 43
+        // we have to have to had course of week 43 - i = 0, 43 + i = 1, 43 + i = 2 (i corresponding to the index of loop)
+        //isAddI = false corresponding to "- i"
         createCoursesFromNumber(endDifferenceNumber, course, newEndCalendar.get(Calendar.WEEK_OF_YEAR), false,
                 createStartCalendar, createEndCalendar, futures);
     }
