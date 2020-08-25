@@ -216,7 +216,7 @@ export let main = ng.controller('EdtController',
 
             $scope.params.coursesToDelete = [];
             if($scope.structure.groups.all.length === 0) {
-                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all);
+                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
             }
 
             if (!isUpdateData && $scope.isRelative()) {
@@ -258,7 +258,7 @@ export let main = ng.controller('EdtController',
                 });
 
             if ($scope.params.group.length > 0) {
-                await $scope.structure.calendarItems.getGroups($scope.params.group.filter(g => g !== undefined));
+                await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups);
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
@@ -613,7 +613,7 @@ export let main = ng.controller('EdtController',
             } else {
                 let groups: Group[] = [filter];
                 $scope.dropGroup(filter);
-                await $scope.structure.calendarItems.getGroups(groups);
+                await $scope.structure.calendarItems.getGroups(groups, $scope.params.deletedGroups);
                 groups.splice(0, 1);
                 groups.forEach(group => {
                     groups.push($scope.structure.groups.all.filter(res => group.name == res.name)[0]);
@@ -764,7 +764,6 @@ export let main = ng.controller('EdtController',
                 let endDate = moment(startDate).add(1, 'hours');
 
                 $scope.params.group
-                    .filter(g => g !== undefined)
                     .sort((g, gg) => {
                     if (g.displayName && !gg.displayName) {
                         return -1;
@@ -778,7 +777,7 @@ export let main = ng.controller('EdtController',
                 $scope.course = new Course({
                     structure: _.clone($scope.structure),
                     teachers: _.clone($scope.params.user),
-                    groups: _.clone($scope.params.group),
+                    groups: _.clone($scope.params.group).filter(g => g !== undefined),
                     courseOccurrences: [],
                     startDate: startDate,
                     endDate: endDate,

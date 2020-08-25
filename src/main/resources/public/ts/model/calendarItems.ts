@@ -72,9 +72,10 @@ export class CalendarItems {
     /**
      * Get groups from class
      * @param {Array<Group>} group cannot be null
+     * @param deletedGroup   groups which are deleted from the filter
      * @returns {Promise<void>}
      */
-    getGroups = async ( group: Array<Group> = []) : Promise<void> => {
+    getGroups = async ( group: Array<Group> = [], deletedGroup: any) : Promise<void> => {
         if(group.length <=0) return ;
         let filter : string = this.getFilterClass(group);
         if (filter === "") return;
@@ -85,6 +86,7 @@ export class CalendarItems {
             this.all = data.map((item) => {
                 if(item.name_groups.length > 0){
                     item.name_groups.map((groupName, index) => {
+                        let isAGroupOfANewClass = false;
                         let isAlreadyInGroups = false;
 
                         group.map( g => {
@@ -93,14 +95,30 @@ export class CalendarItems {
                             }
                         });
 
+                        if(deletedGroup != null) {
+                            deletedGroup.classes.map(c => {
+                                if (item.id_classe === c.id) {
+                                    isAGroupOfANewClass = true;
+                                }
+                            });
+                        }
+
+                        if(!isAGroupOfANewClass && deletedGroup != null){
+                            deletedGroup.groupsDeleted.map((gg,index)=>{
+                                if(gg.name === groupName){
+                                    deletedGroup.groupsDeleted.splice(index,1);
+                                }
+                            });
+                        }
+
+
                         if (!isAlreadyInGroups) {
                             let grip = new Group(item.id_groups[index],groupName,"");
                             group.push(grip);
                         }
                     })
                 }
-            });
-            this.all = this.all.filter(item => item !== undefined);
+            }).filter(data => data !== undefined);
         }
     }
 
