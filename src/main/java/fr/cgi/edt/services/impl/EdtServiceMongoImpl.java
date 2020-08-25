@@ -13,6 +13,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
+import org.joda.time.DateTime;
+import org.joda.time.Weeks;
 
 import java.util.*;
 
@@ -238,13 +240,13 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         newStartCalendar.setTime(newStart);
         newStartCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
-        int startDifferenceNumber = extremitiesCalendar.get(Calendar.WEEK_OF_YEAR) - newStartCalendar.get(Calendar.WEEK_OF_YEAR);
+        int startDifferenceNumber = Weeks.weeksBetween(new DateTime(newStartCalendar.getTime()), new DateTime(extremitiesCalendar.getTime())).getWeeks();
 
         extremitiesCalendar.setTime(formatDate(latestCourse.getString("startDate")));
         newEndCalendar.setTime(newEnd);
         newEndCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
-        int endDifferenceNumber = newEndCalendar.get(Calendar.WEEK_OF_YEAR) - extremitiesCalendar.get(Calendar.WEEK_OF_YEAR);
+        int endDifferenceNumber = Weeks.weeksBetween(new DateTime(extremitiesCalendar.getTime()), new DateTime(newEndCalendar.getTime())).getWeeks();
 
         course.put("recurrence", course.getString("newRecurrence"));
         course.remove("_id");
@@ -269,7 +271,8 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                                          Calendar createStartCalendar, Calendar createEndCalendar, int dayOfWeek, Date newStart, Date newEnd,
                                          List<Future<JsonObject>> createFutures) {
         if (number > 0) {
-            for (int i = 0; i < number; i++) {
+            boolean every2Weeks = course.getBoolean("everyTwoWeek", false);
+            for (int i = 0; i < number; i = i + (every2Weeks ? 2 : 1)) {
                 Future<JsonObject> createFuture = Future.future();
                 createFutures.add(createFuture);
                 createCourseByWeekNumber(course, createStartCalendar, createEndCalendar,
