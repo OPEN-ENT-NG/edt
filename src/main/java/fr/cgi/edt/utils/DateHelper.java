@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class DateHelper {
@@ -120,6 +121,17 @@ public class DateHelper {
         return date ;
     }
 
+    public int getHour(Date date) {
+        Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+        calendar.setTime(date);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+    public int getSecond(Date date) {
+        Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+        calendar.setTime(date);
+        return calendar.get(Calendar.SECOND);
+    }
+
     int getWeekOfYear(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
@@ -131,13 +143,27 @@ public class DateHelper {
         return this.getWeekOfYear(date);
     }
 
+    /**
+     * Get Day of Week
+     *
+     * @param date date chosen to get the day of week
+     * @return day of week (e.g 2019-10-26 would return 6)
+     */
     int getDayOfWeek(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c.get(Calendar.DAY_OF_WEEK);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if ((calendar.get(Calendar.DAY_OF_WEEK) - 1) == 0) {
+            return 7;
+        }
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;
     }
 
-
+    public int getDayOfWeek(int weekNumber) {
+        if (weekNumber + 1 == 8) {
+            return 1;
+        }
+        return weekNumber + 1;
+    }
 
     String addDaysToDate(String dateString, int days) {
         Calendar date = this.getCalendar(dateString, this.DATE_FORMATTER);

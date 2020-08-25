@@ -79,44 +79,33 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 return;
             }
             List<Future<JsonObject>> updateFutures = new ArrayList<>();
-            Map<String, JsonObject> coursesMap = new HashMap<>();
-            result.right().getValue().forEach(oCourse -> {
-                JsonObject courseOccurrence = (JsonObject) oCourse;
-                coursesMap.put(courseOccurrence.getString("_id"), courseOccurrence);
-            });
+            JsonArray occurrences = result.right().getValue();
 
+            int dayOfWeek = dateHelper.getDayOfWeek(course.getInteger("dayOfWeek")),
+                    startHour = dateHelper.getHour(formatDate(course.getString("startDate"))),
+                    startSecond = dateHelper.getSecond(formatDate(course.getString("startDate"))),
+                    endHour = dateHelper.getHour(formatDate(course.getString("endDate"))),
+                    endSecond = dateHelper.getSecond(formatDate(course.getString("endDate")));
 
-            JsonObject originalCourse = coursesMap.get(course.getString("_id"));
+            Date now = dateHelper.now(dateHelper.DATE_FORMATTER),
+                    editStart = formatDate(course.getString("startDate")),
+                    newStart = editStart.after(now) ? editStart : now,
+                    newEnd = formatDate(course.getString("endDate"));
 
-            Date newOriginalCourseStart = setNewDayRecurrence(originalCourse.getString("startDate"), course.getString("startDate"), course.getInteger("dayOfWeek"));
-            Date newOriginalCourseEnd = setNewDayRecurrence(originalCourse.getString("endDate"), course.getString("endDate"), course.getInteger("dayOfWeek"));
+            createAdditionalCourses(occurrences, newStart, newEnd, course.copy(), dayOfWeek, updateFutures);
 
-            //TODO PISTE ICI  (PISTE LA PLUS IMPORTANTE)
-            int msStartDifference = dateHelper.msBetween(originalCourse.getString("startDate"), newOriginalCourseStart.toString());
-            int msEndDifference = dateHelper.msBetween(originalCourse.getString("endDate"), newOriginalCourseEnd.toString());
-
-            Calendar calendarStart = Calendar.getInstance(Locale.FRANCE);
-            calendarStart.setFirstDayOfWeek(Calendar.MONDAY);
-            Calendar calendarEnd = Calendar.getInstance(Locale.FRANCE);
-            calendarEnd.setFirstDayOfWeek(Calendar.MONDAY);
-
-            Date now = dateHelper.now(dateHelper.DATE_FORMATTER);
-            Date editStart = dateHelper.getDate(course.getString("startDate"), dateHelper.DATE_FORMATTER);
-            Date newStart = editStart.after(now) ? editStart : now;
-            Date newEnd = dateHelper.getDate(course.getString("endDate"), dateHelper.DATE_FORMATTER);
-
-            createAdditionalCourses(coursesMap, newStart, newEnd, course.copy(), updateFutures);
-
-            coursesMap.values().forEach(courseOccurrence -> {
-                Date startDate = dateHelper.getDate(courseOccurrence.getString("startDate"), dateHelper.DATE_FORMATTER);
-                Date endDate = dateHelper.getDate(courseOccurrence.getString("endDate"), dateHelper.DATE_FORMATTER);
+            Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+            occurrences.forEach(o -> {
+                JsonObject courseOccurrence = (JsonObject) o;
+                Date startDate = formatDate(courseOccurrence.getString("startDate"));
+                Date endDate = formatDate(courseOccurrence.getString("endDate"));
 
                 if (!startDate.before(now)) {
                     Future<JsonObject> updateFuture = Future.future();
                     updateFutures.add(updateFuture);
                     if (!startDate.before(newStart) && !startDate.after(newEnd)) {
-                        updateOccurrence(courseOccurrence, course, calendarStart, startDate, msStartDifference,
-                                calendarEnd, endDate, msEndDifference, updateFuture);
+                        updateOccurrence(courseOccurrence, course, dayOfWeek, startHour, startSecond, endHour, endSecond,
+                                startDate, endDate, calendar, updateFuture);
                     } else {
                         deleteOccurrence(courseOccurrence.getString("_id"), courseOccurrence.getString("startDate"), deleteResult -> {
                             if (deleteResult.isLeft()) {
@@ -175,37 +164,24 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
     }
 
-    private Date setNewDayRecurrence(String originalStart, String newStart, int dayOfWeek) {
-        Calendar calendar = Calendar.getInstance(Locale.FRANCE);
-        Calendar newCourseCalendar = Calendar.getInstance(Locale.FRANCE);
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        newCourseCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+    private void updateOccurrence(JsonObject courseOccurrence, JsonObject creatingCourse, int dayOfWeek, int startHour, int startSecond,
+                                  int endHour, int endSecond, Date startDate, Date endDate, Calendar calendar, Future<JsonObject> updateFuture) {
+        JsonObject newCourse = creatingCourse.copy();
+        newCourse.put("_id", courseOccurrence.getString("_id"));
+        newCourse.put("recurrence", creatingCourse.getString("newRecurrence"));
+        newCourse.remove("newRecurrence");
 
-        // We get difference (in ms) between start/end date of the original data, to add or subtract time for each
-        // recurrence to update
-        Date originalDateStart = dateHelper.getDate(originalStart, dateHelper.DATE_FORMATTER);
-        Date newDateStart = dateHelper.getDate(newStart, dateHelper.DATE_FORMATTER);
-
-        newCourseCalendar.setTime(newDateStart);
-        calendar.setTime(originalDateStart);
-
+        calendar.setTime(startDate);
         calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
-        calendar.set(Calendar.HOUR_OF_DAY, newCourseCalendar.get(Calendar.HOUR_OF_DAY));
-        calendar.set(Calendar.SECOND, newCourseCalendar.get(Calendar.SECOND));
+        calendar.set(Calendar.HOUR_OF_DAY, startHour);
+        calendar.set(Calendar.SECOND, startSecond);
+        newCourse.put("startDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
 
-        return calendar.getTime();
-    }
-
-    private void updateOccurrence(JsonObject courseOccurrence, JsonObject course, Calendar calendarStart, Date startDate,
-                                  int msStartDifference, Calendar calendarEnd, Date endDate, int msEndDifference, Future<JsonObject> updateFuture) {
-        courseOccurrence.put("recurrence", course.getString("newRecurrence"));
-
-        //TODO PISTE ICI (car c'est ici qu'on ajoute la nouvelle date (start / end))
-        calendarStart.setTimeInMillis(startDate.getTime() + msStartDifference);
-        courseOccurrence.put("startDate", dateHelper.DATE_FORMATTER.format(calendarStart.getTime()));
-
-        calendarEnd.setTimeInMillis(endDate.getTime() + msEndDifference);
-        courseOccurrence.put("endDate", dateHelper.DATE_FORMATTER.format(calendarEnd.getTime()));
+        calendar.setTime(endDate);
+        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
+        calendar.set(Calendar.HOUR_OF_DAY, endHour);
+        calendar.set(Calendar.SECOND, endSecond);
+        newCourse.put("endDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
 
 
         MongoDb.getInstance().update(
@@ -213,7 +189,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 new JsonObject()
                         .put("_id", courseOccurrence.getString("_id"))
                         .put("startDate", mongoGtNowCondition()),
-                courseOccurrence,
+                newCourse,
                 MongoDbResult.validResultHandler(updateResult -> {
                     if (updateResult.isLeft()) {
                         updateFuture.fail(updateResult.left().getValue());
@@ -224,43 +200,38 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         );
     }
 
-    private void createAdditionalCourses(Map<String, JsonObject> coursesMap, Date newStart, Date newEnd, JsonObject course, List<Future<JsonObject>> futures) {
-        Calendar extremitiesCalendar = Calendar.getInstance(Locale.FRANCE);
-        Calendar newStartCalendar = Calendar.getInstance(Locale.FRANCE);
-        Calendar newEndCalendar = Calendar.getInstance(Locale.FRANCE);
-        Calendar createStartCalendar = Calendar.getInstance(Locale.FRANCE);
-        Calendar createEndCalendar = Calendar.getInstance(Locale.FRANCE);
-        extremitiesCalendar.setFirstDayOfWeek(Calendar.MONDAY);
-        newStartCalendar.setFirstDayOfWeek(Calendar.MONDAY);
-        newEndCalendar.setFirstDayOfWeek(Calendar.MONDAY);
-        createStartCalendar.setFirstDayOfWeek(Calendar.MONDAY);
-        createEndCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+    private void createAdditionalCourses(JsonArray occurrences, Date newStart, Date newEnd, JsonObject course, int dayOfWeek, List<Future<JsonObject>> futures) {
+        Calendar extremitiesCalendar = Calendar.getInstance(Locale.FRANCE),
+                newStartCalendar = Calendar.getInstance(Locale.FRANCE),
+                newEndCalendar = Calendar.getInstance(Locale.FRANCE),
+                createStartCalendar = Calendar.getInstance(Locale.FRANCE),
+                createEndCalendar = Calendar.getInstance(Locale.FRANCE);
 
-        JsonObject earliestCourse = coursesMap.values().stream().min((courseA, courseB) ->
-                dateHelper.isBefore(courseA.getString("startDate"), courseB.getString("startDate"))
+        JsonObject earliestCourse = (JsonObject) occurrences.stream().min((courseA, courseB) ->
+                dateHelper.isBefore(((JsonObject) courseA).getString("startDate"), ((JsonObject) courseB).getString("startDate"))
         ).get();
 
-        JsonObject latestCourse = coursesMap.values().stream().max((courseA, courseB) ->
-                dateHelper.isBefore(courseA.getString("startDate"), courseB.getString("startDate"))
+        JsonObject latestCourse = (JsonObject) occurrences.stream().max((courseA, courseB) ->
+                dateHelper.isBefore(((JsonObject) courseA).getString("startDate"), ((JsonObject) courseB).getString("startDate"))
         ).get();
 
-        extremitiesCalendar.setTime(dateHelper.getDate(earliestCourse.getString("startDate"), dateHelper.DATE_FORMATTER));
+        extremitiesCalendar.setTime(formatDate(earliestCourse.getString("startDate")));
         newStartCalendar.setTime(newStart);
-        newStartCalendar.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek"));
+        newStartCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
         int startDifferenceNumber = extremitiesCalendar.get(Calendar.WEEK_OF_YEAR) - newStartCalendar.get(Calendar.WEEK_OF_YEAR);
 
-        extremitiesCalendar.setTime(dateHelper.getDate(latestCourse.getString("startDate"), dateHelper.DATE_FORMATTER));
+        extremitiesCalendar.setTime(formatDate(latestCourse.getString("startDate")));
         newEndCalendar.setTime(newEnd);
-        newEndCalendar.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek"));
+        newEndCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
-        int endDifferenceNumber =  newEndCalendar.get(Calendar.WEEK_OF_YEAR) - extremitiesCalendar.get(Calendar.WEEK_OF_YEAR);
+        int endDifferenceNumber = newEndCalendar.get(Calendar.WEEK_OF_YEAR) - extremitiesCalendar.get(Calendar.WEEK_OF_YEAR);
 
         course.put("recurrence", course.getString("newRecurrence"));
         course.remove("_id");
         course.remove("newRecurrence");
-        createStartCalendar.setTime(dateHelper.getDate(course.getString("startDate"), dateHelper.DATE_FORMATTER));
-        createEndCalendar.setTime(dateHelper.getDate(course.getString("endDate"), dateHelper.DATE_FORMATTER));
+        createStartCalendar.setTime(formatDate(course.getString("startDate")));
+        createEndCalendar.setTime(formatDate(course.getString("endDate")));
 
         createCoursesFromNumber(startDifferenceNumber, course, newStartCalendar.get(Calendar.WEEK_OF_YEAR), true,
                 createStartCalendar, createEndCalendar, futures);
@@ -284,7 +255,6 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     private void createCourseByWeekNumber(JsonObject course, Calendar createStartCalendar, Calendar createEndCalendar,
                                           int weekNumber, Future<JsonObject> createFuture) {
-        //TODO PISTE ICI (car c'est ici qu'on ajoute la nouvelle date (start / end))
         createStartCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
         createEndCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
         course.put("startDate", dateHelper.DATE_FORMATTER.format(createStartCalendar.getTime()));
@@ -297,5 +267,9 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
             }
             createFuture.complete(createResult.right().getValue());
         }));
+    }
+
+    private Date formatDate(String date) {
+        return dateHelper.getDate(date, dateHelper.DATE_FORMATTER);
     }
 }
