@@ -279,6 +279,20 @@ export let main = ng.controller('EdtController',
                 })
             }
 
+            //add classes after filter groups
+            $scope.params.group.map((g : Group) => {
+                let isInClass = false;
+
+                $scope.params.deletedGroups.classes.map(c => {
+                    if (g && c && c.id === g.id){
+                        isInClass = true;
+                    }
+                });
+                if (!isInClass) {
+                    $scope.params.deletedGroups.classes.push(g);
+                }
+            });
+
             await $scope.structure.calendarItems.sync($scope.structure, $scope.params.user, $scope.params.group,
                 $scope.structures, $scope.isAllStructure);
 
