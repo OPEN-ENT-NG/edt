@@ -624,6 +624,12 @@ export let main = ng.controller('EdtController',
             $scope.calendarLoader.display();
             if (!$scope.isFilterActive(filter)) {
                 $scope.params.group.push(filter);
+                // if we found a matching with deletedGroup and the group we just added, we delete it since it will be added later on
+                $scope.params.deletedGroups.groupsDeleted.forEach((group, index: number) => {
+                    if ($scope.params.group.includes(group)) {
+                        $scope.params.deletedGroups.groupsDeleted.splice(index, 1);
+                    }
+                });
             } else {
                 let groups: Group[] = [filter];
                 $scope.dropGroup(filter);
