@@ -802,7 +802,7 @@ export let main = ng.controller('EdtController',
                 $scope.course = new Course($scope.course);
                 $scope.course.mapWithStructure(window.structure);
                 $scope.initDateCreatCourse(params, $scope.course);
-                if ($scope.course.is_recurrent) {
+                if ($scope.course.is_recurrent && params.type !== 'occurrence') {
                     let recurrenceObject = $scope.course.recurrenceObject;
                     if (!recurrenceObject) {
                         recurrenceObject = {}; // Weird trick to stop multiple call
