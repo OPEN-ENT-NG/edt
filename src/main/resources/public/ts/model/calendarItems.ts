@@ -97,7 +97,7 @@ export class CalendarItems {
 
                         if(deletedGroup != null) {
                             deletedGroup.classes.map(c => {
-                                if (item.id_classe === c.id) {
+                                if (c && item.id_classe === c.id) {
                                     isAGroupOfANewClass = true;
                                 }
                             });
