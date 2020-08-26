@@ -182,15 +182,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.isRelative = (): boolean => model.me.type === USER_TYPES.relative;
 
-        /**
-         * Returns if current user is a relative profile and has more than 1 child
-         * @returns {boolean}
-         */
-        $scope.isAParentWhoNeedSidebar = () => {
-            return $scope.isRelative() && ($scope.structures.all.length > 1 || model.me.childrenIds.length > 1)
-        };
-
-        $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher() ||   $scope.isAParentWhoNeedSidebar()};
+        $scope.checkAccess = ()=> {return $scope.isPersonnel() || $scope.isTeacher()};
 
         $scope.checkTwelve = () => {
             return $scope.isStudent() || ($scope.isRelative() && $scope.structures.all.length < 2)
