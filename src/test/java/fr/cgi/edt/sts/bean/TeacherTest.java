@@ -97,6 +97,7 @@ public class TeacherTest {
     public void toJSON_Should_Returns_ValidJsonObject(TestContext ctx) {
         teacher.setId(ID).setFirstName(FIRST_NAME).setLastName(LAST_NAME).setBirthDate(BIRTH_DATE);
         JsonObject expected = new JsonObject()
+                .put("onError", false)
                 .put("id", ID)
                 .put("lastName", LAST_NAME)
                 .put("firstName", FIRST_NAME)

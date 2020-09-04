@@ -14,7 +14,12 @@ Les enseignants suivants n’ont pas été retrouvés dans votre établissement 
 Les cours correspondants ne seront pas créés.
 
 {{/-first}}
-  {{id}} - {{lastName}} {{firstName}} né(e) le {{birthDate}}
+  {{#onError}}
+    {{id}} - {{firstName}}
+  {{/onError}}
+  {{^onError}}
+    {{id}} - {{lastName}} {{firstName}} né(e) le {{birthDate}}
+  {{/onError}}
 {{/unknownTeachers}}
 
 ======================================================== COURS ========================================================

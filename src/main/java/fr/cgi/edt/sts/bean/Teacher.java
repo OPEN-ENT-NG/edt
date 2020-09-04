@@ -7,6 +7,7 @@ public class Teacher {
     private String lastName;
     private String firstName;
     private String birthDate;
+    private Boolean onStsError = false;
 
     public Teacher() {
     }
@@ -28,6 +29,11 @@ public class Teacher {
 
     public Teacher setBirthDate(String birthDate) {
         this.birthDate = birthDate.trim();
+        return this;
+    }
+
+    public Teacher onError() {
+        this.onStsError = true;
         return this;
     }
 
@@ -61,6 +67,7 @@ public class Teacher {
 
     public JsonObject toJSON() {
         return new JsonObject()
+                .put("onError", this.onStsError)
                 .put("id", this.id())
                 .put("lastName", this.lastName())
                 .put("firstName", this.firstName())
