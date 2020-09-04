@@ -5,6 +5,7 @@ import io.vertx.core.json.JsonObject;
 public class Subject {
     private String code;
     private String name;
+    private Boolean onStsError = false;
 
     public Subject() {
     }
@@ -19,6 +20,11 @@ public class Subject {
         return this;
     }
 
+    public Subject onError() {
+        this.onStsError = true;
+        return this;
+    }
+
     public String code() {
         return this.code;
     }
@@ -29,6 +35,7 @@ public class Subject {
 
     public JsonObject toJSON() {
         return new JsonObject()
+                .put("onError", this.onStsError)
                 .put("code", this.code())
                 .put("name", this.name());
     }

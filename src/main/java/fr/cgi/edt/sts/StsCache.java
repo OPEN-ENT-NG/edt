@@ -73,10 +73,26 @@ public class StsCache {
     }
 
     public Teacher teacher(String id) {
+        if (!this.teachers.containsKey(id)) {
+            return new Teacher()
+                    .onError()
+                    .setId(id)
+                    .setFirstName("Non trouvé dans le STS_EMP")
+                    .setLastName("")
+                    .setBirthDate("");
+        }
+
         return this.teachers.get(id);
     }
 
     public Subject subject(String code) {
+        if (!this.subjects.containsKey(code)) {
+            return new Subject()
+                    .onError()
+                    .setCode(code)
+                    .setName("Non trouvé dans le STS_EMP");
+        }
+
         return this.subjects.get(code);
     }
 

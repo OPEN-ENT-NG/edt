@@ -184,7 +184,7 @@ public class StsImport {
                 return;
             }
 
-            if (subjects.isEmpty() || teachers.isEmpty() || audiences.isEmpty()) {
+            if (subjects == null || teachers == null || audiences == null || subjects.isEmpty() || teachers.isEmpty() || audiences.isEmpty()) {
                 insufficiency(teachers, subjects, audiences, handler);
                 return;
             }
@@ -209,17 +209,17 @@ public class StsImport {
     }
 
     private void insufficiency(JsonArray teachers, JsonArray subjects, JsonArray audiences, Handler<AsyncResult<JsonArray>> handler) {
-        if (teachers.isEmpty()) {
+        if (teachers == null || teachers.isEmpty()) {
             log.error("Teacher list is empty. No teacher is found in the database for UAI " + cache.uai());
             cache.teachers().forEach(report::addUnknownTeacher);
         }
 
-        if (subjects.isEmpty()) {
+        if (subjects == null || subjects.isEmpty()) {
             log.error("Subject list is empty. No subject is found in the database for UAI " + cache.uai());
             cache.subjects().forEach(report::addUnknownSubject);
         }
 
-        if (audiences.isEmpty()) {
+        if (audiences == null || audiences.isEmpty()) {
             log.error("Audience list is empty. No audience is found in the database for UAI" + cache.uai());
             cache.audiences().forEach(report::addUnknownAudience);
         }

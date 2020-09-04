@@ -32,6 +32,7 @@ public class SubjectTest {
     @Test
     public void toJSON_Should_Returns_ValidJsonObject(TestContext ctx) {
         JsonObject expected = new JsonObject()
+                .put("onError", false)
                 .put("code", CODE)
                 .put("name", NAME);
 
