@@ -237,13 +237,12 @@ export class CalendarItems {
      * Returns the URI parameters for the provided group array
      * @param groups group array
      */
-    getFilterGroup = (groups : Group[]) : string => {
-        let filter : string = '';
-        let name : string = 'group=';
+    getFilterGroup = (groups: Group[]) : string => {
+        let filter: string = '';
+        let name: string = 'group=';
         for (let i = 0; i < groups.length; i++) {
             if (groups[i]) {
-
-                if(!(model.me.type === USER_TYPES.student && (model.me.groupsIds.indexOf(groups[i].id) === -1 && groups[i].type_groupe !== 0))) {
+                if(!(model.me.type === USER_TYPES.student && model.me.type === USER_TYPES.relative && (model.me.groupsIds.indexOf(groups[i].id) === -1 && groups[i].type_groupe !== 0))) {
                     filter += `${name}${groups[i].name}`;
                     if (i !== groups.length - 1) {
                         filter += '&';

@@ -207,14 +207,13 @@ export let main = ng.controller('EdtController',
          * Get timetable bases on $scope.params object
          * @returns {Promise<void>}
          */
-        $scope.syncCourses = async () : Promise<void> => {
-            let arrayIds: string[] =[];
+        $scope.syncCourses = async (): Promise<void> => {
+            let arrayIds: string[] = [];
             $scope.structure.calendarItems.all = [];
 
             $scope.params.coursesToDelete = [];
-            if($scope.structure.groups.all.length === 0) {
-                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
-            }
+
+            await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
 
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child) {
@@ -222,7 +221,7 @@ export let main = ng.controller('EdtController',
                 } else {
                     arrayIds = model.me.classes
                 }
-                let groups : Group[] = $scope.structure.groups.all;
+                let groups: Group[] = $scope.structure.groups.all;
                 $scope.params.group = groups.filter((item : Group) => arrayIds.indexOf(item.id) > -1);
             }
 
@@ -234,7 +233,7 @@ export let main = ng.controller('EdtController',
             //add groups to classes
             if (model.me.type === USER_TYPES.personnel || model.me.type === USER_TYPES.teacher)
                 $scope.params.group.map(g => {
-                    let isInClass : boolean = false;
+                    let isInClass: boolean = false;
                     $scope.params.deletedGroups.classes.map(c => {
                         if ((c && g) && c.id === g.id ){
                             isInClass = true;
@@ -259,7 +258,7 @@ export let main = ng.controller('EdtController',
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
-                    let group : Group = $scope.params.group[i];
+                    let group: Group = $scope.params.group[i];
 
                     //swap groups with corresponding groups with color
                     if(group && (group.color === '' || group.color === undefined || $scope.structure.groups.all.indexOf(group) === -1)) {
