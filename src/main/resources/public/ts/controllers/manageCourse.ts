@@ -204,7 +204,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
             }
 
-            if (!$scope.course.idStartSlot || $scope.courseToEdit.isDragged) {
+            if ($scope.courseToEdit.isDragged) {
                 $scope.display.freeSchedule = true;
             }
 
