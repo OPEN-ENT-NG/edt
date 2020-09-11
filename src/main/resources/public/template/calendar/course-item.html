@@ -26,7 +26,8 @@
 
 
 </div>
-<div oncontextmenu="return false" ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"  ng-class="(!isNotPast(item)) ?  'past' : 'notpast' " >
+<div oncontextmenu="return false" ng-if="!item.exceptionnal" class="schedule-item-content [[item.color]]"
+     data-id="[[item.course._id]]"  ng-class="(!isNotPast(item)) ?  'past' : 'notpast' ">
     <div ng-if="isPersonnel()" class="display-flex space-between">
         <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
              class="inside-schedule cell ten ellipsis" >[[item.course.subjectLabel]] </div>
