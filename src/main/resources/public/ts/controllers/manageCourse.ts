@@ -1,6 +1,7 @@
 import {_, idiom as lang, moment, ng} from 'entcore';
 import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subjects, Teacher, Utils} from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
+import {DateUtils} from "../utils/date";
 
 declare const window: any;
 
@@ -23,24 +24,38 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.deleteOnlyOneCourse = true;
 
-        $scope.editTimeSlot = () => {
+        $scope.setTimeSlot = (): void => {
+            $scope.display.checkbox = true;
+            let start: string = DateUtils.format($scope.course.startDate, DateUtils.FORMAT["HOUR-MINUTES"]);
+            let end: string = DateUtils.format($scope.course.endDate, DateUtils.FORMAT["HOUR-MINUTES"]);
+            $scope.course.timeSlot = {
+                start: {endHour: "", id: "", name: "", startHour: ""},
+                end: {endHour: "", id: "", name: "", startHour: ""}
+            };
             if ($scope.timeSlots.haveSlot()) {
-                $scope.display.freeSchedule = false;
-                $scope.display.checkbox = true;
-            } else {
-                $scope.display.freeSchedule = true;
+                $scope.timeSlots.all.forEach((slot) => {
+                    if (slot.startHour === start) {
+                        $scope.course.timeSlot.start = slot;
+                    }
+                    if (slot.endHour === end) {
+                        $scope.course.timeSlot.end = slot;
+                    }
+                });
+                $scope.display.freeSchedule = !($scope.course.timeSlot.start.startHour !== "" && $scope.course.timeSlot.end.endHour !== "");
+            }
+            else {
                 $scope.display.checkbox = false;
             }
             Utils.safeApply($scope);
         };
 
-        $scope.editTimeSlot();
+        $scope.setTimeSlot();
 
         $scope.switchStructure = async (structure) => {
             $scope.course.structure = structure;
             window.structure = structure;
             await $scope.syncStructure(structure);
-            $scope.editTimeSlot();
+            $scope.setTimeSlot();
         };
 
         $scope.isUpdateRecurrence = () => {
