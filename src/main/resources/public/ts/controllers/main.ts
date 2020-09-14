@@ -213,7 +213,11 @@ export let main = ng.controller('EdtController',
 
             $scope.params.coursesToDelete = [];
 
-            await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
+            if($scope.isRelative() && $scope.child) {
+                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null, $scope.child.id);
+            } else {
+                await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
+            }
 
             if (!isUpdateData && $scope.isRelative()) {
                 if($scope.child) {
@@ -254,7 +258,12 @@ export let main = ng.controller('EdtController',
                 });
 
             if ($scope.params.group.length > 0) {
-                await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups);
+
+                if($scope.isRelative() && $scope.child) {
+                    await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups, $scope.child.id);
+                } else {
+                    await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups);
+                }
 
                 for (let i = 0 ; i < $scope.params.group.length; i++) {
 
