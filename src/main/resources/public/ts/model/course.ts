@@ -2,8 +2,9 @@ import {_, model, moment, notify} from 'entcore';
 import http from 'axios';
 import {Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
-import {Structure} from "./structure";
+import {Structure} from './structure';
 import {Moment} from 'moment';
+import {DATE_FORMAT} from '../core/constants/dateFormat';
 
 declare const window: any;
 
@@ -214,9 +215,14 @@ export class Course {
         return moment(this.endDate).diff(moment(this.startDate), 'days') != 0;
     }
 
-    canIManageCourse(): boolean {
-        let now = moment();
-        return (!this.isRecurrent() && moment(this.startDate).isAfter(now))
+    /**
+     * Check if the course can be created/modified from the form data.
+     */
+    canIManageCourse = (): boolean => {
+        let now: Moment = moment();
+        let startDate: Moment = moment(moment(this.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + "T" + this.timeSlot.start.startHour);
+
+        return (!this.isRecurrent() && moment(startDate).isAfter(now))
             || (this.isRecurrent() &&
                 moment(this.getLastOccurrence().startTime).isAfter(now))
     };
