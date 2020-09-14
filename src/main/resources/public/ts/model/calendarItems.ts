@@ -75,11 +75,16 @@ export class CalendarItems {
      * @param deletedGroup   groups which are deleted from the filter
      * @returns {Promise<void>}
      */
-    getGroups = async ( group: Array<Group> = [], deletedGroup: any) : Promise<void> => {
+    getGroups = async ( group: Array<Group> = [], deletedGroup: any, studentId?: string) : Promise<void> => {
         if(group.length <=0) return ;
         let filter : string = this.getFilterClass(group);
         if (filter === "") return;
         let uri : string = `/viescolaire/group/from/class?${filter}`;
+
+        if (studentId) {
+            uri += `&student=${studentId}`;
+        }
+
         let {data} : AxiosResponse = await http.get(uri);
 
         if (data.length > 0) {
