@@ -126,20 +126,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope);
         };
 
-        $scope.course.timeSlot.start = _.chain($scope.course.timeSlots.all)
-            .filter((timeSlot) => {
-                return timeSlot.id == $scope.course.idStartSlot;
-            })
-            .first()
-            .value();
-
-        $scope.course.timeSlot.end = _.chain($scope.course.timeSlots.all)
-            .filter((timeSlot) => {
-                return timeSlot.id == $scope.course.idEndSlot;
-            })
-            .first()
-            .value();
-
         $scope.selectEndTime = () => {
             $scope.course.timeSlot.end = $scope.course.timeSlot.start;
             $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format('YYYY-MM-DD') + ' ' + $scope.course.timeSlot.end.endHour).toDate();
