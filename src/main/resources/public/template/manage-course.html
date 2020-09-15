@@ -342,11 +342,11 @@
             </button>
 
 
-            <button ng-show="isAnUpdate && course.canIManageCourse()" type="button" ng-click="tryDropCourse()">
+            <button ng-show="isAnUpdate && course.canIManageCourse(courseOccurrenceForm.startTime)" type="button" ng-click="tryDropCourse()">
                 <i18n>edt.utils.delete</i18n>
             </button>
 
-            <button ng-show="course.canIManageCourse() || !isAnUpdate" ng-disabled="!isValidForm()" type="submit"
+            <button ng-show="course.canIManageCourse(courseOccurrenceForm.startTime) || !isAnUpdate" ng-disabled="!isValidForm()" type="submit"
                     ng-click="saveCourse(course)">
                 <i18n ng-if="isAnUpdate">edt.utils.modify</i18n>
                 <i18n ng-if="!isAnUpdate">edt.utils.create</i18n>
