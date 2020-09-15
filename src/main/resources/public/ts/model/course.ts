@@ -4,7 +4,6 @@ import {Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, Teacher, Utils} from './index';
 import {Structure} from './structure';
 import {Moment} from 'moment';
-import {DATE_FORMAT} from '../core/constants/dateFormat';
 
 declare const window: any;
 
@@ -217,14 +216,21 @@ export class Course {
 
     /**
      * Check if the course can be created/modified from the form data.
+     * @param startTime start time of the course form.
      */
-    canIManageCourse = (): boolean => {
+    canIManageCourse = (startTime?: string): boolean => {
         let now: Moment = moment();
-        let startDate: Moment = moment(moment(this.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + "T" + this.timeSlot.start.startHour);
+        let startDate: Moment;
+
+        if (startTime) {
+            startDate = moment(startTime);
+        } else {
+            startDate = moment(this.startDate);
+        }
 
         return (!this.isRecurrent() && moment(startDate).isAfter(now))
             || (this.isRecurrent() &&
-                moment(this.getLastOccurrence().startTime).isAfter(now))
+                moment(this.getLastOccurrence().startTime).isAfter(now));
     };
 
     isInFuture(): boolean {
