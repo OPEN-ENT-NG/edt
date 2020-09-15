@@ -215,6 +215,8 @@ export let main = ng.controller('EdtController',
 
             if($scope.isRelative() && $scope.child) {
                 await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null, $scope.child.id);
+            } else if($scope.isStudent()) {
+                await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups, model.me.userId);
             } else {
                 await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null);
             }
@@ -261,7 +263,10 @@ export let main = ng.controller('EdtController',
 
                 if($scope.isRelative() && $scope.child) {
                     await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups, $scope.child.id);
-                } else {
+                } else if($scope.isStudent()) {
+                    await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups, model.me.userId);
+                }
+                else {
                     await $scope.structure.calendarItems.getGroups($scope.params.group, $scope.params.deletedGroups);
                 }
 
