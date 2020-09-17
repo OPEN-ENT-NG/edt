@@ -227,10 +227,7 @@ export class Course {
         } else {
             startDate = moment(this.startDate);
         }
-
-        return (!this.isRecurrent() && moment(startDate).isAfter(now))
-            || (this.isRecurrent() &&
-                moment(this.getLastOccurrence().startTime).isAfter(now));
+        return (moment(startDate).isAfter(now));
     };
 
     isInFuture(): boolean {
@@ -268,18 +265,6 @@ export class Course {
             occurrence.add('days', this.everyTwoWeek ? -14 : -7);
         }
         return occurrence.format('YYYY-MM-DD');
-    }
-
-    getLastOccurrence(): CourseOccurrence {
-        let date = moment(this.endDate).day(this.dayOfWeek);
-        if (date.isAfter(moment(this.endDate)))
-            date = moment(this.endDate).subtract({days: 7}).day(this.dayOfWeek);
-        return new CourseOccurrence(
-            this.dayOfWeek,
-            '',
-            moment(date.format('YYYY-MM-DD') + 'T' + moment(this.startDate).format('HH:mm:ss')).toDate(),
-            moment(this.endDate).toDate()
-        )
     }
 
     async retrieveRecurrence(): Promise<Course[]> {

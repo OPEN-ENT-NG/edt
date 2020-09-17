@@ -79,7 +79,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.changeDate = () => {
-            let isTimeslot = $scope.course.timeSlot.start != undefined;
+            let isTimeslot = ($scope.course.timeSlot.start && $scope.course.timeSlot.start.startHour != "") && ($scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour != "") ;
             let startDate = moment($scope.course.startDate).format("YYYY-MM-DD"),
                 startTime = isTimeslot ? $scope.course.timeSlot.start.startHour : moment($scope.courseOccurrenceForm.startTime).format("HH:mm:ss"),
                 endDate = moment($scope.course.endDate).format("YYYY-MM-DD"),
@@ -330,8 +330,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         /**
          * Function triggered on step 3 activation
          */
-
-        $scope.isValidForm = () => {
+        $scope.isValidForm = (): boolean => {
             return $scope.course
                 && $scope.course.teachers
                 && $scope.course.groups
@@ -354,26 +353,25 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 )
                 && (
                     ($scope.course.is_recurrent
-                        && ((
-                            $scope.course.courseOccurrences
-                            && $scope.course.courseOccurrences.length > 0
-                            && Utils.isValidDate($scope.course.startDate, $scope.course.endDate))
+                        && $scope.course.courseOccurrences
+                        && $scope.course.courseOccurrences.length > 0
+                        && ((Utils.isValidDate($scope.course.startDate, $scope.course.endDate))
                             || (
                                 $scope.isUpdateRecurrence()
                                 && $scope.course.timeSlot.start !== undefined
                                 && $scope.course.timeSlot.end !== undefined
                                 && $scope.Utils.isValidDate($scope.courseOccurrenceForm.startTime, $scope.courseOccurrenceForm.endTime)
                             ))
-                    )
-                    ||
-                    (($scope.display.freeSchedule
-                            && isNaN($scope.courseOccurrenceForm.startTime._d)
-                            && isNaN($scope.courseOccurrenceForm.endTime._d))
-                        || (!$scope.display.freeSchedule
-                            && $scope.course.timeSlot.start !== undefined
-                            && $scope.course.timeSlot.end !== undefined
-                        )
-                    )
+                        &&
+                        (($scope.display.freeSchedule
+                                && isNaN($scope.courseOccurrenceForm.startTime._d)
+                                && isNaN($scope.courseOccurrenceForm.endTime._d))
+                            || (!$scope.display.freeSchedule
+                                && $scope.course.timeSlot.start !== undefined
+                                && $scope.course.timeSlot.end !== undefined
+                            )
+                        ))
+                    || !$scope.course.is_recurrent
                 )
                 && $scope.isPastDate();
         };
