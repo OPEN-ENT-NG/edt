@@ -177,7 +177,7 @@ export class CalendarItems {
                         item.course.subjectLabel = item.exceptionnal;
 
                     } else {
-                        item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                        item.course.subjectLabel =  item.course.subject.name;
                     }
                     item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
                     structures.all.map((struc : Structure) => {
@@ -185,9 +185,7 @@ export class CalendarItems {
                             if (item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")) {
                                 item.course.subjectLabel = item.exceptionnal;
                             } else {
-                                if (struc.subjects.mapping[item.course.subjectId]) {
-                                    item.course.subjectLabel = struc.subjects.mapping[item.course.subjectId];
-                                }
+                                item.course.subjectLabel = item.course.subject.name;
                             }
                         }
                     });
@@ -204,7 +202,7 @@ export class CalendarItems {
                         item.course.subjectLabel = item.exceptionnal;
 
                     } else {
-                        item.course.subjectLabel = structure.subjects.mapping[item.course.subjectId];
+                        item.course.subjectLabel = item.course.subject.name;
                     }
                     item.course.teachers = _.map(item.course.teacherIds, (ids : string[]) => _.findWhere(structure.teachers.all, {id: ids}));
                     return item;

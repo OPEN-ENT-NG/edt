@@ -726,6 +726,7 @@ export let main = ng.controller('EdtController',
                 $scope.calendarLoader.display();
                 if (!$scope.structure.synced) {
                     await $scope.syncStructure($scope.structure);
+                    $scope.structure.synced = true;
                 }
                 await $scope.syncCourses();
                 $scope.safeApply();
