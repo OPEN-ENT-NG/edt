@@ -1,6 +1,13 @@
-import { model, notify, _ } from 'entcore';
+import { notify } from 'entcore';
 import http, {AxiosResponse} from 'axios';
-import { USER_TYPES } from "./user-types";
+
+export class ISubject {
+    code?: string;
+    externalId?: string;
+    id?: string;
+    name?: string;
+    rank?: number;
+}
 
 export class Subject {
     subjectId: string;

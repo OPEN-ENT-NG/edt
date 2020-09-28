@@ -1,7 +1,7 @@
 import {_, model, moment, notify} from 'entcore';
 import http from 'axios';
 import {Mix} from 'entcore-toolkit';
-import {CourseOccurrence, Group, Teacher, Utils} from './index';
+import {CourseOccurrence, Group, ISubject, Teacher, Utils} from './index';
 import {Structure} from './structure';
 import {Moment} from 'moment';
 
@@ -25,6 +25,7 @@ export class Course {
     structureId: string = undefined;
     teacherIds: string[] = [];
     subjectId: string = '';
+    subject?: ISubject;
     roomLabels: string[] = [];
     courseOccurrences: CourseOccurrence[] = [];
     created: string = '';

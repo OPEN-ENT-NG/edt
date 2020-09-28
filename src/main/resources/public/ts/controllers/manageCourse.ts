@@ -54,6 +54,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.switchStructure = async (structure) => {
             $scope.course.structure = structure;
             window.structure = structure;
+            $scope.structure.id = structure.id;
             await $scope.syncStructure(structure);
             $scope.setTimeSlot();
         };
