@@ -116,9 +116,7 @@ export let main = ng.controller('EdtController',
                     break;
                 }
             }
-            if (!$scope.isPersonnel()) {
-                $timeout(async () => await $scope.syncCourses())
-            }
+
             window.structure = $scope.structure;
             $scope.safeApply();
         };
