@@ -135,6 +135,10 @@ export let main = ng.controller('EdtController',
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
             $scope.calendarLoader.hide();
             $scope.structure = structure;
+            $scope.params.user = [];
+            $scope.params.oldUser = [];
+            $scope.params.group = [];
+            $scope.params.olGroup = [];
             // 1# if null then we figure we are in all_structure
             if ($scope.structure == null) {
                 $scope.structure = new Structure(lang.translate("all.structures.id"), lang.translate("all.structures.label"));
