@@ -1,3 +1,8 @@
 {
-	"edt.title": "Edt"
+	"edt.title": "Edt",
+
+	"exceptionnal.id": "exceptionnal Subject",
+	"exceptionnal.label": "UNIQUE",
+	"exceptionnal.subject": "Title of the custom subject",
+	"exceptional.subject": "Custom subject"
 }

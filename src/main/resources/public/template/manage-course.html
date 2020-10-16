@@ -67,14 +67,14 @@
             </div>
 
             <!--SUBJECT SELECT-->
-            <div class="row form-row remove-padding-bottom">
+            <div ng-show="!isExceptionalSubject()" class="row form-row remove-padding-bottom">
                 <label for="select-subject" class="cell two twelve-mobile">
                     <i18n>subject</i18n>
                     *
                 </label>
                 <div class="cell twelve-mobile ten">
 
-                    <select class="twelve-mobile two format-select" id="select-subject" ng-model="course.subjectId">
+                    <select class="twelve-mobile two format-select float-left margin-right-md" id="select-subject" ng-model="course.subjectId">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
                         <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
                                 ng-value="subject.subjectId">[[subject.subjectLabel]]
@@ -85,11 +85,15 @@
                                 ng-value="subject.subjectId">[[subject.subjectLabel]]
                         </option>
                     </select>
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="isExceptional"/>
+                        <span><i18n>exceptional.subject</i18n></span>
+                    </label>
                 </div>
             </div>
 
             <!--EXCEPTIONAL SUBJECT INPUT-->
-            <div ng-show="isExceptionnalSubject()" class="row form-row remove-padding-bottom">
+            <div ng-show="isExceptionalSubject()" class="row form-row remove-padding-bottom">
                 <label class="cell two twelve-mobile">
                     <i18n>exceptionnal.subject</i18n>
                     *
@@ -97,6 +101,11 @@
                 <div class="cell twelve-mobile three">
                     <input type="text" class="cell twelve-mobile ten" ng-model="course.exceptionnal">
                 </div>
+
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="isExceptional"/>
+                    <span><i18n>exceptional.subject</i18n></span>
+                </label>
             </div>
 
             <!--COURSE TYPE OPTION-->

@@ -1,4 +1,4 @@
-import {_, idiom as lang, moment, ng} from 'entcore';
+import {_, moment, ng} from 'entcore';
 import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subjects, Teacher, Utils} from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
 import {DateUtils} from "../utils/date";
@@ -23,6 +23,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
 
         $scope.deleteOnlyOneCourse = true;
+        $scope.isExceptional = false;
 
         $scope.setTimeSlot = (): void => {
             $scope.display.checkbox = true;
@@ -106,13 +107,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope)
         };
 
-        $scope.isExceptionnalSubject = () => {
-            if ($scope.course.subjectId === lang.translate("exceptionnal.id")) {
-                return true
-            } else {
-                return false;
-            }
+        $scope.isExceptionalSubject = (): boolean => {
+            return $scope.isExceptional;
         };
+
+        $scope.toggleExceptional = (): void => {
+            $scope.isExceptional = !$scope.isExceptional;
+        };
+
         $scope.syncSubjects = async () => {
             $scope.selectionOfTeacherSubject = new Subjects();
             if ($scope.course.teachers.length > 0) {
@@ -148,6 +150,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         if ($location.$$path.includes('/edit')) {
             $scope.course.courseOccurrences = [];
             $scope.isAnUpdate = true;
+
             let start = moment($scope.course.startDate).seconds(0).millisecond(0),
                 end = moment($scope.course.endDate).seconds(0).millisecond(0);
 
@@ -166,6 +169,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 if (!$scope.course.is_recurrent) {
                     $scope.course.startDate = $scope.course.end = moment(start).utc().toDate();
                 }
+            }
+
+            if ($scope.course.exceptionnal && $scope.course.subjectId == null) {
+                $scope.isExceptional = true;
             }
 
             if ($scope.course.timeSlot.start != undefined) {
@@ -300,6 +307,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 course.idEndSlot = $scope.course.timeSlot.end.id;
             }
 
+            if ($scope.isExceptional) {
+                course.subjectId = null;
+            }
+
+            if (!$scope.isExceptional && $scope.course.exceptionnal) {
+                $scope.course.exceptionnal = null;
+            }
+
             if ($scope.editOccurrence === true) {
                 course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
                 delete course.recurrence;
@@ -338,7 +353,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.teachers.length > 0
                 && $scope.course.groups.length > 0
                 && $scope.course.subjectId !== undefined
-                && $scope.course.subjectId.length > 0
                 && (($scope.display.freeSchedule
                         && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14, "minutes"))
                     )
@@ -347,7 +361,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && $scope.course.timeSlot.end !== undefined
                     ) && ($scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour)
                 )
-                && ($scope.course.subjectId !== lang.translate("exceptionnal.id")
+                && (!$scope.isExceptional
                     || ($scope.course.exceptionnal
                         && $scope.course.exceptionnal.length > 0
                         && $scope.course.exceptionnal.trim() !== "")
@@ -395,10 +409,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                     return moment(moment($scope.course.startDate).hours(time.hours()).minutes(time.minutes()))
                         .isAfter(moment());
                 }
-            } else if (moment($scope.course.startDate).isBefore(moment()))
-                return false;
-            else
-                return true;
+            } else return !moment($scope.course.startDate).isBefore(moment());
         };
 
         $scope.tryDropCourse = () => {
@@ -410,7 +421,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 $scope.editOccurrence || !course.is_recurrent ? await course.delete(course._id) : await course.delete(null, course.recurrence);
                 delete $scope.course;
                 $scope.goTo('/');
-                $scope.syncCourses();
+                await $scope.syncCourses();
             }
         };
 
