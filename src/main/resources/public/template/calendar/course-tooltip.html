@@ -1,7 +1,9 @@
-<article ng-if="item.exceptionnal" exceptionnal class="tooltip-cours">
+<article ng-if="item.course" class="tooltip-cours">
 
     <!--COURSE SUBJECT-->
-    <div ng-if="item.course && item.course.subjectLabel" class="header cell twelve ellipsis exceptionnal">[[item.course.subjectLabel]]</div>
+    <div ng-if="item.course.subjectLabel" class="header cell twelve ellipsis [[item.color]]">
+        [[item.course.subjectLabel]]
+    </div>
 
     <!--COURSE TIME SLOT-->
     <div>
@@ -24,43 +26,9 @@
     <!--LIST OF ROOMS-->
     <div>
        <span ng-repeat="roomLabel in item.course.roomLabels">
-               <span ng-if="roomLabel !== null && roomLabel !=''">
-                   <i18n>edt.utils.room</i18n>: [[roomLabel]]
-               </span>
+           <span ng-if="roomLabel !== null && roomLabel !=''">
+               <i18n>edt.utils.room</i18n>: [[roomLabel]]
            </span>
-    </div>
-</article>
-
-
-<article ng-if="item.course && !item.exceptionnal" class="tooltip-cours">
-
-    <!--COURSE SUBJECT-->
-    <div ng-if="item.course.subjectLabel" class="header cell twelve ellipsis [[item.color]]">[[item.course.subjectLabel]]</div>
-
-    <!--COURSE TIME SLOT-->
-    <div>
-        <span>
-            [[item.startMomentTime]] - [[item.endMomentTime]]
-        </span>
-    </div>
-
-    <!--TEACHER NAME-->
-    <div>
-        <span ng-repeat="teacher in item.course.teachers">[[teacher.displayName]] </span>
-    </div>
-
-    <!--LIST OF CLASSES AND GROUPS-->
-    <em class="metadata">
-        <span ng-repeat="className in item.course.classes">[[className]]</span>
-        <span ng-repeat="groupName in item.course.groups">[[groupName]]</span>
-    </em>
-
-    <!--LIST OF ROOMS-->
-    <div>
-       <span ng-repeat="roomLabel in item.course.roomLabels">
-               <span ng-if="roomLabel !== null && roomLabel !=''">
-                   <i18n>edt.utils.room</i18n>: [[roomLabel]]
-               </span>
-           </span>
+       </span>
     </div>
 </article>

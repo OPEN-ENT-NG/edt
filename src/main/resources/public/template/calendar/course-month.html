@@ -1,6 +1,14 @@
-<div oncontextmenu="return false" ng-if="item.exceptionnal" class="schedule-item-content border-radius-5 exceptionnal" data-id="[[item.course._id]]" >
+<div oncontextmenu="return false" class="schedule-item-content border-radius-5 [[item.color]]" data-id="[[item.course._id]]" >
+
+    <!--FOR PERSONNEL : SUBJECT AND EDIT ICON-->
     <div class="two cell row padding-sm" ng-if="isPersonnel()">
-        <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
+
+        <!--COURSE SUBJECT-->
+        <div class="cell eleven ellipsis" >
+            [[item.course.subjectLabel]]
+        </div>
+
+        <!--COURSE EDIT ICON-->
         <div ng-show="isNotPast(item)" class="one cell edit-icone" data-id="[[item.course._id]]" >
             <i class="edit md-margin-right right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
@@ -8,21 +16,13 @@
             </i>
         </div>
     </div>
+
+    <!--FOR OTHER USERS ONLY SUBJECT-->
     <div ng-if="!isPersonnel()">
-        <div class="cell ten ellipsis" >[[item.course.subjectLabel]]</div>
-    </div>
-</div>
-<div oncontextmenu="return false" ng-if="!item.exceptionnal"  class="schedule-item-content border-radius-5 [[item.color]]" data-id="[[item.course._id]]" >
-    <div class="two cell row padding-sm" ng-if="isPersonnel()">
-        <div class="cell eleven ellipsis" >[[item.course.subjectLabel]] </div>
-        <div ng-show="isNotPast(item)" class="one cell edit-icone" data-id="[[item.course._id]]" >
-            <i class="edit md-margin-right right-magnet">
-                <div ng-hide="true">[[item.startDate]]</div>
-                <div ng-hide="true">[[item.endDate]]</div>
-            </i>
+
+        <!--COURSE SUBJECT-->
+        <div class="cell ten ellipsis" >
+            [[item.course.subjectLabel]]
         </div>
-    </div>
-    <div ng-if="!isPersonnel()">
-        <div class="cell ten ellipsis" >[[item.course.subjectLabel]]</div>
     </div>
 </div>
