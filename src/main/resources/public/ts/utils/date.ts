@@ -10,8 +10,4 @@ export class DateUtils {
     static format(date: any, format: string) {
         return moment(date).format(format);
     }
-
-    static FORMAT = {
-        'HOUR-MINUTES': 'kk:mm', // e.g "09:00"
-    };
 }
