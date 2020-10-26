@@ -1,5 +1,4 @@
 import { Utils } from '../utils';
-import { _ } from 'entcore';
 describe('[Utils] getClassGroupTypeMap', () => {
     test('Class/Group type map should have CLASS and FUNCTIONAL_GROUP key', () => {
         const map: any = Utils.getClassGroupTypeMap();
