@@ -1,8 +1,8 @@
 <div class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"
      ng-class="(!isNotPast(item)) ?  'past' : 'notpast'">
 
-    <!--FOR PERSONNEL : SUBJECT AND EDIT ICON-->
-    <div ng-if="isPersonnel()" class="display-flex space-between">
+    <!--FOR PERSONNEL (OR USERS THAT CAN MANAGE) : SUBJECT AND EDIT ICON-->
+    <div ng-if="canManage()" class="display-flex space-between">
         <!--COURSE SUBJECT-->
         <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
              class="cell ten ellipsis inside-schedule">
@@ -19,7 +19,7 @@
     </div>
 
     <!--FOR OTHER USERS ONLY SUBJECT-->
-    <div ng-if="!isPersonnel()">
+    <div ng-if="!canManage()">
         <!--COURSE SUBJECT-->
         <div class="cell twelve ellipsis">
             [[item.course.subjectLabel]]

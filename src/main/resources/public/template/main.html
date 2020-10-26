@@ -71,7 +71,7 @@
         </div>
 
         <div class="header-buttons">
-            <section ng-if="isPersonnel()" id="delete-section" class="button-header four cell">
+            <section ng-if="canManage()" id="delete-section" class="button-header four cell">
                 <div class="cell twelve ">
                     <button ng-show="(params.coursesToDelete.length > 0)" class="twelve padding-sm delete-course-button"
                             ng-click="openDeleteForm()">
@@ -80,7 +80,7 @@
                 </div>
             </section>
 
-            <section ng-if="isPersonnel()" id="add-section" class="button-header">
+            <section ng-if="canManage()" id="add-section" class="button-header">
                 <div class="cell twelve ">
                     <div class="row cell">
                         <div class="twelve cell small">
@@ -103,7 +103,7 @@
 
     <!-- Calendar View -->
     <div id="calendar-view" class="cell horizontal-spacing twelve-mobile"
-         ng-class="{calendar: checkAccess(), twelve: !checkAccess(), 'no-cursor': (isStudent() || isRelative() || isTeacher())}">
+         ng-class="{calendar: checkAccess(), twelve: !checkAccess(), 'no-cursor': !canManage()}">
         <calendar
                 enable-display-modes="true"
                 display-template="calendar/course-item"

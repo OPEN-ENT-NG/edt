@@ -33,6 +33,7 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.autocomplete = AutocompleteUtils;
+        const WORKFLOW_RIGHTS = Behaviours.applicationsBehaviours.edt.rights.workflow;
 
         $scope.chronoEnd = true;
 
@@ -165,6 +166,12 @@ export let main = ng.controller('EdtController',
          * @returns {boolean}
          */
         $scope.isPersonnel = (): boolean => model.me.type === USER_TYPES.personnel;
+
+        /**
+         * Returns if current user have manage right
+         * @returns {boolean}
+         */
+        $scope.canManage = (): boolean => model.me.hasWorkflow(WORKFLOW_RIGHTS.manage);
 
         /**
          * Returns if current user is a teacher
@@ -807,7 +814,7 @@ export let main = ng.controller('EdtController',
                 if ($scope.structure && $scope.structures.all.length === 1)
                     $scope.course.structureId = $scope.structure.id;
 
-                if ($scope.isPersonnel()) {
+                if ($scope.canManage()) {
                     template.open('main', 'manage-course');
                 }
                 Utils.safeApply($scope);
@@ -838,7 +845,7 @@ export let main = ng.controller('EdtController',
                     $scope.editOccurrence = true;
                 }
 
-                if ($scope.isPersonnel()) {
+                if ($scope.canManage()) {
                     template.open('main', 'manage-course');
                 }
                 Utils.safeApply($scope);
