@@ -245,7 +245,7 @@ export let main = ng.controller('EdtController',
                 $scope.params.user = [{id: userId, displayName: username}];
             }
 
-            //add groups to classes
+            //add groups to classes::checkAccess()
             if (model.me.type === USER_TYPES.personnel || model.me.type === USER_TYPES.teacher)
                 $scope.params.group.map(g => {
                     let isInClass: boolean = false;

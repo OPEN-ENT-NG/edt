@@ -56,3 +56,14 @@ $edt-filter-unactive : rgba(160, 167, 179, 1);
     transform: rotate(360deg);
   }
 }
+
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+@mixin mobileMini {
+  @media (max-width: 350px) {
+    @content;
+  }
+}

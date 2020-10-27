@@ -1,5 +1,6 @@
 <div class="row">
     <div class="twelve cell display-flex">
+        <!-- TITLE AREA -->
         <div class="cell">
             <app-title class="zero-mobile">
                 <img class="application-logo" ng-src="/edt/public/img/uni-edt.png" alt=""/>
@@ -8,6 +9,8 @@
                 </h1>
             </app-title>
         </div>
+
+        <!-- SEARCH TEACHER/CLASS AREA -->
         <div ng-if="!isAllStructure" workflow="edt.edtSearch"
              class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'">
             <div class="search-inputs">
@@ -70,6 +73,7 @@
             </div>
         </div>
 
+        <!-- MANAGE COURSE AREA -->
         <div class="header-buttons">
             <section ng-if="canManage()" id="delete-section" class="button-header four cell">
                 <div class="cell twelve ">
@@ -97,23 +101,25 @@
 </div>
 <div class="row">
 
-    <article ng-if="::checkAccess()" class="cell two twelve-mobile sidebar"
+    <div ng-if="::checkAccess()" class="cell two twelve-mobile"
              static-include="/edt/public/template/main/sidebar.html">
-    </article>
+    </div>
 
     <!-- Calendar View -->
-    <div id="calendar-view" class="cell horizontal-spacing twelve-mobile"
-         ng-class="{calendar: checkAccess(), twelve: !checkAccess(), 'no-cursor': !canManage()}">
-        <calendar
-                enable-display-modes="true"
-                display-template="calendar/course-item"
-                display-month-template="calendar/course-month"
-                item-tooltip-template="calendar/course-tooltip"
-                items="structure.calendarItems.all"
-                slots="timeSlots.all"
-                display-options="true"
-                show-next-previous-button="true">
-        </calendar>
+    <div class="calendar">
+        <div id="calendar-view" class="cell horizontal-spacing twelve-mobile"
+             ng-class="(checkAccess()) ? ' ten' : ' twelve' + (!canManage()) ? ' no-cursor': ''">
+            <calendar
+                    enable-display-modes="true"
+                    display-template="calendar/course-item"
+                    display-month-template="calendar/course-month"
+                    item-tooltip-template="calendar/course-tooltip"
+                    items="structure.calendarItems.all"
+                    slots="timeSlots.all"
+                    display-options="true"
+                    show-next-previous-button="true">
+            </calendar>
+        </div>
     </div>
 </div>
 
