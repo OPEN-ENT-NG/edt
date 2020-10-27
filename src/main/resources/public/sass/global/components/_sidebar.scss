@@ -7,8 +7,7 @@
   .sidebar-header {
     color: $edt-white;
     background-color: $edt-dark-blue;
-    width: 100%;
-    display: inline-block;
+    display: flex;
     padding: 5px 0 5px 10px;
     font-size: 12pt;
     margin-bottom: 10px;
