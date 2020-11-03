@@ -10,7 +10,12 @@
     <!-- Calendar View -->
     <div class="calendar">
         <div id="calendar-view" class="cell horizontal-spacing twelve-mobile"
-             ng-class="(checkAccess()) ? ' ten' : ' twelve' + (!canManage()) ? ' no-cursor': ''">
+             ng-class="{
+             calendar: checkAccess(),
+             twelve: !checkAccess(),
+             ten: checkAccess(),
+             'no-cursor': !canManage()
+             }">
             <calendar
                     enable-display-modes="true"
                     display-template="calendar/course-item"
