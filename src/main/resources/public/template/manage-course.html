@@ -56,7 +56,7 @@
                 <div class="cell twelve-mobile ten">
                     <multi-combo title="[[translate('edt.creation.groups.choose')]]" id="combo-groups"
                                  combo-model="structure.groups.all"
-                                 search-on="name" order-by="name" filtered-model="course.groups"
+                                 search-on="name" order-by="orderGroups" filtered-model="course.groups"
                                  labels="comboLabels"></multi-combo>
                     <div class="select-blocks remove-margin-bottom">
                         <div ng-repeat="group in course.groups track by group.id"

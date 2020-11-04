@@ -251,6 +251,18 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         /**
+         * order a group in groups list
+         * @param a: Group
+         * @param b: Group
+         */
+        $scope.orderGroups = (a: Group, b: Group): number => {
+            return (a.isInCurrentTeacher && !b.isInCurrentTeacher)
+            && a.type_groupe < b.type_groupe
+            && a.name < b.name
+                ? 1 : -1
+        };
+
+        /**
          * Drop a course occurrence from the table
          * @param {CourseOccurrence} occurrence Course occurrence to drop.
          */
