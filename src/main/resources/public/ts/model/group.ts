@@ -1,21 +1,23 @@
-import { Mix } from 'entcore-toolkit';
+import {Mix} from 'entcore-toolkit';
 import {idiom as lang} from 'entcore';
-import http from 'axios';
+import http, {AxiosResponse} from 'axios';
 
 export class Group {
     name: string;
     color: string;
     id: string;
-    type_groupe? ;
+    type_groupe?;
     displayName: string;
-    constructor (id: string, name: string, color:string) {
+    isInCurrentTeacher: boolean = false;
+
+    constructor(id: string, name: string, color: string) {
         this.id = id;
         this.name = name;
         this.color = color;
     }
 
 
-    toString (): string {
+    toString(): string {
         return this.displayName;
     }
 }
@@ -23,7 +25,7 @@ export class Group {
 export class Groups {
     all: Group[];
 
-    constructor () {
+    constructor() {
         this.all = [];
     }
 
@@ -32,67 +34,38 @@ export class Groups {
      * @param structureId structure id
      * @returns {Promise<void>}
      */
-    async sync (structureId: string, isTeacher? :boolean) {
+    async sync(structureId: string, isTeacher?: boolean) {
         try {
-            if(isTeacher){
-                let groups = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`  );
-                this.all = Mix.castArrayAs(Group, groups.data);
-                let groupsAll = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true&&isTeacherEdt=true`  );
-                let groupsAllArray = Mix.castArrayAs(Group, groupsAll.data);
-                //Add all the groups and modify duplicate
-                let alreadyExists ;
-                this.all.map(g =>{
-                    g.displayName = g.name;
+            if (isTeacher) {
+                let teacherGroups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
+                teacherGroups.data.forEach((group: Group): void => {
+                    group.displayName = group.name + ' ' + lang.translate("my.class");
+                    group.isInCurrentTeacher = true
                 });
-                groupsAllArray.map(g => {
-                    alreadyExists = false;
-                    let index;
-                    this.all.map(gg => {
-                        if (gg.id === g.id){
-                            alreadyExists = true;
-
-                            gg.displayName +=" " + lang.translate("my.class");
-                        }
-                    });
-                    if(alreadyExists !== true){
-                        g.displayName = g.name;
-                        this.all.push(g);
+                this.all = Mix.castArrayAs(Group, teacherGroups.data);
+                let teacherGroupIds: string[] = this.all.map((group: Group) => group.id);
+                let groups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true&&isTeacherEdt=true`);
+                groups.data.forEach((group: Group): void => {
+                    if (teacherGroupIds.indexOf(group.id) === -1) {
+                        group.displayName = group.name;
+                        this.all.push(Mix.castAs(Group, group));
                     }
                 });
-                this.all.sort((g,gg)=> {
-                        if(g.displayName.includes( lang.translate("my.class")) && !gg.displayName.includes(lang.translate("my.class")))
-                            return -1;
-                        else if(!g.displayName.includes( lang.translate("my.class")) && gg.displayName.includes(lang.translate("my.class")))
-                            return 1;
-                        else {
-                            if (g.type_groupe < gg.type_groupe)
-                                return -1;
-                            else if (g.type_groupe > gg.type_groupe)
-                                return 1;
-                            else if (g.type_groupe === gg.type_groupe)
-                                if (g.name < gg.name)
-                                    return -1;
-                                else
-                                    return 1;
 
-
-                        }
-                    }
-                );
-            }else{
-                let groups = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`  );
+            } else {
+                let groups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
                 this.all = Mix.castArrayAs(Group, groups.data);
-                this.all.map(g => {
+                this.all.map((g: Group): void => {
                     g.displayName = g.name;
-                })
+                });
                 //sorting groups
-                this.all.sort((g,gg)=> {
-                    if(g.type_groupe < gg.type_groupe)
+                this.all.sort((g: Group, gg: Group): number => {
+                    if (g.type_groupe < gg.type_groupe)
                         return -1;
-                    else if(g.type_groupe > gg.type_groupe)
+                    else if (g.type_groupe > gg.type_groupe)
                         return 1;
                     else if (g.type_groupe === gg.type_groupe)
-                        if(g.name < gg.name)
+                        if (g.name < gg.name)
                             return -1;
                         else
                             return 1;
