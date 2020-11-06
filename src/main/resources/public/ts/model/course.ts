@@ -188,7 +188,6 @@ export class Course {
             course.roomLabels = occurrence.roomLabels;
             course.dayOfWeek = this.is_recurrent ? occurrence.dayOfWeek : moment(startDate).day();
             course.recurrence = recurrence;
-            if (Utils.isOccurrenceInExclusions(course, window.structure.exclusions.all)) continue;
             courses.push(course);
         }
 
