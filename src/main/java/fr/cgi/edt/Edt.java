@@ -4,14 +4,13 @@ import fr.cgi.edt.controllers.InitController;
 import fr.cgi.edt.controllers.SearchController;
 import fr.cgi.edt.services.impl.DefaultInitImpl;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.shareddata.LocalMap;
+import org.entcore.common.events.EventStore;
+import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.http.BaseServer;
 import org.entcore.common.http.filter.ShareAndOwner;
 import org.entcore.common.mongodb.MongoDbConf;
 
 import fr.cgi.edt.controllers.EdtController;
-import io.vertx.core.Handler;
-import io.vertx.core.json.JsonObject;
 
 public class Edt extends BaseServer {
 
@@ -26,7 +25,10 @@ public class Edt extends BaseServer {
     public void start() throws Exception {
         super.start();
         eb = getEventBus(vertx);
-        addController(new EdtController(EDT_COLLECTION, eb));
+
+        EventStore eventStore = EventStoreFactory.getFactory().getEventStore(Edt.class.getSimpleName());
+
+        addController(new EdtController(EDT_COLLECTION, eb, eventStore));
         addController(new InitController(new DefaultInitImpl("edt"), vertx));
         addController(new SearchController(eb));
 
