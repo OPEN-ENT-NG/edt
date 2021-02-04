@@ -1,5 +1,6 @@
 package fr.cgi.edt.controllers;
 
+import fr.cgi.edt.core.constants.EventStores;
 import fr.cgi.edt.security.UserInStructure;
 import fr.cgi.edt.security.WorkflowActionUtils;
 import fr.cgi.edt.security.workflow.ManageCourseWorkflowAction;
@@ -22,18 +23,16 @@ import fr.wseduc.security.SecuredAction;
 import fr.wseduc.webutils.Either;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.entcore.common.events.EventStore;
 import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.Trace;
-import org.entcore.common.http.response.DefaultResponseHandler;
 import org.entcore.common.mongodb.MongoDbControllerHelper;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.user.UserUtils;
@@ -53,6 +52,9 @@ public class EdtController extends MongoDbControllerHelper {
     private StructureService structureService = new StructureServiceNeo4jImpl();
     private StsService stsService = new StsServiceMongoImpl();
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
+    private final EventStore eventStore;
+
+
 
     private static final String
             read_only = "edt.view",
@@ -63,10 +65,11 @@ public class EdtController extends MongoDbControllerHelper {
      *
      * @param collection Name of the collection stored in the mongoDB database.
      */
-    public EdtController(String collection, EventBus eb) {
+    public EdtController(String collection, EventBus eb, EventStore eventStore) {
         super(collection);
         edtService = new EdtServiceMongoImpl(collection, eb);
         userService = new UserServiceNeo4jImpl();
+        this.eventStore = eventStore;
     }
 
     /**
@@ -77,6 +80,7 @@ public class EdtController extends MongoDbControllerHelper {
     @SecuredAction(read_only)
     public void view(HttpServerRequest request) {
         renderView(request);
+        this.eventStore.createAndStoreEvent(EventStores.ACCESS, request);
     }
 
     private Handler<Either<String, JsonObject>> getServiceHandler (final HttpServerRequest request) {
