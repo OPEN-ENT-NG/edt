@@ -1,5 +1,5 @@
     {
-      "name": "fr.cgi~edt~2.6.2",
+      "name": "fr.cgi~edt~2.6-SNAPSHOT",
       "config": {
         "main" : "fr.cgi.edt.Edt",
         "port" : 8168,
