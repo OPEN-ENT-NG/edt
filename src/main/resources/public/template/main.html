@@ -1,11 +1,11 @@
 <div class="main-header row">
     <!-- header main view -->
-    <div static-include="/edt/public/template/main-header.html"></div>
+    <div ng-include="'/edt/public/template/main-header.html'"></div>
 </div>
 
 <div class="row">
     <!-- sidebar view -->
-    <div ng-if="::checkAccess()" class="cell two twelve-mobile" static-include="/edt/public/template/main/sidebar.html"></div>
+    <div ng-if="::checkAccess()" class="cell two twelve-mobile" ng-include="'/edt/public/template/main/sidebar.html'"></div>
 
     <!-- Calendar View -->
     <div class="calendar">
