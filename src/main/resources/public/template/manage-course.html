@@ -177,11 +177,13 @@
                     <input ng-show="display.freeSchedule" type="time" ng-model="courseOccurrenceForm.endTime"
                            class="margin-left-lg margin-right-lg" required/>
 
+                    <!-- Error handler -->
                     <span class="warning four" ng-if="!startTimeIsAfterEndTime()"><i18n>error.timeAfterBefore</i18n></span>
                     <span class="warning four" ng-if="!isPastDate()"><i18n>error.PastDate</i18n></span>
 
+                    <!-- toggle display mode -->
                     <div ng-show="display.checkbox">
-                        <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
+                        <label class="checkbox">
                             <input type="checkbox" ng-model="display.freeSchedule"/>
                             <span><i18n>edt.free.schedule.time.choice</i18n></span>
                         </label>
