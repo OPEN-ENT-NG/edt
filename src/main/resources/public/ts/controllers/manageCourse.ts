@@ -465,6 +465,13 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             } else return !moment($scope.course.startDate).isBefore(moment());
         };
 
+        /**
+         * toInt using for HTML to map our ng-option value in number
+         */
+        $scope.toInt = (val: any): number => {
+            return parseInt(val);
+        };
+
         $scope.tryDropCourse = () => {
             $scope.openedLightbox = true;
         };
