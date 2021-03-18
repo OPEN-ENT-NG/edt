@@ -16,6 +16,7 @@ import {AutocompleteUtils} from '../model/autocompleteUtils';
 import {Moment} from 'moment/moment';
 import {DragAndDrop} from "../utils/dragAndDrop";
 import {PreferencesUtils} from "../utils/preference/preferences";
+import {DateUtils} from "../utils/date";
 
 declare const window: any;
 
@@ -457,8 +458,8 @@ export let main = ng.controller('EdtController',
             }
 
             return {
-                start: start.format(),
-                end: end.format()
+                start: DateUtils.getDateFormat(start.toISOString()),
+                end: DateUtils.getDateFormat(end.toISOString())
             };
         }
 

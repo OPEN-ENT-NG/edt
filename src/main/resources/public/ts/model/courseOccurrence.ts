@@ -20,7 +20,9 @@ export class CourseOccurrence {
             let d = start.seconds(0).milliseconds(0).add(1, 'hours').format('x');
             this.endTime = new Date();
             this.endTime.setTime(d);
-        } else this.endTime = endTime;
+        } else {
+            this.endTime = endTime;
+        }
     }
 
     /**
