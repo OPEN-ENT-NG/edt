@@ -27,7 +27,7 @@ export class CourseOccurrence {
      * Format start time
      * @returns {string} Returns start time string
      */
-    getFormattedStartTime (): string {
+    getFormattedStartTime(): string {
         return moment(this.startTime).format('HH:mm');
     }
 
@@ -35,18 +35,19 @@ export class CourseOccurrence {
      * Format end time
      * @returns {string} Returns end time string
      */
-    getFormattedEndTime (): string {
-        return  moment(this.endTime).format('HH:mm');
+    getFormattedEndTime(): string {
+        return moment(this.endTime).format('HH:mm');
     }
-    isValidTime (course, display): boolean  {
+
+    isValidTime(course, display): boolean  {
         if (!display.freeSchedule && course.timeSlot.start === undefined) {
             return false;
         }
         else {
             let isTimeSlot = !display.freeSchedule && course.timeSlot.start !== undefined;
-            let startTime = isTimeSlot ? course.timeSlot.start.startHour : moment(this.startTime).format("HH:mm:ss");
-            let endTime = isTimeSlot ? course.timeSlot.end.endHour : moment(this.endTime).format("HH:mm:ss");
-            let date =  moment().format("YYYY-MM-DD");
+            let startTime = isTimeSlot && course.timeSlot.start ? course.timeSlot.start.startHour : moment(this.startTime).format("HH:mm:ss");
+            let endTime = isTimeSlot && course.timeSlot.end ? course.timeSlot.end.endHour : moment(this.endTime).format("HH:mm:ss");
+            let date = moment().format("YYYY-MM-DD");
             return moment(date+'T'+endTime).isAfter(moment(date+'T'+startTime).add(14,"minutes"))
         }
     };
@@ -56,7 +57,7 @@ export class CourseOccurrence {
 
     }
 
-    toJSON (): object {
+    toJSON(): object {
         return {
             dayOfWeek: parseInt(this.dayOfWeek),
             roomLabels: this.roomLabels,

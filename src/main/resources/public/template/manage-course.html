@@ -282,18 +282,15 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <select ng-model="courseOccurrenceForm.dayOfWeek" required>
-                                        <option ng-repeat="(dayNumber, dayTranslation) in daysOfWeek.days"
-                                                ng-selected="[[dayNumber == courseOccurrenceForm.dayOfWeek]]"
-                                                value="[[dayNumber]]">
-                                            [[daysOfWeek.get(dayNumber)]]
-                                        </option>
+                                    <select ng-model="courseOccurrenceForm.dayOfWeek" required
+                                            ng-options="toInt(dayNumber) as daysOfWeek.get(dayNumber) for (dayNumber, dayTranslation) in daysOfWeek.days">
+                                        <option value="" disabled="" selected="">[[translate('edt.choose.time.slot')]]</option>
                                     </select>
                                 </td>
                                 <!-- Free Schedule -->
-                                <td ng-show="display.freeSchedule"><input type="time"
-                                                                          ng-model="courseOccurrenceForm.startTime"
-                                                                          required/></td>
+                                <td ng-show="display.freeSchedule">
+                                    <input type="time" ng-model="courseOccurrenceForm.startTime" required/>
+                                </td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
                                     <select
