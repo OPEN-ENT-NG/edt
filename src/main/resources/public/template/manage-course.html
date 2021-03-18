@@ -74,17 +74,13 @@
                 </label>
                 <div class="cell twelve-mobile ten">
 
-                    <select class="twelve-mobile two format-select float-left margin-right-md" id="select-subject" ng-model="course.subjectId">
+                    <select class="twelve-mobile two format-select float-left margin-right-md" id="select-subject"
+                            ng-model="course.subjectId"
+                            ng-options="subject.subjectId as subject.subjectLabel group by groupBySubjectBelonging(subject)
+                            for subject in mergeSubjects()">
                         <option value="" disabled selected>[[translate('edt.creation.subject.choose')]]</option>
-                        <option ng-repeat="subject in selectionOfTeacherSubject.all | orderBy:'subjectLabel'"
-                                ng-value="subject.subjectId">[[subject.subjectLabel]]
-                        </option>
-                        <option ng-if="selectionOfTeacherSubject.all.length > 0" disabled>──────────</option>
-                        <option ng-repeat="subject in structure.subjects.all | orderBy:'subjectLabel'"
-                                ng-selected="course.subjectId == subject.subjectId"
-                                ng-value="subject.subjectId">[[subject.subjectLabel]]
-                        </option>
                     </select>
+
                     <label class="checkbox">
                         <input type="checkbox" ng-model="isExceptional"/>
                         <span><i18n>exceptional.subject</i18n></span>
@@ -225,7 +221,7 @@
                                              class="text-center remove-padding margin-left-md margin-right-md width-7"></date-picker>
                             </div>
                             <div class="cell twelve-mobile" ng-show="display.checkbox">
-                                <label class="checkbox" ng-click="display.freeSchedule = !display.freeSchedule">
+                                <label class="checkbox">
                                     <input type="checkbox" ng-model="display.freeSchedule"/>
                                     <span><i18n>edt.free.schedule.time.choice</i18n></span>
                                 </label>

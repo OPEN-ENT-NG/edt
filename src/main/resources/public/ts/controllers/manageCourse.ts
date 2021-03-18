@@ -1,5 +1,5 @@
 import {_, moment, ng} from 'entcore';
-import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subjects, Teacher, Utils} from '../model';
+import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subject, Subjects, Teacher, Utils} from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
 import {DateUtils} from "../utils/date";
 import {Moment} from "moment";
@@ -126,7 +126,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
             } else {
                 $scope.selectionOfTeacherSubject = [];
-                $scope.course.subjectId = "";
+                $scope.course.subjectId = null;
             }
             Utils.safeApply($scope);
         };
@@ -214,7 +214,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         }
         $scope.course.structure = $scope.structure;
         $scope.syncSubjects();
-        Utils.safeApply($scope);
 
         $scope.makeRecurrentCourse = () => {
             $scope.course.is_recurrent = true;
@@ -259,6 +258,28 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             && a.type_groupe < b.type_groupe
             && a.name < b.name
                 ? 1 : -1
+        };
+
+        $scope.groupBySubjectBelonging = (subject: Subject): String => {
+            if (subject.teacherId === undefined) {
+                return "──────────";
+            }
+        };
+
+        $scope.mergeSubjects = (): Array<Subject> => {
+            return [...getOrderedTeacherSubjects(), ...getStructureSubjects()];
+        };
+
+        const getOrderedTeacherSubjects = (): Array<Subject> => {
+            return ($scope.selectionOfTeacherSubject.all && $scope.selectionOfTeacherSubject.all.length !== 0) ?
+                $scope.selectionOfTeacherSubject.all
+                    .sort((a: Subject, b: Subject) => a.subjectLabel.localeCompare(b.subjectLabel)) : [];
+        };
+
+        const getStructureSubjects = (): Array<Subject> => {
+            return ($scope.structure.subjects && $scope.structure.subjects.all.length !== 0) ?
+                $scope.structure.subjects.all
+                    .sort((a: Subject, b: Subject) => a.subjectLabel.localeCompare(b.subjectLabel)) : [];
         };
 
         /**
