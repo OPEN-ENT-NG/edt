@@ -6,6 +6,8 @@ export class TimeSlot {
     id: string;
     name: string;
     structure_id: string;
+    endHour?: string;
+    startHour?: string;
 
     constructor(id_structure?: string) {
         if (id_structure) this.structure_id = id_structure;

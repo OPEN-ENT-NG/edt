@@ -31,8 +31,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             let start: string = DateUtils.format($scope.course.startDate, DATE_FORMAT["HOUR-MINUTES"]);
             let end: string = DateUtils.format($scope.course.endDate, DATE_FORMAT["HOUR-MINUTES"]);
             $scope.course.timeSlot = {
-                start: {endHour: "", id: "", name: "", startHour: ""},
-                end: {endHour: "", id: "", name: "", startHour: ""}
+                start: null,
+                end: null
             };
             if ($scope.timeSlots.haveSlot()) {
                 $scope.timeSlots.all.forEach((slot) => {
@@ -43,7 +43,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         $scope.course.timeSlot.end = slot;
                     }
                 });
-                $scope.display.freeSchedule = !($scope.course.timeSlot.start.startHour !== "" && $scope.course.timeSlot.end.endHour !== "");
+                $scope.display.freeSchedule = !(($scope.course.timeSlot.start && $scope.course.timeSlot.start.startHour !== "")
+                    && ($scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour !== ""));
             } else {
                 $scope.display.checkbox = false;
             }
@@ -212,8 +213,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             $scope.display.freeSchedule = (!$scope.course.timeSlots.all || $scope.course.timeSlots.all.length === 0);
         }
         $scope.course.structure = $scope.structure;
-        $scope.changeDate();
-        Utils.safeApply($scope);
         $scope.syncSubjects();
         Utils.safeApply($scope);
 
@@ -411,9 +410,16 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         const areSetDates = (): boolean => {
-            return $scope.course.startDate
-                && (($scope.display.freeSchedule && $scope.courseOccurrenceForm.startTime && $scope.courseOccurrenceForm.endTime)
-                    || (!$scope.display.freeSchedule && $scope.course.timeSlot.start.startHour && $scope.course.timeSlot.end.endHour));
+            return $scope.course.startDate && (isFreeScheduleDateSet() || isTimeSlotDateSet());
+        };
+
+        const isFreeScheduleDateSet = (): boolean => {
+            return $scope.display.freeSchedule && $scope.courseOccurrenceForm.startTime && $scope.courseOccurrenceForm.endTime
+        };
+
+        const isTimeSlotDateSet = (): boolean => {
+            return !$scope.display.freeSchedule && $scope.course.timeSlot && $scope.course.timeSlot.start &&
+                $scope.course.timeSlot.start.startHour && $scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour
         };
 
         $scope.startTimeIsAfterEndTime = (): boolean => {
