@@ -302,9 +302,9 @@
                                     </select>
                                 </td>
                                 <!-- Free Schedule -->
-                                <td ng-show="display.freeSchedule"><input type="time"
-                                                                          ng-model="courseOccurrenceForm.endTime"
-                                                                          required/></td>
+                                <td ng-show="display.freeSchedule">
+                                    <input type="time" ng-model="courseOccurrenceForm.endTime" required/>
+                                </td>
                                 <!-- Time Slot -->
                                 <td ng-show="!display.freeSchedule">
                                     <select
