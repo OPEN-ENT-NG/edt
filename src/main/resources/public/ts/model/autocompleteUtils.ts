@@ -59,6 +59,7 @@ export class AutocompleteUtils {
 
     public static async searchTeachers(value) {
         try {
+            value = value.replace("\\s", "").toLowerCase();
             const {data} = await http.get(`/edt/search/users?structureId=${this.structure.id}&profile=Teacher&q=${value}&field=firstName&field=lastName`);
             data.forEach((user) => user.toString = () => user.displayName.trim());
             return data;
