@@ -83,10 +83,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.changeDate = () => {
             let startDate = moment($scope.course.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]),
-                startTime = !$scope.display.freeSchedule ? $scope.course.timeSlot.start.startHour
+                startTime = !$scope.display.freeSchedule && $scope.course.timeSlot.start ? $scope.course.timeSlot.start.startHour
                     : moment($scope.courseOccurrenceForm.startTime).format(DATE_FORMAT["HOUR-MIN-SEC"]),
                 endDate = moment($scope.course.endDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]),
-                endTime = !$scope.display.freeSchedule ? $scope.course.timeSlot.end.endHour
+                endTime = !$scope.display.freeSchedule && $scope.course.timeSlot.end ? $scope.course.timeSlot.end.endHour
                     : moment($scope.courseOccurrenceForm.endTime).format(DATE_FORMAT["HOUR-MIN-SEC"]);
 
             if (!$scope.course.is_recurrent || moment(endDate).diff(moment(startDate), 'days') < 7) {
