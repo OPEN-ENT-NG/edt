@@ -1,4 +1,4 @@
-import {_, moment, ng} from 'entcore';
+import {_, moment, ng, idiom as lang} from 'entcore';
 import {COMBO_LABELS, Course, CourseOccurrence, DAYS_OF_WEEK, Group, Subject, Subjects, Teacher, Utils} from '../model';
 import {TimeSlot, TimeSlots} from "../model/timeSlots";
 import {DateUtils} from "../utils/date";
@@ -261,8 +261,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.groupBySubjectBelonging = (subject: Subject): String => {
-            if (subject.teacherId === undefined) {
-                return "──────────";
+            if (subject.teacherId !== undefined) {
+                return lang.translate('edt.subjects.teachers');
+            } else {
+                return lang.translate('edt.subjects.others');
             }
         };
 
