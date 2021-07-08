@@ -1,0 +1,53 @@
+stages:
+  - build
+  - test
+
+# npm install & compile using gulp
+buildNode:
+  stage: build
+  image: opendigitaleducation/node
+  script:
+    - npm install
+    - node_modules/gulp/bin/gulp.js build
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - node_modules/
+
+# gradle install
+buildGradle:
+  stage: build
+  image: gradle:4.5-alpine
+  script:
+    - gradle assemble
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+
+# test node
+testNode:
+  stage: test
+  image: opendigitaleducation/node
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - node_modules/
+    policy: pull
+  script:
+    - npm test
+
+# test gradle
+testGradle:
+  stage: test
+  image: gradle:4.5-alpine
+  script:
+    - gradle test --no-build-cache --rerun-tasks
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
