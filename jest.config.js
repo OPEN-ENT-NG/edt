@@ -8,6 +8,17 @@ module.exports = {
         "tsx",
         "js"
     ],
+    "testPathIgnorePatterns": [
+        "/node_modules/",
+        "<rootDir>/edt/build/",
+        "<rootDir>/edt/out/"
+    ],
+    "testURL": "http://localhost/",
+    "coverageDirectory": "coverage/front",
+    "coverageReporters": [
+        "text",
+        "cobertura"
+    ],
     "verbose": true,
     "setupFiles": [
         "<rootDir>/tests/ts/setup.ts"

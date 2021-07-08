@@ -1,3 +1,7 @@
+jest.mock('entcore', () => ({
+    ng: {service: jest.fn()}
+}));
+
 import { Utils } from '../utils';
 describe('[Utils] getClassGroupTypeMap', () => {
     test('Class/Group type map should have CLASS and FUNCTIONAL_GROUP key', () => {

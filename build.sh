@@ -33,7 +33,7 @@ buildNode () {
 }
 
 buildGradle () {
-  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test shadowJar install publishToMavenLocal
+  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle shadowJar install publishToMavenLocal
 }
 
 publish () {
@@ -47,7 +47,7 @@ publish () {
   docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle publish
 }
 
-testAngular () {
+testNode () {
   rm -rf coverage
   rm -rf */build
   case `uname -s` in
@@ -59,8 +59,8 @@ testAngular () {
   esac
 }
 
-testJava () {
-  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test
+testGradle () {
+  docker-compose run --rm -u "$USER_UID:$GROUP_GID" gradle gradle test --no-build-cache --rerun-tasks
 }
 
 for param in "$@"
@@ -82,13 +82,13 @@ do
       publish
       ;;
     test)
-      testAngular ; testJava
+      testNode ; testGradle
       ;;
-    testAngular)
-      testAngular
+    testNode)
+      testNode
       ;;
-    testJava)
-      testJava
+    testGradle)
+      testGradle
       ;;
     *)
       echo "Invalid argument : $param"
