@@ -4,12 +4,13 @@ import {TimeSlot, TimeSlots} from "../model/timeSlots";
 import {DateUtils} from "../utils/date";
 import {Moment} from "moment";
 import {DATE_FORMAT} from "../core/constants/dateFormat";
+import {TimeSlotHourPeriod} from "../model/viescolaire";
 
 declare const window: any;
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
-    ['$scope', '$location', '$routeParams', ($scope, $location, $routeParams) => {
-
+    ['$scope', '$location', '$routeParams', "$timeout", ($scope, $location, $routeParams, $timeout) => {
+        $scope.timeSlotHourPeriod = TimeSlotHourPeriod;
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
         $scope.selectionOfTeacherSubject = new Subjects();
@@ -131,22 +132,57 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope);
         };
 
-        $scope.selectEndTime = () => {
-            $scope.course.timeSlot.end = $scope.course.timeSlot.start;
-            $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format(DATE_FORMAT["YEAR-MONTH-DAY"])
-                + ' ' + $scope.course.timeSlot.end.endHour).toDate();
+        $scope.freeHourInput = (hourPeriod: TimeSlotHourPeriod): void => {
+            if ($scope.timeoutInput) $timeout.cancel($scope.timeoutInput);
+            $scope.timeoutInput = $timeout(() => $scope.selectTime(hourPeriod), 600);
         };
 
-        $scope.selectStartTime = function () {
-            $scope.courseOccurrenceForm.startTime = moment(moment($scope.course.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"])
-                + ' ' + $scope.course.timeSlot.start.startHour).toDate();
-            $scope.selectEndTime();
-        };
+        $scope.selectTime = (hourPeriod: TimeSlotHourPeriod) => {
+            let startHour: Date = null;
+            let endHour: Date = null;
 
-        $scope.formatEndDate = () => {
-            $scope.courseOccurrenceForm.endTime = moment(moment($scope.course.endDate).format(DATE_FORMAT["YEAR-MONTH-DAY"])
-                + ' ' + $scope.course.timeSlot.end.endHour).toDate();
-        };
+            if ($scope.display.freeSchedule && $scope.courseOccurrenceForm.startTime) {
+                startHour = $scope.courseOccurrenceForm.startTime;
+                endHour = $scope.courseOccurrenceForm.endTime;
+            } else if (!$scope.display.freeSchedule && $scope.course.timeSlot) {
+                if ($scope.course.timeSlot.start && $scope.course.timeSlot.start.startHour)
+                    startHour = DateUtils.getTimeFormatDate($scope.course.timeSlot.start.startHour);
+                if ($scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour)
+                    endHour = DateUtils.getTimeFormatDate($scope.course.timeSlot.end.endHour);
+            }
+
+            let start: string = $scope.course.startDate && startHour ? DateUtils.getDateTimeFormat($scope.course.startDate, startHour) : null;
+            let end: string = $scope.course.startDate && endHour ? DateUtils.getDateTimeFormat($scope.course.startDate, endHour) : null;
+
+            switch (hourPeriod) {
+                case TimeSlotHourPeriod.START_HOUR:
+                    if ((start && end && !DateUtils.isPeriodValid(start, end)) ||
+                        (!(start && end) && $scope.course.startDate)) {
+                        if (startHour) {
+                            if ($scope.display.freeSchedule) $scope.courseOccurrenceForm.endTime = moment($scope.courseOccurrenceForm.startTime).add(1, 'hours').toDate()
+                            else {
+                                $scope.course.timeSlot.end = {...$scope.course.timeSlot.start};
+                                endHour = DateUtils.getTimeFormatDate($scope.course.timeSlot.end.endHour);
+                            }
+                        }
+                    }
+                    break;
+                case TimeSlotHourPeriod.END_HOUR:
+                    if ((start && end && !DateUtils.isPeriodValid(start, end)) ||
+                        (!(start && end) && $scope.course.startDate)) {
+                        if (endHour != null) {
+                            if ($scope.display.freeSchedule) $scope.courseOccurrenceForm.startTime = moment($scope.courseOccurrenceForm.endTime).add(-1, 'hours').toDate()
+                            else {
+                                $scope.course.timeSlot.start = {...$scope.course.timeSlot.end};
+                                endHour = DateUtils.getTimeFormatDate($scope.course.timeSlot.end.endHour);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    return;
+            }
+        }
 
         /**
          * Init Courses
