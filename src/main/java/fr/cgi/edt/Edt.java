@@ -1,5 +1,6 @@
 package fr.cgi.edt;
 
+import fr.cgi.edt.controllers.ConfigController;
 import fr.cgi.edt.controllers.InitController;
 import fr.cgi.edt.controllers.SearchController;
 import fr.cgi.edt.services.impl.DefaultInitImpl;
@@ -31,6 +32,7 @@ public class Edt extends BaseServer {
         addController(new EdtController(EDT_COLLECTION, eb, eventStore));
         addController(new InitController(new DefaultInitImpl("edt"), vertx));
         addController(new SearchController(eb));
+        addController(new ConfigController());
 
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());
