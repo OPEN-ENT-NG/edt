@@ -1,5 +1,8 @@
-import {_, angular, Behaviours, model, moment, toasts} from "entcore";
-import {Utils} from "../model";
+import {_, angular, Behaviours, model, moment, toasts} from 'entcore';
+import {Utils} from '../model';
+import {TimeSlot} from '../model/timeSlots';
+import {Moment} from 'moment';
+import {CalendarAttributes} from '../model/calendarAttributes';
 
 export class DragAndDrop {
     static init = (init: boolean, $scope, $location): void => {
@@ -78,21 +81,21 @@ export class DragAndDrop {
             $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
             $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
 
-            var mouseupCalendar = (e) => {
+            const mouseupCalendar = (e: JQueryEventObject): void => {
                 if (e.which === 3) {
                     return;
                 }
                 if ($dragging) {
-                    let coursItem;
+                    let courseItem: any;
                     $('.timeslot').removeClass('selecting-timeslot');
-                    if (model.calendar.increment === "day") {
-                        let dayOfWeek = getDayOfWeek();
-
-                        coursItem = DragAndDrop.drop(e, $dragging, topPositionnement, startPosition, dayOfWeek);
+                    if (model.calendar.increment === 'day') {
+                        courseItem = DragAndDrop.drop(e, $dragging, startPosition, getDayOfWeek());
                     } else {
-                        coursItem = DragAndDrop.drop(e, $dragging, topPositionnement, startPosition);
+                        courseItem = DragAndDrop.drop(e, $dragging, startPosition);
                     }
-                    if (coursItem) $scope.chooseTypeEdit(coursItem.itemId, coursItem.start, coursItem.end, true);
+                    if (courseItem) {
+                        $scope.chooseTypeEdit(courseItem.itemId, courseItem.start, courseItem.end, true);
+                    }
                     initVar();
                 }
             };
@@ -282,38 +285,42 @@ export class DragAndDrop {
         return $(e.currentTarget);
     };
 
-    static getCalendarAttributes = ( selectedTimeslot, selectedSchedule, topPositionnement,dayOfWeek?) => {
-        if(selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
-            let indexHr = $(selectedTimeslot).prev('hr').index();
-            let dayOfweek = dayOfWeek ? dayOfWeek : $(selectedTimeslot).parents('div.day').index();
-            let timeslot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
-            let startCourse = moment($(selectedTimeslot).parents('.timeslot').index());
-            startCourse = startCourse.year(moment(model.calendar.firstDay).format("YYYY"))
-                .date(moment(model.calendar.firstDay).date()).month(moment(model.calendar.firstDay).month()).hour(timeslot.start).minute(indexHr * 15 -15 ).second(0)
+    static getCalendarAttributes = (selectedTimeslot: JQuery, selectedSchedule: JQuery,
+                                    dayOfWeek?: number): CalendarAttributes => {
+        if (selectedTimeslot && selectedTimeslot.length > 0 && selectedSchedule && selectedSchedule.length > 0) {
+            let dayOfweek: number = dayOfWeek ? dayOfWeek : $(selectedTimeslot).parents('div.day').index();
+            let timeslot: TimeSlot = model.calendar.timeSlots.all[$(selectedTimeslot).parents('.timeslot').index()];
+            let startCourse: Moment = moment($(selectedTimeslot).parents('.timeslot').index());
+            startCourse = startCourse.year(moment(model.calendar.firstDay).format('YYYY'))
+                .date(moment(model.calendar.firstDay).date())
+                .month(moment(model.calendar.firstDay).month())
+                .hour(timeslot.start)
+                .minute(timeslot.startMinutes)
+                .second(0)
                 .day(dayOfweek);
 
-            let endCourse = moment(model.calendar.firstDay);
-            endCourse = moment(startCourse);
-            endCourse = endCourse.add(selectedSchedule.height()*3/2,"minutes");
+            let endCourse: Moment = moment(startCourse).add(selectedSchedule.height() * 3 / 2, 'minutes');
 
             return {
-                itemId :$($(selectedSchedule).find('.schedule-item-content')).data('id'),
-                start:startCourse,
-                end:endCourse
+                itemId : $($(selectedSchedule).find('.schedule-item-content')).data('id'),
+                start: startCourse,
+                end: endCourse
             };
         }
-    };
+    }
 
-    static drop = (e, dragging, topPositionnement, startPosition, dayOfWeek?) => {
-        let actualPosition = dragging.offset();
-        if(actualPosition && startPosition.top === actualPosition.top && startPosition.left === actualPosition.left)
+    static drop = (e: JQueryEventObject, dragging: JQuery, startPosition: JQueryCoordinates,
+                   dayOfWeek?: number): CalendarAttributes => {
+        let actualPosition: JQueryCoordinates = dragging.offset();
+        if (actualPosition && startPosition.top === actualPosition.top && startPosition.left === actualPosition.left) {
             return undefined;
-        let selected_timeslot = $('calendar .selected-timeslot');
-        let positionShadowSchedule = selected_timeslot.offset();
-        let courseEdit = DragAndDrop.getCalendarAttributes(selected_timeslot, dragging, topPositionnement,dayOfWeek);
+        }
+        let selected_timeslot: JQuery = $('calendar .selected-timeslot');
+        let positionShadowSchedule: JQueryCoordinates = selected_timeslot.offset();
+        let courseEdit: CalendarAttributes = DragAndDrop.getCalendarAttributes(selected_timeslot, dragging , dayOfWeek);
         dragging.offset(positionShadowSchedule);
         selected_timeslot.remove();
-        $(document).unbind("mousedown");
+        $(document).unbind('mousedown');
         return courseEdit;
-    };
+    }
 }
