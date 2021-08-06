@@ -690,8 +690,14 @@ export let main = ng.controller('EdtController',
                     end: param ? param.end : model.calendar.newItem.end.format('x')
                 };
 
-                let startTime: Moment = (moment.utc(timeSlotInfo["beginning"], 'x').add('hours', -moment().format('Z').split(':')[0])).minute(0).seconds(0).millisecond(0);
-                let endTime: Moment = (moment.utc(timeSlotInfo["end"], 'x').add('hours', -moment().format('Z').split(':')[0])).minute(60).seconds(0).millisecond(0);
+                let startTime: Moment = (moment.utc(timeSlotInfo["beginning"], 'x')
+                    .add('hours', -moment().format('Z').split(':')[0]))
+                    .seconds(0)
+                    .millisecond(0);
+                let endTime: Moment = (moment.utc(timeSlotInfo["end"], 'x')
+                    .add('hours', -moment().format('Z').split(':')[0]))
+                    .seconds(0)
+                    .millisecond(0);
 
 
                 let dayOfWeek: number = moment(timeSlotInfo["beginning"], 'x').day();

@@ -1,5 +1,5 @@
 import {notify} from 'entcore';
-import http, {AxiosPromise, AxiosResponse} from 'axios';
+import http, {AxiosResponse} from 'axios';
 import {Mix} from "entcore-toolkit";
 
 export class TimeSlot {
@@ -8,6 +8,10 @@ export class TimeSlot {
     structure_id: string;
     endHour?: string;
     startHour?: string;
+    startMinutes?: number;
+    endMinutes?: number;
+    start?: number;
+    end?: number;
 
     constructor(id_structure?: string) {
         if (id_structure) this.structure_id = id_structure;
