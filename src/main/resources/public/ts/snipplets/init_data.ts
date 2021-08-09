@@ -5,6 +5,12 @@ import {structureService} from "../services";
 
 declare let window: any;
 
+enum ZoneType {
+    A = 'A',
+    B = 'B',
+    C = 'C'
+}
+
 export const initData = {
     title: 'Init data edt',
     description: "Permet d'initialiser les données du module edt",
@@ -13,6 +19,11 @@ export const initData = {
         init: async function () {
             this.notifications = [];
             initData.that = this;
+            this.zoneTypes = Object.keys(ZoneType);
+            this.initLightbox = {
+                isOpen: false,
+                zone: ZoneType[ZoneType.A]
+            };
             this.safeApply();
         },
 
@@ -42,9 +53,18 @@ export const initData = {
             return response;
         },
 
+        toggleLightboxState: (state: boolean): void => {
+            initData.that.initLightbox.isOpen = state;
+        },
+
+        switchZoneType: (zone: string): void => {
+            initData.that.initLightbox.zone = ZoneType[ZoneType[zone]];
+        },
+
         initData: async function (): Promise<void> {
             let structure_id: string = window.model.vieScolaire.structure.id;
-            let response: AxiosResponse = await structureService.initStructureData(structure_id);
+            let response: AxiosResponse = await structureService.initStructureData(structure_id, initData.that.initLightbox.zone);
+            this.toggleLightboxState(false);
             this.toastHttpCall(Utils.setToastMessage(response,'edt.data.init.success', 'edt.data.init.error'));
             this.safeApply();
         }

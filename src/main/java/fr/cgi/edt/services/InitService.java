@@ -5,5 +5,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 
 public interface InitService {
-    void init(String structure, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Script method to initialize all dates to viescolaire table setting period
+     *
+     * @param structure     structure identifier
+     * @param zone          school's zone (A, B or C accepted)
+     * @param handler       handler method will reply {@link JsonObject}
+     */
+    void init(String structure, String zone, Handler<Either<String, JsonObject>> handler);
 }

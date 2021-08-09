@@ -14,8 +14,9 @@ describe('structureService', () => {
         const mock = new MockAdapter(axios);
         const data = { response: true };
         const structureId: string = 'structureId';
-        mock.onGet(`/edt/init/${structureId}`).reply(200, data);
-        structureService.initStructureData(structureId).then((response: AxiosResponse) => {
+        const zone: string = 'A';
+        mock.onGet(`/edt/init/${structureId}?zone=${zone}`).reply(200, data);
+        structureService.initStructureData(structureId, zone).then((response: AxiosResponse) => {
             expect(response.data).toEqual(data);
         });
         done();

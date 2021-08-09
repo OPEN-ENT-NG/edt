@@ -15,6 +15,10 @@
         "integration-mode" : "HTTP",
         "app-registry.port" : 8012,
         "mode" : "${mode}",
+        "holidays": {
+            "public-holidays": "${publicHolidays}",
+            "school-holidays": "${schoolHolidays}"
+        },
         "entcore.port" : 8009
       }
     }

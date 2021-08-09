@@ -7,6 +7,7 @@ import io.vertx.core.logging.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -14,13 +15,22 @@ import java.util.concurrent.TimeUnit;
 
 public class DateHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
-    public  final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
-    public  final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    public  final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
-    public  final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
+    public final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+    public final SimpleDateFormat DATE_FORMATTER= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    public final SimpleDateFormat DATE_FORMATTER_SQL= new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+    public final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
     private static final String  START_DATE = "startDate";
     private static final String  END_DATE = "endDate";
     private static final String  DAY_OF_WEEK = "dayOfWeek";
+
+    public static final String SQL_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String MONGO_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String SQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSZ";
+    public static final String YEAR_MONTH_DAY_HOUR_MINUTES_SECONDS = "yyyy/MM/dd HH:mm:ss";
+    public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
+    public static final String YEAR = "yyyy";
+
+
     Calendar firstOccurrenceDate(JsonObject course){
         Calendar start = getCalendar(course.getString(START_DATE), DATE_FORMATTER);
         start.set(Calendar.DAY_OF_WEEK, course.getInteger("dayOfWeek")+1);
@@ -193,5 +203,42 @@ public class DateHelper {
             LOGGER.error("error when casting date: ", e);
         }
         return result;
+    }
+
+    /**
+     * Get Simple date as string, use in case your date format is not standard
+     *
+     * @param date         date to format
+     * @param format       the source format
+     * @param wishedFormat the format wished
+     * @return Simple date format as string
+     */
+    public static String getDateString(String date, String format, String wishedFormat) {
+        try {
+            Date parsedDate = parse(date, format);
+            return new SimpleDateFormat(wishedFormat).format(parsedDate);
+        } catch (ParseException err) {
+            LOGGER.error("[Edt@DateHelper::getDateString] Failed to parse date " + date, err);
+            return date;
+        }
+    }
+
+    public static Date parse(String date, String format) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.parse(date);
+    }
+
+    public static boolean isDateBefore(String targetDate, String comparedDate) {
+        LocalDate dateTarget = LocalDate.parse(targetDate);
+        LocalDate date = LocalDate.parse(comparedDate);
+
+        return dateTarget.isBefore(date);
+    }
+
+    public static boolean isDateAfter(String targetDate, String comparedDate) {
+        LocalDate dateTarget = LocalDate.parse(targetDate);
+        LocalDate date = LocalDate.parse(comparedDate);
+
+        return dateTarget.isAfter(date);
     }
 }
