@@ -1,5 +1,6 @@
 package fr.cgi.edt.controllers;
 
+import fr.cgi.edt.core.enums.Zone;
 import fr.cgi.edt.security.WorkflowActionUtils;
 import fr.cgi.edt.services.InitService;
 import fr.wseduc.rs.Get;
@@ -23,31 +24,27 @@ public class InitController extends ControllerHelper {
     @SecuredAction(value = WorkflowActionUtils.VIESCO_SETTING_INIT_DATA, type = ActionType.WORKFLOW)
     public void initPeriod(final HttpServerRequest request) {
         String structure = request.getParam("id");
-        initService.init(structure, event -> {
-            if (event.isRight()) {
-                renderJson(request, event.right().getValue());
-            } else {
-                String message = "[EDT@InitController::initPeriod] Failed to initialize structure ";
-                log.error(message + event.left().getValue());
-                badRequest(request);
-            }
-        });
+        String zone = request.getParam("zone");
+        if (Boolean.TRUE.equals(isValidZone(zone))) {
+            initService.init(structure, zone, event -> {
+                if (event.isRight()) {
+                    renderJson(request, event.right().getValue());
+                } else {
+                    String message = "[EDT@InitController::initPeriod] Failed to initialize structure ";
+                    log.error(message + event.left().getValue());
+                    badRequest(request);
+                }
+            });
+        } else {
+            String message = String.format("[EDT@%s::initPeriod] Wrong zone value: %s", this.getClass().getSimpleName(), zone);
+            log.error(message);
+            badRequest(request);
+        }
+
     }
 
-/*    @Get("/init/test/") todo example usage of using httpclient for future script
-    public void test(final HttpServerRequest request) {
-        HttpClientHelper client = new HttpClientHelper(vertx);
-        String url = "https://etalab.github.io/jours-feries-france-data/json/metropole.json";
-        client.get(url, event -> {
-            if (event.failed()) {
-                String message = "[EDT@InitController::initPeriod] Failed to initialize structure ";
-                log.error(message + event.cause());
-                badRequest(request);
-            } else {
-                JsonObject response = new JsonObject().put("response ", event.result());
-                renderJson(request, response);
-            }
-        });
-   } */
+    private Boolean isValidZone(String zone) {
+        return Zone.A.zone().equals(zone) || Zone.B.zone().equals(zone) || Zone.C.zone().equals(zone);
+    }
 }
 

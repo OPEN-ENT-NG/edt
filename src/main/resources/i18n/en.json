@@ -4,5 +4,8 @@
 	"exceptionnal.id": "exceptionnal Subject",
 	"exceptionnal.label": "UNIQUE",
 	"exceptionnal.subject": "Title of the custom subject",
-	"exceptional.subject": "Custom subject"
+	"exceptional.subject": "Custom subject",
+	"edt.zone": "zone",
+	"edt.zone.choose": "Choisissez votre zone",
+	"edt.zone.choose.warning": "Attention, cette action va réinitialiser les dates dans tous les modules de vie scolaire. Après le mois de janvier, les dates de l'année scolaire suivante seront positionnées."
 }

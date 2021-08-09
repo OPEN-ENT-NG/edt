@@ -1,28 +1,69 @@
-<div class="ten cell">
-    <toasts notifications="notifications"></toasts>
-    <article class="row">
+<div class="sniplet edt">
+    <div class="ten cell">
+        <toasts notifications="notifications"></toasts>
+        <article class="row">
 
-        <h3 class="row margin-bottom-lg">
-            [[lang.translate('edt.setting.data.init')]]
-        </h3>
+            <h3 class="row">
+                [[lang.translate('edt.setting.data.init')]]
+            </h3>
 
-        <div class="cell twelve-mobile twelve">
-            <h4>[[lang.translate('edt.data.init.are')]] :</h4>
-            <ul class="remove-margin-top">
-                <li class="twelve">
-                    <span>[[lang.translate('edt.year.start.end.date')]]</span>
-                </li>
-                <li class="twelve">
-                    <span>[[lang.translate('edt.public.holiday')]]</span>
-                </li>
-            </ul>
+            <div class="cell twelve-mobile twelve">
+                <h4>[[lang.translate('edt.data.init.are')]] :</h4>
+                <ul class="remove-margin-top">
+                    <li class="twelve">
+                        <span>[[lang.translate('edt.year.start.end.date')]]</span>
+                    </li>
+                    <li class="twelve">
+                        <span>[[lang.translate('edt.public.holiday')]]</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="cell twelve-mobile twelve">
+                <button ng-click="toggleLightboxState(true)">
+                    [[lang.translate('edt.start.init')]]
+                </button>
+            </div>
+
+        </article>
+    </div>
+
+    <!-- lightbox choose zone on click button -->
+    <lightbox class="" show="initLightbox.isOpen" on-close="toggleLightboxState(false)">
+        <section class="head">
+            <h3>
+                <i18n>edt.zone.choose</i18n>
+            </h3>
+        </section>
+
+        <!-- description -->
+        <div class="vertical-spacing-four horizontal-spacing"><i18n>edt.zone.choose.warning</i18n></div>
+
+        <!-- options radio select export option -->
+        <div class="vertical-spacing-four flex-row justify-around">
+            <div ng-repeat="zone in zoneTypes">
+                <input id="radio-[[zone]]"
+                       data-ng-model="initLightbox.zone"
+                       ng-value="zone"
+                       type="radio">
+                <label for="radio-[[zone]]">
+                    <i18n>edt.zone</i18n> [[zone]]
+                </label>
+            </div>
         </div>
 
-        <div class="cell twelve-mobile twelve">
-            <button ng-click="initData()">
-                [[lang.translate('edt.start.init')]]
-            </button>
-        </div>
-
-    </article>
+        <!-- Cancel and submit buttons -->
+        <section>
+            <div class="row horizontal-spacing">
+                <div class="twelve cell">
+                    <button class="right-magnet" ng-click="initData()">
+                        <i18n>edt.validate</i18n>
+                    </button>
+                    <button class="right-magnet cancel" ng-click="toggleLightboxState(false)">
+                        <i18n>edt.cancel</i18n>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </lightbox>
 </div>
