@@ -456,7 +456,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 && $scope.course.groups
                 && $scope.course.teachers.length > 0
                 && $scope.course.groups.length > 0
-                && $scope.course.subjectId !== undefined
                 && (($scope.display.freeSchedule
                         && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14, "minutes"))
                     )
@@ -465,10 +464,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && $scope.course.timeSlot.end !== undefined
                     ) && ($scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour)
                 )
-                && (!$scope.isExceptional
-                    || ($scope.course.exceptionnal
+                && (($scope.course.subjectId && !$scope.isExceptional)
+                    || ($scope.isExceptional && $scope.course.exceptionnal
                         && $scope.course.exceptionnal.length > 0
-                        && $scope.course.exceptionnal.trim() !== "")
+                        && $scope.course.exceptionnal.trim() !== '')
                 )
                 && (
                     ($scope.course.is_recurrent
