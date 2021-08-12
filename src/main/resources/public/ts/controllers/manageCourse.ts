@@ -460,8 +460,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && moment($scope.courseOccurrenceForm.endTime).isAfter(moment($scope.courseOccurrenceForm.startTime).add(14, "minutes"))
                     )
                     || (!$scope.display.freeSchedule
-                        && $scope.course.timeSlot.start !== undefined
-                        && $scope.course.timeSlot.end !== undefined
+                        && $scope.course.timeSlot.start && $scope.course.timeSlot.end
                     ) && ($scope.course.timeSlot.end.endHour > $scope.course.timeSlot.start.startHour)
                 )
                 && (($scope.course.subjectId && !$scope.isExceptional)
@@ -474,10 +473,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         && $scope.course.courseOccurrences
                         && $scope.course.courseOccurrences.length > 0
                         && ((Utils.isValidDate($scope.course.startDate, $scope.course.endDate))
-                            || (
-                                $scope.isUpdateRecurrence()
-                                && $scope.course.timeSlot.start !== undefined
-                                && $scope.course.timeSlot.end !== undefined
+                            || ($scope.isUpdateRecurrence()
+                                && $scope.course.timeSlot.start && $scope.course.timeSlot.end
                                 && $scope.Utils.isValidDate($scope.courseOccurrenceForm.startTime, $scope.courseOccurrenceForm.endTime)
                             ))
                         &&
@@ -485,8 +482,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                                 && isNaN($scope.courseOccurrenceForm.startTime._d)
                                 && isNaN($scope.courseOccurrenceForm.endTime._d))
                             || (!$scope.display.freeSchedule
-                                && $scope.course.timeSlot.start !== undefined
-                                && $scope.course.timeSlot.end !== undefined
+                                && $scope.course.timeSlot.start && $scope.course.timeSlot.end
                             )
                         ))
                     || !$scope.course.is_recurrent

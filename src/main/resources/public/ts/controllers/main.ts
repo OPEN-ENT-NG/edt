@@ -392,8 +392,8 @@ export let main = ng.controller('EdtController',
          * @param teacher the selected teacher
          */
         $scope.selectTeacher = async (model : string, teacher : Teacher) : Promise<void> => {
-            if(!$scope.params.user.some(user => user.id === teacher.id)){
-                $scope.params.user.push(teacher);
+            if(!$scope.params.user.some((user: Teacher) => user.id === teacher.id)){
+                $scope.params.user.push($scope.getTeacherFromId(teacher.id));
                 $scope.updateDatas();
             }
             AutocompleteUtils.resetSearchFields();
@@ -407,6 +407,15 @@ export let main = ng.controller('EdtController',
         $scope.selectClass = async (model: string, group: Group): Promise<void> => {
             $scope.toogleFilter($scope.getGroupFromId(group.id));
             AutocompleteUtils.resetSearchFields();
+        };
+
+        /**
+         * Get teacher object from an id
+         * @param id id of the teacher
+         */
+        $scope.getTeacherFromId = (id: string) : Teacher => {
+            return $scope.structure.teachers.all
+                .find((teacher: Teacher) => teacher.id === id);
         };
 
         /**

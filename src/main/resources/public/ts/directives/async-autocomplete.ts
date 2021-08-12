@@ -1,4 +1,5 @@
 import {$, idiom as lang, ng} from 'entcore';
+import {Utils} from '../model';
 
 export const asyncAutocomplete = ng.directive('asyncAutocomplete', ['$timeout', ($timeout) => ({
     restrict: 'E',
@@ -50,7 +51,7 @@ export const asyncAutocomplete = ng.directive('asyncAutocomplete', ['$timeout', 
 
         const setLoadingStatus = (status: boolean = true) : void => {
             $scope.loading = status;
-            $scope.$apply();
+            Utils.safeApply($scope);
         };
 
         const endUserTyping = () : void => {
@@ -63,7 +64,7 @@ export const asyncAutocomplete = ng.directive('asyncAutocomplete', ['$timeout', 
             $scope.match = newVal;
             cancelAnimationFrame(token);
             setLoadingStatus(false);
-            $scope.$apply();
+            Utils.safeApply($scope);
         });
 
         $scope.select = (option) => {
@@ -71,10 +72,10 @@ export const asyncAutocomplete = ng.directive('asyncAutocomplete', ['$timeout', 
             closeDropDown();
         };
 
-        const closeDropDown = function () {
+        const closeDropDown = (): void => {
             setLoadingStatus(false);
             $scope.match = undefined;
-            $scope.$apply();
+            Utils.safeApply($scope);
         };
 
         linkedInput.on('keyup', () => {
@@ -118,12 +119,12 @@ export const asyncAutocomplete = ng.directive('asyncAutocomplete', ['$timeout', 
         $scope.$watch('search', function (newVal, oldVal) {
             if (!newVal) {
                 $scope.options = undefined;
-                dropDownContainer.height("");
+                dropDownContainer.height('');
                 setLoadingStatus(false);
                 return;
             } else {
                 $scope.search = newVal;
-                $scope.$apply();
+                Utils.safeApply($scope);
             }
         });
     }

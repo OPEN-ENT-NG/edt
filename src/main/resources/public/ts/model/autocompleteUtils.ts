@@ -1,10 +1,12 @@
 import http from "axios";
+import {Mix} from "entcore-toolkit";
+import {Teacher} from "./teacher";
 
 export class AutocompleteUtils {
     private static structure;
 
-    public static teacher : string;
-    private static teacherOptions;
+    public static teacher: string;
+    private static teacherOptions: Teacher[];
 
     public static class : string;
     private static classOptions;
@@ -57,12 +59,13 @@ export class AutocompleteUtils {
         }
     }
 
-    public static async searchTeachers(value) {
+    public static async searchTeachers(value): Promise<Teacher[]> {
         try {
-            value = value.replace("\\s", "").toLowerCase();
-            const {data} = await http.get(`/edt/search/users?structureId=${this.structure.id}&profile=Teacher&q=${value}&field=firstName&field=lastName`);
-            data.forEach((user) => user.toString = () => user.displayName.trim());
-            return data;
+            value = value.replace('\\s', '').toLowerCase();
+            const {data} = await http.get(`/edt/search/users?structureId=${this.structure.id}` +
+                    `&profile=Teacher&q=${value}&field=firstName&field=lastName`);
+            data.forEach((user: Teacher) => user.toString = () => user.displayName.trim());
+            return Mix.castArrayAs(Teacher, data);
         } catch (err) {
             throw err;
         }
