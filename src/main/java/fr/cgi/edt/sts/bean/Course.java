@@ -21,6 +21,7 @@ public class Course {
 
     private String stsTeacher;
     private String alternation;
+    private String recurrence;
     private String startTime;
     private String serviceCode;
     private String duration;
@@ -32,6 +33,7 @@ public class Course {
         this.groups = new JsonArray();
         this.groupsExternalIds = new JsonArray();
         this.teacherIds = new JsonArray();
+        this.recurrence = null;
     }
 
     public Course setTeacherIds(JsonArray teacherIds) {
@@ -46,6 +48,11 @@ public class Course {
 
     public Course setStructureId(String structureId) {
         this.structureId = structureId;
+        return this;
+    }
+
+    public Course setRecurrence(String recurrence) {
+        this.recurrence = recurrence;
         return this;
     }
 
@@ -154,6 +161,7 @@ public class Course {
                 .put("groupsExternalIds", this.groupsExternalIds)
                 .put("teacherIds", this.teacherIds)
                 .put("roomLabels", this.roomLabels)
+                .put("recurrence", this.recurrence)
                 .put("theoretical", false);
 
         if (this.structureId != null) json.put("structureId", this.structureId);
@@ -161,6 +169,8 @@ public class Course {
         if (this.dayOfWeek != null) json.put("dayOfWeek", this.dayOfWeek);
         if (this.startDate != null) json.put("startDate", this.startDate);
         if (this.endDate != null) json.put("endDate", this.endDate);
+        if (this.duration != null) json.put("duration", this.duration);
+        if (this.startTime != null) json.put("startTime", this.startTime);
 
         json.put("source", "STS");
 
