@@ -417,6 +417,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             if ($scope.editOccurrence === true) {
                 course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
                 delete course.recurrence;
+                setDatesFromTimeslots(course);
                 await course.update();
             } else if ($scope.isUpdateRecurrence()) {
                 course.syncCourseWithOccurrence($scope.courseOccurrenceForm);
@@ -426,26 +427,28 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 let courses = course.getCourseForEachOccurrence();
                 await courses.save();
             } else {
-
-                course.dayOfWeek = moment(course.startDate).day();
-                course.roomLabels = $scope.courseOccurrenceForm.roomLabels;
-                if (!$scope.display.freeSchedule) {
-                    course.startDate = moment(moment(course.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + ' '
-                        + $scope.course.timeSlot.start.startHour);
-                    course.endDate = moment(moment(course.endDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + ' '
-                        + $scope.course.timeSlot.end.endHour);
-                } else {
-                    course.startDate = moment(moment(course.startDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + ' '
-                        + moment($scope.courseOccurrenceForm.startTime).format(DATE_FORMAT["HOUR-MIN-SEC"]));
-                    course.endDate = moment(moment(course.endDate).format(DATE_FORMAT["YEAR-MONTH-DAY"]) + ' '
-                        + moment($scope.courseOccurrenceForm.endTime).format(DATE_FORMAT["HOUR-MIN-SEC"]));
-                }
+                setDatesFromTimeslots(course);
                 await course.save();
             }
             delete $scope.course;
             $scope.goTo('/');
         };
 
+        const setDatesFromTimeslots = (course: Course): void => {
+            course.dayOfWeek = moment(course.startDate).day();
+            course.roomLabels = $scope.courseOccurrenceForm.roomLabels;
+            if (!$scope.display.freeSchedule) {
+                course.startDate = moment(moment(course.startDate).format(DATE_FORMAT['YEAR-MONTH-DAY']) + ' '
+                    + $scope.course.timeSlot.start.startHour);
+                course.endDate = moment(moment(course.endDate).format(DATE_FORMAT['YEAR-MONTH-DAY']) + ' '
+                    + $scope.course.timeSlot.end.endHour);
+            } else {
+                course.startDate = moment(moment(course.startDate).format(DATE_FORMAT['YEAR-MONTH-DAY']) + ' '
+                    + moment($scope.courseOccurrenceForm.startTime).format(DATE_FORMAT['HOUR-MIN-SEC']));
+                course.endDate = moment(moment(course.endDate).format(DATE_FORMAT['YEAR-MONTH-DAY']) + ' '
+                    + moment($scope.courseOccurrenceForm.endTime).format(DATE_FORMAT['HOUR-MIN-SEC']));
+            }
+        };
 
         /**
          * Function triggered on step 3 activation
