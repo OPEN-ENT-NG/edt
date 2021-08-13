@@ -29,14 +29,14 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.setTimeSlot = (): void => {
             $scope.display.checkbox = true;
-            let start: string = DateUtils.format($scope.course.startDate, DATE_FORMAT["HOUR-MINUTES"]);
-            let end: string = DateUtils.format($scope.course.endDate, DATE_FORMAT["HOUR-MINUTES"]);
+            let start: string = DateUtils.format($scope.course.startCourse, DATE_FORMAT['HOUR-MINUTES']);
+            let end: string = DateUtils.format($scope.course.endCourse, DATE_FORMAT['HOUR-MINUTES']);
             $scope.course.timeSlot = {
                 start: null,
                 end: null
             };
             if ($scope.timeSlots.haveSlot()) {
-                $scope.timeSlots.all.forEach((slot) => {
+                $scope.timeSlots.all.forEach((slot: TimeSlot): void => {
                     if (slot.startHour === start) {
                         $scope.course.timeSlot.start = slot;
                     }
@@ -44,8 +44,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                         $scope.course.timeSlot.end = slot;
                     }
                 });
-                $scope.display.freeSchedule = !(($scope.course.timeSlot.start && $scope.course.timeSlot.start.startHour !== "")
-                    && ($scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour !== ""));
+                $scope.display.freeSchedule = !(($scope.course.timeSlot.start &&
+                        $scope.course.timeSlot.start.startHour !== '')
+                    && ($scope.course.timeSlot.end && $scope.course.timeSlot.end.endHour !== ''));
             } else {
                 $scope.display.checkbox = false;
             }
