@@ -1,9 +1,9 @@
 package fr.cgi.edt.sts;
 
 import fr.cgi.edt.sts.bean.*;
+import fr.cgi.edt.utils.DateHelper;
 import fr.wseduc.webutils.DefaultAsyncResult;
 import io.vertx.core.*;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -24,19 +24,17 @@ import static org.entcore.common.utils.FileUtils.deleteImportPath;
 
 
 public class StsImport {
-    private static Logger log = LoggerFactory.getLogger(StsImport.class);
+    private static final Logger log = LoggerFactory.getLogger(StsImport.class);
     private String requestStructure;
-    private Vertx vertx;
-    private EventBus eb;
-    private StsDAO dao;
-    private StsCache cache;
-    private Report report;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private final Vertx vertx;
+    private final StsDAO dao;
+    private final StsCache cache;
+    private final Report report;
+    private final SimpleDateFormat sdf = new SimpleDateFormat(DateHelper.SQL_FORMAT);
 
     public StsImport(Vertx vertx, StsDAO dao) {
         this.vertx = vertx;
         this.dao = dao;
-        eb = vertx.eventBus();
         cache = new StsCache();
         report = new Report(vertx, "fr");
     }
@@ -311,6 +309,7 @@ public class StsImport {
             calendar.add(Calendar.HOUR_OF_DAY, durationHour);
             calendar.add(Calendar.MINUTE, durationMin);
             course.setEndDate(sdf.format(calendar.getTime()));
+            course.setRecurrence(alternation.recurrence(course));
             occurrences.add(course.toJSON());
         }
 

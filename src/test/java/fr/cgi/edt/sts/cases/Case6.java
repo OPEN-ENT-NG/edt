@@ -43,6 +43,8 @@ public class Case6 extends StsCase {
                 .put("theoretical", false)
                 .put("startDate", "2099-09-03T15:13:00")
                 .put("endDate", "2099-09-03T16:13:00")
+                .put("startTime", "1513")
+                .put("duration", "0100")
                 .put("source", "STS");
         JsonObject course2 = new JsonObject()
                 .put("classes", new JsonArray())
@@ -57,6 +59,8 @@ public class Case6 extends StsCase {
                 .put("theoretical", false)
                 .put("startDate", "2099-09-17T15:13:00")
                 .put("endDate", "2099-09-17T16:13:00")
+                .put("startTime", "1513")
+                .put("duration", "0100")
                 .put("source", "STS");
 
         JsonArray expectation = new JsonArray()

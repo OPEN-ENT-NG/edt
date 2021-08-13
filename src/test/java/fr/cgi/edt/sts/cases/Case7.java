@@ -57,6 +57,8 @@ public class Case7 extends StsCase {
                 .put("theoretical", false)
                 .put("startDate", "2099-09-03T14:02:00")
                 .put("endDate", "2099-09-03T15:02:00")
+                .put("duration", "0100")
+                .put("startTime", "1402")
                 .put("source", "STS");
         JsonObject courseClass2 = new JsonObject()
                 .put("classes", new JsonArray().add("3A"))
@@ -71,6 +73,8 @@ public class Case7 extends StsCase {
                 .put("theoretical", false)
                 .put("startDate", "2099-09-10T14:02:00")
                 .put("endDate", "2099-09-10T15:02:00")
+                .put("duration", "0100")
+                .put("startTime", "1402")
                 .put("source", "STS");
 
         JsonObject courseGroup1 = new JsonObject()
@@ -80,12 +84,14 @@ public class Case7 extends StsCase {
                 .put("groupsExternalIds", new JsonArray().add(String.format("%d$3B_G2", STRUCTURE_EXTERNAL_ID_CODE)))
                 .put("teacherIds", new JsonArray().add(DefaultTeacher.TEACHER_ID_2))
                 .put("roomLabels", new JsonArray().add("23"))
+                .put("theoretical", false)
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID_2)
                 .put("dayOfWeek", 2)
-                .put("theoretical", false)
                 .put("startDate", "2099-09-01T15:13:00")
                 .put("endDate", "2099-09-01T17:13:00")
+                .put("duration", "0200")
+                .put("startTime", "1513")
                 .put("source", "STS");
         JsonObject courseGroup2 = new JsonObject()
                 .put("classes", new JsonArray())
@@ -94,12 +100,14 @@ public class Case7 extends StsCase {
                 .put("groupsExternalIds", new JsonArray().add(String.format("%d$3B_G2", STRUCTURE_EXTERNAL_ID_CODE)))
                 .put("teacherIds", new JsonArray().add(DefaultTeacher.TEACHER_ID_2))
                 .put("roomLabels", new JsonArray().add("23"))
+                .put("theoretical", false)
                 .put("structureId", DefaultStructure.STRUCTURE_ID)
                 .put("subjectId", DefaultSubject.SUBJECT_ID_2)
                 .put("dayOfWeek", 2)
-                .put("theoretical", false)
                 .put("startDate", "2099-09-15T15:13:00")
                 .put("endDate", "2099-09-15T17:13:00")
+                .put("duration", "0200")
+                .put("startTime", "1513")
                 .put("source", "STS");
 
         JsonArray expectation = new JsonArray()

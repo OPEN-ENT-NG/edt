@@ -101,10 +101,12 @@ public class StsCase {
         this.sts.setRequestStructure(DefaultStructure.DEFAULT_STRUCTURE.getString("id"));
     }
 
+    @SuppressWarnings("unchecked")
     protected void expected(TestContext ctx, JsonArray expectation) {
         Async async = ctx.async();
         Mockito.doAnswer(invocation -> {
             JsonArray courses = invocation.getArgument(0);
+            ((List<JsonObject>)courses.getList()).forEach(course -> course.remove("recurrence")); // tricks to remove uuid recurrence
 
             ctx.assertEquals(courses.size(), expectation.size());
             ctx.assertEquals(courses, expectation);

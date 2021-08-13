@@ -20,6 +20,7 @@ public class CourseTest {
             .put("groupsExternalIds", new JsonArray())
             .put("source", "STS")
             .put("theoretical", false)
+            .putNull("recurrence")
             .put("teacherIds", new JsonArray())
             .put("roomLabels", new JsonArray());
 

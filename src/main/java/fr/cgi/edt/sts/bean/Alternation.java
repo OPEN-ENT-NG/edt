@@ -2,19 +2,19 @@ package fr.cgi.edt.sts.bean;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Alternation {
-    private String name;
+    private final String name;
     private String label;
-    private List<Week> weeks;
+    private final Map<JsonObject, String> recurrences;
+    private final List<Week> weeks;
 
     public Alternation(String name) {
         this.name = name;
         this.weeks = new ArrayList<>();
+        this.recurrences = new HashMap<>();
     }
 
     public Alternation putWeek(Week week) {
@@ -25,6 +25,17 @@ public class Alternation {
     public Alternation setLabel(String label) {
         this.label = label;
         return this;
+    }
+
+    public String recurrence(Course course) {
+
+        JsonObject oCourse = course.toJSON();
+        oCourse.remove("startDate");
+        oCourse.remove("endDate");
+        oCourse.remove("recurrence");
+
+        this.recurrences.putIfAbsent(oCourse,  UUID.randomUUID().toString());
+        return this.recurrences.get(oCourse);
     }
 
     public String label() {

@@ -42,6 +42,8 @@ public class Case8 extends StsCase {
                 .put("theoretical", false)
                 .put("startDate", "2099-09-10T14:02:00")
                 .put("endDate", "2099-09-10T15:02:00")
+                .put("startTime", "1402")
+                .put("duration", "0100")
                 .put("source", "STS");
 
 
