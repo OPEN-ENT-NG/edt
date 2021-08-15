@@ -797,9 +797,10 @@ export let main = ng.controller('EdtController',
         route({
             main: () : void => {
                 template.open('main', 'main');
-                if(!$scope.pageInitialized)
-                    setTimeout(function(){  initTriggers(true); }, 1000);
-
+                initTimeSlots();
+                if (!$scope.pageInitialized) {
+                    setTimeout((): void => {initTriggers(true);}, 1000);
+                }
             },
             create: async () : Promise<void> => {
                 let startDate = $scope.initDateCreatCourse();
