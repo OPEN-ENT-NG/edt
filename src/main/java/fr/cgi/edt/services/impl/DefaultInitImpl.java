@@ -305,10 +305,11 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .addQueryParam("refine.annee_scolaire", schoolYear)
                 .addQueryParam("facet", "location")
                 .addQueryParam("refine.zones", "Zone " + initDateFuture.zone())
+                .addQueryParam("timezone", "Europe/Paris")
                 .as(BodyCodec.jsonObject())
                 .send(ar -> {
                     if (ar.failed()) {
-                        String message = String.format("[Edt@%s::searchHolidaysDate] An error has occured" +
+                        String message = String.format("[Edt@%s::searchHolidaysDate] An error has occurred" +
                                 " during HTTP Get: %s", this.getClass().getSimpleName(), ar.cause().getMessage());
                         log.error(message, ar.cause().getMessage());
                         promise.fail(ar.cause().getMessage());
