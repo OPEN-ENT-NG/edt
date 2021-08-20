@@ -12,3 +12,4 @@ export * from './daysOfWeek';
 export * from './comboLabels';
 export * from './utils';
 export * from './calendarItems';
+export * from './scheduleItem';

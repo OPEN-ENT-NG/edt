@@ -9,9 +9,9 @@ declare const window: any;
 
 export class Course {
     _id: string;
-    classes: string[] = [];
-    groups: string[] | Group [] = [];
-    teachers: Teacher [] = [];
+    classes: Array<string> = [];
+    groups: Array<string> | Array<Group> = [];
+    teachers: Array<Teacher> = [];
     subjectLabel: string = '';
     exceptionnal ?: string;
     dayOfWeek: number = null;
@@ -23,11 +23,11 @@ export class Course {
     everyTwoWeek: boolean = undefined;
     structure: Structure = null;
     structureId: string = undefined;
-    teacherIds: string[] = [];
+    teacherIds: Array<string> = [];
     subjectId: string = '';
     subject?: ISubject;
-    roomLabels: string[] = [];
-    courseOccurrences: CourseOccurrence[] = [];
+    roomLabels: Array<string> = [];
+    courseOccurrences: Array<CourseOccurrence> = [];
     created: string = '';
     modified: string = '';
     is_recurrent: boolean = undefined;
@@ -36,6 +36,7 @@ export class Course {
     canManage: boolean;
     display: any;
     recurrenceObject: any;
+    timeToDelete?: Array<string>;
 
     constructor(obj?: object) {
         if (obj && obj instanceof Object) {

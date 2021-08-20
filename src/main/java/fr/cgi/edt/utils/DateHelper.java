@@ -130,6 +130,21 @@ public class DateHelper {
         return date;
     }
 
+    /**
+     * Add to the date the number of specified value
+     *
+     * @param date   date you want to update
+     * @param value  value. Use Calendar types
+     * @param number number you want to "add"
+     * @return new date updated with the new value
+     */
+    public static Date add(Date date, int value, int number) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(value, number);
+        return cal.getTime();
+    }
+
     public int getHour(Date date) {
         Calendar calendar = Calendar.getInstance(Locale.FRANCE);
         calendar.setTime(date);

@@ -1,7 +1,12 @@
 import {moment} from 'entcore';
 import {DATE_FORMAT} from "../core/constants/dateFormat";
+import {DurationInputArg1, DurationInputArg2} from "moment";
 
 export class DateUtils {
+
+    static START_DAY_TIME = "00:00:00";
+    static END_DAY_TIME = "23:59:59";
+    static QUARTER_HOUR_MINUTES = "15";
 
     /**
      * Format date based on given format using moment
@@ -45,7 +50,7 @@ export class DateUtils {
     static isPeriodValid(startAt: String, endAt: String): boolean {
         return this.isValid(startAt, DATE_FORMAT["YEAR-MONTH-DAY-HOUR-MIN-SEC"])
             && this.isValid(endAt, DATE_FORMAT["YEAR-MONTH-DAY-HOUR-MIN-SEC"])
-            && moment(startAt).isBefore(moment(endAt))
+            && moment(startAt).isBefore(moment(endAt));
     }
 
     /**
@@ -54,5 +59,15 @@ export class DateUtils {
      */
     static getTimeFormatDate(time: string): Date {
         return moment().set('HOUR', time.split(":")[0]).set('MINUTE', time.split(":")[1]).toDate();
+    }
+
+    /**
+     * Add step to given date.
+     * @param date Date to update
+     * @param step Step size
+     * @param stepType Optional. Step type.
+     */
+    static add(date: any, step: DurationInputArg1, stepType: DurationInputArg2 = 'd'): Date {
+        return moment(date).add(step, stepType).toDate();
     }
 }
