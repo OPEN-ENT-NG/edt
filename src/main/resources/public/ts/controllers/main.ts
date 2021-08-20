@@ -17,6 +17,7 @@ import {Moment} from 'moment/moment';
 import {DragAndDrop} from "../utils/dragAndDrop";
 import {PreferencesUtils} from "../utils/preference/preferences";
 import {DateUtils} from "../utils/date";
+import {ScheduleItem} from "../model/scheduleItem";
 
 declare const window: any;
 
@@ -527,7 +528,7 @@ export let main = ng.controller('EdtController',
          * @param course the course to edit
          * @param start the date from which courses should be edited
          */
-        $scope.isAbleToChooseEditionType = (course: Course, start: string): boolean => {
+        $scope.isAbleToChooseEditionType = (course: Course, start: Moment): boolean => {
             let now: Moment = moment();
             if (!start) {
                 start = moment(course.startDate);
@@ -561,8 +562,8 @@ export let main = ng.controller('EdtController',
             DragAndDrop.init(init, $scope, $location);
         };
 
-        $scope.isNotPast = (item) => {
-            return(moment(item.startDate).isAfter(moment()));
+        $scope.isNotPast = (item: ScheduleItem): boolean => {
+            return(moment(item.startDate).add(-15, "minutes").isAfter(moment()));
         };
 
         /**

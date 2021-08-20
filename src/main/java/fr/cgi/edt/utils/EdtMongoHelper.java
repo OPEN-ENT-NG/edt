@@ -11,6 +11,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.entcore.common.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -273,20 +274,18 @@ public class EdtMongoHelper extends MongoDbCrudService {
     }
 
     private JsonObject getCourseProperties(JsonObject course) {
-        Date startDate ;
-        Date endDate ;
-        Date now = new Date() ;
         JsonObject courseProperties  = new JsonObject()
                 .put("inFuture", false)
                 .put("inPresent", false);
         try{
-            startDate = dateHelper.DATE_FORMATTER.parse( course.getString(START_DATE));
-            endDate = dateHelper.DATE_FORMATTER.parse( course.getString(END_DATE));
+            Date now = new Date() ;
+            Date startDate = dateHelper.DATE_FORMATTER.parse(course.getString(START_DATE));
+            Date endDate = dateHelper.DATE_FORMATTER.parse(course.getString(END_DATE));
             boolean isRecurrent = 0 != TimeUnit.DAYS.convert(
                     endDate.getTime() -startDate.getTime(), TimeUnit.MILLISECONDS);
-            if (now.before(startDate) ) {
+            if (now.before(DateUtils.add(startDate, Calendar.MINUTE, -15)) ) {
                 courseProperties.put("inFuture", true);
-            }else if(isRecurrent && startDate.before(now) && endDate.after(now) ){
+            } else if (isRecurrent && DateUtils.add(startDate, Calendar.MINUTE, -15).before(now) && endDate.after(now) ){
                 courseProperties.put("inPresent", true);
             }
         } catch (ParseException e) {

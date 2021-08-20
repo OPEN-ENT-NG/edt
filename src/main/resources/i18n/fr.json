@@ -149,6 +149,7 @@
   "edt.delete.course.type.message": "Voulez-vous supprimer le cours séléctionné ?",
   "error.PastDate": "La date choisie ne peut être antérieure à aujourd'hui",
   "edt.cantDelete.courses": "Les cours passés ne peuvent pas être supprimés ",
+  "edt.cantDelete.courses.before": "Suppression impossible 15 minutes avant le début du cours",
   "edt.admin.importsts.title": "Import d'emploi du temps via fichiers STS",
   "edt.admin.import.edt.udt": "Import d'emploi du temps via EDT ou UDT",
   "edt.admin.importsts.submit": "Envoyer les fichiers",

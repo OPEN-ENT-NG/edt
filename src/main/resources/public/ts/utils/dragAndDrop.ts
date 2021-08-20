@@ -1,8 +1,10 @@
 import {_, angular, Behaviours, model, moment, toasts} from 'entcore';
-import {Utils} from '../model';
+import {Course, Utils} from '../model';
 import {TimeSlot} from '../model/timeSlots';
 import {Moment} from 'moment';
 import {CalendarAttributes} from '../model/calendarAttributes';
+import {DATE_FORMAT} from "../core/constants/dateFormat";
+import {DateUtils} from "./date";
 
 export class DragAndDrop {
     static init = (init: boolean, $scope, $location): void => {
@@ -130,39 +132,38 @@ export class DragAndDrop {
                     $(e.currentTarget).unbind('mousedown');
                 }
             };
-            var prepareToDelete = (event) => {
-                let start = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
 
-                if (event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isAfter(moment())) {
+            const prepareToDelete = (event: JQueryEventObject): void => {
+                let start: Moment = moment(event.currentTarget.children[0]
+                                    .children[1].children[0].children[0].innerHTML);
+
+                if (event.which === 3 && !$(event.currentTarget).hasClass("selected")
+                    && start.clone().add(- DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
                     event.stopPropagation();
-                    let itemId = $(event.currentTarget).data("id");
+                    let itemId: string = $(event.currentTarget).data("id");
                     $(event.currentTarget).addClass("selected");
-                    let courseToDelete = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'), {_id: itemId});
-
+                    let courseToDelete: Course = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'),
+                        {_id: itemId});
 
                     $scope.editOccurrence = true;
-                    let occurrenceDate = courseToDelete.getNextOccurrenceDate(Utils.getFirstCalendarDay());
-                    if ($scope.isAbleToChooseEditionType(courseToDelete, start)) {
-                        courseToDelete.occurrenceDate = occurrenceDate
-                    }
-
                     (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
 
-                    courseToDelete.timeToDelete.push(moment(start).format("YYYY/MM/DD"));
+                    courseToDelete.timeToDelete.push(moment(start).format(DATE_FORMAT["YEAR-MONTH-DAY"]));
 
-                    $scope.params.coursesToDelete.push(courseToDelete)
-                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort().filter(function (el, i, a) {
-                        return i === a.indexOf(el)
-                    })
+                    $scope.params.coursesToDelete.push(courseToDelete);
+                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
+                        .filter((el: Course, i: number, a: Array<Course>): boolean => {
+                            return i === a.indexOf(el);
+                    });
 
-                } else if (event.which == 3 && !$(event.currentTarget).hasClass("selected") && start.isBefore(moment()) && $scope.chronoEnd) {
-                    event.stopPropagation();
-                    $scope.chronoEnd = false;
-                    setTimeout((function () {
-                        $scope.chronoEnd = true;
-                    }), 100);
-                    toasts.info("edt.cantDelete.courses");
-
+                } else if (event.which === 3 && !$(event.currentTarget).hasClass("selected")
+                    && start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isBefore(moment()) && $scope.chronoEnd) {
+                        event.stopPropagation();
+                        $scope.chronoEnd = false;
+                        setTimeout(((): void => {
+                            $scope.chronoEnd = true;
+                        }), 100);
+                        toasts.info(start.isBefore(moment()) ? "edt.cantDelete.courses" : "edt.cantDelete.courses.before");
                 }
 
                 Utils.safeApply($scope);
