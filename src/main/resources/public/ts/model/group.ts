@@ -9,6 +9,7 @@ export class Group {
     type_groupe?;
     displayName: string;
     isInCurrentTeacher: boolean = false;
+    externalId?: string;
 
     constructor(id: string, name: string, color: string) {
         this.id = id;

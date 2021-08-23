@@ -1,16 +1,25 @@
 import {_, model, moment, notify} from 'entcore';
 import http from 'axios';
 import {Mix} from 'entcore-toolkit';
-import {CourseOccurrence, Group, ISubject, Teacher, Utils} from './index';
+import {CourseOccurrence, Group, ISubject, Teacher, USER_TYPES, Utils} from './index';
 import {Structure} from './structure';
 import {Moment} from 'moment';
+import {DATE_FORMAT} from "../core/constants/dateFormat";
 
 declare const window: any;
+
+export interface ICourse {
+    teacherIds: string[],
+    groupIds: string[],
+    groupExternalIds: string[],
+    groupNames: string[],
+    union: boolean
+}
 
 export class Course {
     _id: string;
     classes: Array<string> = [];
-    groups: Array<string> | Array<Group> = [];
+    groups: Array<Group> = [];
     teachers: Array<Teacher> = [];
     subjectLabel: string = '';
     exceptionnal ?: string;
@@ -73,26 +82,28 @@ export class Course {
             throw e;
         }
     }
-    async sync (id, structure?: Structure) {
+
+    async sync(id, structure?: Structure) {
         try {
-           let  { data } =  await http.get(`/viescolaire/common/course/${id}`);
-           Mix.extend(this, Mix.castAs(Course, new Course(data)));
-           this.canManage = this.canIManageCourse();
-           if(structure) this.mapWithStructure(structure);
+            let {data} = await http.get(`/viescolaire/common/course/${id}`);
+            Mix.extend(this, Mix.castAs(Course, new Course(data)));
+            this.canManage = this.canIManageCourse();
+            if (structure) this.mapWithStructure(structure);
 
         } catch (e) {
             notify.error('edt.notify.sync.err');
         }
     }
-    async mapWithStructure  (structure : Structure) {
-        this.teachers = _.map(this.teacherIds,(id) => {
+
+    async mapWithStructure(structure: Structure) {
+        this.teachers = _.map(this.teacherIds, (id) => {
             let teacher = _.findWhere(structure.teachers.all, {id: id});
-            if(teacher) return teacher;
+            if (teacher) return teacher;
         });
-        this.groups = _.map( _.union(this.groups, this.classes), (groupName) => {
-            if( typeof(groupName) === 'string'){
-              let group = _.findWhere(structure.groups.all, {name: groupName});
-              if(group) return group;
+        this.groups = _.map(_.union(this.groups, this.classes), (groupName) => {
+            if (typeof (groupName) === 'string') {
+                let group = _.findWhere(structure.groups.all, {name: groupName});
+                if (group) return group;
             }
         });
     };
@@ -118,19 +129,26 @@ export class Course {
     /**
      * Returns the Course JSON object.
      */
-    toJSON () : any {
+    toJSON(): any {
         let o: any = {
             structureId: this.structureId,
             subjectId: this.subjectId,
             teacherIds: _.pluck(this.teachers, 'id'),
             classes: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
             classesExternalIds: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'externalId'),
+            classesIds: this.groups
+                .filter((group: Group) => group.type_groupe === Utils.getClassGroupTypeMap()['CLASS'])
+                .map((group: Group) => group.id),
             groups: _.pluck(_.filter(this.groups, (group) => {
                 return _.contains([Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'], Utils.getClassGroupTypeMap()['MANUAL_GROUP']], group.type_groupe)
             }), 'name'),
             groupsExternalIds: _.pluck(_.filter(this.groups, (group) => {
                 return _.contains([Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'], Utils.getClassGroupTypeMap()['MANUAL_GROUP']], group.type_groupe)
             }), 'externalId'),
+            groupsIds: this.groups
+                .filter((group: Group) => group.type_groupe === Utils.getClassGroupTypeMap()['FUNCTIONAL_GROUP'] ||
+                    group.type_groupe === Utils.getClassGroupTypeMap()['MANUAL_GROUP'])
+                .map((group: Group) => group.id),
             roomLabels: this.roomLabels,
             dayOfWeek: this.is_recurrent ? parseInt(this.dayOfWeek.toString()) : parseInt(moment(this.startDate).day()),
             manual: true,
@@ -244,17 +262,17 @@ export class Course {
      * @returns {string}
      */
 // TODO Depreciate function delete asap
-    getNextOccurrenceDate (date: Moment|Object|string) :string {
-       let momentDate = moment(date);
-       let occurrence = moment( _.clone(momentDate));
-       occurrence.day(this.dayOfWeek);
-       if( momentDate.isAfter(occurrence)  ) {
-           occurrence.add('days',this.everyTwoWeek? 14 : 7);
-       }
-       if(occurrence.isAfter(this.endDate)){
-           return moment(this.endDate).format('YYYY-MM-DD');
-       }
-       return occurrence.format('YYYY-MM-DD');
+    getNextOccurrenceDate(date: Moment | Object | string): string {
+        let momentDate = moment(date);
+        let occurrence = moment(_.clone(momentDate));
+        occurrence.day(this.dayOfWeek);
+        if (momentDate.isAfter(occurrence)) {
+            occurrence.add('days', this.everyTwoWeek ? 14 : 7);
+        }
+        if (occurrence.isAfter(this.endDate)) {
+            return moment(this.endDate).format(DATE_FORMAT['YEAR-MONTH-DAY']);
+        }
+        return occurrence.format(DATE_FORMAT['YEAR-MONTH-DAY']);
     }
 
 
@@ -282,14 +300,15 @@ export class Course {
 export class Courses {
     all: Course[];
 
-    constructor () {
+    constructor() {
         this.all = [];
     }
+
     /**
      * Create course with occurrences
      * @returns {Promise<void>}
      */
-    async create (courses: Course[]): Promise<void> {
+    async create(courses: Course[]): Promise<void> {
         try {
             await http.post('/edt/course', courses);
             return;
@@ -299,15 +318,19 @@ export class Courses {
             throw e;
         }
     }
-    async save() {
-        let courseGroupById = _.groupBy(this.all, function(course){ return !!course._id; });
-        if(courseGroupById['true'])
-           await this.update(courseGroupById.true);
-        if(courseGroupById['false'])
-           await this.create(courseGroupById.false);
+
+    async save(): Promise<void> {
+        let courseGroupById: {[key: string]: Course[]} = _.groupBy(this.all, function (course: Course) {
+            return !!course._id;
+        });
+        if (courseGroupById['true'])
+            await this.update(courseGroupById.true);
+        if (courseGroupById['false'])
+            await this.create(courseGroupById.false);
         return;
     }
-    async update (courses: Course[]): Promise<void> {
+
+    async update(courses: Course[]): Promise<void> {
         try {
             await http.put('/edt/course', courses);
             return;
