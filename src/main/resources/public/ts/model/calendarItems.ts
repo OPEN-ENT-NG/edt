@@ -1,6 +1,6 @@
 import {_, idiom as lang, model, moment} from 'entcore';
 import http, {AxiosPromise, AxiosResponse} from 'axios';
-import {Course, Group, Structure, Teacher, USER_TYPES, Utils} from './index';
+import {Course, Group, ICourse, Structure, Teacher, USER_TYPES, Utils} from './index';
 import {Structures} from './structure';
 import {DateUtils} from '../utils/date';
 import {DATE_FORMAT} from '../core/constants/dateFormat';
@@ -75,32 +75,32 @@ export class CalendarItems {
      * @param deletedGroup   groups which are deleted from the filter
      * @returns {Promise<void>}
      */
-    getGroups = async ( group: Array<Group> = [], deletedGroup: any, studentId?: string) : Promise<void> => {
-        if(group.length <=0) return ;
-        let filter : string = this.getFilterClass(group);
+    getGroups = async (group: Array<Group> = [], deletedGroup: any, studentId?: string): Promise<void> => {
+        if (group.length <= 0) return;
+        let filter: string = this.getFilterClass(group);
         if (filter === "") return;
-        let uri : string = `/viescolaire/group/from/class?${filter}`;
+        let uri: string = `/viescolaire/group/from/class?${filter}`;
 
         if (studentId) {
             uri += `&student=${studentId}`;
         }
 
-        let {data} : AxiosResponse = await http.get(uri);
+        let {data}: AxiosResponse = await http.get(uri);
 
         if (data.length > 0) {
             this.all = data.map((item) => {
-                if(item.name_groups.length > 0){
+                if (item.name_groups.length > 0) {
                     item.name_groups.map((groupName, index) => {
                         let isAGroupOfANewClass = false;
                         let isAlreadyInGroups = false;
 
-                        group.map( g => {
-                            if(g && g.name === groupName){
+                        group.map(g => {
+                            if (g && g.name === groupName) {
                                 isAlreadyInGroups = true;
                             }
                         });
 
-                        if(deletedGroup != null) {
+                        if (deletedGroup != null) {
                             deletedGroup.classes.map(c => {
                                 if (c && item.id_classe === c.id) {
                                     isAGroupOfANewClass = true;
@@ -108,17 +108,17 @@ export class CalendarItems {
                             });
                         }
 
-                        if(!isAGroupOfANewClass && deletedGroup != null){
-                            deletedGroup.groupsDeleted.map((gg,index)=>{
-                                if(gg.name === groupName){
-                                    deletedGroup.groupsDeleted.splice(index,1);
+                        if (!isAGroupOfANewClass && deletedGroup != null) {
+                            deletedGroup.groupsDeleted.map((gg, index) => {
+                                if (gg.name === groupName) {
+                                    deletedGroup.groupsDeleted.splice(index, 1);
                                 }
                             });
                         }
 
 
                         if (!isAlreadyInGroups) {
-                            let grip = new Group(item.id_groups[index],groupName,"");
+                            let grip = new Group(item.id_groups[index], groupName, "");
                             group.push(grip);
                         }
                     })
@@ -130,72 +130,77 @@ export class CalendarItems {
     /**
      * Synchronize courses.
      * @param structure structure
-     * @param teacher teacher. Can be null. If null, group needs to be provided.
-     * @param group group. Can be null. If null, teacher needs to be provided.
+     * @param teachers teacher. Can be null. If null, group needs to be provided.
+     * @param groups group. Can be null. If null, teacher needs to be provided.
      * @param structures
      * @param isAllStructure True if multiple structures.
      * @returns {Promise<void>} Returns a promise.
      */
-    async sync(structure: Structure, teacher: Array<Teacher> = [], group: Array<Group> = [], structures: Structures, isAllStructure: boolean): Promise<void> {
+    async sync(structure: Structure, teachers: Array<Teacher> = [], groups: Array<Group> = [], structures: Structures,
+               isAllStructure: boolean): Promise<void> {
+
+        let filterGroups: Group[] = groups.filter((group: Group) => !(model.me.type === USER_TYPES.student &&
+            model.me.type === USER_TYPES.relative &&
+            (model.me.groupsIds.indexOf(group.id) === -1 && group.type_groupe !== 0)));
+
+        let filter: ICourse = {
+            teacherIds: (model.me.type === USER_TYPES.teacher && teachers.length === 0) ?
+                [model.me.userId] : teachers.map((teacher: Teacher) => teacher.id),
+            groupIds: filterGroups.map((group: Group) => group.id),
+            groupExternalIds: filterGroups.map((group: Group) => group.externalId),
+            groupNames: filterGroups.map((group: Group) => group.name),
+            union: true
+        }
+
         let firstDate: string = DateUtils.format(Utils.getFirstCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
-        let endDate: string =  DateUtils.format(Utils.getLastCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
-        if (!structure || teacher.length <= 0 && group.length <= 0 || !firstDate || !endDate) return;
-        let filter: string = '';
-        if (teacher.length > 0)
-            filter += (model.me.type === USER_TYPES.teacher && teacher.length === 0) ? 'teacherId=' + model.me.userId : this.getFilterTeacher(teacher) + '&';
-        if (group.length > 0)
-            filter += this.getFilterGroup(group);
-        filter += '&union=true';
+        let endDate: string = DateUtils.format(Utils.getLastCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
+        if (!structure || teachers.length <= 0 && groups.length <= 0 || !firstDate || !endDate) return;
 
         if (isAllStructure) {
+            let datas: any[] = [];
+            let coursePromises: Array<AxiosPromise> = [];
+            let structurePromises: Array<Promise<any>> = [];
 
-            if (filter) {
+            structures.all.map(async (structure: Structure) => {
+                if (structure.id !== lang.translate("all.structures.id")) {
+                    coursePromises.push(http.post(`/edt/structures/${structure.id}/common/courses/${firstDate}/${endDate}`, filter));
+                    structurePromises.push(structure.sync());
+                }
+            });
 
-                let datas : any[] = [];
-                let coursePromises : Array<AxiosPromise> = [];
-                let structurePromises : Array<Promise<any>> = [];
+            const [courseResponse,]: Array<AxiosResponse[]> | Array<Promise<any>> = await Promise.all([
+                Promise.all(coursePromises),
+                Promise.all(structurePromises)
+            ]);
 
-                structures.all.map(async (structure : Structure) => {
-                    if (structure.id !== lang.translate("all.structures.id")) {
-                        coursePromises.push(http.get(`/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`));
-                        structurePromises.push(structure.sync());
+            courseResponse.forEach((response: AxiosResponse) => {
+                datas = datas.concat(response.data);
+            });
+
+            this.all = datas.map((item: any) => {
+                item = new CalendarItem(item, item.startDate, item.endDate);
+                if (item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")) {
+                    item.course.subjectLabel = item.exceptionnal;
+
+                } else {
+                    item.course.subjectLabel = item.course.subject.name;
+                }
+                item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
+                structures.all.map((struc: Structure) => {
+                    if (struc.id !== lang.translate("all.structures.id")) {
+                        item.course.subjectLabel = item.exceptionnal ? item.exceptionnal : item.course.subject.name;
                     }
                 });
-
-                const [courseResponse, ]: Array<AxiosResponse[]> | Array<Promise<any>> = await Promise.all([
-                    Promise.all(coursePromises),
-                    Promise.all(structurePromises)
-                ]);
-
-                courseResponse.forEach((response : AxiosResponse) => {
-                    datas = datas.concat(response.data);
-                });
-
-                this.all = datas.map((item : any) => {
-                    item = new CalendarItem(item, item.startDate, item.endDate);
-                    if (item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")) {
-                        item.course.subjectLabel = item.exceptionnal;
-
-                    } else {
-                        item.course.subjectLabel =  item.course.subject.name;
-                    }
-                    item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
-                    structures.all.map((struc : Structure) => {
-                        if (struc.id !== lang.translate("all.structures.id")) {
-                            item.course.subjectLabel = item.exceptionnal ? item.exceptionnal : item.course.subject.name;
-                        }
-                    });
-                    return item;
-                })
-            }
-        } else if (filter) {
-            let uri : string = `/viescolaire/common/courses/${structure.id}/${firstDate}/${endDate}?${filter}`;
-            let {data} : AxiosResponse = await http.get(uri);
+                return item;
+            })
+        } else {
+            let uri: string = `/edt/structures/${structure.id}/common/courses/${firstDate}/${endDate}`;
+            let {data}: AxiosResponse = await http.post(uri, filter);
             if (data.length > 0) {
-                this.all = data.map((item : any) => {
+                this.all = data.map((item: any) => {
                     item = new CalendarItem(item, item.startDate, item.endDate);
                     item.course.subjectLabel = item.exceptionnal ? item.exceptionnal : item.course.subject.name;
-                    item.course.teachers = _.map(item.course.teacherIds, (ids : string[]) => _.findWhere(structure.teachers.all, {id: ids}));
+                    item.course.teachers = _.map(item.course.teacherIds, (ids: string[]) => _.findWhere(structure.teachers.all, {id: ids}));
                     return item;
                 });
             }
@@ -216,9 +221,9 @@ export class CalendarItems {
      * Returns the URI parameters for the provided teacher array
      * @param teachers teacher array
      */
-    getFilterTeacher = (teachers : Teacher[]) : string => {
-        let filter : string = '';
-        let name : string = 'teacherId=';
+    getFilterTeacher = (teachers: Teacher[]): string => {
+        let filter: string = '';
+        let name: string = 'teacherId=';
         for (let i = 0; i < teachers.length; i++) {
             filter += `${name}${teachers[i].id}`;
             if (i !== teachers.length - 1)
@@ -231,12 +236,17 @@ export class CalendarItems {
      * Returns the URI parameters for the provided group array
      * @param groups group array
      */
-    getFilterGroup = (groups: Group[]) : string => {
+    getFilterGroup = (groups: Group[]): string => {
+        groups.filter((group: Group) => !(model.me.type === USER_TYPES.student &&
+            model.me.type === USER_TYPES.relative &&
+            (model.me.groupsIds.indexOf(group.id) === -1 && group.type_groupe !== 0)))
+
         let filter: string = '';
         let name: string = 'group=';
         for (let i = 0; i < groups.length; i++) {
             if (groups[i]) {
-                if(!(model.me.type === USER_TYPES.student && model.me.type === USER_TYPES.relative && (model.me.groupsIds.indexOf(groups[i].id) === -1 && groups[i].type_groupe !== 0))) {
+                if (!(model.me.type === USER_TYPES.student && model.me.type === USER_TYPES.relative &&
+                    (model.me.groupsIds.indexOf(groups[i].id) === -1 && groups[i].type_groupe !== 0))) {
                     filter += `${name}${groups[i].name}`;
                     if (i !== groups.length - 1) {
                         filter += '&';
@@ -251,9 +261,9 @@ export class CalendarItems {
      * Returns the URI parameters for the provided class array
      * @param classes class array
      */
-    getFilterClass = (classes : Group[]) : string => {
-        let filter : string = '';
-        let name : string = 'classes=';
+    getFilterClass = (classes: Group[]): string => {
+        let filter: string = '';
+        let name: string = 'classes=';
         for (let i = 0; i < classes.length; i++) {
             if (classes[i] && classes[i].type_groupe === 0) {
                 filter += `${name}${classes[i].id}`;
