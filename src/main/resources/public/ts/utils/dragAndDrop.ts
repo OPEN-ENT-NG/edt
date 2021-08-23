@@ -5,6 +5,7 @@ import {Moment} from 'moment';
 import {CalendarAttributes} from '../model/calendarAttributes';
 import {DATE_FORMAT} from "../core/constants/dateFormat";
 import {DateUtils} from "./date";
+import {KEY_EVENTS, MOUSE_EVENTS} from "../core/constants/mouseKeyEvents";
 
 export class DragAndDrop {
     static init = (init: boolean, $scope, $location): void => {
@@ -15,76 +16,56 @@ export class DragAndDrop {
             model.calendar.setDate(moment());
         }
         model.calendar.eventer.off('calendar.create-item');
-        model.calendar.eventer.on('calendar.create-item', () => {
+        model.calendar.eventer.on('calendar.create-item', (): void => {
             if ($location.path() !== '/create') {
                 $scope.createCourse();
                 $scope.hideTimeSlot = true;
             }
         });
 
-
         Utils.safeApply($scope);
 
-        // --Start -- Calendar Drag and Drop
-
-        function getDayOfWeek() {
-            let dayOfWeek = 0;
+        const getDayOfWeek = (): number => {
             switch (model.calendar.days.all[0].name) {
                 case "monday":
-                    dayOfWeek = 1;
-                    break;
+                    return 1;
                 case "tuesday":
-                    dayOfWeek = 2;
-
-                    break;
+                    return 2;
                 case "wednesday":
-                    dayOfWeek = 3;
-
-                    break;
+                    return 3;
                 case "thursday":
-                    dayOfWeek = 4;
-
-                    break;
+                    return 4;
                 case "friday":
-                    dayOfWeek = 5;
-
-                    break;
+                    return 5;
                 case "saturday":
-                    dayOfWeek = 6;
-
-                    break;
+                    return 6;
                 default:
-                    dayOfWeek = 7;
-                    break;
-
+                    return 7;
             }
-            return dayOfWeek;
-        }
+        };
 
         if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
-            let $dragging = null;
-            let topPositionnement = 0;
-            let startPosition = {top: null, left: null};
-            let $timeslots = $('calendar .timeslot');
+            let $dragging: JQuery = null;
+            let topPositionnement: number = 0;
+            let startPosition: JQueryCoordinates = {top: null, left: null};
+            let $timeslots: JQuery = $('calendar .timeslot');
             $timeslots.removeClass('selecting-timeslot');
-            let initVar = () => {
+            let initVar = (): void => {
                 $dragging = null;
                 topPositionnement = 0;
                 $timeslots.removeClass('selecting-timeslot');
                 $('calendar .selected-timeslot').remove();
             };
 
+            // Highlight timeslots when dragging a course
             $timeslots
-                .mousemove((e) => topPositionnement = DragAndDrop.drag(e, $dragging))
-                .mouseenter((e) => topPositionnement = DragAndDrop.drag(e, $dragging));
+                .mousemove((e: JQueryMouseEventObject): number => topPositionnement = DragAndDrop.drag(e, $dragging))
+                .mouseenter((e: JQueryMouseEventObject): number => topPositionnement = DragAndDrop.drag(e, $dragging));
 
-            let $body: JQuery = $('body');
-            var mousemoveCalendarHr = (e) => topPositionnement = DragAndDrop.drag(e, $dragging);
-            $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
-            $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
+            const mousemoveCalendarHr = (e: JQueryMouseEventObject): number => topPositionnement = DragAndDrop.drag(e, $dragging);
 
             const mouseupCalendar = (e: JQueryEventObject): void => {
-                if (e.which === 3) {
+                if (e.which === MOUSE_EVENTS.RIGHT_CLICK) {
                     return;
                 }
                 if ($dragging) {
@@ -101,190 +82,227 @@ export class DragAndDrop {
                     initVar();
                 }
             };
-            $body.off('mouseup', 'calendar', mouseupCalendar);
-            $body.on('mouseup', 'calendar', mouseupCalendar);
 
-            var mousedownCalendarScheduleItem = (e) => {
-                if (e.which === 3) {
+            const mousedownCalendarScheduleItem = (e: JQueryMouseEventObject): void => {
+                if (e.which === MOUSE_EVENTS.RIGHT_CLICK) {
                     return;
                 }
                 if ($(e.target).hasClass("notpast") || $(e.target).hasClass("inside-schedule")) {
                     $dragging = DragAndDrop.takeSchedule(e, $timeslots);
                     startPosition = $dragging.offset();
-                    let calendar = $('calendar');
-                    calendar.off('mousemove', (e) => DragAndDrop.moveScheduleItem(e, $dragging));
-                    calendar.on('mousemove', (e) => DragAndDrop.moveScheduleItem(e, $dragging));
-                } else {
-                    return;
+                    let calendar: JQuery = $('calendar');
+                    calendar.off('mousemove', (e: JQueryEventObject): void => DragAndDrop.moveScheduleItem(e, $dragging));
+                    calendar.on('mousemove', (e: JQueryEventObject): void => DragAndDrop.moveScheduleItem(e, $dragging));
                 }
             };
 
-            $body.off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
-            $body.on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
-            $('body calendar .schedule-item').css('cursor', 'move');
-
-
-            var mouseDownEditIcon = (e) => {
-
-                if (e.which === 1) {//check left click
+            const mouseDownEditIcon = (e: JQueryMouseEventObject): void => {
+                if (e.which === MOUSE_EVENTS.LEFT_CLICK) {
                     e.stopPropagation();
-                    $scope.chooseTypeEdit($(e.currentTarget).data('id'), moment(e.target.children[0].innerHTML), moment(e.target.children[1].innerHTML));
+                    $scope.chooseTypeEdit($(e.currentTarget).data('id'), moment(e.target.children[0].innerHTML),
+                        moment(e.target.children[1].innerHTML));
                     $(e.currentTarget).unbind('mousedown');
                 }
             };
 
             const prepareToDelete = (event: JQueryEventObject): void => {
                 let start: Moment = moment(event.currentTarget.children[0]
-                                    .children[1].children[0].children[0].innerHTML);
+                    .children[1].children[0].children[0].innerHTML);
 
-                if (event.which === 3 && !$(event.currentTarget).hasClass("selected")
-                    && start.clone().add(- DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
-                    event.stopPropagation();
-                    let itemId: string = $(event.currentTarget).data("id");
-                    $(event.currentTarget).addClass("selected");
-                    let courseToDelete: Course = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'),
-                        {_id: itemId});
-
-                    $scope.editOccurrence = true;
-                    (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
-
-                    courseToDelete.timeToDelete.push(moment(start).format(DATE_FORMAT["YEAR-MONTH-DAY"]));
-
-                    $scope.params.coursesToDelete.push(courseToDelete);
-                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
-                        .filter((el: Course, i: number, a: Array<Course>): boolean => {
-                            return i === a.indexOf(el);
-                    });
-
-                } else if (event.which === 3 && !$(event.currentTarget).hasClass("selected")
-                    && start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isBefore(moment()) && $scope.chronoEnd) {
+                if (event.which === MOUSE_EVENTS.RIGHT_CLICK && !$(event.currentTarget).hasClass("selected")) {
+                    if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
+                        prepareDeleteCourse(event, event.currentTarget);
+                    } else if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isBefore(moment())
+                        && $scope.chronoEnd) {
                         event.stopPropagation();
                         $scope.chronoEnd = false;
                         setTimeout(((): void => {
                             $scope.chronoEnd = true;
                         }), 100);
                         toasts.info(start.isBefore(moment()) ? "edt.cantDelete.courses" : "edt.cantDelete.courses.before");
+                    }
                 }
-
                 Utils.safeApply($scope);
             };
 
 
-            var cancelDelete = (event) => {
-                let start = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+            const prepareDeleteCourse = (event: JQueryEventObject, target: Element): void => {
+                let start: Moment = moment(target.children[0]
+                    .children[1].children[0].children[0].innerHTML);
+                let currentTarget: JQuery = $(target);
 
-                if (event.which == 3 && $(event.currentTarget).hasClass("selected")) {
+                if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
+                    event.stopPropagation();
+                    let itemId: string = currentTarget.data("id");
+                    currentTarget.addClass("selected");
+                    let courseToDelete: Course = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'),
+                        {_id: itemId});
+
+                    $scope.editOccurrence = true;
+                    (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
+
+                    let startString: string = moment(start).format(DATE_FORMAT["YEAR/MONTH/DAY"]);
+                    if (courseToDelete.timeToDelete.find((time: string): boolean => time === startString) === undefined) {
+                        courseToDelete.timeToDelete.push(startString);
+                    }
+
+                    $scope.params.coursesToDelete.push(courseToDelete);
+                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
+                        .filter((el: Course, i: number, a: Array<Course>): boolean => {
+                            return i === a.indexOf(el);
+                        });
+                }
+            };
+
+
+            const cancelDelete = (event: JQueryMouseEventObject): void => {
+                let start: Moment = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+
+                if (event.which === MOUSE_EVENTS.RIGHT_CLICK && $(event.currentTarget).hasClass("selected")) {
                     event.stopPropagation();
                     $(event.currentTarget).removeClass("selected");
-                    let idToDelete = $(event.currentTarget).data("id")
-                    $scope.params.coursesToDelete.map((course, i) => {
+                    let idToDelete: string = $(event.currentTarget).data("id");
+                    $scope.params.coursesToDelete.map((course: Course, i: number): void => {
                         if (course._id === idToDelete) {
-                            let currentCourse = $scope.params.coursesToDelete[i];
+                            let currentCourse: Course = $scope.params.coursesToDelete[i];
                             if (currentCourse.timeToDelete.length > 1) {
-                                currentCourse.timeToDelete.map((t, ii) => {
-                                    if (moment(start).format("YYYY/MM/DD") === t) {
+                                currentCourse.timeToDelete.map((t: string, ii: number): void => {
+                                    if (moment(start).format(DATE_FORMAT['YEAR/MONTH/DAY']) === t) {
                                         $scope.params.coursesToDelete[i].timeToDelete.splice(ii, 1);
                                     }
-                                })
-
+                                });
                             } else {
                                 $scope.params.coursesToDelete[i].timeToDelete = [];
                                 $scope.params.coursesToDelete.splice(i, 1);
                             }
                         }
-                    })
-
+                    });
                 }
-                if (event.which == 3 && $(event.currentTarget).hasClass("cantDelete")) {
+                if (event.which === MOUSE_EVENTS.RIGHT_CLICK && $(event.currentTarget).hasClass("cantDelete")) {
                     event.stopPropagation();
                     $(event.currentTarget).removeClass("cantDelete");
                 }
                 Utils.safeApply($scope);
 
-            }
+            };
 
-            //left click on icon
+            const keyDownCalendar = (e: JQueryEventObject): void => {
+                // CTRL + A
+                if ((e.ctrlKey || e.metaKey) && e.keyCode === KEY_EVENTS.A) {
+                    event.stopPropagation();
+                    let $scheduleItem: JQuery = $('body calendar .schedule-item-content');
+
+                    for (let i: number = 0; i < $scheduleItem.length; i++) {
+                        prepareDeleteCourse(e, $scheduleItem[i]);
+                    }
+
+                    Utils.safeApply($scope);
+                }
+            };
+
+            let $body: JQuery = $('body');
+
+            // Left click + drag on course
+            $body.off('mousemove', 'calendar hr', mousemoveCalendarHr);
+            $body.on('mousemove', 'calendar hr', mousemoveCalendarHr);
+
+            // Left click on course edit icon
             $body.off('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
             $body.on('mousedown', '.one.cell.edit-icone', mouseDownEditIcon);
+
+            // Left click on course
+            $body.off('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+            $body.on('mousedown', 'calendar .schedule-item', mousedownCalendarScheduleItem);
+            $('body calendar .schedule-item').css('cursor', 'move');
+
+            // Right click on course
             $body.on('mousedown', '.schedule-item-content', prepareToDelete);
             $body.on('mousedown', '.schedule-item-content.selected', cancelDelete);
             $body.on('mousedown', '.schedule-item-content.cantDelete', cancelDelete);
-        }
-        // --End -- Calendar Drag and Drop
-    };
 
-    static moveScheduleItem = (e,dragging) => {
-        if(dragging){
-            let positionScheduleItem = {
-                top: e.pageY - dragging.height()/2,
-                left: e.pageX - dragging.width()/2
+            // Release left click on calendar (ending drag of course)
+            $body.off('mouseup', 'calendar', mouseupCalendar);
+            $body.on('mouseup', 'calendar', mouseupCalendar);
+
+            // Press key
+            $body.off('keydown', keyDownCalendar);
+            $body.on('keydown', keyDownCalendar);
+
+            // Prevent selection of text when pressing CTRL + A
+            $(document).attr('unselectable', 'on')
+                .css({
+                    '-moz-user-select': 'none',
+                    '-o-user-select': 'none',
+                    '-khtml-user-select': 'none',
+                    '-webkit-user-select': 'none',
+                    '-ms-user-select': 'none',
+                    'user-select': 'none'
+                })
+                .bind('selectstart', false);
+        }
+    }
+
+
+    static moveScheduleItem = (e: JQueryMouseEventObject, dragging: JQuery): void => {
+        if (dragging) {
+            let positionScheduleItem: JQueryCoordinates = {
+                top: e.pageY - dragging.height() / 2,
+                left: e.pageX - dragging.width() / 2
             };
             dragging.offset(positionScheduleItem);
         }
-    };
+    }
 
-    static drag = (e,dragging,  ) => {
-        let topPositionnement=0;
-        if(dragging){
+    static drag = (e: JQueryMouseEventObject, dragging: JQuery): number => {
+        let topPositionnement: number = 0;
+        if (dragging) {
             $('calendar .selected-timeslot').remove();
-            let curr = $(e.currentTarget);
-            let currDivHr = curr.children('hr');
-            let notFound = true;
-            let i:number = 0;
-            let prev = curr;
-            let next  ;
-            while ( notFound && i < currDivHr.length  ){
+            let curr: JQuery = $(e.currentTarget);
+            let currDivHr: JQuery = curr.children('hr');
+            let notFound: boolean = true;
+            let i: number = 0;
+            let prev: JQuery = curr;
+            let next: any;
+            while ( notFound && i < currDivHr.length) {
                 next = $(currDivHr)[i];
-                if(!($(prev).offset().top <= e.pageY && e.pageY > $(next).offset().top  ))
+                if (!($(prev).offset().top <= e.pageY && e.pageY > $(next).offset().top)) {
                     notFound = false;
+                }
                 prev = next;
-                i++
-            }
-            let top = Math.floor(dragging.height()/2);
-            for(let z= 0; z <= 5 ; z++){
-                if ( ((top + z) % 10) === 0 )
-                {
-                    top = top + z;
-                    break;
-                }
-                else if(((top - z) % 10) === 0){
-                    top = top - z;
-                    break;
-                }
+                i++;
             }
             topPositionnement = DragAndDrop.getTopPositioning(dragging);
-            if($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
+            if ($(prev).prop("tagName") === 'HR' &&  notFound === false ) {
                 $(prev).before(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
-            }else if( i >= currDivHr.length && notFound === true ){
+            } else if ( i >= currDivHr.length && notFound === true ) {
                 $(next).after(`<div class="selected-timeslot" style="height: ${dragging.height()}px; top:-20px;"></div>`);
-            }else{
+            } else {
                 $(prev).append(`<div class="selected-timeslot"  style="height: ${dragging.height()}px; top:-20px;"></div>`);
             }
         }
         return topPositionnement;
-    };
+    }
 
-    static getTopPositioning = (dragging) => {
-        let top = Math.floor(dragging.height()/2);
-        for(let z= 0; z <= 5 ; z++){
-            if ( ((top + z) % 10) === 0 )
-            {
+    static getTopPositioning = (dragging: JQuery): number => {
+        let top: number = Math.floor(dragging.height() / 2);
+        for (let z: number = 0; z <= 5 ; z++) {
+            if ( ((top + z) % 10) === 0) {
                 top = top + z;
                 break;
             }
-            else if(((top - z) % 10) === 0){
+            else if (((top - z) % 10) === 0) {
                 top = top - z;
                 break;
             }
         }
         return top;
-    };
+    }
 
-    static takeSchedule = (e, timeslots) => {
+    static takeSchedule = (e: JQueryMouseEventObject, timeslots): JQuery => {
         timeslots.addClass( 'selecting-timeslot' );
-        $(document).mousedown((e) => {return false;});
+        $(document).mousedown((): boolean => {  return false; });
         return $(e.currentTarget);
-    };
+    }
 
     static getCalendarAttributes = (selectedTimeslot: JQuery, selectedSchedule: JQuery,
                                     dayOfWeek?: number): CalendarAttributes => {
