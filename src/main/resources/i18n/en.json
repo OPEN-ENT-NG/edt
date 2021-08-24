@@ -149,6 +149,7 @@
 	"edt.utils.delete.selected": "Supprimer les cours sélectionnés",
 	"edt.schedule.delete": "Supprimer des cours",
 	"edt.schedule.delete.unique": "Supprimer le cours",
+	"edt.schedule.delete.all.courses": "Sélectionner tous les cours",
 	"edt.delete.courses.type.message": "Voulez-vous supprimer les cours séléctionnés ?",
 	"edt.delete.course.type.message": "Voulez-vous supprimer le cours séléctionné ?",
 	"error.PastDate": "La date choisie ne peut être antérieure à aujourd'hui",

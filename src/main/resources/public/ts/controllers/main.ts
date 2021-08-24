@@ -41,6 +41,7 @@ export let main = ng.controller('EdtController',
 
         let isUpdateData = false;
         $scope.isAllStructure = false;
+        $scope.isAllCoursesSelected = false;
         $scope.structures.sync();
 
         //GroupsDeleted : groups which are deleted from the filter
@@ -223,6 +224,7 @@ export let main = ng.controller('EdtController',
             $scope.structure.calendarItems.all = [];
 
             $scope.params.coursesToDelete = [];
+            $scope.isAllCoursesSelected = false;
 
             if($scope.isRelative() && $scope.child) {
                 await $scope.structure.calendarItems.getGroups($scope.structure.groups.all, null, $scope.child.id);
@@ -601,6 +603,11 @@ export let main = ng.controller('EdtController',
             $scope.params.coursesToDelete.map((course: Course) => promises.push(course.delete(course._id)));
             await Promise.all(promises);
             $scope.syncCourses();
+        };
+
+        $scope.toggleSelectAllCourses = (): void => {
+            $scope.isAllCoursesSelected = !$scope.isAllCoursesSelected;
+            DragAndDrop.togglePrepareDeleteAllCourses($scope, $scope.isAllCoursesSelected);
         };
 
         /**
