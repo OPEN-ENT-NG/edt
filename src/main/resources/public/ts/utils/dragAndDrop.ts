@@ -111,7 +111,7 @@ export class DragAndDrop {
 
                 if (event.which === MOUSE_EVENTS.RIGHT_CLICK && !$(event.currentTarget).hasClass("selected")) {
                     if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
-                        prepareDeleteCourse(event, event.currentTarget);
+                        DragAndDrop.prepareDeleteCourse($scope, event.currentTarget);
                     } else if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isBefore(moment())
                         && $scope.chronoEnd) {
                         event.stopPropagation();
@@ -125,63 +125,19 @@ export class DragAndDrop {
                 Utils.safeApply($scope);
             };
 
-
-            const prepareDeleteCourse = (event: JQueryEventObject, target: Element): void => {
-                let start: Moment = moment(target.children[0]
-                    .children[1].children[0].children[0].innerHTML);
-                let currentTarget: JQuery = $(target);
-
-                if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
-                    event.stopPropagation();
-                    let itemId: string = currentTarget.data("id");
-                    currentTarget.addClass("selected");
-                    let courseToDelete: Course = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'),
-                        {_id: itemId});
-
-                    $scope.editOccurrence = true;
-                    (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
-
-                    let startString: string = moment(start).format(DATE_FORMAT["YEAR/MONTH/DAY"]);
-                    if (courseToDelete.timeToDelete.find((time: string): boolean => time === startString) === undefined) {
-                        courseToDelete.timeToDelete.push(startString);
-                    }
-
-                    $scope.params.coursesToDelete.push(courseToDelete);
-                    $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
-                        .filter((el: Course, i: number, a: Array<Course>): boolean => {
-                            return i === a.indexOf(el);
-                        });
-                }
-            };
-
-
             const cancelDelete = (event: JQueryMouseEventObject): void => {
-                let start: Moment = moment(event.currentTarget.children[0].children[1].children[0].children[0].innerHTML);
+                if (event.which === MOUSE_EVENTS.RIGHT_CLICK) {
+                    if ($(event.currentTarget).hasClass("selected")) {
+                        event.stopPropagation();
+                        $scope.isAllCoursesSelected = false;
+                        DragAndDrop.cancelDeleteCourse($scope, event.currentTarget);
+                    }
+                    if ($(event.currentTarget).hasClass("cantDelete")) {
+                        event.stopPropagation();
+                        $(event.currentTarget).removeClass("cantDelete");
+                    }
+                }
 
-                if (event.which === MOUSE_EVENTS.RIGHT_CLICK && $(event.currentTarget).hasClass("selected")) {
-                    event.stopPropagation();
-                    $(event.currentTarget).removeClass("selected");
-                    let idToDelete: string = $(event.currentTarget).data("id");
-                    $scope.params.coursesToDelete.map((course: Course, i: number): void => {
-                        if (course._id === idToDelete) {
-                            let currentCourse: Course = $scope.params.coursesToDelete[i];
-                            if (currentCourse.timeToDelete.length > 1) {
-                                currentCourse.timeToDelete.map((t: string, ii: number): void => {
-                                    if (moment(start).format(DATE_FORMAT['YEAR/MONTH/DAY']) === t) {
-                                        $scope.params.coursesToDelete[i].timeToDelete.splice(ii, 1);
-                                    }
-                                });
-                            } else {
-                                $scope.params.coursesToDelete[i].timeToDelete = [];
-                                $scope.params.coursesToDelete.splice(i, 1);
-                            }
-                        }
-                    });
-                }
-                if (event.which === MOUSE_EVENTS.RIGHT_CLICK && $(event.currentTarget).hasClass("cantDelete")) {
-                    event.stopPropagation();
-                    $(event.currentTarget).removeClass("cantDelete");
-                }
                 Utils.safeApply($scope);
 
             };
@@ -190,13 +146,8 @@ export class DragAndDrop {
                 // CTRL + A
                 if ((e.ctrlKey || e.metaKey) && e.keyCode === KEY_EVENTS.A) {
                     event.stopPropagation();
-                    let $scheduleItem: JQuery = $('body calendar .schedule-item-content');
-
-                    for (let i: number = 0; i < $scheduleItem.length; i++) {
-                        prepareDeleteCourse(e, $scheduleItem[i]);
-                    }
-
                     Utils.safeApply($scope);
+                    DragAndDrop.togglePrepareDeleteAllCourses($scope, true);
                 }
             };
 
@@ -342,4 +293,69 @@ export class DragAndDrop {
         $(document).unbind('mousedown');
         return courseEdit;
     }
+
+    public static togglePrepareDeleteAllCourses = ($scope, toDelete: boolean): void => {
+        let $scheduleItem: JQuery = $('body calendar .schedule-item-content');
+        $scope.isAllCoursesSelected = toDelete;
+        Utils.safeApply($scope);
+        for (let i: number = 0; i < $scheduleItem.length; i++) {
+            toDelete ?
+            DragAndDrop.prepareDeleteCourse($scope, $scheduleItem[i]) :
+            DragAndDrop.cancelDeleteCourse($scope, $scheduleItem[i]);
+        }
+
+        Utils.safeApply($scope);
+    }
+
+    private static prepareDeleteCourse = ($scope, target: Element): void => {
+        let start: Moment = moment(target.children[0]
+            .children[1].children[0].children[0].innerHTML);
+        let currentTarget: JQuery = $(target);
+
+        if (start.clone().add(-DateUtils.QUARTER_HOUR_MINUTES, "minutes").isAfter(moment())) {
+            let itemId: string = currentTarget.data("id");
+            currentTarget.addClass("selected");
+            let courseToDelete: Course = _.findWhere(_.pluck($scope.structure.calendarItems.all, 'course'),
+                {_id: itemId});
+
+            $scope.editOccurrence = true;
+            (!courseToDelete.timeToDelete) ? courseToDelete.timeToDelete = [] : courseToDelete.timeToDelete;
+
+            let startString: string = moment(start).format(DATE_FORMAT["YEAR/MONTH/DAY"]);
+            if (courseToDelete.timeToDelete.find((time: string): boolean => time === startString) === undefined) {
+                courseToDelete.timeToDelete.push(startString);
+            }
+
+            $scope.params.coursesToDelete.push(courseToDelete);
+            $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
+                .filter((el: Course, i: number, a: Array<Course>): boolean => {
+                    return i === a.indexOf(el);
+                });
+        }
+    }
+
+    private static cancelDeleteCourse = ($scope, target: Element): void => {
+        let start: Moment = moment(target.children[0]
+            .children[1].children[0].children[0].innerHTML);
+        $(target).removeClass("selected");
+        let idToDelete: string = $(target).data("id");
+        $scope.params.coursesToDelete.map((course: Course, i: number): void => {
+            if (course._id === idToDelete) {
+                let currentCourse: Course = $scope.params.coursesToDelete[i];
+                if (currentCourse.timeToDelete.length > 1) {
+                    currentCourse.timeToDelete.map((t: string, ii: number): void => {
+                        if (moment(start).format(DATE_FORMAT['YEAR/MONTH/DAY']) === t) {
+                            $scope.params.coursesToDelete[i].timeToDelete.splice(ii, 1);
+                        }
+                    });
+                } else {
+                    $scope.params.coursesToDelete[i].timeToDelete = [];
+                    $scope.params.coursesToDelete.splice(i, 1);
+                }
+            }
+        });
+        Utils.safeApply($scope);
+
+    }
+
 }

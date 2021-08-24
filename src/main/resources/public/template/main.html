@@ -26,6 +26,12 @@
                     display-options="true"
                     show-next-previous-button="true">
             </calendar>
+            <label class="checkbox">
+                <input type="checkbox"
+                       ng-checked="isAllCoursesSelected"
+                       ng-click="toggleSelectAllCourses()"/>
+                <span><i18n>edt.schedule.delete.all.courses</i18n></span>
+            </label>
         </div>
     </div>
 </div>
