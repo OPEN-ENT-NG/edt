@@ -30,6 +30,8 @@ export class CalendarItem {
     is_periodic: boolean;
     locked: boolean;
     color: string;
+    exceptionnal: string;
+    classes: Array<string>;
 
 
     constructor(obj: object, startDate?: string | object, endDate?: string | object) {
@@ -139,45 +141,45 @@ export class CalendarItems {
     async sync(structure: Structure, teachers: Array<Teacher> = [], groups: Array<Group> = [], structures: Structures,
                isAllStructure: boolean): Promise<void> {
 
-        let filterGroups: Group[] = groups.filter((group: Group) => !(model.me.type === USER_TYPES.student &&
+        let filterGroups: Array<Group> = groups.filter((group: Group): boolean => !(model.me.type === USER_TYPES.student &&
             model.me.type === USER_TYPES.relative &&
             (model.me.groupsIds.indexOf(group.id) === -1 && group.type_groupe !== 0)));
 
         let filter: ICourse = {
             teacherIds: (model.me.type === USER_TYPES.teacher && teachers.length === 0) ?
-                [model.me.userId] : teachers.map((teacher: Teacher) => teacher.id),
-            groupIds: filterGroups.map((group: Group) => group.id),
-            groupExternalIds: filterGroups.map((group: Group) => group.externalId),
-            groupNames: filterGroups.map((group: Group) => group.name),
+                [model.me.userId] : teachers.map((teacher: Teacher): string => teacher.id),
+            groupIds: filterGroups.map((group: Group): string => group.id),
+            groupExternalIds: filterGroups.map((group: Group): string => group.externalId),
+            groupNames: filterGroups.map((group: Group): string => group.name),
             union: true
-        }
+        };
 
         let firstDate: string = DateUtils.format(Utils.getFirstCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
         let endDate: string = DateUtils.format(Utils.getLastCalendarDay(), DATE_FORMAT["YEAR-MONTH-DAY"]);
         if (!structure || teachers.length <= 0 && groups.length <= 0 || !firstDate || !endDate) return;
 
         if (isAllStructure) {
-            let datas: any[] = [];
+            let datas: Array<any> = [];
             let coursePromises: Array<AxiosPromise> = [];
             let structurePromises: Array<Promise<any>> = [];
 
-            structures.all.map(async (structure: Structure) => {
+            structures.all.map(async (structure: Structure): Promise<void> => {
                 if (structure.id !== lang.translate("all.structures.id")) {
                     coursePromises.push(http.post(`/edt/structures/${structure.id}/common/courses/${firstDate}/${endDate}`, filter));
                     structurePromises.push(structure.sync());
                 }
             });
 
-            const [courseResponse,]: Array<AxiosResponse[]> | Array<Promise<any>> = await Promise.all([
+            const [courseResponse, ]: Array<Array<AxiosResponse>> | Array<Promise<any>> = await Promise.all([
                 Promise.all(coursePromises),
                 Promise.all(structurePromises)
             ]);
 
-            courseResponse.forEach((response: AxiosResponse) => {
+            courseResponse.forEach((response: AxiosResponse): void => {
                 datas = datas.concat(response.data);
             });
 
-            this.all = datas.map((item: any) => {
+            this.all = datas.map((item: CalendarItem): CalendarItem => {
                 item = new CalendarItem(item, item.startDate, item.endDate);
                 if (item.exceptionnal && item.course.subjectId === lang.translate("exceptionnal.id")) {
                     item.course.subjectLabel = item.exceptionnal;
@@ -185,28 +187,72 @@ export class CalendarItems {
                 } else {
                     item.course.subjectLabel = item.course.subject.name;
                 }
-                item.course.teachers = _.map(item.course.teacherIds, (ids) => _.findWhere(structure.teachers.all, {id: ids}));
-                structures.all.map((struc: Structure) => {
+
+                item.course.teachers = item.course.teacherIds.map((teacherId: string): Teacher  => {
+                     return structure.teachers.all.find((teacher: Teacher): boolean => teacher.id === teacherId);
+                });
+
+                structures.all.map((struc: Structure): void => {
                     if (struc.id !== lang.translate("all.structures.id")) {
                         item.course.subjectLabel = item.exceptionnal ? item.exceptionnal : item.course.subject.name;
                     }
                 });
                 return item;
-            })
+            });
         } else {
             let uri: string = `/edt/structures/${structure.id}/common/courses/${firstDate}/${endDate}`;
             let {data}: AxiosResponse = await http.post(uri, filter);
             if (data.length > 0) {
-                this.all = data.map((item: any) => {
+                this.all = data.map((item: CalendarItem): CalendarItem => {
                     item = new CalendarItem(item, item.startDate, item.endDate);
                     item.course.subjectLabel = item.exceptionnal ? item.exceptionnal : item.course.subject.name;
-                    item.course.teachers = _.map(item.course.teacherIds, (ids: string[]) => _.findWhere(structure.teachers.all, {id: ids}));
+                    item.course.teachers = item.course.teacherIds.map((teacherId: string): Teacher  => {
+                        return structure.teachers.all.find((teacher: Teacher): boolean => teacher.id === teacherId);
+                    });
                     return item;
                 });
             }
         }
+
+        this.sortByClasses();
+
+        if (teachers.length > 1) {
+            this.sortByTeachers();
+        }
+
         return;
-    };
+    }
+
+    sortByClasses = (): void => {
+        this.all.sort((c1: CalendarItem, c2: CalendarItem): number => {
+            if (c1.startMomentDate === c2.startMomentDate
+                && c1.startMomentTime === c2.startMomentTime
+                && c1.classes && c1.classes.length > 0
+                && c2.classes && c2.classes.length > 0) {
+
+                return (c1.classes[0] < c2.classes[0]) ? -1 :
+                    (c1.classes[0] > c2.classes[0]) ? 1 : 0;
+            }
+            return 0;
+        });
+    }
+
+    sortByTeachers = (): void => {
+        this.all.sort((c1: CalendarItem, c2: CalendarItem): number => {
+            if (c1.startMomentDate === c2.startMomentDate
+                && c1.startMomentTime === c2.startMomentTime
+                && c1.course && c2.course
+                && c1.course.teachers && c1.course.teachers.length > 0
+                && c2.course.teachers && c2.course.teachers.length > 0) {
+
+                return (c1.course.teachers[0].displayName < c2.course.teachers[0].displayName) ? -1 :
+                    (c1.course.teachers[0].displayName > c2.course.teachers[0].displayName) ? 1 : 0;
+            }
+            return 0;
+        });
+    }
+
+
 
     async syncOccurrences(structureId, firstDate, endDate): Promise<void> {
         let start = moment(firstDate).format('YYYY-MM-DD');
