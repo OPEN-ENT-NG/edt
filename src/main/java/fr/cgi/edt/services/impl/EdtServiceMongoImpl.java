@@ -62,7 +62,9 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     @Override
     public void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler) {
         JsonObject query = new JsonObject()
-                .put("recurrence", recurrence);
+                .put("recurrence", recurrence)
+                .put("deleted", new JsonObject().put("$exists", false))
+                .put("$or", theoreticalFilter());
 
         MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
     }
@@ -178,9 +180,18 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     private void getRecurrence(String id, Handler<Either<String, JsonArray>> handler) {
         JsonObject query = new JsonObject()
-                .put("recurrence", id);
+                .put("recurrence", id)
+                .put("deleted", new JsonObject().put("$exists", false))
+                .put("$or", theoreticalFilter());
 
         MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
+    }
+
+    private JsonArray theoreticalFilter() {
+        JsonArray filter = new JsonArray();
+        JsonObject falseValue = new JsonObject().put("theoretical", false);
+        JsonObject existsValue = new JsonObject().put("theoretical", new JsonObject().put("$exists", false));
+        return filter.add(existsValue).add(falseValue);
     }
 
     private void updateOccurrence(JsonObject courseOccurrence, JsonObject creatingCourse, int dayOfWeek, int startHour, int startMinutes, int startSecond,

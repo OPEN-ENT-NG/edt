@@ -521,7 +521,7 @@ export let main = ng.controller('EdtController',
          * Close the delete course occurrences popup.
          */
         $scope.cancelDeleteOccurrenceLightbox = () : void =>{
-            $scope.show.isDeleteOccurrenceLightBox = false;
+            $scope.show.isDeleteOccurrenceLightbox = false;
             Utils.safeApply($scope);
         };
 
