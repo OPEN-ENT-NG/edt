@@ -12,6 +12,9 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import org.entcore.common.controller.ControllerHelper;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * Vert.x backend controller for the application using Mongodb.
  */
@@ -32,7 +35,8 @@ public class CourseController extends ControllerHelper {
             final String endAt = request.getParam("endAt");
             final JsonArray teacherIds = event.getJsonArray("teacherIds");
             final JsonArray groupIds = event.getJsonArray("groupIds");
-            final JsonArray groupExternalIds = event.getJsonArray("groupExternalIds");
+            final JsonArray groupExternalIds = new JsonArray(event.getJsonArray("groupExternalIds").stream()
+                    .filter(Objects::nonNull).collect(Collectors.toList()));
             final JsonArray groupNames = event.getJsonArray("groupNames");
             final String startTime = event.getString("startTime");
             final String endTime = event.getString("endTime");
