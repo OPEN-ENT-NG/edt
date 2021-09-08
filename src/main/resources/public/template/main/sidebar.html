@@ -41,7 +41,8 @@
                 <div class="edt-filters section-content scroll">
                     <div ng-repeat="group in structure.groups.all | orderBy"
                          ng-class="(group.type_groupe == 1) ? 'group-filter' : 'class-filter'">
-                        <div ng-class="(isFilterActive(group)) ? '' : 'unactive'"
+                        <div ng-class="{'unactive' : !isFilterActive(group),
+                                        'solid-black' : (group.color === '')}"
                              class="button-filter [[group.color]]"
                              ng-click="toogleFilter(group)">
                             [[group.name]]
