@@ -1,5 +1,7 @@
 <div oncontextmenu="return false" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"
-     ng-class="(!isNotPast(item)) ? 'past' : 'notpast'">
+     ng-class="{'past': !isNotPast(item),
+                'notPast': isNotPast(item),
+                'solid-black': (item.color === '')}">
 
     <!--FOR PERSONNEL (OR USERS THAT CAN MANAGE) : SUBJECT AND EDIT ICON-->
     <div ng-if="canManage()" class="display-flex space-between">
