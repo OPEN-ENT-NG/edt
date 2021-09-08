@@ -32,6 +32,7 @@ export class CalendarItem {
     color: string;
     exceptionnal: string;
     classes: Array<string>;
+    groups: Array<string>;
 
 
     constructor(obj: object, startDate?: string | object, endDate?: string | object) {
@@ -214,7 +215,7 @@ export class CalendarItems {
             }
         }
 
-        this.sortByClasses();
+        this.sortByClassesAndGroups();
 
         if (teachers.length > 1) {
             this.sortByTeachers();
@@ -223,15 +224,17 @@ export class CalendarItems {
         return;
     }
 
-    sortByClasses = (): void => {
+    sortByClassesAndGroups = (): void => {
         this.all.sort((c1: CalendarItem, c2: CalendarItem): number => {
-            if (c1.startMomentDate === c2.startMomentDate
-                && c1.startMomentTime === c2.startMomentTime
-                && c1.classes && c1.classes.length > 0
-                && c2.classes && c2.classes.length > 0) {
+            let primaryAudience = (audience: CalendarItem): string => {
+                return (audience.classes && audience.classes.length > 0) ? audience.classes[0] :
+                    (audience.groups && audience.groups.length > 0) ? audience.groups[0] : ""; };
 
-                return (c1.classes[0] < c2.classes[0]) ? -1 :
-                    (c1.classes[0] > c2.classes[0]) ? 1 : 0;
+            if (c1.startMomentDate === c2.startMomentDate
+                && c1.startMomentTime === c2.startMomentTime) {
+
+                return (primaryAudience(c1) < primaryAudience(c2)) ? -1 :
+                    (primaryAudience(c1) > primaryAudience(c2)) ? 1 : 0;
             }
             return 0;
         });
