@@ -108,12 +108,23 @@ public class DateHelper {
         return date ;
     }
 
+    public static Date getDate(String dateString, String dateFormat){
+        Date date = new Date();
+        try{
+            SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+            date =  format.parse(dateString);
+        } catch (ParseException e) {
+            LOGGER.error("[Edt@DateHelper::getDate] error when casting date: " + dateString + ". " + e);
+        }
+        return date;
+    }
+
     Calendar getCalendar(String dateString, SimpleDateFormat dateFormat){
         Calendar date= Calendar.getInstance();
         try{
             date.setTime(dateFormat.parse(dateString))  ;
         } catch (ParseException e) {
-            LOGGER.error("error when casting date: ", e);
+            LOGGER.error("[Edt@DateHelper::getCalendar] error when casting date: " + dateString + ". " + e);
         }
         return date ;
     }
@@ -125,7 +136,7 @@ public class DateHelper {
                             +'T'
                             + TIME_FORMATTER.format(getDate(part2,DATE_FORMATTER)));
         } catch (ParseException e) {
-            LOGGER.error("error when casting date: ", e);
+            LOGGER.error("[Edt@DateHelper::getCombineDate] error when casting dates. " + e);
         }
         return date;
     }
@@ -189,11 +200,28 @@ public class DateHelper {
         return calendar.get(Calendar.DAY_OF_WEEK) - 1;
     }
 
+    public static int toDayOfWeek(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if ((calendar.get(Calendar.DAY_OF_WEEK) - 1) == 0) {
+            return Calendar.SATURDAY; // sunday = calendar.SATURDAY value
+        }
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;
+    }
+
+    public static boolean isDateDayOfWeek(Date date, int calendarDayOfWeek) {
+        return toDayOfWeek(date) == toDayOfWeek(calendarDayOfWeek);
+    }
+
     public int getDayOfWeek(int weekNumber) {
         if (weekNumber + 1 == 8) {
             return 1;
         }
         return weekNumber + 1;
+    }
+
+    public static int toDayOfWeek(int weekNumber) {
+        return weekNumber + 1 == Calendar.SATURDAY + 1 ? 1 : weekNumber + 1;
     }
 
     String addDaysToDate(String dateString, int days) {
@@ -233,7 +261,7 @@ public class DateHelper {
             Date parsedDate = parse(date, format);
             return new SimpleDateFormat(wishedFormat).format(parsedDate);
         } catch (ParseException err) {
-            LOGGER.error("[Edt@DateHelper::getDateString] Failed to parse date " + date, err);
+            LOGGER.error("[Edt@DateHelper::getDateString] Failed to parse date " + date + ". " + err);
             return date;
         }
     }
