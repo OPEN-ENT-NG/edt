@@ -354,7 +354,7 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
             );
             query.append("(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?),");
             params.add(startAt + " " + HOUR_START)
-                    .add(endAt + " " + HOUR_END)
+                    .add(endAt + " " + getEndDateHoliday(startAt, endAt))
                     .add(holiday.description())
                     .add(initDateFuture.structure())
                     .add(false)
@@ -367,6 +367,12 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .put(STATEMENT, query.toString())
                 .put(VALUES, params)
                 .put(ACTION, PREPARED));
+    }
+
+    private String getEndDateHoliday(String startAt, String endAt) {
+        return startAt != null && endAt != null && (startAt.equals(endAt) ||
+                DateHelper.isDateDayOfWeek(DateHelper.getDate(endAt, DateHelper.YEAR_MONTH_DAY), Calendar.SUNDAY))
+                ?  HOUR_END : HOUR_START;
     }
 }
 
