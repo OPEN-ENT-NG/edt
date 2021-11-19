@@ -28,6 +28,11 @@
   color: $edt-white;
 }
 
+.lighter-grey{
+  background: $edt-lighter-grey !important;
+  color: $edt-black !important;
+}
+
 .sky-blue{
   background: $edt-sky-blue;
   color: $edt-white;
@@ -188,6 +193,40 @@
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+
+  &-class-room-label {
+    display: flex;
+
+    .course-groups {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .course-room {
+      flex: auto;
+    }
+
+    .course-tag {
+      max-width: 40%;
+      float: right;
+      margin-right: 10px;
+      font-size: 12pt;
+      text-transform: uppercase;
+      text-align: end;
+
+      &-item {
+        display: flex;
+        flex-direction: row-reverse;
+
+        &-abbreviation {
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      }
+    }
+  }
 }
 
 .past{

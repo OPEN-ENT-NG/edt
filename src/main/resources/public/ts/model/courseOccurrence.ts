@@ -4,9 +4,10 @@ export class CourseOccurrence {
     dayOfWeek: any;
     startTime: Date;
     endTime: Date;
-    roomLabels: string[];
+    roomLabels: Array<string>;
+    tagId: number;
 
-    constructor (dayOfWeek: number = 1, roomLabel: string = '', startTime?: Date, endTime?: Date) {
+    constructor (dayOfWeek: number = 1, roomLabel: string = '', startTime?: Date, endTime?: Date, tagId?: number) {
         this.dayOfWeek = dayOfWeek;
         this.roomLabels = [roomLabel];
         let start = moment();
@@ -22,6 +23,9 @@ export class CourseOccurrence {
             this.endTime.setTime(d);
         } else {
             this.endTime = endTime;
+        }
+        if (tagId) {
+            this.tagId = tagId;
         }
     }
 

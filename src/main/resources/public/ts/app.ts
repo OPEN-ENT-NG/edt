@@ -27,20 +27,26 @@ routes.define(($routeProvider) => {
             action: 'main'
         });
 
-    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+    if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
         $routeProvider.when('/create', {
             action: 'create'
         });
     }
-    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+    if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
         $routeProvider
-            .when ('/edit/:type/:idCourse/:beginning?/:end?',  {
+            .when('/edit/:type/:idCourse/:beginning?/:end?', {
                 action: 'edit'
             });
 
     }
-    if(model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage))
-    $routeProvider.when('/importSts', {
+    if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+        $routeProvider.when('/importSts', {
             action: 'importSts'
-    });
+        });
+    }
+    if (model.me.hasWorkflow(Behaviours.applicationsBehaviours.edt.rights.workflow.manage)) {
+        $routeProvider.when('/courseLabels', {
+            action: 'courseLabels'
+        });
+    }
 });

@@ -18,11 +18,13 @@ import {DragAndDrop} from "../utils/dragAndDrop";
 import {PreferencesUtils} from "../utils/preference/preferences";
 import {DateUtils} from "../utils/date";
 import {ScheduleItem} from "../model/scheduleItem";
+import { ICourseTagService } from "../services/courseTag.service";
 
 declare const window: any;
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'route', '$location', '$timeout', async ($scope, route, $location, $timeout) => {
+    ['$scope', 'route', '$location', '$timeout', 'CourseTagService',
+        async ($scope, route, $location, $timeout, courseTagService: ICourseTagService) => {
         $scope.structures = new Structures();
         $scope.params = {
             user: [],
@@ -33,6 +35,8 @@ export let main = ng.controller('EdtController',
             updateItem: null,
             dateFromCalendar: null
         };
+
+        $scope.courseTags = [];
 
         $scope.autocomplete = AutocompleteUtils;
         const WORKFLOW_RIGHTS = Behaviours.applicationsBehaviours.edt.rights.workflow;
@@ -63,7 +67,7 @@ export let main = ng.controller('EdtController',
         $scope.display = {
             showQuarterHours : true
         };
-        $scope.show = {
+        $scope.showLightBox = {
             home_lightbox : false,
             delete_lightbox: false,
             isDeleteOccurrenceLightbox: false
@@ -84,6 +88,7 @@ export let main = ng.controller('EdtController',
         $scope.syncStructure = async (structure: Structure) : Promise<void> => {
             $scope.timeSlots.structure_id = structure.id;
             AutocompleteUtils.init(structure);
+            $scope.courseTags = await courseTagService.getCourseTags($scope.structure.id);
             const promises: Promise<void>[] = [];
             promises.push($scope.structure.sync(model.me.type === USER_TYPES.teacher));
             promises.push(initTimeSlots());
@@ -438,7 +443,7 @@ export let main = ng.controller('EdtController',
 
         $scope.calendarUpdateItem = (itemId, start?, end?,occurrence? ) => {
             if(itemId) {
-                $scope.show.home_lightbox = false;
+                $scope.showLightBox.home_lightbox = false;
                 let type = occurrence ? 'occurrence' : 'course';
                 let url = `/edit/${type}/${itemId}`;
                 if (start && end) url += `/${start.format('x')}/${end.format('x')}`;
@@ -499,7 +504,7 @@ export let main = ng.controller('EdtController',
                     $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
                 }
 
-                $scope.show.home_lightbox = true;
+                $scope.showLightBox.home_lightbox = true;
             } else {
                 $scope.calendarUpdateItem(itemId, $scope.paramEdition.start, $scope.paramEdition.end);
             }
@@ -507,13 +512,13 @@ export let main = ng.controller('EdtController',
         };
 
         $scope.cancelEditionLightbox = () =>{
-            $scope.show.home_lightbox = false;
+            $scope.showLightBox.home_lightbox = false;
             // model.calendar.setDate(model.calendar.firstDay)
             Utils.safeApply($scope);
         };
 
         $scope.cancelDeleteLightbox = () =>{
-            $scope.show.delete_lightbox = false;
+            $scope.showLightBox.delete_lightbox = false;
             Utils.safeApply($scope);
         };
 
@@ -521,7 +526,7 @@ export let main = ng.controller('EdtController',
          * Close the delete course occurrences popup.
          */
         $scope.cancelDeleteOccurrenceLightbox = () : void =>{
-            $scope.show.isDeleteOccurrenceLightbox = false;
+            $scope.showLightBox.isDeleteOccurrenceLightbox = false;
             Utils.safeApply($scope);
         };
 
@@ -582,13 +587,13 @@ export let main = ng.controller('EdtController',
                             const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
                             $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
                         }
-                        $scope.show.isDeleteOccurrenceLightbox = true;
+                        $scope.showLightBox.isDeleteOccurrenceLightbox = true;
                     }
                 } else {
-                    $scope.show.delete_lightbox = true;
+                    $scope.showLightBox.delete_lightbox = true;
                 }
             } else {
-                $scope.show.delete_lightbox = true;
+                $scope.showLightBox.delete_lightbox = true;
             }
 
             Utils.safeApply($scope);
@@ -598,7 +603,7 @@ export let main = ng.controller('EdtController',
          * Delete the selected courses.
          */
         $scope.deleteCourses = async () : Promise<void> => {
-            $scope.show.delete_lightbox = false;
+            $scope.showLightBox.delete_lightbox = false;
             const promises = [];
             $scope.params.coursesToDelete.map((course: Course) => promises.push(course.delete(course._id)));
             await Promise.all(promises);
@@ -616,7 +621,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.deleteCourseOccurrences = async (deleteOccurrence : boolean) : Promise<void> => {
 
-            $scope.show.isDeleteOccurrenceLightbox = false;
+            $scope.showLightBox.isDeleteOccurrenceLightbox = false;
 
             if (deleteOccurrence) {
                 await $scope.courseToEdit.delete(null, $scope.courseToEdit.recurrence);

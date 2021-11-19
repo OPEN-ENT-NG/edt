@@ -5,11 +5,12 @@ import {DateUtils} from "../utils/date";
 import {Moment} from "moment";
 import {DATE_FORMAT} from "../core/constants/dateFormat";
 import {TimeSlotHourPeriod} from "../model/viescolaire";
+import {ICourseTagService} from "../services";
 
 declare const window: any;
 
 export let manageCourseCtrl = ng.controller('manageCourseCtrl',
-    ['$scope', '$location', '$routeParams', "$timeout", ($scope, $location, $routeParams, $timeout) => {
+    ['$scope', '$location', '$routeParams', "$timeout", "CourseTagService", ($scope, $location, $routeParams, $timeout, courseTagService: ICourseTagService) => {
         $scope.timeSlotHourPeriod = TimeSlotHourPeriod;
         $scope.daysOfWeek = DAYS_OF_WEEK;
         $scope.comboLabels = COMBO_LABELS;
@@ -24,6 +25,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
 
         $scope.course.timeSlots = !($scope.timeSlots) ? new TimeSlots($scope.structure.id) : $scope.timeSlots;
         $scope.course.timeSlot = !($scope.timeSlot) ? new TimeSlot() : $scope.timeSlot;
+        $scope.courseTags = [];
         $scope.deleteOnlyOneCourse = true;
         $scope.isExceptional = false;
 
@@ -135,6 +137,11 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             Utils.safeApply($scope);
         };
 
+        $scope.syncCourseTags = async (): Promise<void> => {
+            $scope.courseTags = await courseTagService.getCourseTags($scope.structure.id);
+            Utils.safeApply($scope);
+        };
+
         $scope.freeHourInput = (hourPeriod: TimeSlotHourPeriod): void => {
             if ($scope.timeoutInput) $timeout.cancel($scope.timeoutInput);
             $scope.timeoutInput = $timeout(() => $scope.selectTime(hourPeriod), 600);
@@ -188,6 +195,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         };
 
         $scope.setTimeSlotFromCourseOccurrence = (): void => {
+            if ($scope.course.timeSlots.all === null)
+                return;
             $scope.course.timeSlots.all.forEach((t: TimeSlot) => {
 
                 if (t.startHour === moment($scope.courseOccurrenceForm.startTime).format(DATE_FORMAT['LONG-TIME'])) {
@@ -227,6 +236,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         if ($location.$$path.includes('/edit')) {
             $scope.course.courseOccurrences = [];
             $scope.isAnUpdate = true;
+
+            $scope.courseOccurrenceForm.tagId = ($scope.course.tagIds && $scope.course.tagIds.length > 0)
+                ? $scope.course.tagIds[0] : null;
 
             let start: Moment = moment($scope.course.startDate).seconds(0).millisecond(0);
             let end: Moment = moment($scope.course.endDate).seconds(0).millisecond(0);
@@ -272,7 +284,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         }
         $scope.course.structure = $scope.structure;
         $scope.syncSubjects();
-
+        $scope.syncCourseTags();
         $scope.makeRecurrentCourse = () => {
             $scope.course.is_recurrent = true;
             let structure = $scope.structure;
@@ -363,10 +375,10 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 $scope.course.idStartSlot = $scope.course.timeSlot.start.id;
                 $scope.course.idEndSlot = $scope.course.timeSlot.end.id;
             }
-            // $scope.course.courseOccurrences.push(_.clone($scope.courseOccurrenceForm));
             $scope.course.courseOccurrences.push($scope.courseOccurrenceForm);
-            $scope.courseOccurrenceForm = new CourseOccurrence();
-            // $scope.changeDate();
+
+            $scope.courseOccurrenceForm = new CourseOccurrence(1, "",
+                null, null, $scope.courseOccurrenceForm.tagId);
         };
 
         /**
@@ -396,6 +408,7 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
         $scope.saveCourse = async (course: Course): Promise<void> => {
             $scope.changeDate();
             course.display = $scope.display;
+            course.tagIds = [$scope.courseOccurrenceForm.tagId];
 
             if (!$scope.display.freeSchedule) {
                 course.idStartSlot = $scope.course.timeSlot.start.id;

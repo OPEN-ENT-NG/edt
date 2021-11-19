@@ -3,6 +3,7 @@ package fr.cgi.edt.services;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
+import org.entcore.common.user.UserInfos;
 
 public interface CourseService {
 
@@ -13,5 +14,5 @@ public interface CourseService {
      */
     Future<JsonArray> getCourses(String structureId, String startAt, String endAt, JsonArray teacherIds, JsonArray groupIds,
                     JsonArray groupExternalIds, JsonArray groupNames, String startTime, String endTime,
-                    Boolean union, Boolean crossDateFilter);
+                    Boolean union, Boolean crossDateFilter, UserInfos user);
 }
