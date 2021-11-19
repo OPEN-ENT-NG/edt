@@ -271,6 +271,34 @@ public class DateHelper {
         return sdf.parse(date);
     }
 
+    /**
+     * Get Simple format date as PostgreSQL timestamp without timezone format
+     *
+     * @return Simple date format
+     */
+    public static SimpleDateFormat getPsqlSimpleDateFormat() {
+        return new SimpleDateFormat(SQL_FORMAT);
+    }
+
+    /**
+     * Get Simple format date as PostgreSQL date format
+     *
+     * @return Simple date format
+     */
+    public static SimpleDateFormat getPsqlDateSimpleDateFormat() {
+        return new SimpleDateFormat(SQL_DATE_FORMAT);
+    }
+
+    public static SimpleDateFormat getMongoSimpleDateFormat() {
+        return new SimpleDateFormat(MONGO_FORMAT);
+    }
+
+    public static Date parse(String date) throws ParseException {
+        SimpleDateFormat ssdf = DateHelper.getPsqlSimpleDateFormat();
+        SimpleDateFormat msdf = DateHelper.getMongoSimpleDateFormat();
+        return date.contains("T") ? ssdf.parse(date) : msdf.parse(date);
+    }
+
     public static boolean isDateBefore(String targetDate, String comparedDate) {
         LocalDate dateTarget = LocalDate.parse(targetDate);
         LocalDate date = LocalDate.parse(comparedDate);
@@ -283,5 +311,26 @@ public class DateHelper {
         LocalDate date = LocalDate.parse(comparedDate);
 
         return dateTarget.isAfter(date);
+    }
+
+    /**
+     * Check if the first date is after the second date
+     *
+     * @param date1 First date
+     * @param date2 Second date
+     * @return Boolean that match if the first date is after the second date
+     */
+    public static boolean isAfterOrEquals(String date1, String date2) {
+        Date firstDate = new Date();
+        Date secondDate = new Date();
+        try {
+            firstDate = parse(date1);
+            secondDate = parse(date2);
+        } catch (ParseException e) {
+            LOGGER.error("[EDT@DateHelper::isDateBeforeOrEqual] Error when casting date: ", e);
+        }
+
+
+        return firstDate.after(secondDate) || firstDate.equals(secondDate);
     }
 }

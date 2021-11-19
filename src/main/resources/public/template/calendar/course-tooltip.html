@@ -31,4 +31,13 @@
            </span>
        </span>
     </div>
+
+    <!--COURSE TAG LABEL-->
+    <div class="tooltip-cours-tag">
+           <span ng-repeat="tag in item.course.tags">
+               <span ng-if="tag.label !== null">
+                    [[tag.label]]
+               </span>
+           </span>
+    </div>
 </article>

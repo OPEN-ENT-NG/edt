@@ -190,6 +190,22 @@
                 </div>
             </div>
 
+            <!-- COURSE TAG SELECT -->
+            <div class="row form-row">
+                <label for="select-tag" class="cell two twelve-mobile">
+                    <i18n>edt.utils.course.label</i18n>
+                </label>
+                <div class="cell twelve-mobile ten">
+
+                    <select class="twelve-mobile format-select" id="select-tag"
+                            ng-model="courseOccurrenceForm.tagId"
+                            ng-options="courseTag.id as courseTag.label disable when courseTag.isHidden
+                            for courseTag in courseTags">
+                        <option value="" selected>[[translate('edt.creation.tag.add')]]</option>
+                    </select>
+                </div>
+            </div>
+
             <!--COURSE ROOM INPUT-->
             <div ng-if="!course.is_recurrent" class="row form-row remove-padding">
                 <label class="cell two twelve-mobile">

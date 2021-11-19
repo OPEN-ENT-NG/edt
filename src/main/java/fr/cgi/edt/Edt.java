@@ -3,6 +3,8 @@ package fr.cgi.edt;
 import fr.cgi.edt.controllers.*;
 import fr.cgi.edt.models.holiday.HolidaysConfig;
 import fr.cgi.edt.services.ServiceFactory;
+import fr.cgi.edt.services.impl.DefaultCourseService;
+import fr.cgi.edt.services.impl.DefaultCourseTagService;
 import fr.cgi.edt.services.impl.DefaultInitImpl;
 import fr.wseduc.mongodb.MongoDb;
 import io.vertx.core.eventbus.EventBus;
@@ -40,8 +42,9 @@ public class Edt extends BaseServer {
         addController(new EdtController(EDT_COLLECTION, eb, eventStore));
         addController(new InitController(new DefaultInitImpl("edt", serviceFactory, holidaysConfig), vertx));
         addController(new SearchController(eb));
-        addController(new CourseController(eb));
+        addController(new CourseController(eb, new DefaultCourseService(eb, Sql.getInstance(), MongoDb.getInstance())));
         addController(new ConfigController());
+        addController(new CourseTagController(new DefaultCourseTagService(Sql.getInstance(), MongoDb.getInstance())));
 
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());

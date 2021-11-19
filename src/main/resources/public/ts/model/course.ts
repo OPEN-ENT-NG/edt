@@ -9,11 +9,12 @@ import {DATE_FORMAT} from "../core/constants/dateFormat";
 declare const window: any;
 
 export interface ICourse {
-    teacherIds: string[],
-    groupIds: string[],
-    groupExternalIds: string[],
-    groupNames: string[],
-    union: boolean
+    teacherIds: Array<string>;
+    groupIds: Array<string>;
+    groupExternalIds: Array<string>;
+    groupNames: Array<string>;
+    union: boolean;
+    tagIds?: Array<number>;
 }
 
 export class Course {
@@ -33,6 +34,7 @@ export class Course {
     structure: Structure = null;
     structureId: string = undefined;
     teacherIds: Array<string> = [];
+    tagIds?: Array<number> = [];
     subjectId: string = '';
     subject?: ISubject;
     roomLabels: Array<string> = [];
@@ -134,6 +136,7 @@ export class Course {
             structureId: this.structureId,
             subjectId: this.subjectId,
             teacherIds: _.pluck(this.teachers, 'id'),
+            tagIds: this.tagIds,
             classes: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'name'),
             classesExternalIds: _.pluck(_.where(this.groups, {type_groupe: Utils.getClassGroupTypeMap()['CLASS']}), 'externalId'),
             classesIds: this.groups

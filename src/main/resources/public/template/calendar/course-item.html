@@ -1,18 +1,19 @@
 <div oncontextmenu="return false" class="schedule-item-content [[item.color]]" data-id="[[item.course._id]]"
      ng-class="{'past': !isNotPast(item),
                 'notPast': isNotPast(item),
-                'solid-black': (item.color === '')}">
+                'solid-black': (item.color === ''),
+                'lighter-grey': (item.course && item.course.tags.length > 0)}">
 
     <!--FOR PERSONNEL (OR USERS THAT CAN MANAGE) : SUBJECT AND EDIT ICON-->
-    <div ng-if="canManage()" class="display-flex space-between">
+    <div class="display-flex space-between">
         <!--COURSE SUBJECT-->
         <div ng-class="(isNotPast(item)) ?  'ten' : 'twelve'"
              class="cell ten ellipsis inside-schedule">
             <!--'inside-schedule' : allows drag and drop-->
             [[item.course.subjectLabel]]
         </div>
-        <!--COURSE EDIT ICON-->
-        <div ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]">
+        <!--COURSE EDIT ICON (FOR PERSONNEL (OR USERS THAT CAN MANAGE)-->
+        <div ng-if="canManage()" ng-show="isNotPast(item)" class="cell one edit-icone" data-id="[[item.course._id]]">
             <i class="edit margin-right-md right-magnet">
                 <div ng-hide="true">[[item.startDate]]</div>
                 <div ng-hide="true">[[item.endDate]]</div>
@@ -20,26 +21,31 @@
         </div>
     </div>
 
-    <!--FOR OTHER USERS ONLY SUBJECT-->
-    <div ng-if="!canManage()">
-        <!--COURSE SUBJECT-->
-        <div class="cell twelve ellipsis">
-            [[item.course.subjectLabel]]
-        </div>
-    </div>
+    <div class="schedule-item-content-class-room-label">
+        <!--LIST OF COURSE CLASSES AND GROUPS-->
+        <em class="metadata inside-schedule course-groups">
+            <span class="inside-schedule" ng-repeat="className in item.course.classes">[[className]]&nbsp;</span>
+            <span class="inside-schedule" ng-repeat="groupName in item.course.groups">[[groupName]]&nbsp;</span>
+        </em>
 
-    <!--LIST OF COURSE CLASSES AND GROUPS-->
-    <em class="metadata inside-schedule">
-        <span class="inside-schedule" ng-repeat="className in item.course.classes">[[className]]</span>
-        <span class="inside-schedule" ng-repeat="groupName in item.course.groups">[[groupName]]</span>
-    </em>
-
-    <!--COURSE ROOM-->
-    <em class="metadata inside-schedule">
+        <!--COURSE ROOM-->
+        <em class="metadata inside-schedule course-room">
            <span ng-repeat="roomLabel in item.course.roomLabels">
                <span ng-if="roomLabel !== null && roomLabel !=''">
                 -  <i18n>edt.utils.room</i18n>: [[roomLabel]]
                </span>
            </span>
-    </em>
+        </em>
+
+        <!--COURSE TAG ABBREVIATION-->
+        <em class="metadata inside-schedule course-tag">
+           <span class="course-tag-item" ng-repeat="tag in item.course.tags">
+               <span class="course-tag-item-abbreviation" ng-if="tag.abbreviation !== null">
+                    [[tag.abbreviation]]
+               </span>
+           </span>
+        </em>
+    </div>
+
+
 </div>

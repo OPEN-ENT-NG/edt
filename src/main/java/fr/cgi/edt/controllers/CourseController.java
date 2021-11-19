@@ -11,6 +11,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import org.entcore.common.controller.ControllerHelper;
+import org.entcore.common.user.UserUtils;
 
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,8 +23,8 @@ public class CourseController extends ControllerHelper {
 
     private final CourseService courseService;
 
-    public CourseController(EventBus eb) {
-        this.courseService = new DefaultCourseService(eb);
+    public CourseController(EventBus eb, CourseService courseService) {
+        this.courseService = courseService;
     }
 
     @Post("/structures/:structureId/common/courses/:startAt/:endAt")
@@ -43,11 +44,10 @@ public class CourseController extends ControllerHelper {
             final Boolean union = event.getBoolean("union");
             final Boolean crossDateFilter = event.getBoolean("crossDateFilter");
 
-            courseService.getCourses(structureId, startAt, endAt, teacherIds, groupIds, groupExternalIds, groupNames,
-                    startTime, endTime, union, crossDateFilter)
+            UserUtils.getUserInfos(eb, request, user -> courseService.getCourses(structureId, startAt, endAt, teacherIds, groupIds, groupExternalIds, groupNames,
+                            startTime, endTime, union, crossDateFilter, user)
                     .onSuccess(result -> renderJson(request, result))
-                    .onFailure(err -> badRequest(request));
+                    .onFailure(err -> badRequest(request)));
         });
-
     }
 }

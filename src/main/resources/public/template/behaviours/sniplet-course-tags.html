@@ -1,0 +1,90 @@
+<div class="sniplet edt ten cell edt-settings">
+    <div class="snippet-course-tags">
+        <article class="row">
+            <div class="snippet-course-tags-form">
+                <!-- Title -->
+                <h3 class="row">
+                    [[lang.translate('edt.admin.course.tags.title')]]
+                </h3>
+
+                <!-- Tag input -->
+                <div class="snippet-course-tags-form-input-tag">
+                    <span>[[lang.translate('edt.admin.course.tags.input.text')]]</span>
+
+                    <input type="text" data-ng-model="vm.courseTagForm.label" class="twelve cell"
+                           i18n-placeholder="edt.admin.course.tag.input.example">
+                </div>
+
+
+                <!-- Abbreviation input -->
+                <div class="snippet-course-tags-form-input-tag">
+                    <span>[[lang.translate('edt.admin.course.tags.input.abbr')]]</span>
+                    <input type="text" data-ng-model="vm.courseTagForm.abbreviation" class="twelve cell"
+                           i18n-placeholder="edt.admin.course.abbr.input.example">
+                </div>
+
+                <!-- Label priority input -->
+                <div class="snippet-course-tags-form-input-choice">
+                    <span>[[lang.translate('edt.admin.course.tags.input.priority.choice')]]</span>
+
+                    <div class="eight flex-row">
+                        <div class="md-radio mr-radio-inline">
+                            <input type="radio" ng-model="vm.courseTagForm.isPrimary"
+                                   ng-value="true"
+                                   id="priority-true">
+                            <label for="priority-true">
+                                <i18n>edt.utils.yes</i18n>
+                            </label>
+                        </div>
+                        <div class="md-radio mr-radio-inline">
+                            <input type="radio" ng-model="vm.courseTagForm.isPrimary"
+                                   ng-value="false"
+                                   id="priority-false">
+                            <label for="priority-false">
+                                <i18n>edt.utils.no</i18n>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form add button -->
+                <button class="snippet-course-tags-form-button" data-ng-click="vm.createCourseTag()"
+                        data-ng-disabled="!vm.isFormValid()">
+                    [[lang.translate('edt.utils.add')]]
+                </button>
+            </div>
+
+            <!-- List of existing tags -->
+            <div>
+                <span>[[lang.translate('edt.admin.course.existing.tags')]]</span>
+
+                <ul class="snippet-course-tags-list">
+                    <li class="snippet-course-tags-list-item" ng-repeat="tag in vm.courseTags">
+                        <div class="snippet-course-tags-list-item-title">
+                            [[tag.label]]&nbsp;([[tag.abbreviation]])
+
+                            <i class="edit" data-ng-click="vm.openCourseTagLightbox(tag)"></i>
+                        </div>
+                        <div class="snippet-course-tags-list-item-icons">
+                            <i class="visible" data-ng-show="tag.isUsed &amp;&amp; !tag.isHidden"
+                               data-ng-click="vm.toggleVisibility(tag)"></i>
+                            <i class="invisible" data-ng-show="tag.isUsed &amp;&amp; tag.isHidden"
+                               data-ng-click="vm.toggleVisibility(tag)"></i>
+                            <i class="delete" data-ng-show="!tag.isUsed" data-ng-click="vm.deleteCourseTag(tag.id)"></i>
+                        </div>
+                    </li>
+                </ul>
+
+            </div>
+
+        </article>
+
+        <div class="snippet-course-tags-lightbox">
+            <!-- lightbox edit reason -->
+            <div ng-include="'/edt/public/template/behaviours/sniplet-course-tags-lightbox.html'"></div>
+        </div>
+
+
+    </div>
+</div>
+

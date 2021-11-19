@@ -1,0 +1,74 @@
+<lightbox class="sniplet" show="vm.editCourseTagLightbox"
+          on-close="vm.closeCourseTagLightbox()">
+
+    <!-- Header -->
+    <h1 class="snippet-course-tags-lightbox-head">
+        <i18n>edt.utils.modify</i18n>
+    </h1>
+    <div class="snippet-course-tags-lightbox-body">
+
+        <!-- Body -->
+        <section>
+
+            <!-- Tag input -->
+            <div class="snippet-course-tags-lightbox-body-input-tag">
+                <span>[[lang.translate('edt.admin.course.tags.input.text')]]</span>
+
+                <input type="text" data-ng-model="vm.courseEditTagForm.label" class="twelve cell"
+                       i18n-placeholder="edt.admin.course.tag.input.example">
+            </div>
+
+
+            <!-- Abbreviation input -->
+            <div class="snippet-course-tags-lightbox-body-input-tag">
+                <span>[[lang.translate('edt.admin.course.tags.input.abbr')]]</span>
+                <input type="text" data-ng-model="vm.courseEditTagForm.abbreviation" class="twelve cell"
+                       i18n-placeholder="edt.admin.course.abbr.input.example">
+            </div>
+
+            <!-- Label priority input -->
+            <div class="snippet-course-tags-lightbox-body-input-choice">
+                <span>[[lang.translate('edt.admin.course.tags.input.priority.choice')]]</span>
+
+                <div class="eight flex-row">
+                    <div class="md-radio mr-radio-inline">
+                        <input type="radio" ng-model="vm.courseEditTagForm.isPrimary"
+                               ng-value="true"
+                               id="priority-true">
+                        <label for="priority-true">
+                            <i18n>edt.utils.yes</i18n>
+                        </label>
+                    </div>
+                    <div class="md-radio mr-radio-inline">
+                        <input type="radio" ng-model="vm.courseEditTagForm.isPrimary"
+                               ng-value="false"
+                               id="priority-false">
+                        <label for="priority-false">
+                            <i18n>edt.utils.no</i18n>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <section class="snippet-course-tags-lightbox-footer">
+            <!-- Button/submit -->
+            <div class="snippet-course-tags-lightbox-footer-buttons row">
+
+                <!-- Submit mode -->
+                <button class="right-magnet" data-ng-click="vm.updateCourseTag()"
+                        data-ng-disabled="!vm.isEditFormValid()">
+                    <i18n>edt.utils.modify</i18n>
+                </button>
+
+                <!-- Cancel mode  -->
+                <button class="right-magnet cancel" data-ng-click="vm.closeCourseTagLightbox()">
+                    <i18n>edt.cancel</i18n>
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+</lightbox>

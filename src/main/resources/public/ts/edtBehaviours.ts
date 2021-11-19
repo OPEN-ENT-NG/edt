@@ -4,6 +4,7 @@ import { SETTINGS_SNIPPLET } from './snipplets';
 import { Exclusion, Exclusions } from './model';
 import {initData} from "./snipplets/init_data";
 import {importSts} from "./snipplets/import_sts";
+import {courseTags} from "./snipplets/course-tags";
 
 export const edtBehaviours = {
     rights: {
@@ -48,6 +49,7 @@ export const edtBehaviours = {
     sniplets: {
         exclusion: SETTINGS_SNIPPLET,
         init_data_edt: initData,
-        import_sts: importSts
+        import_sts: importSts,
+        'course-tags': courseTags
     }
 };
