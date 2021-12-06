@@ -147,8 +147,7 @@ export class CalendarItems {
             (model.me.groupsIds.indexOf(group.id) === -1 && group.type_groupe !== 0)));
 
         let filter: ICourse = {
-            teacherIds: (model.me.type === USER_TYPES.teacher && teachers.length === 0) ?
-                [model.me.userId] : teachers.map((teacher: Teacher): string => teacher.id),
+            teacherIds: teachers.map((teacher: Teacher): string => teacher.id),
             groupIds: filterGroups.map((group: Group): string => group.id),
             groupExternalIds: filterGroups.map((group: Group): string => group.externalId),
             groupNames: filterGroups.map((group: Group): string => group.name),
