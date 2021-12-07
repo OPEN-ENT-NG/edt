@@ -69,6 +69,12 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             return $scope.course._id && $scope.course._id.trim() !== '' && $scope.course.is_recurrent;
         };
 
+        $scope.getInitStartDate = (): string => {
+            return $scope.getSimpleDateFormat(
+                moment($scope.course.startDate).isAfter(moment()) ?
+                    $scope.course.startDate : moment());
+        };
+
         /**
          * keep the consistency between time of occurrence and dates of course
          */

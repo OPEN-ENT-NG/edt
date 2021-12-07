@@ -1,6 +1,7 @@
 package fr.cgi.edt.controllers;
 
 import fr.cgi.edt.core.constants.EventStores;
+import fr.cgi.edt.core.constants.Field;
 import fr.cgi.edt.security.UserInStructure;
 import fr.cgi.edt.security.WorkflowActionUtils;
 import fr.cgi.edt.security.workflow.ManageCourseWorkflowAction;
@@ -242,6 +243,16 @@ public class EdtController extends MongoDbControllerHelper {
     public void getRecurrences(HttpServerRequest request) {
         String recurrence = request.getParam("id");
         edtService.retrieveRecurrences(recurrence, arrayResponseHandler(request));
+    }
+
+    @Get("/courses/recurrences/dates/:id")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    public void getRecurrencesDates(HttpServerRequest request) {
+        String recurrence = request.getParam(Field.ID);
+        edtService.retrieveRecurrencesDates(recurrence)
+                .onFailure(err -> badRequest(request))
+                .onSuccess(result -> renderJson(request, result));
     }
 
     @Put("/courses/:id")

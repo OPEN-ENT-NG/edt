@@ -1,5 +1,6 @@
 package fr.cgi.edt.services.impl;
 
+import fr.cgi.edt.core.constants.Field;
 import fr.cgi.edt.helper.FutureHelper;
 import fr.cgi.edt.services.EdtService;
 import fr.cgi.edt.utils.DateHelper;
@@ -8,9 +9,12 @@ import fr.wseduc.mongodb.MongoDb;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.entcore.common.mongodb.MongoDbResult;
 import org.entcore.common.service.impl.MongoDbCrudService;
 import org.joda.time.DateTime;
@@ -18,12 +22,16 @@ import org.joda.time.Weeks;
 
 import java.util.*;
 
+import static fr.cgi.edt.Edt.EDT_COLLECTION;
+import static io.vertx.core.Future.future;
+
 /**
  * MongoDB implementation of the REST service.
  * Methods are usually self-explanatory.
  */
 public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtService {
 
+    private static final Logger log = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
     private final String collection;
     private final EventBus eb;
     private final DateHelper dateHelper = new DateHelper();
@@ -61,12 +69,67 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     @Override
     public void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler) {
-        JsonObject query = new JsonObject()
-                .put("recurrence", recurrence)
-                .put("deleted", new JsonObject().put("$exists", false))
-                .put("$or", theoreticalFilter());
+        JsonObject query = matchRecurrence(recurrence);
 
         MongoDb.getInstance().find(this.collection, query, MongoDbResult.validResultsHandler(handler));
+    }
+
+    @Override
+    public Future<JsonObject> retrieveRecurrencesDates(String recurrence) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject request = commandObject(retrieveRecurrencesDatesPipeline(recurrence));
+
+        mongo.command(request.toString(), MongoDbResult.validResultHandler(res -> {
+
+            if (res.isLeft()) {
+                String message = String.format("[EDT@%s::retrieveRecurrencesDates] Error fetching recurrence dates : %s",
+                        this.getClass().getSimpleName(), res.left().getValue());
+                log.error(message, res.left().getValue());
+            } else {
+                JsonArray result = res.right().getValue().getJsonObject("cursor",
+                        new JsonObject()).getJsonArray("firstBatch", new JsonArray());
+                promise.complete(result.size() > 0 ? result.getJsonObject(0) : new JsonObject());
+            }
+        }));
+
+        return promise.future();
+    }
+
+    private JsonArray retrieveRecurrencesDatesPipeline(String recurrenceId) {
+        return new JsonArray()
+                .add(new JsonObject().put("$match", matchRecurrence(recurrenceId)))
+                .add(new JsonObject().put("$group", groupRecurrence()))
+                .add(new JsonObject().put("$project", projectRecurrence()));
+    }
+
+    private JsonObject matchRecurrence(String recurrenceId) {
+        return new JsonObject()
+                .put(Field.RECURRENCE, recurrenceId)
+                .put(Field.DELETED, new JsonObject().put("$exists", false))
+                .put("$or", theoreticalFilter());
+    }
+
+    private JsonObject groupRecurrence() {
+        return new JsonObject()
+                .put(Field._ID, "")
+                .put(Field.STARTDATE, new JsonObject().put("$min", "$"+Field.STARTDATE))
+                .put(Field.ENDDATE, new JsonObject().put("$max", "$"+Field.ENDDATE));
+    }
+
+    private JsonObject projectRecurrence() {
+        return new JsonObject()
+                .put(Field._ID, 0)
+                .put(Field.STARTDATE, 1)
+                .put(Field.ENDDATE, 1);
+    }
+
+    private JsonObject commandObject(JsonArray pipeline) {
+        return new JsonObject()
+                .put("aggregate", EDT_COLLECTION)
+                .put("allowDiskUse", true)
+                .put("cursor", new JsonObject().put("batchSize", 2147483647))
+                .put("pipeline", pipeline);
     }
 
     @Override

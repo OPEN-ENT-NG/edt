@@ -29,7 +29,7 @@
     <div class="row illustration">
         <div class="time-barre twelve cell" ng-class="{green: (!editOccurrence && courseToEdit.isInFuture())}">
             <div class="startCourse">
-                <p>[[getSimpleFRDateFormat( courseToEdit.recurrenceObject.start )]]</p>
+                <p>[[getFirstRecurrenceDate(courseToEdit)]]</p>
             </div>
             <div class="startEdition" ng-show="!editOccurrence && !courseToEdit.isInFuture()">
                 <p>[[getSimpleFRDateFormat(courseToEdit.getNextOccurrenceDate(moment()))]]</p>

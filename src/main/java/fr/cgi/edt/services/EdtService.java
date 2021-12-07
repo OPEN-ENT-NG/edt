@@ -1,6 +1,7 @@
 package fr.cgi.edt.services;
 
 import fr.wseduc.webutils.Either;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -48,6 +49,8 @@ public interface EdtService {
     void deleteOccurrence(String id, String dateOccurrence, Handler<Either<String, JsonObject>> handler);
 
     void retrieveRecurrences(String recurrence, Handler<Either<String, JsonArray>> handler);
+
+    Future<JsonObject> retrieveRecurrencesDates(String recurrence);
 
     /**
      * Updates course

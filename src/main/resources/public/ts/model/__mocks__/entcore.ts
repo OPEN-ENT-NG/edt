@@ -1,9 +1,10 @@
-import { edtBehaviours } from '../../edtBehaviours';
-
 declare let global: any;
 
 export const moment = global.moment;
 export const _ = global._;
+export const ng = {
+    service: jest.fn()
+};
 
 export const model = {
     calendar: {
@@ -15,10 +16,4 @@ export const model = {
         hasWorkflow: jest.fn(() => true),
         hasRight: jest.fn(() => true)
     },
-};
-
-export const Behaviours = {
-    applicationsBehaviours : {
-        edt : edtBehaviours
-    }
 };
