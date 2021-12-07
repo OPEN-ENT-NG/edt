@@ -19,12 +19,14 @@ import {PreferencesUtils} from "../utils/preference/preferences";
 import {DateUtils} from "../utils/date";
 import {ScheduleItem} from "../model/scheduleItem";
 import { ICourseTagService } from "../services/courseTag.service";
+import {ICourseService} from "../services";
 
 declare const window: any;
 
 export let main = ng.controller('EdtController',
-    ['$scope', 'route', '$location', '$timeout', 'CourseTagService',
-        async ($scope, route, $location, $timeout, courseTagService: ICourseTagService) => {
+    ['$scope', 'route', '$location', '$timeout', 'CourseTagService', 'CourseService',
+        async ($scope, route, $location, $timeout, courseTagService: ICourseTagService,
+               courseService: ICourseService) => {
         $scope.structures = new Structures();
         $scope.params = {
             user: [],
@@ -456,31 +458,6 @@ export let main = ng.controller('EdtController',
         template.open('deletePagePopUp', 'main/delete-courses-popup');
         template.open('deleteOccurrencePagePopup', 'main/occurrence-or-course-delete-popup');
 
-        function formatRecurrenceForLightBox(recurrence: Course[]): { start: any, end: any } {
-            if (recurrence.length === 0) {
-                return null;
-            }
-
-            let start: Moment = moment(recurrence[0].startDate);
-            let end: Moment = moment(recurrence[0].endDate);
-
-            for (let i = 0; i < recurrence.length; i++) {
-                let course = recurrence[i];
-                if (moment(course.startDate).diff(start) < 0) {
-                    start = moment(course.startDate);
-                }
-
-                if (end.diff(moment(course.endDate)) < 0) {
-                    end = moment(course.endDate);
-                }
-            }
-
-            return {
-                start: DateUtils.getDateFormat(start.toISOString()),
-                end: DateUtils.getDateFormat(end.toISOString())
-            };
-        }
-
         /**
          * Determines if the course edition for occurrences popup must be displayed or if the edit page must be called.
          * @param itemId Id of the course
@@ -501,8 +478,15 @@ export let main = ng.controller('EdtController',
             if ($scope.isAbleToChooseEditionType($scope.courseToEdit, start)) {
                 if ($scope.courseToEdit.recurrenceObject === undefined) {
                     $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call
-                    const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
-                    $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
+                    let recurrence : {startDate: string; endDate: string} = null;
+
+                    try {
+                        recurrence = await courseService.getCourseRecurrenceDates($scope.courseToEdit.recurrence);
+                    } catch (e) {
+                        recurrence = {startDate: "", endDate: ""}
+                    }
+                    $scope.courseToEdit.recurrenceObject = { start: DateUtils.getDateFormat(recurrence.startDate),
+                                                            end: DateUtils.getDateFormat(recurrence.endDate)}
                 }
 
                 $scope.showLightBox.home_lightbox = true;
@@ -563,6 +547,14 @@ export let main = ng.controller('EdtController',
             return moment(date).format('DD/MM/YYYY');
         };
 
+        $scope.getFirstRecurrenceDate = (course: Course): string => {
+            if (course && course.recurrenceObject) {
+                return $scope.getSimpleFRDateFormat(moment(course.recurrenceObject.start).isBefore(moment()) ?
+                    moment() : course.recurrenceObject.start);
+            } else return $scope.getSimpleFRDateFormat(moment());
+
+        };
+
         /**
          * Drag & drop method
          */
@@ -585,8 +577,16 @@ export let main = ng.controller('EdtController',
                         $scope.courseToEdit = course;
                         if ($scope.courseToEdit.recurrenceObject === undefined) {
                             $scope.courseToEdit.recurrenceObject = {}; // Weird trick to stop multiple call Duplication code. Clean up later
-                            const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
-                            $scope.courseToEdit.recurrenceObject = formatRecurrenceForLightBox(recurrence);
+
+                            let recurrence : {startDate: string; endDate: string} = null;
+                            try {
+                                recurrence = await courseService.getCourseRecurrenceDates($scope.courseToEdit.recurrence);
+                            } catch (e) {
+                                recurrence = {startDate: "", endDate: ""}
+                            }
+
+                            $scope.courseToEdit.recurrenceObject = { start: DateUtils.getDateFormat(recurrence.startDate),
+                                end: DateUtils.getDateFormat(recurrence.endDate)}
                         }
                         $scope.showLightBox.isDeleteOccurrenceLightbox = true;
                     }
@@ -864,10 +864,16 @@ export let main = ng.controller('EdtController',
                     let recurrenceObject = $scope.course.recurrenceObject;
                     if (!recurrenceObject) {
                         recurrenceObject = {}; // Weird trick to stop multiple call
-                        const recurrence = await ($scope.courseToEdit as Course).retrieveRecurrence();
-                        recurrenceObject = formatRecurrenceForLightBox(recurrence);
+                        let recurrence : {startDate: string; endDate: string} = null;
+                        try {
+                            recurrence = await courseService.getCourseRecurrenceDates($scope.courseToEdit.recurrence);
+                        } catch (e) {
+                            recurrence = {startDate: "", endDate: ""}
+                        }
+
+                        recurrenceObject = { start: DateUtils.getDateFormat(recurrence.startDate),
+                            end: DateUtils.getDateFormat(recurrence.endDate)}
                     }
-                    // $scope.occurrenceDate = $scope.courseToEdit.getNextOccurrenceDate(Utils.getFirstCalendarDay());
                     $scope.course.startDate = moment(recurrenceObject.start);
                     $scope.course.endDate = moment(recurrenceObject.end);
                     $scope.editOccurrence = false;

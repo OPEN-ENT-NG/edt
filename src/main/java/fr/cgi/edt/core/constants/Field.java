@@ -45,6 +45,9 @@ public class Field {
     public static final String TAGID = "tagId";
     public static final String TAGIDS = "tagIds";
 
+    // Course
+    public static final String RECURRENCE = "recurrence";
+    public static final String DELETED = "deleted";
 
     private Field() {
         throw new IllegalStateException("Utility class");
