@@ -12,6 +12,7 @@ import { ICourseTagService } from "../services/courseTag.service";
 import {ICourseService} from "../services";
 import {IAngularEvent} from "angular";
 import {Subject} from "rxjs";
+import {DAY_OF_WEEK} from "../core/enum/dayOfWeek.enum";
 
 declare const window: any;
 
@@ -98,6 +99,7 @@ export let main = ng.controller('EdtController',
             promises.push(initTimeSlots());
             await Promise.all(promises);
             $scope.courseTags = await courseTagService.getCourseTags($scope.structure.id);
+            changeDatesOnSunday();
             switch (model.me.type) {
                 // student case
                 case USER_TYPES.student : {
@@ -753,6 +755,14 @@ export let main = ng.controller('EdtController',
             }
         };
 
+        const changeDatesOnSunday = (): void => {
+            model.calendar.setDate(
+                moment().day() === DAY_OF_WEEK.SUNDAY
+                    ? moment().add(1, 'week').startOf('week')
+                    : moment()
+            );
+        }
+
         const initTimeSlots = async (): Promise<void> => {
             await $scope.timeSlots.syncTimeSlots();
             if ($scope.timeSlots.all.length > 0) {
@@ -828,6 +838,7 @@ export let main = ng.controller('EdtController',
             main: () : void => {
                 template.open('main', 'main/main');
                 initTimeSlots();
+                changeDatesOnSunday();
                 if (!$scope.pageInitialized) {
                     setTimeout((): void => {initTriggers(true);}, 1000);
                 }
