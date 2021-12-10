@@ -1,4 +1,5 @@
 import { moment } from 'entcore';
+import {Course} from "./course";
 
 export class CourseOccurrence {
     dayOfWeek: any;
@@ -45,18 +46,18 @@ export class CourseOccurrence {
         return moment(this.endTime).format('HH:mm');
     }
 
-    isValidTime(course, display): boolean  {
-        if (!display.freeSchedule && course.timeSlot.start === undefined) {
+    isValidTime(course: Course, display: {
+        showQuarterHours: boolean, checkbox: boolean, freeSchedule: boolean }): boolean {
+        if (!display.freeSchedule && !course.timeSlot.start) {
             return false;
+        } else {
+            let isTimeSlot: boolean = !display.freeSchedule && course.timeSlot.start && course.timeSlot.end;
+            let startTime: string = isTimeSlot && course.timeSlot.start ? course.timeSlot.start.startHour : moment(this.startTime).format("HH:mm:ss");
+            let endTime: string = isTimeSlot && course.timeSlot.end ? course.timeSlot.end.endHour : moment(this.endTime).format("HH:mm:ss");
+            let date: string = moment().format("YYYY-MM-DD");
+            return moment(date + 'T' + endTime).isAfter(moment(date + 'T' + startTime).add(14, "minutes"));
         }
-        else {
-            let isTimeSlot = !display.freeSchedule && course.timeSlot.start !== undefined;
-            let startTime = isTimeSlot && course.timeSlot.start ? course.timeSlot.start.startHour : moment(this.startTime).format("HH:mm:ss");
-            let endTime = isTimeSlot && course.timeSlot.end ? course.timeSlot.end.endHour : moment(this.endTime).format("HH:mm:ss");
-            let date = moment().format("YYYY-MM-DD");
-            return moment(date+'T'+endTime).isAfter(moment(date+'T'+startTime).add(14,"minutes"))
-        }
-    };
+    }
 
     isNotPastTime() : boolean{
        return  moment(this.startTime).isAfter(moment().add(1,'second'))
