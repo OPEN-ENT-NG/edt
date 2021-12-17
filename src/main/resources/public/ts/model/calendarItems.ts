@@ -142,7 +142,8 @@ export class CalendarItems {
     async sync(structure: Structure, teachers: Array<Teacher> = [], groups: Array<Group> = [], structures: Structures,
                isAllStructure: boolean): Promise<void> {
 
-        let filterGroups: Array<Group> = groups.filter((group: Group): boolean => !(model.me.type === USER_TYPES.student &&
+        let filterGroups: Array<Group> = groups.filter((group: Group): boolean =>
+            group && !(model.me.type === USER_TYPES.student &&
             model.me.type === USER_TYPES.relative &&
             (model.me.groupsIds.indexOf(group.id) === -1 && group.type_groupe !== 0)));
 
