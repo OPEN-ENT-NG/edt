@@ -120,6 +120,7 @@ export let main = ng.controller('EdtController',
             }
 
             window.structure = $scope.structure;
+            await $scope.syncCourses();
             $scope.safeApply();
         };
 
@@ -138,7 +139,7 @@ export let main = ng.controller('EdtController',
         $scope.switchStructure = async (structure: Structure) : Promise<void> => {
             $scope.calendarLoader.hide();
             $scope.structure = structure;
-            $scope.params.user = [];
+            if (!$scope.isTeacher()) $scope.params.user = [];
             $scope.params.oldUser = [];
             $scope.params.group = [];
             $scope.params.olGroup = [];
