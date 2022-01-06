@@ -314,7 +314,7 @@ public class DateHelper {
     }
 
     /**
-     * Check if the first date is after the second date
+     * Check if the first date is after or equals the second date
      *
      * @param date1 First date
      * @param date2 Second date
@@ -327,10 +327,31 @@ public class DateHelper {
             firstDate = parse(date1);
             secondDate = parse(date2);
         } catch (ParseException e) {
-            LOGGER.error("[EDT@DateHelper::isDateBeforeOrEqual] Error when casting date: ", e);
+            LOGGER.error("[EDT@DateHelper::isAfterOrEquals] Error when casting date: ", e);
         }
 
 
         return firstDate.after(secondDate) || firstDate.equals(secondDate);
+    }
+
+    /**
+     * Check if the first date is after the second date
+     *
+     * @param date1 First date
+     * @param date2 Second date
+     * @return Boolean that match if the first date is after the second date
+     */
+    public static boolean isAfter(String date1, String date2) {
+        Date firstDate = new Date();
+        Date secondDate = new Date();
+        try {
+            firstDate = parse(date1);
+            secondDate = parse(date2);
+        } catch (ParseException e) {
+            LOGGER.error("[EDT@DateHelper::isAfter] Error when casting date: ", e);
+        }
+
+
+        return firstDate.after(secondDate);
     }
 }
