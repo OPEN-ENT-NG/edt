@@ -125,8 +125,8 @@ public class DefaultCourseService implements CourseService {
                                 .stream().anyMatch(tag -> tag.getBoolean(Field.ISPRIMARY, false))
 
                                 && ((DateHelper.isAfterOrEquals(courseWithLabels.getString(Field.STARTDATE), course.getString(Field.STARTDATE))
-                                    && DateHelper.isAfterOrEquals(course.getString(Field.ENDDATE), courseWithLabels.getString(Field.STARTDATE)))
-                                    || (DateHelper.isAfterOrEquals(courseWithLabels.getString(Field.ENDDATE), course.getString(Field.STARTDATE))
+                                    && DateHelper.isAfter(course.getString(Field.ENDDATE), courseWithLabels.getString(Field.STARTDATE)))
+                                    || (DateHelper.isAfter(courseWithLabels.getString(Field.ENDDATE), course.getString(Field.STARTDATE))
                                     && DateHelper.isAfterOrEquals(course.getString(Field.ENDDATE), courseWithLabels.getString(Field.ENDDATE)))
                                     || (DateHelper.isAfterOrEquals(course.getString(Field.STARTDATE), courseWithLabels.getString(Field.STARTDATE))
                                         && DateHelper.isAfterOrEquals(courseWithLabels.getString(Field.ENDDATE), course.getString(Field.ENDDATE))))
