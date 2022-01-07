@@ -1,0 +1,54 @@
+<div class="update-courses-popup">
+    <h1 class="centered eight row lightbox-header">
+        <i18n>edt.utils.modify.selected</i18n>
+    </h1>
+
+    <div class="lightbox-container">
+        <div class="twelve cell ">
+
+            <div class="cell twelve twelve-mobile">
+                <i18n>edt.choose.edition.do.you.wish.to</i18n>
+            </div>
+
+            <div class="update-courses-popup-choices">
+                <div class="md-radio mr-radio-inline">
+                    <input type="radio" ng-model="updateMultipleLightboxForm.isDeleteCourses"
+                           ng-value="true"
+                           id="radio-delete">
+                    <label for="radio-delete">
+                        <i18n>edt.choose.edition.type.choice3</i18n>
+                    </label>
+                </div>
+                <div class="md-radio mr-radio-inline">
+                    <input type="radio" ng-model="updateMultipleLightboxForm.isDeleteCourses"
+                           ng-value="false"
+                           id="radio-add-label">
+                    <label for="radio-add-label">
+                        <i18n>edt.choose.edition.type.choice4</i18n>
+                    </label>
+
+                    <div class="cell twelve-mobile ten">
+
+                        <select class="twelve-mobile format-select" id="select-tag"
+                                ng-model="updateMultipleLightboxForm.tagId"
+                                ng-options="courseTag.id as courseTag.label disable when courseTag.isHidden
+                            for courseTag in courseTags">
+                            <option value="" selected>[[translate('edt.creation.tag.add')]]</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--SUBMIT AND VALIDATE BUTTONS-->
+        <div class="right-magnet vertical-spacing">
+            <button class="cancel" type="button" ng-click="cancelUpdateLightbox()">
+                <i18n>edt.utils.cancel</i18n>
+            </button>
+
+            <button type="submit" ng-click="updateMultipleCourses()">
+                <i18n>edt.validate</i18n>
+            </button>
+        </div>
+    </div>
+</div>

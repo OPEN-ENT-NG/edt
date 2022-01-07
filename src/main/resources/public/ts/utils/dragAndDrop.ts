@@ -326,8 +326,8 @@ export class DragAndDrop {
                 courseToDelete.timeToDelete.push(startString);
             }
 
-            $scope.params.coursesToDelete.push(courseToDelete);
-            $scope.params.coursesToDelete = $scope.params.coursesToDelete.sort()
+            $scope.params.coursesToUpdate.push(courseToDelete);
+            $scope.params.coursesToUpdate = $scope.params.coursesToUpdate.sort()
                 .filter((el: Course, i: number, a: Array<Course>): boolean => {
                     return i === a.indexOf(el);
                 });
@@ -339,18 +339,18 @@ export class DragAndDrop {
             .children[1].children[0].children[0].innerHTML);
         $(target).removeClass("selected");
         let idToDelete: string = $(target).data("id");
-        $scope.params.coursesToDelete.map((course: Course, i: number): void => {
+        $scope.params.coursesToUpdate.map((course: Course, i: number): void => {
             if (course._id === idToDelete) {
-                let currentCourse: Course = $scope.params.coursesToDelete[i];
+                let currentCourse: Course = $scope.params.coursesToUpdate[i];
                 if (currentCourse.timeToDelete.length > 1) {
                     currentCourse.timeToDelete.map((t: string, ii: number): void => {
                         if (moment(start).format(DATE_FORMAT['YEAR/MONTH/DAY']) === t) {
-                            $scope.params.coursesToDelete[i].timeToDelete.splice(ii, 1);
+                            $scope.params.coursesToUpdate[i].timeToDelete.splice(ii, 1);
                         }
                     });
                 } else {
-                    $scope.params.coursesToDelete[i].timeToDelete = [];
-                    $scope.params.coursesToDelete.splice(i, 1);
+                    $scope.params.coursesToUpdate[i].timeToDelete = [];
+                    $scope.params.coursesToUpdate.splice(i, 1);
                 }
             }
         });

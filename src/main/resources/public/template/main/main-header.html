@@ -22,7 +22,7 @@
 
     <!-- SEARCH TEACHER/CLASS AREA -->
     <div ng-if="!isAllStructure" workflow="edt.edtSearch"
-         class="cell search-bars" ng-class="(params.coursesToDelete.length > 0) ? 'small' : 'full'">
+         class="cell search-bars" ng-class="(params.coursesToUpdate.length > 0) ? 'small' : 'full'">
         <div class="search-inputs">
             <div class="search-input small">
                 <async-autocomplete data-ng-disabled="false"
@@ -60,9 +60,9 @@
     <div class="header-buttons">
         <section ng-if="canManage()" id="delete-section" class="button-header four cell">
             <div class="cell twelve ">
-                <button ng-show="(params.coursesToDelete.length > 0)" class="twelve padding-sm delete-course-button"
-                        ng-click="openDeleteForm()">
-                    <i18n>edt.utils.delete.selected</i18n>
+                <button ng-show="(params.coursesToUpdate.length > 0)" class="twelve padding-sm delete-course-button"
+                        ng-click="openUpdateForm()">
+                    <i18n>edt.utils.modify.selected</i18n>
                 </button>
             </div>
         </section>

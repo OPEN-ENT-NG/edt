@@ -25,7 +25,7 @@ export let main = ng.controller('EdtController',
             group: [],
             oldGroup: [],
             oldUser: [],
-            coursesToDelete: [],
+            coursesToUpdate: [],
             updateItem: null,
             dateFromCalendar: null
         };
@@ -66,9 +66,16 @@ export let main = ng.controller('EdtController',
         };
         $scope.showLightBox = {
             home_lightbox : false,
-            delete_lightbox: false,
-            isDeleteOccurrenceLightbox: false
+            update_lightbox: false,
+            isUpdateOccurrenceLightbox: false
         };
+
+        $scope.updateMultipleLightboxForm = {
+            isDeleteCourses : true,
+            tagId: null
+        }
+
+
         $scope.calendarLoader = {
             show: false,
             display: () => {
@@ -219,7 +226,7 @@ export let main = ng.controller('EdtController',
             let arrayIds: string[] = [];
             $scope.structure.calendarItems.all = [];
 
-            $scope.params.coursesToDelete = [];
+            $scope.params.coursesToUpdate = [];
             $scope.isAllCoursesSelected = false;
 
             if ($scope.isRelative() && $scope.child) {
@@ -436,7 +443,7 @@ export let main = ng.controller('EdtController',
         };
 
         template.open('homePagePopUp', 'main/occurrence-or-course-edit-popup');
-        template.open('deletePagePopUp', 'main/delete-courses-popup');
+        template.open('updatePagePopUp', 'main/update-courses-popup');
         template.open('deleteOccurrencePagePopup', 'main/occurrence-or-course-delete-popup');
 
         /**
@@ -483,8 +490,8 @@ export let main = ng.controller('EdtController',
             Utils.safeApply($scope);
         };
 
-        $scope.cancelDeleteLightbox = () =>{
-            $scope.showLightBox.delete_lightbox = false;
+        $scope.cancelUpdateLightbox = () =>{
+            $scope.showLightBox.update_lightbox = false;
             Utils.safeApply($scope);
         };
 
@@ -492,7 +499,7 @@ export let main = ng.controller('EdtController',
          * Close the delete course occurrences popup.
          */
         $scope.cancelDeleteOccurrenceLightbox = () : void =>{
-            $scope.showLightBox.isDeleteOccurrenceLightbox = false;
+            $scope.showLightBox.isUpdateOccurrenceLightbox = false;
             Utils.safeApply($scope);
         };
 
@@ -548,11 +555,11 @@ export let main = ng.controller('EdtController',
         };
 
         /**
-         * Open the proper delete form (either the delete all occurrences form or the delete one course form).
+         * Open the proper update form (either the delete all occurrences form or the delete one course form).
          */
-        $scope.openDeleteForm = async (): Promise<void> => {
-            if ($scope.params.coursesToDelete.length === 1) {
-                let course: Course = $scope.params.coursesToDelete[0];
+        $scope.openUpdateForm = async (): Promise<void> => {
+            if ($scope.params.coursesToUpdate.length === 1) {
+                let course: Course = $scope.params.coursesToUpdate[0];
                 if (course.is_recurrent) {
                     if ($scope.isAbleToChooseEditionType(course, course.startDate)) {
                         $scope.courseToEdit = course;
@@ -569,13 +576,13 @@ export let main = ng.controller('EdtController',
                             $scope.courseToEdit.recurrenceObject = { start: DateUtils.getDateFormat(recurrence.startDate),
                                 end: DateUtils.getDateFormat(recurrence.endDate)}
                         }
-                        $scope.showLightBox.isDeleteOccurrenceLightbox = true;
+                        $scope.showLightBox.isUpdateOccurrenceLightbox = true;
                     }
                 } else {
-                    $scope.showLightBox.delete_lightbox = true;
+                    $scope.showLightBox.update_lightbox = true;
                 }
             } else {
-                $scope.showLightBox.delete_lightbox = true;
+                $scope.showLightBox.update_lightbox = true;
             }
 
             Utils.safeApply($scope);
@@ -585,12 +592,27 @@ export let main = ng.controller('EdtController',
          * Delete the selected courses.
          */
         $scope.deleteCourses = async () : Promise<void> => {
-            $scope.showLightBox.delete_lightbox = false;
             const promises = [];
-            $scope.params.coursesToDelete.map((course: Course) => promises.push(course.delete(course._id)));
+            $scope.params.coursesToUpdate.map((course: Course) => promises.push(course.delete(course._id)));
             await Promise.all(promises);
             $scope.syncCourses();
         };
+
+        $scope.updateLabels = async (): Promise<void> => {
+            let courseIds: Array<string> = $scope.params.coursesToUpdate.map((course: Course) => course._id);
+            await courseService.updateCoursesTag(courseIds, $scope.updateMultipleLightboxForm.tagId);
+            $scope.syncCourses();
+        }
+
+        $scope.updateMultipleCourses = async () : Promise<void> => {
+            $scope.showLightBox.update_lightbox = false;
+
+            if ($scope.updateMultipleLightboxForm.isDeleteCourses) {
+                $scope.deleteCourses();
+            } else {
+                $scope.updateLabels();
+            }
+        }
 
         $scope.toggleSelectAllCourses = (): void => {
             $scope.isAllCoursesSelected = !$scope.isAllCoursesSelected;
@@ -603,7 +625,7 @@ export let main = ng.controller('EdtController',
          */
         $scope.deleteCourseOccurrences = async (deleteOccurrence : boolean) : Promise<void> => {
 
-            $scope.showLightBox.isDeleteOccurrenceLightbox = false;
+            $scope.showLightBox.isUpdateOccurrenceLightbox = false;
 
             if (deleteOccurrence) {
                 await $scope.courseToEdit.delete(null, $scope.courseToEdit.recurrence);

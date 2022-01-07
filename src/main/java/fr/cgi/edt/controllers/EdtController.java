@@ -39,6 +39,7 @@ import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.user.UserUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 import static org.entcore.common.http.response.DefaultResponseHandler.*;
@@ -112,6 +113,23 @@ public class EdtController extends MongoDbControllerHelper {
     @ApiDoc("Update course")
     public void update (final HttpServerRequest request) {
         RequestUtils.bodyToJsonArray(request, body -> edtService.update(body, getServiceHandler(request)));
+    }
+
+    @Put("/courses/tag")
+    @SecuredAction(value = "", type = ActionType.RESOURCE)
+    @Trace("PUT_COURSE")
+    @ResourceFilter(ManageCourseWorkflowAction.class)
+    @SuppressWarnings("unchecked")
+    @ApiDoc("Update courses tags")
+    public void updateCoursesTag(final HttpServerRequest request) {
+
+        RequestUtils.bodyToJson(request, body -> {
+            Integer tagId = body.getInteger(Field.TAGID);
+            List<String> courseIds = body.getJsonArray(Field.COURSEIDS).getList();
+            edtService.updateCoursesTag(courseIds, tagId)
+                    .onFailure(fail -> renderError(request))
+                    .onSuccess(res -> renderJson(request, res));
+        });
     }
 
     @Put("/occurrence/:timestamp")
