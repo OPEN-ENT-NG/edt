@@ -53,6 +53,22 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     }
 
     @Override
+    public Future<JsonObject> updateCoursesTag(List<String> ids, Integer tagId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject selectIds = new JsonObject()
+                .put(Field._ID, new JsonObject().put("$in", new JsonArray(ids)));
+
+        JsonObject updateTagId = new JsonObject().put("$set", new JsonObject().put(Field.TAGIDS, new JsonArray().add(tagId)));
+
+
+        mongo.update(this.collection, selectIds, updateTagId, false, true,
+                MongoDbResult.validResultHandler(FutureHelper.handlerJsonObject(promise.future())));
+
+        return promise.future();
+    }
+
+    @Override
     public void delete(final String id, final Handler<Either<String, JsonObject>> handler) {
         new EdtMongoHelper(this.collection, eb).delete(id, handler);
     }

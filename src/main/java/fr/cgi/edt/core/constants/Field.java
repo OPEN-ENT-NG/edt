@@ -48,6 +48,7 @@ public class Field {
     // Course
     public static final String RECURRENCE = "recurrence";
     public static final String DELETED = "deleted";
+    public static final String COURSEIDS = "courseIds";
 
     private Field() {
         throw new IllegalStateException("Utility class");

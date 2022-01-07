@@ -6,6 +6,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
+import java.util.List;
+
 /**
  * Generic REST service for Edt.
  */
@@ -24,6 +26,14 @@ public interface EdtService {
      * @param handler handler
      */
     void update(JsonArray courses, Handler<Either<String, JsonObject>> handler);
+
+    /**
+     * Update multiple courses tag
+     * @param ids      list of course ids
+     * @param tagId    tag id
+     * @return         {@link Future} of {@link JsonObject}
+     */
+    Future<JsonObject> updateCoursesTag(List<String> ids, Integer tagId);
 
     /**
      * delete course
