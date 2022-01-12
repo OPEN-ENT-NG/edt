@@ -159,9 +159,9 @@ export let main = ng.controller('EdtController',
             $scope.timeSlots = new TimeSlots($scope.structure.id);
             // case we found our structure
             if ($scope.structure.id != lang.translate("all.structures.id")) {
+                $scope.isAllStructure = false;
                 await $scope.syncStructure($scope.structure);
                 $scope.safeApply();
-                $scope.isAllStructure = false;
             } else if ($scope.structure.id == lang.translate("all.structures.id")) {
                 // (cf 1#), we are in the case where it is all_structure
                 $scope.isAllStructure = true;
