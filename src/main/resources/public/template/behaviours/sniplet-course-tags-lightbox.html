@@ -49,6 +49,30 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Allow register input -->
+            <div class="snippet-course-tags-lightbox-body-input-choice">
+                <span>[[lang.translate('edt.admin.course.tags.input.allow.register.choice')]]</span>
+
+                <div class="eight flex-row">
+                    <div class="md-radio mr-radio-inline">
+                        <input type="radio" ng-model="vm.courseEditTagForm.allowRegister"
+                               ng-value="true"
+                               id="allow-register-true">
+                        <label for="allow-register-true">
+                            <i18n>edt.utils.yes</i18n>
+                        </label>
+                    </div>
+                    <div class="md-radio mr-radio-inline">
+                        <input type="radio" ng-model="vm.courseEditTagForm.allowRegister"
+                               ng-value="false"
+                               id="allow-register-false">
+                        <label for="allow-register-false">
+                            <i18n>edt.utils.no</i18n>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Footer -->

@@ -2,7 +2,10 @@ package fr.cgi.edt.services;
 
 
 import fr.cgi.edt.models.CourseTag;
+import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.List;
@@ -15,6 +18,7 @@ public interface CourseTagService {
      * @param structureId Structure identifier
      */
     Future<List<CourseTag>> getCourseTags(String structureId);
+    void getCourseTags(String structureId, Handler<Either<String, JsonArray>> handler);
 
     /**
      * Create a course tag for the structure

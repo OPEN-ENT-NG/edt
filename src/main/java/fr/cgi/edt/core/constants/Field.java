@@ -40,6 +40,8 @@ public class Field {
     public static final String IS_HIDDEN = "is_hidden";
     public static final String ISPRIMARY = "isPrimary";
     public static final String IS_PRIMARY = "is_primary";
+    public static final String ALLOW_REGISTER = "allow_register";
+    public static final String ALLOWREGISTER = "allowRegister";
     public static final String ISUSED = "isUsed";
     public static final String TAGS = "tags";
     public static final String TAGID = "tagId";

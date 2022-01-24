@@ -40,6 +40,8 @@ public class Edt extends BaseServer {
 
 
         addController(new EdtController(EDT_COLLECTION, eb, eventStore));
+        addController(new EventBusController(eb, Sql.getInstance(), MongoDb.getInstance()));
+
         addController(new InitController(new DefaultInitImpl("edt", serviceFactory, holidaysConfig), vertx));
         addController(new SearchController(eb));
         addController(new CourseController(eb, new DefaultCourseService(eb, Sql.getInstance(), MongoDb.getInstance())));

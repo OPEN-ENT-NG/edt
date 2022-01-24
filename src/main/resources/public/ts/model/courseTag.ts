@@ -4,5 +4,6 @@ export type CourseTag = {
     abbreviation: string,
     isHidden?: boolean,
     isPrimary?: boolean,
+    allowRegister?: boolean,
     isUsed?: boolean
 };
