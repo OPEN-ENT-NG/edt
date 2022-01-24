@@ -38,7 +38,8 @@ const vm: IViewModel = {
     courseTagForm : {
         label: '',
         abbreviation: '',
-        isPrimary: false
+        isPrimary: false,
+        allowRegister: true
     },
     courseTags: [],
 
@@ -46,7 +47,8 @@ const vm: IViewModel = {
         id: null,
         label: '',
         abbreviation: '',
-        isPrimary: false
+        isPrimary: false,
+        allowRegister: true
     },
 
     editCourseTagLightbox: false,
@@ -64,6 +66,7 @@ const vm: IViewModel = {
                 if (res.status === 200 || res.status === 201) {
                     vm.courseTagForm = {
                         isPrimary: false,
+                        allowRegister: true,
                         label: null,
                         abbreviation: null
                     };
@@ -108,7 +111,8 @@ const vm: IViewModel = {
             id: tag.id,
             label: tag.label,
             abbreviation: tag.abbreviation,
-            isPrimary: tag.isPrimary
+            isPrimary: tag.isPrimary,
+            allowRegister: tag.allowRegister
         };
     },
     closeCourseTagLightbox: (): void => {
@@ -123,14 +127,14 @@ const vm: IViewModel = {
 
     isFormValid: (): boolean => {
         return vm.courseTagForm.label !== null && vm.courseTagForm.label.length > 0
-        &&  vm.courseTagForm.abbreviation !== null && vm.courseTagForm.abbreviation.length > 0
-        && vm.courseTagForm.isPrimary != null;
+        && vm.courseTagForm.abbreviation !== null && vm.courseTagForm.abbreviation.length > 0
+        && vm.courseTagForm.isPrimary != null && vm.courseTagForm.allowRegister != null;
     },
 
     isEditFormValid: (): boolean => {
         return vm.courseEditTagForm.label !== null && vm.courseEditTagForm.label.length > 0
             &&  vm.courseEditTagForm.abbreviation !== null && vm.courseEditTagForm.abbreviation.length > 0
-            && vm.courseEditTagForm.isPrimary != null;
+            && vm.courseEditTagForm.isPrimary != null && vm.courseEditTagForm.allowRegister != null;
     }
 };
 

@@ -174,6 +174,7 @@
   "edt.admin.course.tags.input.text": "Saisissez ici un label qui pourra être applicable sur les cours dans Emploi du temps",
   "edt.admin.course.tags.input.abbr": "Abrévation à utiliser dans la vue calendaire Emploi du temps",
   "edt.admin.course.tags.input.priority.choice": "Ce label doit-il être prioritaire en affichage si 2 cours se superposent ?",
+  "edt.admin.course.tags.input.allow.register.choice": "Un appel doit-il être associé aux cours possédant ce label ?",
   "edt.admin.course.tags.form.create.success": "Label de cours ajouté avec succès",
   "edt.admin.course.tags.form.create.error": "Erreur lors de l'ajout du label de cours",
   "edt.admin.course.tags.form.delete.success": "Label de cours supprimé avec succès",

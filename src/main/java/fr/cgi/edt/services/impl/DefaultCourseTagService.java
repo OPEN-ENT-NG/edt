@@ -6,7 +6,9 @@ import fr.cgi.edt.helper.FutureHelper;
 import fr.cgi.edt.models.CourseTag;
 import fr.cgi.edt.services.CourseTagService;
 import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -35,7 +37,28 @@ public class DefaultCourseTagService implements CourseTagService {
 
     @Override
     public Future<List<CourseTag>> getCourseTags(String structureId) {
+
         Promise<List<CourseTag>> promise = Promise.promise();
+
+        getCourseTagsArray(structureId)
+                .compose(courseTags -> countTagUsed(structureId,
+                        CourseTagHelper.getCourseTagListFromJsonArray(courseTags)))
+                .onFailure(fail -> promise.fail(fail.getMessage()))
+                .onSuccess(promise::complete);
+
+        return promise.future();
+    }
+
+    @Override
+    public void getCourseTags(String structureId, Handler<Either<String, JsonArray>> handler) {
+        getCourseTagsArray(structureId)
+                .onFailure(fail -> handler.handle(new Either.Left<>(fail.getMessage())))
+                .onSuccess(tags -> handler.handle(new Either.Right<>(tags)));
+    }
+
+
+    private Future<JsonArray> getCourseTagsArray(String structureId) {
+        Promise<JsonArray> promise = Promise.promise();
 
         String query = "SELECT * FROM " + EDT_SCHEMA + ".course_tag WHERE structure_id = ? ORDER BY label ASC";
 
@@ -48,12 +71,9 @@ public class DefaultCourseTagService implements CourseTagService {
                 log.error(message);
                 promise.fail(message);
             } else {
-                countTagUsed(structureId, CourseTagHelper.getCourseTagListFromJsonArray(res.right().getValue()))
-                        .onFailure(fail -> promise.fail(fail.getMessage()))
-                        .onSuccess(promise::complete);
+                promise.complete(res.right().getValue());
             }
         }));
-
         return promise.future();
     }
 
@@ -62,13 +82,14 @@ public class DefaultCourseTagService implements CourseTagService {
        Promise<JsonObject> promise = Promise.promise();
 
         String query = "INSERT INTO " + EDT_SCHEMA + ".course_tag (structure_id, label, abbreviation," +
-                "is_primary) VALUES (?,?,?,?) RETURNING id";
+                "is_primary, allow_register) VALUES (?,?,?,?,?) RETURNING id";
 
         JsonArray params = new JsonArray()
                 .add(structureId)
                 .add(courseTagBody.getString(Field.LABEL))
                 .add(courseTagBody.getString(Field.ABBREVIATION))
-                .add(courseTagBody.getBoolean(Field.ISPRIMARY, false));
+                .add(courseTagBody.getBoolean(Field.ISPRIMARY, false))
+                .add(courseTagBody.getBoolean(Field.ALLOWREGISTER, true));
 
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(
                 FutureHelper.handlerJsonObject(promise.future())));
@@ -93,12 +114,13 @@ public class DefaultCourseTagService implements CourseTagService {
         Promise<JsonObject> promise = Promise.promise();
 
         String query = "UPDATE " + EDT_SCHEMA + ".course_tag SET label = ?, abbreviation = ?," +
-                "is_primary = ? WHERE id = ?";
+                "is_primary = ?, allow_register = ? WHERE id = ?";
 
         JsonArray params = new JsonArray()
                 .add(courseTagBody.getString(Field.LABEL))
                 .add(courseTagBody.getString(Field.ABBREVIATION))
                 .add(courseTagBody.getBoolean(Field.ISPRIMARY, false))
+                .add(courseTagBody.getBoolean(Field.ALLOWREGISTER, true))
                 .add(courseTagBody.getLong(Field.ID));
 
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(

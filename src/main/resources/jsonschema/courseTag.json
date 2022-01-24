@@ -12,6 +12,9 @@
     "isPrimary": {
       "type": ["boolean", "null"]
     },
+    "allowRegister": {
+      "type": ["boolean", "null"]
+    },
     "isHidden": {
       "type": ["boolean", "null"]
     }
