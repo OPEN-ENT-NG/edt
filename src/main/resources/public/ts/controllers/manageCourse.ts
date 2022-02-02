@@ -301,10 +301,6 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                     .format(DATE_FORMAT["YEAR-MONTH-DAYTHOUR-MIN-SEC"]);
             }
 
-            if ($scope.course.courseOccurrences && $scope.course.courseOccurrences.length === 0) {
-                $scope.submit_CourseOccurrence_Form();
-            }
-
             Utils.safeApply($scope);
         };
 
@@ -426,7 +422,9 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
          */
         $scope.saveCourse = async (course: Course): Promise<void> => {
 
-            $scope.submit_CourseOccurrence_Form();
+            if (course.courseOccurrences && course.courseOccurrences.length === 0) {
+                $scope.submit_CourseOccurrence_Form();
+            }
             $scope.changeDate();
             course.display = $scope.display;
             course.tagIds = [$scope.courseOccurrenceForm.tagId];
