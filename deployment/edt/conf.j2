@@ -1,0 +1,38 @@
+{
+	"name": "fr.cgi~edt~{{ edtVersion }}",
+	"config": {
+		"main" : "fr.cgi.edt.Edt",
+		"port" : 8168,
+		"app-name" : "Edt",
+		"app-address" : "/edt",
+		"app-icon" : "Edt-large",
+		"host": "https://{{ host }}",
+		"ssl" : true,
+		{% if overrideTheme %} "override-theme": {{ override2d }}, {% endif %}
+		"auto-redeploy": false,
+		"userbook-host": "https://{{ host }}",
+		"integration-mode" : "HTTP",
+		"app-registry.port" : 8012,
+		"mode" : "prod",
+		"sql": true,
+		"holidays": {
+			"public-holidays": "{{ publicHolidays | default('https://calendrier.api.gouv.fr') }}",
+			"school-holidays": "{{ schoolHolidays | default('https://data.education.gouv.fr') }}"
+		},
+		"db-schema" : "edt",
+		"dependencies" : {
+			"fr.openent.viescolaire": "1.0.0"
+		},
+		"entcore.port" : 8009,
+		"publicConf": {
+			"xiti": {
+				"ID_SERVICE": {
+					"default": 7
+				},
+				"LIBELLE_SERVICE": {
+					"default": "GESTION_TEMPS"
+				}
+			}
+		}
+	}
+}
