@@ -392,7 +392,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
                 $scope.course.courseOccurrences.push($scope.courseOccurrenceForm);
             }
 
-            $scope.courseOccurrenceForm = new CourseOccurrence(1, "",
+            $scope.courseOccurrenceForm = new CourseOccurrence(1,
+                ($scope.courseOccurrenceForm.roomLabels.length > 0 ? $scope.courseOccurrenceForm.roomLabels[0] : ""),
                 $scope.courseOccurrenceForm.startTime, $scope.courseOccurrenceForm.endTime, $scope.courseOccurrenceForm.tagId);
         };
 
