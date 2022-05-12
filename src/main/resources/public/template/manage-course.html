@@ -199,8 +199,8 @@
 
                     <select class="twelve-mobile format-select" id="select-tag"
                             ng-model="courseOccurrenceForm.tagId"
-                            ng-options="courseTag.id as courseTag.label disable when courseTag.isHidden
-                            for courseTag in courseTags">
+                            ng-options="courseTag.id as courseTag.label
+                            for courseTag in courseTags | filter:{isHidden:'false'}">
                         <option value="" selected>[[translate('edt.creation.tag.add')]]</option>
                     </select>
                 </div>
