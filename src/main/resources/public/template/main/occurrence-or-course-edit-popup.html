@@ -1,7 +1,16 @@
 <h1 class="centered eight row lightbox-header">
     <i18n>edt.schedule.update</i18n>
 </h1>
-<div class="lightbox-container">
+
+<!--LOADING DATE RECURRENCE IN PROGRESS-->
+<div class="date-loading flex-row justify-around" ng-if="!courseToEdit.recurrenceObject.start || !courseToEdit.recurrenceObject.end">
+    <h4 class="loader">
+        <i class="spinner margin-right-md"></i>
+        <i18n>edt.date.loading</i18n>
+    </h4>
+</div>
+
+<div class="lightbox-container" ng-if="courseToEdit.recurrenceObject.start && courseToEdit.recurrenceObject.end">
     <div class="twelve cell ">
 
         <div class="cell twelve twelve-mobile vertical-spacing">

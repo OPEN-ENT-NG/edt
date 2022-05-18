@@ -1,4 +1,4 @@
-body.edt,.sniplet.edt {
+body.edt, .sniplet.edt {
 
   input[type="radio"], .contentTab {
     display: inline-block;
@@ -11,48 +11,62 @@ body.edt,.sniplet.edt {
     width: 100%
   }
 
-  div.selecting-timeslot{
-    position : relative;
+  div.date {
+    &-loading {
+      padding: 0 0 300px 0;
+    }
+  }
+
+  div.selecting-timeslot {
+    position: relative;
+
     &::before {
-      content:'';
-      position:absolute;
+      content: '';
+      position: absolute;
       left: 0;
       top: 0;
-      bottom:0;
-      right:0;
+      bottom: 0;
+      right: 0;
       z-index: 999;
       width: 100%;
       height: 100%;
     }
   }
-  #group-list-teacher{
+
+  #group-list-teacher {
     display: contents;
   }
- .selected-timeslot{
-    position : relative;
+
+  .selected-timeslot {
+    position: relative;
+
     &::after {
-      content:'';
-      position:absolute;
+      content: '';
+      position: absolute;
       border: 1px $green dashed;
       left: 0;
       top: 0;
-      bottom:0;
-      right:0;
+      bottom: 0;
+      right: 0;
       z-index: 400;
       width: 100%;
       height: 100%;
     }
   }
-  .border-left-right-selected{
+
+  .border-left-right-selected {
     border-left: 1px $orange solid !important;
     border-right: 1px $orange solid !important;
   }
+
   .border-top-selected {
     border-top: 1px $orange solid !important;
   }
-  .border-bottom-selected{
+
+  .border-bottom-selected {
     border-bottom: 1px $orange solid !important;
   }
+
   .sm-margin-right {
     margin-right: 10px !important;
   }
@@ -60,6 +74,7 @@ body.edt,.sniplet.edt {
   .tooltip-cours {
     padding: 11px;
     text-align: center;
+
     .header {
       color: white;
       border-radius: 9px;
@@ -67,33 +82,39 @@ body.edt,.sniplet.edt {
     }
   }
 
-  .cyan{
+  .cyan {
     background: $cyan;
-    color : $white;
+    color: $white;
   }
-  .green{
+
+  .green {
     background: $green !important;
-    color : $white !important;
+    color: $white !important;
   }
-  .orange{
+
+  .orange {
     background: $orange !important;
-    color : $white !important;
+    color: $white !important;
   }
-  .pink{
+
+  .pink {
     background: $pink !important;
-    color : $white !important;
+    color: $white !important;
   }
-  .yellow{
+
+  .yellow {
     background: $yellow !important;
-    color : $white !important;
+    color: $white !important;
   }
-  .purple{
+
+  .purple {
     background: $purple !important;
-    color : $white !important;
+    color: $white !important;
   }
-  .grey{
+
+  .grey {
     background: $dark-grey !important;
-    color : $white !important;
+    color: $white !important;
   }
 
   span.tick:before {
@@ -101,39 +122,45 @@ body.edt,.sniplet.edt {
     width: 20px;
     margin-top: 0px !important;
   }
-div.illustration{
-  height: 100px;
-  margin-left: auto;
-  margin-right: auto;
-  position: relative;
-  display: grid;
-  padding-top: 20px;
-}
-  div.time-barre{
+
+  div.illustration {
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    display: grid;
+    padding-top: 20px;
+  }
+
+  div.time-barre {
     width: 400px;
     height: 4px;
     border: #aaa 1px solid;
     border-radius: 15px;
     background: #ddd;
     margin: 45px auto;
-    .startCourse{
+
+    .startCourse {
       position: absolute;
       top: -10px;
       background: black;
       border: black 0.5px solid;
       width: 2px;
       height: 20px;
-      p{
+
+      p {
         margin-left: -40px;
       }
     }
-    .startEdition{
+
+    .startEdition {
       position: absolute;
       background: $green;
       width: 300px;
       height: 3px;
       margin-left: 100px;
-      &:before{
+
+      &:before {
         content: "";
         border: black 1px solid;
         background: black;
@@ -142,18 +169,21 @@ div.illustration{
         width: 1px;
         height: 20px;
       }
-      p{
+
+      p {
         margin-left: -40px;
         margin-top: -32px;
       }
     }
-    div p{
+
+    div p {
       color: black;
       position: fixed;
       display: block;
       margin-top: -22px;
     }
-    .middle{
+
+    .middle {
       position: absolute;
       background: $green;
       width: 20px;
@@ -161,11 +191,13 @@ div.illustration{
       border-right: 1px black solid;
       margin-left: 200px;
       border-left: 1px black solid;
-      p{
+
+      p {
         margin-left: -30px;
       }
     }
-    .end{
+
+    .end {
       position: absolute;
       top: -10px;
       background: black;
@@ -173,7 +205,8 @@ div.illustration{
       width: 2px;
       height: 20px;
       margin-left: 396px;
-      p{
+
+      p {
         margin-left: -40px;
       }
 
@@ -219,10 +252,10 @@ div.illustration{
 
 .times-slot {
   .float-left {
-    float:  left;
+    float: left;
   }
 
-  .margin-md{
+  .margin-md {
     margin: 10px;
   }
 
@@ -231,7 +264,7 @@ div.illustration{
   }
 }
 
-.month-day  .n-more {
+.month-day .n-more {
   display: none;
 }
 

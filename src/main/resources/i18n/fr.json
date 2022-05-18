@@ -54,6 +54,7 @@
   "utils.child.choose.one" :"Choisissez un enfant",
   "edt.every.two.weeks":"Toutes les deux semaines",
   "edt.calendar.loading": "Emploi du temps en cours de chargement...",
+  "edt.date.loading": "Chargement des dates de la récurrence en cours...",
   "edt.timetable.of": "Emploi du temps de ",
   "edt.timetable.of.group": "Emploi du temps de la classe ",
   "edt.schedule.creation.title": "Création manuelle d'un cours",
