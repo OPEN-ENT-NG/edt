@@ -259,7 +259,7 @@ public class EdtController extends MongoDbControllerHelper {
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
     public void getRecurrences(HttpServerRequest request) {
-        String recurrence = request.getParam("id");
+        String recurrence = request.getParam(Field.ID).replace(Field.URL_SPACE, Field.SPACE);
         edtService.retrieveRecurrences(recurrence, arrayResponseHandler(request));
     }
 
@@ -267,7 +267,7 @@ public class EdtController extends MongoDbControllerHelper {
     @SecuredAction(value = "", type = ActionType.RESOURCE)
     @ResourceFilter(ManageCourseWorkflowAction.class)
     public void getRecurrencesDates(HttpServerRequest request) {
-        String recurrence = request.getParam(Field.ID);
+        String recurrence = request.getParam(Field.ID).replace(Field.URL_SPACE, Field.SPACE);
         edtService.retrieveRecurrencesDates(recurrence)
                 .onFailure(err -> badRequest(request))
                 .onSuccess(result -> renderJson(request, result));

@@ -51,6 +51,8 @@ public class Field {
     public static final String RECURRENCE = "recurrence";
     public static final String DELETED = "deleted";
     public static final String COURSEIDS = "courseIds";
+    public static final String SPACE = " ";
+    public static final String URL_SPACE = "%20";
 
     private Field() {
         throw new IllegalStateException("Utility class");
