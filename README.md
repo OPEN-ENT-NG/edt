@@ -5,6 +5,9 @@
 * Développeur : CGI
 * Description : Affichage et modification de l'emploi du temps
 
+## Présentation du module
+Le module Emploi du temps permet de gérer l’emploi du temps de l’établissement. Les personnes en charge de la gestion de l’emploi du temps peuvent le modifier, en y ajoutant ou en déplaçant des cours par exemple. Ce module permet également de consulter l’emploi du temps : pour les gestionnaires, cette application permet une visualisation globale ou ciblée sur une classe. Les élèves ont accès à l’emploi du temps de leur classe.
+
 ## Configuration
 <pre>
   {
