@@ -818,16 +818,13 @@ export let main = ng.controller('EdtController',
 
         function getStructure(): Structure {
             if (window.preferenceStructure && window.preferenceStructure.id) {
+                if (window.preferenceStructure.id == lang.translate("all.structures.id")) {
+                    $scope.isAllStructure = true;
+                    return new Structure(window.preferenceStructure.id, window.preferenceStructure.name);
+                }
                 let structure: Structure = $scope.structures.all.find((structure: Structure) =>
                     structure.id === window.preferenceStructure.id);
-                if (structure) {
-                    // return the structure fetched from preference
-                    return structure;
-                } else {
-                    // Case we are in all_structure
-                    $scope.isAllStructure = true;
-                    return new Structure(window.preferenceStructure.id, window.preferenceStructure.name)
-                }
+                return structure ? structure : $scope.structures.first();
             } else {
                 // return first structure since we haven't found any
                 return $scope.structures.first();
