@@ -14,6 +14,10 @@ public class Field {
     public static final String YEAR = "YEAR";
     public static final String RECORDS = "records";
     public static final String POPULATION = "population";
+    public static final String HOLIDAYS = "holidays";
+    public static final String STATUS = "status";
+    public static final String ERROR = "error";
+    public static final String MESSAGE = "message";
 
     // Zones
     public static final String ZONE = "zone";
@@ -28,6 +32,7 @@ public class Field {
     public static final String CREATED_AT = "created_at";
     public static final String CREATEDAT = "createdAt";
     public static final String SCHOOL_YEAR_FR = "annee_scolaire";
+    public static final String INITSCHOOLYEAR = "initSchoolYear";
 
     // i18n
     public static final String LOCALE = "locale";
