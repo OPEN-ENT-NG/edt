@@ -35,14 +35,11 @@ public class Edt extends BaseServer {
         eb = getEventBus(vertx);
 
         EventStore eventStore = EventStoreFactory.getFactory().getEventStore(Edt.class.getSimpleName());
-        ServiceFactory serviceFactory = new ServiceFactory(vertx, Neo4j.getInstance(), Sql.getInstance(), MongoDb.getInstance());
-        HolidaysConfig holidaysConfig = new HolidaysConfig(config.getJsonObject("holidays"));
-
+        ServiceFactory serviceFactory = new ServiceFactory(vertx, config);
 
         addController(new EdtController(EDT_COLLECTION, eb, eventStore));
-        addController(new EventBusController(eb, Sql.getInstance(), MongoDb.getInstance()));
-
-        addController(new InitController(new DefaultInitImpl("edt", serviceFactory, holidaysConfig), vertx));
+        addController(new EventBusController(serviceFactory, Sql.getInstance(), MongoDb.getInstance()));
+        addController(new InitController(serviceFactory));
         addController(new SearchController(eb));
         addController(new CourseController(eb, new DefaultCourseService(eb, Sql.getInstance(), MongoDb.getInstance())));
         addController(new ConfigController());

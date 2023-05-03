@@ -1,5 +1,6 @@
 package fr.cgi.edt.utils;
 
+import fr.cgi.edt.core.constants.Field;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -45,12 +46,12 @@ public final class SqlQueryUtils {
      * @param id    resource Id
      * @return Transaction handler
      */
-    public static Either<String, JsonObject> getTransactionHandler(Message<JsonObject> event, Number id) {
+    public static Either<String, JsonObject> getTransactionHandler(Message<JsonObject> event, Integer id) {
         Either<String, JsonObject> either;
         JsonObject result = event.body();
         if (result.containsKey("status") && "ok".equals(result.getString("status"))) {
             JsonObject returns = new JsonObject()
-                    .put("id", id);
+                    .put(Field.ID, id);
             either = new Either.Right<>(returns);
         } else {
             LOGGER.error("[EDT@SqlQueryUtils::getTransactionHandler] An error occurred when launching transaction");
