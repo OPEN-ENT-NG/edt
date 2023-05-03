@@ -9,10 +9,7 @@ import fr.cgi.edt.services.ServiceFactory;
 import fr.cgi.edt.utils.DateHelper;
 import fr.cgi.edt.utils.SqlQueryUtils;
 import fr.wseduc.webutils.Either;
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -41,53 +38,64 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
 
     private final WebClient client;
 
-    public DefaultInitImpl(String table, ServiceFactory serviceFactory, HolidaysConfig holidaysConfig) {
+    public DefaultInitImpl(String table, Vertx vertx, HolidaysConfig holidaysConfig) {
         super(table);
-        this.client = WebClient.create(serviceFactory.vertx());
+        this.client = WebClient.create(vertx);
         this.holidaysConfig = holidaysConfig;
     }
 
-    /**
-     * Script method to initialize all dates to viescolaire table setting period
-     *
-     * @param structure     structure identifier
-     * @param zone          school's zone (A, B or C accepted)
-     * @param handler       handler method will reply {@link JsonObject}
-     */
     @Override
-    public void init(String structure, String zone, Handler<Either<String, JsonObject>> handler) {
+    public Future<JsonObject> init(String structure, String zone, boolean initSchoolYear) {
+        Promise<JsonObject> promise = Promise.promise();
+
         InitDateFuture initDateFuture = new InitDateFuture(structure, zone);
 
-        clearDatesFromStructure(initDateFuture)
-                .compose(this::addSchoolPeriod)
+        clearDatesFromStructure(initDateFuture, initSchoolYear)
+                .compose(res -> {
+                    if (initSchoolYear) {
+                        return addSchoolPeriod(res);
+                    } else {
+                        int year = Calendar.getInstance().get(Calendar.YEAR);
+                        initDateFuture.setSchoolStartAt(year + "-08-01 " + HOUR_START);
+                        initDateFuture.setSchoolEndAt(year + 1 + "-07-31 " + HOUR_END);
+                        return Future.succeededFuture(res);
+                    }
+                })
                 .compose(this::addExcludePeriod)
                 .compose(this::addHolidaysPeriod)
                 .onSuccess(statementsRes -> sql.transaction(initDateFuture.statements(), response -> {
-                    Number id = Integer.parseInt("1");
-                    handler.handle(SqlQueryUtils.getTransactionHandler(response, id));
+                    Either<String, JsonObject> handler = SqlQueryUtils.getTransactionHandler(response, 1);
+                    if (handler.isLeft()) {
+                        promise.fail(handler.left().getValue());
+                    } else {
+                        promise.complete(handler.right().getValue());
+                    }
                 }))
                 .onFailure(statementErr -> {
-                    String message = String.format("[Edt@%s::init] An error has occured" +
+                    String message = String.format("[Edt@%s::init] An error has occurred" +
                             " during clear/initializing dates: %s", this.getClass().getSimpleName(), statementErr.getMessage());
                     log.error(message, statementErr.getMessage());
-                    handler.handle(new Either.Left<>(statementErr.getMessage()));
+                    promise.fail(statementErr.getMessage());
                 });
-
+       return promise.future();
     }
 
     /**
      * clear all dates (holidays, school period) from structure statement
      *
      * @param initDateFuture     init date future workflow to compose
-     *
+     * @param initSchoolYear     boolean to know if we need to init school year
      * @return {@link Future} of {@link InitDateFuture} containing statements list of statements sent to SQL
      */
-    private Future<InitDateFuture> clearDatesFromStructure(InitDateFuture initDateFuture) {
+    private Future<InitDateFuture> clearDatesFromStructure(InitDateFuture initDateFuture, boolean initSchoolYear) {
         Promise<InitDateFuture> promise = Promise.promise();
-        String query = "DELETE FROM viesco.setting_period where id_structure = ? ";
+        String query = "DELETE FROM viesco.setting_period WHERE id_structure = ?";
+        if (!initSchoolYear)
+            query += " AND code != 'YEAR'";
         initDateFuture.statements().add(new JsonObject()
                 .put(STATEMENT, query)
-                .put(VALUES, new JsonArray().add(initDateFuture.structure()))
+                .put(VALUES, new JsonArray()
+                        .add(initDateFuture.structure()))
                 .put(ACTION, PREPARED));
         promise.complete(initDateFuture);
         return promise.future();
@@ -203,7 +211,7 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .as(BodyCodec.jsonObject())
                 .send(ar -> {
                     if (ar.failed()) {
-                        String message = String.format("[Edt@%s::searchExcludeDate] An error has occured" +
+                        String message = String.format("[Edt@%s::searchExcludeDate] An error has occurred" +
                                 " during HTTP Get: %s", this.getClass().getSimpleName(), ar.cause().getMessage());
                         log.error(message, ar.cause().getMessage());
                         promise.fail(ar.cause().getMessage());

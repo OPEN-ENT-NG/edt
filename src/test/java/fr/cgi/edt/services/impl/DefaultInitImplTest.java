@@ -39,9 +39,7 @@ public class DefaultInitImplTest {
 
     @Before
     public void setUp(TestContext context) {
-        ServiceFactory serviceFactory = new ServiceFactory(Vertx.vertx(), neo4j, sql, mongoDb);
-
-        this.initService = new DefaultInitImpl("edt", serviceFactory, null);
+        this.initService = new DefaultInitImpl("edt", Vertx.vertx(), null);
         this.initDateFuture = new InitDateFuture("structure", "C");
     }
 
@@ -51,11 +49,11 @@ public class DefaultInitImplTest {
         InitDateFuture initDateFuture = new InitDateFuture("structure", "C");
 
         // expected data
-        String expectedQuery = "DELETE FROM viesco.setting_period where id_structure = ? ";
+        String expectedQuery = "DELETE FROM viesco.setting_period WHERE id_structure = ?";
         String expectedStructure = "structure";
 
         try {
-            Future<InitDateFuture> res = Whitebox.invokeMethod(initService, "clearDatesFromStructure", initDateFuture);
+            Future<InitDateFuture> res = Whitebox.invokeMethod(initService, "clearDatesFromStructure", initDateFuture, true);
             ctx.assertEquals(res.result().statements().getJsonObject(0).getString("statement"), expectedQuery);
             ctx.assertEquals(res.result().statements().getJsonObject(0).getJsonArray("values"), new JsonArray().add(expectedStructure));
         } catch (Exception e) {

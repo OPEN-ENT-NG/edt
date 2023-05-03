@@ -2,31 +2,29 @@ package fr.cgi.edt.controllers;
 
 import fr.cgi.edt.core.constants.Field;
 import fr.cgi.edt.services.CourseTagService;
+import fr.cgi.edt.services.InitService;
+import fr.cgi.edt.services.ServiceFactory;
 import fr.cgi.edt.services.impl.DefaultCourseTagService;
 import fr.wseduc.bus.BusAddress;
 import fr.wseduc.mongodb.MongoDb;
-import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.bus.BusResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
 import org.entcore.common.sql.Sql;
 
-import java.util.List;
 
 public class EventBusController extends ControllerHelper {
 
 
     private final CourseTagService courseTagService;
-    private final MongoDb mongoDb;
-    private final Sql sql;
+    private final InitService initService;
 
-    public EventBusController(EventBus eb, Sql sql, MongoDb mongoDb) {
-        this.eb = eb;
-        this.sql = sql;
-        this.mongoDb = mongoDb;
+    public EventBusController(ServiceFactory serviceFactory, Sql sql, MongoDb mongoDb) {
+        this.eb = serviceFactory.eventBus();
         this.courseTagService = new DefaultCourseTagService(sql, mongoDb);
+        this.initService = serviceFactory.initService();
     }
 
 
@@ -42,10 +40,20 @@ public class EventBusController extends ControllerHelper {
                 this.courseTagService.getCourseTags(structureId,
                         BusResponseHandler.busArrayHandler(message));
                 break;
+            case "init":
+                structureId = body.getString(Field.STRUCTUREID);
+                String zone = body.getString(Field.ZONE);
+                boolean initSchoolYear = body.getBoolean(Field.INITSCHOOLYEAR, false);
+                this.initService.init(structureId, zone, initSchoolYear)
+                        .onFailure(e -> message.reply(new JsonObject()
+                                .put(Field.STATUS, Field.ERROR)
+                                .put(Field.MESSAGE, e.getMessage())))
+                        .onSuccess(v -> message.reply(new JsonObject()));
+                break;
             default:
                 message.reply(new JsonObject()
-                        .put("status", "error")
-                        .put("message", "Invalid action."));
+                        .put(Field.STATUS, Field.ERROR)
+                        .put(Field.MESSAGE, "Invalid action."));
         }
     }
 
