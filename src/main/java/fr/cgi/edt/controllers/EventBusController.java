@@ -1,18 +1,25 @@
 package fr.cgi.edt.controllers;
 
 import fr.cgi.edt.core.constants.Field;
+import fr.cgi.edt.helper.IModelHelper;
+import fr.cgi.edt.models.InitFormTimetable;
+import fr.cgi.edt.models.Timeslot;
+import fr.cgi.edt.services.CourseService;
 import fr.cgi.edt.services.CourseTagService;
 import fr.cgi.edt.services.InitService;
 import fr.cgi.edt.services.ServiceFactory;
 import fr.cgi.edt.services.impl.DefaultCourseTagService;
+import fr.cgi.edt.utils.DateHelper;
 import fr.wseduc.bus.BusAddress;
-import fr.wseduc.mongodb.MongoDb;
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.bus.BusResponseHandler;
 import org.entcore.common.controller.ControllerHelper;
-import org.entcore.common.sql.Sql;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
 
 
 public class EventBusController extends ControllerHelper {
@@ -21,10 +28,13 @@ public class EventBusController extends ControllerHelper {
     private final CourseTagService courseTagService;
     private final InitService initService;
 
-    public EventBusController(ServiceFactory serviceFactory, Sql sql, MongoDb mongoDb) {
+    private final CourseService courseService;
+
+    public EventBusController(ServiceFactory serviceFactory) {
         this.eb = serviceFactory.eventBus();
-        this.courseTagService = new DefaultCourseTagService(sql, mongoDb);
+        this.courseTagService = new DefaultCourseTagService(serviceFactory.sql(), serviceFactory.mongoDb());
         this.initService = serviceFactory.initService();
+        this.courseService = serviceFactory.courseService();
     }
 
 
@@ -48,7 +58,37 @@ public class EventBusController extends ControllerHelper {
                         .onFailure(e -> message.reply(new JsonObject()
                                 .put(Field.STATUS, Field.ERROR)
                                 .put(Field.MESSAGE, e.getMessage())))
-                        .onSuccess(v -> message.reply(new JsonObject()));
+                        .onSuccess(v -> message.reply(
+                                new JsonObject()
+                                        .put(Field.STATUS, Field.OK)
+                                        .put(Field.RESULT, v)));
+                break;
+            case "init-courses":
+                structureId = body.getString(Field.STRUCTUREID);
+                String subjectId = body.getString(Field.SUBJECTID);
+                Date startDate;
+                Date endDate;
+                try {
+                    startDate = DateHelper.parse(body.getString(Field.STARTDATE));
+                    endDate = DateHelper.parse(body.getString(Field.ENDDATE));
+                } catch (ParseException e) {
+                    message.reply(new JsonObject()
+                            .put(Field.STATUS, Field.ERROR)
+                            .put(Field.MESSAGE, e.getMessage()));
+                    return;
+                }
+                String userId = body.getString(Field.USERID);
+                List<Timeslot> timeslots = IModelHelper.toList(body.getJsonArray(Field.TIMESLOTS, new JsonArray()), Timeslot.class);
+                InitFormTimetable initFormTimetable = new InitFormTimetable(body.getJsonObject(Field.TIMETABLE));
+                this.courseService.createInitCourses(structureId, subjectId, startDate, endDate, initFormTimetable,
+                                timeslots, userId)
+                        .onFailure(e -> message.reply(new JsonObject()
+                                .put(Field.STATUS, Field.ERROR)
+                                .put(Field.MESSAGE, e.getMessage())))
+                        .onSuccess(v -> message.reply(
+                                new JsonObject()
+                                        .put(Field.STATUS, Field.OK)
+                                        .put(Field.RESULT, v)));
                 break;
             default:
                 message.reply(new JsonObject()

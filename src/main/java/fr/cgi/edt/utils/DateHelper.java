@@ -1,5 +1,6 @@
 package fr.cgi.edt.utils;
 
+import fr.cgi.edt.core.enums.DayOfWeek;
 import fr.cgi.edt.services.impl.EdtServiceMongoImpl;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -8,6 +9,9 @@ import io.vertx.core.logging.LoggerFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -27,6 +31,7 @@ public class DateHelper {
     public static final String MONGO_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String SQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSZ";
     public static final String YEAR_MONTH_DAY_HOUR_MINUTES_SECONDS = "yyyy/MM/dd HH:mm:ss";
+    public static final String HOUR_MINUTES = "HH:mm";
     public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
     public static final String YEAR = "yyyy";
 
@@ -53,7 +58,7 @@ public class DateHelper {
         calendarOccurrence.add(Calendar.DAY_OF_WEEK, 1);
         return calendarOccurrence;
     }
-    public Date addDays (Date dt, int days){
+    public static Date addDays (Date dt, int days){
         Calendar c = Calendar.getInstance();
         c.setTime(dt);
         c.add(Calendar.DATE, days);
@@ -179,6 +184,28 @@ public class DateHelper {
         c.setTime(date);
         return c.get(Calendar.WEEK_OF_YEAR);
     }
+    public static Date setTimeFromString(Date date, String time, String timeFormat) {
+        try {
+            SimpleDateFormat tf = new SimpleDateFormat(timeFormat);
+            Date timeDate = tf.parse(time);
+            LocalDateTime dateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            LocalDateTime timeDateTime = timeDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            dateTime = dateTime.withHour(timeDateTime.getHour()).withMinute(timeDateTime.getMinute());
+            return Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+        } catch (ParseException e) {
+            LOGGER.error("[Edt@DateHelper::setTimeFromString] error when casting time: " + time + ". " + e.getMessage());
+        }
+        return date;
+    }
+
+    public static String getStringFromDateWithTime(Date date, String time, String timeFormat) {
+        return getDateString(setTimeFromString(date, time, timeFormat), SQL_FORMAT);
+    }
+
+    public static String getDateString(Date date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(date);
+    }
 
     int getWeekOfYear(String datetring) {
         Date date = this.getDate(datetring, this.SIMPLE_DATE_FORMATTER);
@@ -236,6 +263,12 @@ public class DateHelper {
         int daysNeeded = 7 - getDayOfWeek(date.getTime());
         date.add(Calendar.DATE, daysNeeded);
         return DATE_FORMATTER.format(date.getTime());
+    }
+
+    public static Date goToNextDayOfWeek(Date date, DayOfWeek dayOfWeek){
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate nextDayOfWeek = localDate.with(TemporalAdjusters.next(java.time.DayOfWeek.of(dayOfWeek.ordinal() + 1)));
+        return Date.from(nextDayOfWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     public String getDateString(Date date) {
