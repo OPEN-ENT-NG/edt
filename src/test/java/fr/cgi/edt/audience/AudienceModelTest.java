@@ -38,6 +38,6 @@ public class AudienceModelTest {
     @Test
     public void testAudienceHasBeenInstantiated(TestContext ctx) {
         Audience audience = new Audience(audienceJsonObject_1);
-        ctx.assertEquals(audience.toJSON(), audienceJsonObject_1);
+        ctx.assertEquals(audience.toJson(), audienceJsonObject_1);
     }
 }

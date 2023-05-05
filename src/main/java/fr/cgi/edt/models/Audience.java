@@ -1,12 +1,15 @@
 package fr.cgi.edt.models;
 
+import fr.cgi.edt.core.constants.Field;
+import fr.cgi.edt.helper.IModelHelper;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class Audience {
+public class Audience implements IModel<Audience> {
 
     private String id;
     private String externalId;
@@ -14,11 +17,15 @@ public class Audience {
     private List<String> labels;
 
     public Audience(JsonObject audience) {
-        this.id = audience.getString("id", "");
-        this.externalId = audience.getString("externalId", "");
-        this.name = audience.getString("name", "");
-        this.labels = audience.getJsonArray("labels") != null ?
-                audience.getJsonArray("labels", new JsonArray()).getList() : new ArrayList<>();
+        this.id = audience.getString(Field.ID, "");
+        this.externalId = audience.getString(Field.EXTERNALID, "");
+        this.name = audience.getString(Field.NAME, "");
+        this.labels = audience.getJsonArray(Field.LABELS) != null ?
+                audience.getJsonArray(Field.LABELS, new JsonArray())
+                        .stream()
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .collect(Collectors.toList()) : new ArrayList<>();
     }
 
     public Audience() {
@@ -32,43 +39,43 @@ public class Audience {
         this.id = audienceId;
     }
 
-    public JsonObject toJSON() {
-        return new JsonObject()
-                .put("id", this.id)
-                .put("externalId", this.externalId)
-                .put("name", this.name)
-                .put("labels", this.labels);
+    public JsonObject toJson() {
+        return IModelHelper.toJson(this, false, false);
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public Audience setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Audience setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getExternalId() {
         return externalId;
     }
 
-    public void setExternalId(String externalId) {
+    public Audience setExternalId(String externalId) {
         this.externalId = externalId;
+        return this;
     }
 
     public List<String> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<String> labels) {
+    public Audience setLabels(List<String> labels) {
         this.labels = labels;
+        return this;
     }
 }
