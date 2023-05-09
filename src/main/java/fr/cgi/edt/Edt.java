@@ -33,17 +33,19 @@ public class Edt extends BaseServer {
     public void start() throws Exception {
         super.start();
         eb = getEventBus(vertx);
-
+        final Sql sql = Sql.getInstance();
+        final Neo4j neo4j = Neo4j.getInstance();
+        final MongoDb mongoDb = MongoDb.getInstance();
         EventStore eventStore = EventStoreFactory.getFactory().getEventStore(Edt.class.getSimpleName());
-        ServiceFactory serviceFactory = new ServiceFactory(vertx, config);
+        ServiceFactory serviceFactory = new ServiceFactory(vertx, config, sql, neo4j, mongoDb);
 
         addController(new EdtController(EDT_COLLECTION, eb, eventStore));
-        addController(new EventBusController(serviceFactory, Sql.getInstance(), MongoDb.getInstance()));
+        addController(new EventBusController(serviceFactory));
         addController(new InitController(serviceFactory));
         addController(new SearchController(eb));
-        addController(new CourseController(eb, new DefaultCourseService(eb, Sql.getInstance(), MongoDb.getInstance())));
+        addController(new CourseController(eb, new DefaultCourseService(serviceFactory)));
         addController(new ConfigController());
-        addController(new CourseTagController(new DefaultCourseTagService(Sql.getInstance(), MongoDb.getInstance())));
+        addController(new CourseTagController(new DefaultCourseTagService(sql, mongoDb)));
 
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());
