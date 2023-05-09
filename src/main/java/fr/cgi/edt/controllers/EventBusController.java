@@ -43,6 +43,7 @@ public class EventBusController extends ControllerHelper {
         JsonObject body = message.body();
         String action = body.getString("action");
         String structureId;
+        String subjectId;
 
         switch (action) {
             case "get-course-tags":
@@ -65,7 +66,7 @@ public class EventBusController extends ControllerHelper {
                 break;
             case "init-courses":
                 structureId = body.getString(Field.STRUCTUREID);
-                String subjectId = body.getString(Field.SUBJECTID);
+                subjectId = body.getString(Field.SUBJECTID);
                 Date startDate;
                 Date endDate;
                 try {
@@ -90,6 +91,19 @@ public class EventBusController extends ControllerHelper {
                                         .put(Field.STATUS, Field.OK)
                                         .put(Field.RESULT, v)));
                 break;
+            case "delete-courses-subject":
+                structureId = body.getString(Field.STRUCTUREID);
+                subjectId = body.getString(Field.SUBJECTID);
+                this.courseService.deleteCoursesWithSubjectId(structureId, subjectId)
+                        .onFailure(e -> message.reply(new JsonObject()
+                                .put(Field.STATUS, Field.ERROR)
+                                .put(Field.MESSAGE, e.getMessage())))
+                        .onSuccess(v -> message.reply(
+                                new JsonObject()
+                                        .put(Field.STATUS, Field.OK)
+                                        .put(Field.RESULT, v)));
+                break;
+
             default:
                 message.reply(new JsonObject()
                         .put(Field.STATUS, Field.ERROR)
