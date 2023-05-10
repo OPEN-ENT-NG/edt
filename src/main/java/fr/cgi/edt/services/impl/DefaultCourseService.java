@@ -246,7 +246,7 @@ public class DefaultCourseService implements CourseService {
     private List<Course> initCourseOccurences(DayOfWeek day, String startTime, String endTime, Date startDate, Date endDate) {
         List<Course> courses = new ArrayList<>();
         String recurrenceId = UUID.randomUUID().toString();
-        for (Date date = DateHelper.goToNextDayOfWeek(DateHelper.addDays(startDate, -1), day);
+        for (Date date = DateHelper.goToNextDayOfWeek(DateHelper.addDays(new Date().after(startDate) ? new Date() : startDate, -1), day);
              endDate.after(date); date = DateHelper.addDays(date, 7)) {
             Course course = new Course();
             course.setRecurrence(recurrenceId);
@@ -329,6 +329,22 @@ public class DefaultCourseService implements CourseService {
                 promise.fail(res.left().getValue());
             }
         }));
+
+        return promise.future();
+    }
+
+    @Override
+    public Future<JsonObject> deleteCoursesWithSubjectId(String structureId, String subjectId) {
+        Promise<JsonObject> promise = Promise.promise();
+
+        JsonObject matcher = new JsonObject()
+                .put(Field.STRUCTUREID, structureId)
+                .put(Field.SUBJECTID, subjectId)
+                .put(Field.STARTDATE, new JsonObject().put("$gte", DateHelper.getDateString(new Date(), DateHelper.SQL_FORMAT)));
+
+        mongoDb.delete("courses", matcher, MongoDbResult.validResultHandler(
+                FutureHelper.handlerEitherPromise(promise, String.format("[EDT@%s::deleteCoursesWithSubjectId] " +
+                        "Failed to delete courses with subjectId %s", this.getClass().getSimpleName(), subjectId))));
 
         return promise.future();
     }

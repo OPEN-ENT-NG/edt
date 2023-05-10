@@ -7,6 +7,7 @@ import fr.cgi.edt.models.InitFormTimetable;
 import fr.cgi.edt.models.Timeslot;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import org.entcore.common.user.UserInfos;
 
 import java.util.Date;
@@ -36,6 +37,14 @@ public interface CourseService {
      */
     Future<Void> createInitCourses(String structureId, String subjectId, Date startDate, Date endDate,
                                          InitFormTimetable timetable, List<Timeslot> timeslots, String userId);
+
+    /**
+     * Delete courses with subject id
+     * @param structureId structure id
+     * @param subjectId subject id
+     * @return future
+     */
+    Future<JsonObject> deleteCoursesWithSubjectId(String structureId, String subjectId);
 
     /**
      * Get audience object from id
