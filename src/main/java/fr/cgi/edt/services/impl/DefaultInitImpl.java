@@ -314,6 +314,7 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .addQueryParam("facet", "location")
                 .addQueryParam("refine.zones", "Zone " + initDateFuture.zone())
                 .addQueryParam("timezone", "Europe/Paris")
+                .addQueryParam("rows", "1000")
                 .as(BodyCodec.jsonObject())
                 .send(ar -> {
                     if (ar.failed()) {
