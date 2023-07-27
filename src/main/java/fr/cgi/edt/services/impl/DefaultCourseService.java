@@ -199,8 +199,12 @@ public class DefaultCourseService implements CourseService {
 
                     days.forEach(day -> {
                         boolean isFullDay = timetable.getFullDays().stream().anyMatch(fullDay -> fullDay == day);
-                        courses.addAll(this.initCourseOccurences(day, timetable.getMorning().getString(Field.STARTHOUR),
-                                timetable.getMorning().getString(Field.ENDHOUR), startDate, endDate));
+                        boolean isHalfDay = timetable.getHalfDays().stream().anyMatch(halfDay -> halfDay == day);
+
+                        if (isHalfDay || isFullDay) {
+                            courses.addAll(this.initCourseOccurences(day, timetable.getMorning().getString(Field.STARTHOUR),
+                                    timetable.getMorning().getString(Field.ENDHOUR), startDate, endDate));
+                        }
                         if (isFullDay) {
                             courses.addAll(this.initCourseOccurences(day, timetable.getAfternoon().getString(Field.STARTHOUR),
                                     timetable.getAfternoon().getString(Field.ENDHOUR), startDate, endDate));
