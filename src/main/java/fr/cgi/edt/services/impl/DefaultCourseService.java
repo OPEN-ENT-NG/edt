@@ -160,7 +160,7 @@ public class DefaultCourseService implements CourseService {
 
         List<Future<JsonObject>> coursesFuture = new ArrayList<>();
 
-        this.getServicesForCourses(structureId)
+        this.getServicesForCourses(structureId, subjectId)
                         .onFailure(fail -> promise.fail(fail.getMessage()))
                                 .onSuccess(services -> {
                                     services.forEach(service -> coursesFuture.add(createInitCourse(structureId, subjectId,
@@ -291,15 +291,15 @@ public class DefaultCourseService implements CourseService {
     }
 
     @Override
-    public Future<List<FormattedService>> getServicesForCourses(String structureId) {
+    public Future<List<FormattedService>> getServicesForCourses(String structureId, String subjectId) {
         Promise<List<FormattedService>> promise = Promise.promise();
 
         String query = "SELECT id_etablissement AS structure_id, id_groupe AS audience_id, id_matiere AS subject_id, " +
                 "ARRAY_AGG(id_enseignant) AS teacher_ids FROM viesco.services " +
-                "WHERE id_etablissement = ? " +
+                "WHERE id_etablissement = ? AND id_matiere = ? " +
                 "GROUP BY id_etablissement, id_groupe, id_matiere";
 
-        JsonArray params = new JsonArray().add(structureId);
+        JsonArray params = new JsonArray().add(structureId).add(subjectId);
 
         sql.prepared(query, params, SqlResult.validResultHandler(res -> {
             if (res.isRight()) {
