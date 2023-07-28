@@ -57,7 +57,8 @@ public interface CourseService {
     /**
      * Get services formatted for courses (multiple teachers allowed per course)
      * @param structureId structure id
+     * @param subjectId default init subject id
      * @return list of formatted services
      */
-    Future<List<FormattedService>> getServicesForCourses(String structureId);
+    Future<List<FormattedService>> getServicesForCourses(String structureId, String subjectId);
 }
