@@ -1,83 +1,102 @@
-<div class="twelve cell display-flex main-header-content" ng-class="isPersonnel() ? 'personal-display' : ''">
-    <!-- TITLE AREA -->
-    <div class="cell">
-        <app-title class="zero-mobile">
-            <img class="application-logo" ng-src="/edt/public/img/uni-edt.png" alt=""/>
-            <h1 class="application-title">
-                <i18n>edt.fullTitle</i18n>
-            </h1>
-        </app-title>
+<div
+  class="twelve cell display-flex main-header-content"
+  ng-class="isPersonnel() ? 'personal-display' : ''"
+>
+  <!-- TITLE AREA -->
+  <div class="cell">
+    <app-title class="zero-mobile">
+      <img class="application-logo" ng-src="/edt/public/img/edt.png" alt="" />
+      <h1 class="application-title">
+        <i18n>edt.fullTitle</i18n>
+      </h1>
+    </app-title>
+  </div>
+
+  <div ng-if="isRelative()">
+    <!-- SELECT SUBJECT -->
+    <select-children
+      child="child"
+      children="children"
+      structure="child.structures[0]"
+      event-update-child="onEventUpdateChild"
+      event-update-structure="onEventUpdateStructure"
+    >
+    </select-children>
+  </div>
+
+  <!-- SEARCH TEACHER/CLASS AREA -->
+  <div
+    ng-if="!isAllStructure"
+    workflow="edt.edtSearch"
+    class="cell search-bars"
+    ng-class="(params.coursesToUpdate.length > 0) ? 'small' : 'full'"
+  >
+    <div class="search-inputs">
+      <div class="search-input small">
+        <async-autocomplete
+          data-ng-disabled="false"
+          data-ng-model="autocomplete.teacher"
+          data-ng-change="selectTeacher"
+          data-options="autocomplete.teacherOptions"
+          data-on-search="filterTeacherOptions"
+          data-placeholder="edt.search.teacher"
+          data-search="autocomplete.teacher"
+        >
+        </async-autocomplete>
+      </div>
+      <div class="search-input small">
+        <async-autocomplete
+          data-ng-disabled="false"
+          data-ng-model="autocomplete.class"
+          data-ng-change="selectClass"
+          data-options="autocomplete.classOptions"
+          on-search="filterClassOptions"
+          data-placeholder="edt.search.group"
+          search="autocomplete.class"
+        >
+        </async-autocomplete>
+      </div>
     </div>
+  </div>
 
-    <div ng-if="isRelative()">
-        <!-- SELECT SUBJECT -->
-        <select-children child="child"
-                         children="children"
-                         structure="child.structures[0]"
-                         event-update-child="onEventUpdateChild"
-                         event-update-structure="onEventUpdateStructure">
-        </select-children>
+  <div class="loader four cell" ng-show="calendarLoader.show">
+    <div>
+      <h4>
+        <i class="spinner margin-right-md"></i>
+        <i18n>edt.calendar.loading</i18n>
+      </h4>
     </div>
+  </div>
 
+  <!-- MANAGE COURSE AREA -->
+  <div class="header-buttons">
+    <section
+      ng-if="canManage()"
+      id="delete-section"
+      class="button-header four cell"
+    >
+      <div class="cell twelve">
+        <button
+          ng-show="(params.coursesToUpdate.length > 0)"
+          class="twelve padding-sm delete-course-button"
+          ng-click="openUpdateForm()"
+        >
+          <i18n>edt.utils.modify.selected</i18n>
+        </button>
+      </div>
+    </section>
 
-    <!-- SEARCH TEACHER/CLASS AREA -->
-    <div ng-if="!isAllStructure" workflow="edt.edtSearch"
-         class="cell search-bars" ng-class="(params.coursesToUpdate.length > 0) ? 'small' : 'full'">
-        <div class="search-inputs">
-            <div class="search-input small">
-                <async-autocomplete data-ng-disabled="false"
-                                    data-ng-model="autocomplete.teacher"
-                                    data-ng-change="selectTeacher"
-                                    data-options="autocomplete.teacherOptions"
-                                    data-on-search="filterTeacherOptions"
-                                    data-placeholder="edt.search.teacher"
-                                    data-search="autocomplete.teacher">
-                </async-autocomplete>
-            </div>
-            <div class="search-input small">
-                <async-autocomplete data-ng-disabled="false"
-                                    data-ng-model="autocomplete.class"
-                                    data-ng-change="selectClass"
-                                    data-options="autocomplete.classOptions"
-                                    on-search="filterClassOptions"
-                                    data-placeholder="edt.search.group"
-                                    search="autocomplete.class">
-                </async-autocomplete>
-            </div>
+    <section ng-if="canManage()" id="add-section" class="button-header">
+      <div class="cell twelve">
+        <div class="row cell">
+          <div class="twelve cell small">
+            <button class="twelve padding-sm" ng-click="createCourse()">
+              <i18n>edt.schedule.create</i18n>
+            </button>
+          </div>
         </div>
-    </div>
-
-    <div class="loader four cell" ng-show="calendarLoader.show">
-        <div>
-            <h4>
-                <i class="spinner margin-right-md"></i>
-                <i18n>edt.calendar.loading</i18n>
-            </h4>
-        </div>
-    </div>
-
-    <!-- MANAGE COURSE AREA -->
-    <div class="header-buttons">
-        <section ng-if="canManage()" id="delete-section" class="button-header four cell">
-            <div class="cell twelve ">
-                <button ng-show="(params.coursesToUpdate.length > 0)" class="twelve padding-sm delete-course-button"
-                        ng-click="openUpdateForm()">
-                    <i18n>edt.utils.modify.selected</i18n>
-                </button>
-            </div>
-        </section>
-
-        <section ng-if="canManage()" id="add-section" class="button-header">
-            <div class="cell twelve ">
-                <div class="row cell">
-                    <div class="twelve cell small">
-                        <button class="twelve padding-sm" ng-click="createCourse()">
-                            <i18n>edt.schedule.create</i18n>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+      </div>
+    </section>
+  </div>
 </div>
 <div class="clear"></div>
