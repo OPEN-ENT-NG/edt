@@ -7,7 +7,7 @@
     "awesome-typescript-loader": "3.2.1",
     "axios": "0.16.2",
     "core-js": "2.4.1",
-    "entcore": "develop-pedago",
+    "entcore": "~4.8.0-develop-pedago",
     "entcore-toolkit": "^1.0.1",
     "gulp": "3.9.1",
     "gulp-clean": "^0.3.2",
@@ -23,7 +23,7 @@
     "apexcharts": "^3.15.5"
   },
   "devDependencies": {
-    "@types/angular": "^1.6.55",
+    "@types/angular": "1.8.3",
     "@types/core-js": "0.9.42",
     "@types/jest": "^22.2.0",
     "@types/jquery": "^2.0.34",
