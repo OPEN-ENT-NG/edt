@@ -6,6 +6,7 @@ import fr.wseduc.mongodb.MongoDb;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -60,23 +61,23 @@ public class StsDAOTest {
             return null;
         }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
 
-        dao.retrieveStructureIdentifier(UAI, Future.future());
+        dao.retrieveStructureIdentifier(UAI, Promise.promise());
     }
 
     @Test
     public void retrieveTeachers_Should_Not_Call_Neo4jWithEmptyTeacherList_And_Returns_EmptyJsonArray(TestContext ctx) {
-        Future future = Future.future();
-        List futures = new ArrayList();
-        futures.add(future);
-        CompositeFuture.all(futures).setHandler(ar -> {
+        Promise<JsonArray> promise = Promise.promise();
+        List<Future<JsonArray>> futures = new ArrayList<>();
+        futures.add(promise.future());
+        Future.all(futures).onComplete(ar -> {
             if (ar.failed()) ctx.fail(ar.cause());
             else {
-                ctx.assertTrue(((JsonArray) future.result()).isEmpty());
+                ctx.assertTrue(( promise.future().result()).isEmpty());
                 Mockito.verify(neo4j, Mockito.never()).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
             }
         });
 
-        dao.retrieveTeachers(UAI, new ArrayList<>(), future);
+        dao.retrieveTeachers(UAI, new ArrayList<>(), promise);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class StsDAOTest {
             return null;
         }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
 
-        dao.retrieveTeachers(UAI, TEACHERS, Future.future());
+        dao.retrieveTeachers(UAI, TEACHERS, Promise.promise());
     }
 
     @Test
@@ -114,23 +115,23 @@ public class StsDAOTest {
             return null;
         }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
 
-        dao.retrieveTeachers(UAI, TEACHERS, Future.future());
+        dao.retrieveTeachers(UAI, TEACHERS, Promise.promise());
     }
 
     @Test
     public void retrieveSubjects_Should_Not_Call_Neo4jWithEmptySubjectList_And_Returns_EmptyJsonArray(TestContext ctx) {
-        Future future = Future.future();
-        List futures = new ArrayList();
-        futures.add(future);
-        CompositeFuture.all(futures).setHandler(ar -> {
+        Promise<JsonArray> promise = Promise.promise();
+        List<Future<JsonArray>> futures = new ArrayList<>();
+        futures.add(promise.future());
+        Future.all(futures).onComplete(ar -> {
             if (ar.failed()) ctx.fail(ar.cause());
             else {
-                ctx.assertTrue(((JsonArray) future.result()).isEmpty());
+                ctx.assertTrue((promise.future().result()).isEmpty());
                 Mockito.verify(neo4j, Mockito.never()).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
             }
         });
 
-        dao.retrieveSubjects(UAI, new ArrayList<>(), future);
+        dao.retrieveSubjects(UAI, new ArrayList<>(), promise);
     }
 
     @Test
@@ -145,7 +146,7 @@ public class StsDAOTest {
             return null;
         }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
 
-        dao.retrieveSubjects(UAI, SUBJECTS, Future.future());
+        dao.retrieveSubjects(UAI, SUBJECTS, Promise.promise());
     }
 
     @Test
@@ -163,7 +164,7 @@ public class StsDAOTest {
             return null;
         }).when(neo4j).execute(Mockito.anyString(), Mockito.any(JsonObject.class), Mockito.any(Handler.class));
 
-        dao.retrieveSubjects(UAI, SUBJECTS, Future.future());
+        dao.retrieveSubjects(UAI, SUBJECTS, Promise.promise());
     }
 
 }

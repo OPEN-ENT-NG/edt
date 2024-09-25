@@ -3,10 +3,7 @@ package fr.cgi.edt.sts;
 import fr.cgi.edt.sts.defaultValues.DefaultStructure;
 import fr.cgi.edt.sts.defaultValues.DefaultSubject;
 import fr.cgi.edt.sts.defaultValues.DefaultTeacher;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
@@ -49,16 +46,16 @@ public class StsCase {
 
     protected void mockTeachers(JsonArray teachers) {
         Mockito.doAnswer(invocation -> {
-            Future future = invocation.getArgument(2);
-            future.complete(teachers);
+            Promise promise = invocation.getArgument(2);
+            promise.complete(teachers);
             return null;
-        }).when(dao).retrieveTeachers(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
+        }).when(dao).retrieveTeachers(Mockito.anyString(), Mockito.anyList(), Mockito.any(Promise.class));
     }
 
     protected void mockAudiences() {
         Mockito.doAnswer(invocation -> {
             List<String> audiences = invocation.getArgument(1);
-            Future future = invocation.getArgument(2);
+            Promise promise = invocation.getArgument(2);
 
             JsonArray response = new JsonArray();
             for (String audience : audiences) {
@@ -67,9 +64,9 @@ public class StsCase {
                         .put("externalId", String.format("%d$%s", STRUCTURE_EXTERNAL_ID_CODE, audience)));
             }
 
-            future.complete(response);
+            promise.complete(response);
             return null;
-        }).when(dao).retrieveAudiences(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
+        }).when(dao).retrieveAudiences(Mockito.anyString(), Mockito.anyList(), Mockito.any(Promise.class));
     }
 
     protected void mockTeachers() {
@@ -78,10 +75,10 @@ public class StsCase {
 
     protected void mockSubjects(JsonArray subjects) {
         Mockito.doAnswer(invocation -> {
-            Future future = invocation.getArgument(2);
-            future.complete(subjects);
+            Promise promise = invocation.getArgument(2);
+            promise.complete(subjects);
             return null;
-        }).when(dao).retrieveSubjects(Mockito.anyString(), Mockito.anyList(), Mockito.any(Future.class));
+        }).when(dao).retrieveSubjects(Mockito.anyString(), Mockito.anyList(), Mockito.any(Promise.class));
     }
 
     protected void mockSubjects() {
@@ -90,10 +87,10 @@ public class StsCase {
 
     protected void mockStructure(JsonObject structure) {
         Mockito.doAnswer(invocation -> {
-            Future future = invocation.getArgument(1);
-            future.complete(structure);
+            Promise promise = invocation.getArgument(1);
+            promise.complete(structure);
             return null;
-        }).when(dao).retrieveStructureIdentifier(Mockito.anyString(), Mockito.any(Future.class));
+        }).when(dao).retrieveStructureIdentifier(Mockito.anyString(), Mockito.any(Promise.class));
     }
 
     protected void mockStructure() {

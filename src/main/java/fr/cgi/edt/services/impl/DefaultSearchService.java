@@ -6,6 +6,7 @@ import fr.wseduc.webutils.Either;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -24,16 +25,16 @@ public class DefaultSearchService implements SearchService {
     @Override
     public void search(String query, String structureId, Handler<Either<String, JsonArray>> handler) {
 
-        Future<JsonArray> groupFuture = Future.future();
-        Future<JsonArray> manualGroupFuture = Future.future();
+        Promise<JsonArray> groupPromise = Promise.promise();
+        Promise<JsonArray> manualGroupPromise = Promise.promise();
 
-        CompositeFuture.all(groupFuture, manualGroupFuture).setHandler(event -> {
+        Future.all(groupPromise.future(), manualGroupPromise.future()).onComplete(event -> {
             if(event.failed()) {
                 String message = "[EDT@DefaultSearchService::search] Failed to retrieve groups" + event.cause();
                 LOGGER.error(message);
                 handler.handle(new Either.Left<>(message));
             } else {
-                List items = Stream.concat(groupFuture.result().stream(), manualGroupFuture.result().stream())
+                List items = Stream.concat(groupPromise.future().result().stream(), manualGroupPromise.future().result().stream())
                         .collect(Collectors.toList());
 
                 items.sort((Comparator<JsonObject>) (o1, o2) -> o1.getString("displayName")
@@ -42,8 +43,14 @@ public class DefaultSearchService implements SearchService {
             }
         });
 
-        searchGroups(query, structureId, FutureHelper.handlerJsonArray(groupFuture));
-        searchManualGroup(query, structureId, FutureHelper.handlerJsonArray(manualGroupFuture));
+        searchGroups(query, structureId, FutureHelper.handlerEitherPromise(groupPromise,
+                String.format("[EDT@%s::search] " +
+                        "Failed to search for groups for structure %s", this.getClass().getSimpleName(), structureId)
+        ));
+        searchManualGroup(query, structureId, FutureHelper.handlerEitherPromise(manualGroupPromise,
+                String.format("[EDT@%s::search] " +
+                        "Failed to search for manual groups for structure %s", this.getClass().getSimpleName(), structureId)
+        ));
     }
 
 

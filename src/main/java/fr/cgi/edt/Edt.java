@@ -7,6 +7,7 @@ import fr.cgi.edt.services.impl.DefaultCourseService;
 import fr.cgi.edt.services.impl.DefaultCourseTagService;
 import fr.cgi.edt.services.impl.DefaultInitImpl;
 import fr.wseduc.mongodb.MongoDb;
+import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
@@ -30,8 +31,8 @@ public class Edt extends BaseServer {
     static EventBus eb;
 
     @Override
-    public void start() throws Exception {
-        super.start();
+    public void start(Promise<Void> startPromise) throws Exception {
+        super.start(startPromise);
         eb = getEventBus(vertx);
         final Sql sql = Sql.getInstance();
         final Neo4j neo4j = Neo4j.getInstance();
@@ -49,5 +50,8 @@ public class Edt extends BaseServer {
 
         MongoDbConf.getInstance().setCollection(EDT_COLLECTION);
         setDefaultResourceFilter(new ShareAndOwner());
+
+        startPromise.tryComplete();
+        startPromise.tryFail("[EDT@Edt::start] Failed to start EDT module.");
     }
 }

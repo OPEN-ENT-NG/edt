@@ -23,11 +23,10 @@
         </repository>
     </repositories>
     <properties>
-        <vertxVersion>3.9.5</vertxVersion>
         <junitVersion>5.1.0</junitVersion>
         <powerMockVersion>2.0.2</powerMockVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
-        <entCoreVersion>4.12.2</entCoreVersion>
+        <entCoreVersion>5.0-b2school-SNAPSHOT</entCoreVersion>
         <gatlingHighchartsVersion>2.2.2</gatlingHighchartsVersion>
         <toolsVersion>2.0.0-final</toolsVersion>
     </properties>
