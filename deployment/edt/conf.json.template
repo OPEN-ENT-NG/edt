@@ -1,5 +1,5 @@
     {
-      "name": "fr.cgi~edt~2.9.5",
+      "name": "fr.cgi~edt~3.0-b2school-SNAPSHOT",
       "config": {
         "main" : "fr.cgi.edt.Edt",
         "port" : 8168,

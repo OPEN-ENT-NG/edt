@@ -20,3 +20,6 @@ src/main/resources/public/ts/entcore
 src/main/resources/public/template/entcore
 rev-manifest.json
 coverage/
+.env
+target
+dependency-reduced-pom.xml
