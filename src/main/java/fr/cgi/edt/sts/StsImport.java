@@ -40,12 +40,12 @@ public class StsImport {
     }
 
     public void upload(final HttpServerRequest request, final String path, final Handler<AsyncResult> handler) {
-        List<Future> futures = new ArrayList<>();
+        List<Promise<Void>> promises = new ArrayList<>();
         List<String> filenames = new ArrayList<>();
-        Future file1 = Future.future();
-        Future file2 = Future.future();
-        futures.add(file1);
-        futures.add(file2);
+        Promise<Void> file1Promise = Promise.promise();
+        Promise<Void> file2Promise = Promise.promise();
+        promises.add(file1Promise);
+        promises.add(file2Promise);
         request.pause();
         request.setExpectMultipart(true);
         request.exceptionHandler(getExceptionHandler(path, handler));
@@ -62,7 +62,7 @@ public class StsImport {
                 return;
             }
 
-            Future future = futures.get(filenames.indexOf(upload.filename()));
+            Promise future = promises.get(filenames.indexOf(upload.filename()));
             final String filename = path + File.separator + upload.filename();
             upload.endHandler(event -> {
                 log.info("File " + upload.filename() + " uploaded as " + upload.filename());
@@ -79,7 +79,7 @@ public class StsImport {
             }
         });
 
-        CompositeFuture.all(futures).setHandler(ar -> {
+        Future.all(file1Promise.future(), file2Promise.future()).onComplete(ar -> {
             if (ar.failed()) {
                 handler.handle(new DefaultAsyncResult(new RuntimeException(StsError.UPLOAD_FAILED.key())));
             } else {
@@ -154,22 +154,22 @@ public class StsImport {
     }
 
     private void process(Handler<AsyncResult<JsonArray>> handler) {
-        Future<JsonObject> structureFuture = Future.future();
-        Future<JsonArray> subjectsFuture = Future.future();
-        Future<JsonArray> teachersFuture = Future.future();
-        Future<JsonArray> audienceFuture = Future.future();
+        Promise<JsonObject> structurePromise = Promise.promise();
+        Promise<JsonArray> subjectsPromise = Promise.promise();
+        Promise<JsonArray> teachersPromise = Promise.promise();
+        Promise<JsonArray> audiencePromise = Promise.promise();
 
-        CompositeFuture.all(structureFuture, subjectsFuture, teachersFuture).setHandler(ar -> {
+        Future.all(structurePromise.future(), subjectsPromise.future(), teachersPromise.future()).onComplete(ar -> {
             if (ar.failed()) {
                 log.error("Failed to retrieve STS infos", ar.cause());
                 handler.handle(Future.failedFuture(new RuntimeException(StsError.IMPORT_SERVER_ERROR.key())));
                 return;
             }
 
-            String structure = structureFuture.result().getString("id", null);
-            JsonArray subjects = subjectsFuture.result();
-            JsonArray teachers = teachersFuture.result();
-            JsonArray audiences = audienceFuture.result();
+            String structure = structurePromise.future().result().getString("id", null);
+            JsonArray subjects = subjectsPromise.future().result();
+            JsonArray teachers = teachersPromise.future().result();
+            JsonArray audiences = audiencePromise.future().result();
 
             if (structure == null) {
                 handler.handle(Future.failedFuture(new RuntimeException(StsError.UNKNOWN_STRUCTURE_ERROR.key())));
@@ -200,10 +200,10 @@ public class StsImport {
             });
         });
 
-        dao.retrieveAudiences(cache.uai(), cache.audiences(), audienceFuture);
-        dao.retrieveStructureIdentifier(cache.uai(), structureFuture);
-        dao.retrieveSubjects(cache.uai(), cache.subjects(), subjectsFuture);
-        dao.retrieveTeachers(cache.uai(), cache.teachers(), teachersFuture);
+        dao.retrieveAudiences(cache.uai(), cache.audiences(), audiencePromise);
+        dao.retrieveStructureIdentifier(cache.uai(), structurePromise);
+        dao.retrieveSubjects(cache.uai(), cache.subjects(), subjectsPromise);
+        dao.retrieveTeachers(cache.uai(), cache.teachers(), teachersPromise);
     }
 
     private void insufficiency(JsonArray teachers, JsonArray subjects, JsonArray audiences, Handler<AsyncResult<JsonArray>> handler) {

@@ -1,6 +1,7 @@
 package fr.cgi.edt.sts.bean;
 
 import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.webutils.template.FileTemplateProcessor;
 import fr.wseduc.webutils.template.TemplateProcessor;
 import fr.wseduc.webutils.template.lambdas.I18nLambda;
 import fr.wseduc.webutils.template.lambdas.LocaleDateLambda;
@@ -41,7 +42,7 @@ public class Report {
 
     public Report(Vertx vertx, String locale) {
         this.vertx = vertx;
-        templateProcessor = new TemplateProcessor(vertx, "template").escapeHTML(false);
+        templateProcessor = new FileTemplateProcessor(vertx, "template").escapeHTML(false);
         templateProcessor.setLambda("i18n", new I18nLambda(locale));
         templateProcessor.setLambda("datetime", new LocaleDateLambda(locale));
     }

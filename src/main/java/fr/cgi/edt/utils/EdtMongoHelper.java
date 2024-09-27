@@ -240,7 +240,8 @@ public class EdtMongoHelper extends MongoDbCrudService {
 
     public void updateElement(final JsonObject element, final  Handler<Message<JsonObject>> handler  ) {
         final JsonObject matches = new JsonObject().put("_id", element.getString("_id"));
-        mongo.update(collection, matches, element, handler);
+        final JsonObject updateElement = new JsonObject().put("$set", element);
+        mongo.update(collection, matches, updateElement, handler);
     }
 
     public void delete(final String id, final Handler<Either<String, JsonObject>> handler) {

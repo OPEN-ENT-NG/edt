@@ -1,6 +1,8 @@
 package fr.cgi.edt.services.impl;
 
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -64,19 +66,30 @@ public class ResultMessage implements Message<JsonObject> {
     }
 
     @Override
-    public <R> void reply(Object message, Handler<AsyncResult<Message<R>>> replyHandler) {
-
-    }
-
-    @Override
     public void reply(Object message, DeliveryOptions options) {
 
     }
 
     @Override
-    public <R> void reply(Object message, DeliveryOptions options, Handler<AsyncResult<Message<R>>> replyHandler) {
-
+    public <R> void replyAndRequest(@Nullable Object message, Handler<AsyncResult<Message<R>>> replyHandler) {
+        Message.super.replyAndRequest(message, replyHandler);
     }
+
+    @Override
+    public <R> Future<Message<R>> replyAndRequest(@Nullable Object message) {
+        return Message.super.replyAndRequest(message);
+    }
+
+    @Override
+    public <R> void replyAndRequest(@Nullable Object message, DeliveryOptions options, Handler<AsyncResult<Message<R>>> replyHandler) {
+        Message.super.replyAndRequest(message, options, replyHandler);
+    }
+
+    @Override
+    public <R> Future<Message<R>> replyAndRequest(@Nullable Object o, DeliveryOptions deliveryOptions) {
+        return null;
+    }
+
 
     @Override
     public void fail(int failureCode, String message) {

@@ -70,7 +70,7 @@ public class SearchController extends ControllerHelper {
     }
 
     private void callEDTEventBus(JsonObject action, HttpServerRequest request) {
-        eb.send("viescolaire", action, handlerToAsyncHandler(event -> {
+        eb.request("viescolaire", action, handlerToAsyncHandler(event -> {
             JsonObject body = event.body();
             if (!"ok".equals(body.getString("status"))) {
                 log.error("[EDT@SearchController] Failed to search for user");

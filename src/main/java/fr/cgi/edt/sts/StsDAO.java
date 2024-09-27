@@ -6,6 +6,7 @@ import fr.wseduc.mongodb.MongoDb;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.entcore.common.mongodb.MongoDbResult;
@@ -29,18 +30,18 @@ public class StsDAO {
         this.mongoDb = mongoDb;
     }
 
-    public void retrieveStructureIdentifier(String uai, Future handler) {
+    public void retrieveStructureIdentifier(String uai, Promise promise) {
         String query = "MATCH (s:Structure {UAI: {uai}}) RETURN s.id as id, s.name as name";
         JsonObject params = new JsonObject().put("uai", uai);
         neo4j.execute(query, params, Neo4jResult.validUniqueResultHandler(evt -> {
-            if (evt.isLeft()) handler.fail(evt.left().getValue());
-            else handler.complete(evt.right().getValue());
+            if (evt.isLeft()) promise.fail(evt.left().getValue());
+            else promise.complete(evt.right().getValue());
         }));
     }
 
-    public void retrieveTeachers(String uai, List<Teacher> teachers, Future handler) {
+    public void retrieveTeachers(String uai, List<Teacher> teachers, Promise<JsonArray> promise) {
         if (teachers.isEmpty()) {
-            handler.complete(new JsonArray());
+            promise.complete(new JsonArray());
             return;
         }
 
@@ -59,14 +60,14 @@ public class StsDAO {
         builder.append(" RETURN u.id AS id, u.lastName AS lastName, u.firstName AS firstName, u.birthDate as birthDate, u.displayName AS displayName");
         String query = builder.toString();
         neo4j.execute(query, params, Neo4jResult.validResultHandler(evt -> {
-            if (evt.isLeft()) handler.fail(evt.left().getValue());
-            else handler.complete(evt.right().getValue());
+            if (evt.isLeft()) promise.fail(evt.left().getValue());
+            else promise.complete(evt.right().getValue());
         }));
     }
 
-    public void retrieveSubjects(String uai, List<Subject> subjects, Future handler) {
+    public void retrieveSubjects(String uai, List<Subject> subjects, Promise<JsonArray> promise) {
         if (subjects.isEmpty()) {
-            handler.complete(new JsonArray());
+            promise.complete(new JsonArray());
             return;
         }
 
@@ -74,12 +75,12 @@ public class StsDAO {
                 .put("codes", new JsonArray(subjects.stream().map(Subject::code).collect(Collectors.toList())));
         String query = "MATCH (s:Structure {UAI: {uai}})<-[:SUBJECT]-(sub:Subject) WHERE sub.code IN {codes} RETURN sub.id AS id, sub.code AS code, sub.label AS label;";
         neo4j.execute(query, params, Neo4jResult.validResultHandler(evt -> {
-            if (evt.isLeft()) handler.fail(evt.left().getValue());
-            else handler.complete(evt.right().getValue());
+            if (evt.isLeft()) promise.fail(evt.left().getValue());
+            else promise.complete(evt.right().getValue());
         }));
     }
 
-    public void retrieveAudiences(String uai, List<String> audiences, Future handler) {
+    public void retrieveAudiences(String uai, List<String> audiences, Promise promise) {
         String query = "MATCH (g)-[:BELONGS|:DEPENDS]->(s:Structure {UAI:{uai}}) " +
                 "WHERE g.name IN {audiences} AND (g:Class OR g:FunctionalGroup)" +
                 "RETURN g.name as name, g.externalId as externalId";
@@ -88,8 +89,8 @@ public class StsDAO {
                 .put("audiences", audiences);
         
         neo4j.execute(query, params, Neo4jResult.validResultHandler(evt -> {
-            if (evt.isLeft()) handler.fail(evt.left().getValue());
-            else handler.complete(evt.right().getValue());
+            if (evt.isLeft()) promise.fail(evt.left().getValue());
+            else promise.complete(evt.right().getValue());
         }));
     }
 

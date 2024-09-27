@@ -188,7 +188,7 @@ public class EdtController extends MongoDbControllerHelper {
                 .put("action", "timeslot.getSlotProfiles")
                 .put("structureId", structureId);
 
-        eb.send("viescolaire", action, event -> {
+        eb.request("viescolaire", action, event -> {
             JsonObject body = (JsonObject) event.result().body();
             if (event.failed() || "error".equals(body.getString("status"))) {
                 log.error("[EDT@EdtController::getSlots] Failed to fetch time slots via viescolaire event bus");

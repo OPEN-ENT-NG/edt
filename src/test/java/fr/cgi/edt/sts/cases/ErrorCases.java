@@ -6,6 +6,7 @@ import fr.cgi.edt.sts.StsError;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -35,10 +36,10 @@ public class ErrorCases extends StsCase {
     public void importSts_Should_Trigger_ImportServerError(TestContext ctx) {
 
         Mockito.doAnswer(invocation -> {
-            Future future = invocation.getArgument(1);
-            future.fail("This is a fake fail to trigger IMPORT_SERVER_ERROR");
+            Promise promise = invocation.getArgument(1);
+            promise.fail("This is a fake fail to trigger IMPORT_SERVER_ERROR");
             return null;
-        }).when(dao).retrieveStructureIdentifier(Mockito.anyString(), Mockito.any(Future.class));
+        }).when(dao).retrieveStructureIdentifier(Mockito.anyString(), Mockito.any(Promise.class));
 
         expectedError(ctx, DEFAULT_PATH, StsError.IMPORT_SERVER_ERROR);
     }
