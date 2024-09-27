@@ -167,7 +167,7 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
         Future<JsonObject> currentYearFuture = searchExcludeDate(initDateFuture.schoolStartAt());
         Future<JsonObject> nextYearFuture = searchExcludeDate(initDateFuture.schoolEndAt());
 
-        CompositeFuture.all(currentYearFuture, nextYearFuture)
+        Future.all(currentYearFuture, nextYearFuture)
                 .onSuccess(unused -> {
                     JsonObject concatHolidays = currentYearFuture.result().mergeIn(nextYearFuture.result());
 

@@ -92,7 +92,10 @@ public class DefaultCourseTagService implements CourseTagService {
                 .add(courseTagBody.getBoolean(Field.ALLOWREGISTER, true));
 
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(
-                FutureHelper.handlerJsonObject(promise.future())));
+                FutureHelper.handlerEitherPromise(promise,
+                        String.format("[EDT@%s::createCourseTag] " +
+                                "Failed to create course tag for structure %s and tag %s", this.getClass().getSimpleName(), structureId, courseTagBody)
+        )));
 
        return promise.future();
     }
@@ -104,7 +107,10 @@ public class DefaultCourseTagService implements CourseTagService {
         String query = "DELETE FROM " + EDT_SCHEMA + ".course_tag WHERE id = " + id + "RETURNING id AS id_deleted";
 
         sql.raw(query, SqlResult.validUniqueResultHandler(
-                FutureHelper.handlerJsonObject(promise.future())));
+                FutureHelper.handlerEitherPromise(promise,
+                        String.format("[EDT@%s::deleteCourseTag] " +
+                                "Failed to delete course tag for structure %s and tag with id %s", this.getClass().getSimpleName(), structureId, id)
+                        )));
 
         return promise.future();
     }
@@ -124,7 +130,10 @@ public class DefaultCourseTagService implements CourseTagService {
                 .add(courseTagBody.getLong(Field.ID));
 
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(
-                FutureHelper.handlerJsonObject(promise.future())));
+                FutureHelper.handlerEitherPromise(promise,
+                        String.format("[EDT@%s::updateCourseTag] " +
+                                "Failed to update course tag for structure tag  %s", this.getClass().getSimpleName(), courseTagBody)
+                )));
 
         return promise.future();
     }
@@ -143,7 +152,10 @@ public class DefaultCourseTagService implements CourseTagService {
                 .add(id);
 
         sql.prepared(query, params, SqlResult.validUniqueResultHandler(
-                FutureHelper.handlerJsonObject(promise.future())));
+                FutureHelper.handlerEitherPromise(promise,
+                        String.format("[EDT@%s::updateCourseTagHidden] " +
+                                "Failed to update course hidden tag for structure %s and tag with id %s", this.getClass().getSimpleName(), structureId, id)
+                )));
 
         return promise.future();
     }

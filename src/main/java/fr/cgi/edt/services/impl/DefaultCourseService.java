@@ -62,7 +62,7 @@ public class DefaultCourseService implements CourseService {
 
         Future<List<CourseTag>> getCourseTagsFuture = courseTagService.getCourseTags(structureId);
 
-        CompositeFuture.all(getCoursesOccurrencesFuture, getCourseTagsFuture)
+        Future.all(getCoursesOccurrencesFuture, getCourseTagsFuture)
                 .onFailure(fail -> promise.fail(fail.getMessage()))
                 .onSuccess(ar -> {
                     List<JsonObject> courses = getCoursesOccurrencesFuture.result();
@@ -191,7 +191,7 @@ public class DefaultCourseService implements CourseService {
         Future<Audience> classFuture = this.getAudienceFromId(service.getAudienceId(), false);
         Future<Audience> groupFuture = this.getAudienceFromId(service.getAudienceId(), true);
 
-        CompositeFuture.all(classFuture, groupFuture)
+        Future.all(classFuture, groupFuture)
                 .onFailure(fail -> promise.fail(fail.getMessage()))
                 .onSuccess(ar -> {
                     Audience clazz = ar.resultAt(0);
@@ -230,7 +230,10 @@ public class DefaultCourseService implements CourseService {
                     });
 
                     mongoDb.insert("courses", IModelHelper.toJsonArray(courses),
-                            MongoDbResult.validResultHandler(FutureHelper.handlerJsonObject(promise.future())));
+                            MongoDbResult.validResultHandler(FutureHelper.handlerEitherPromise(promise,
+                                    String.format("[EDT@%s::createInitCourse] " +
+                                            "Failed to create init course ", this.getClass().getSimpleName())
+                            )));
 
                 });
 

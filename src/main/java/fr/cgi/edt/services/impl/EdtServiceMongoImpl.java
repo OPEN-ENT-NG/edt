@@ -63,7 +63,10 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
 
         mongo.update(this.collection, selectIds, updateTagId, false, true,
-                MongoDbResult.validResultHandler(FutureHelper.handlerJsonObject(promise.future())));
+                MongoDbResult.validResultHandler(FutureHelper.handlerEitherPromise(promise,
+                        String.format("[EDT@%s::updateCoursesTag] " +
+                                "Failed to update courses tag %s ", this.getClass().getSimpleName(), tagId)
+                )));
 
         return promise.future();
     }
@@ -185,26 +188,26 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 Date endDate = formatDate(courseOccurrence.getString("endDate"));
 
                 if (!startDate.before(now)) {
-                    Future<JsonObject> updateFuture = Future.future();
-                    updateFutures.add(updateFuture);
+                    Promise<JsonObject> updatePromise = Promise.promise();
+                    updateFutures.add(updatePromise.future());
                     if ((!startDate.before(newStart) && !startDate.after(newEnd)) || isSameDay(startDate, newStart)) {
                         setCourseTimeSlots(courseOccurrence, course.getString("idStartSlot"), course.getString("idEndSlot"));
                         updateOccurrence(courseOccurrence, course, dayOfWeek, startHour, startMinutes, startSecond, endHour, endMinutes, endSecond,
-                                startDate, endDate, calendar, updateFuture);
+                                startDate, endDate, calendar, updatePromise);
                     } else {
                         deleteCourse(courseOccurrence.getString("_id"), deleteResult -> {
                             if (deleteResult.isLeft()) {
-                                updateFuture.fail(deleteResult.left().getValue());
+                                updatePromise.fail(deleteResult.left().getValue());
                                 return;
                             }
-                            updateFuture.complete();
+                            updatePromise.complete();
                         });
                     }
                 }
 
             });
 
-            FutureHelper.all(updateFutures).setHandler(updates -> {
+            Future.all(updateFutures).onComplete(updates -> {
                 if (updates.failed()) {
                     handler.handle(new Either.Left<>(updates.cause().getMessage()));
                     return;
@@ -274,7 +277,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
     }
 
     private void updateOccurrence(JsonObject courseOccurrence, JsonObject creatingCourse, int dayOfWeek, int startHour, int startMinutes, int startSecond,
-                                  int endHour, int endMinutes, int endSecond, Date startDate, Date endDate, Calendar calendar, Future<JsonObject> updateFuture) {
+                                  int endHour, int endMinutes, int endSecond, Date startDate, Date endDate, Calendar calendar, Promise<JsonObject> updatePromise) {
         JsonObject newCourse = creatingCourse.copy();
         newCourse.put("_id", courseOccurrence.getString("_id"));
         newCourse.put("recurrence", creatingCourse.getString("newRecurrence"));
@@ -303,10 +306,10 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 newCourse,
                 MongoDbResult.validResultHandler(updateResult -> {
                     if (updateResult.isLeft()) {
-                        updateFuture.fail(updateResult.left().getValue());
+                        updatePromise.fail(updateResult.left().getValue());
                         return;
                     }
-                    updateFuture.complete(updateResult.right().getValue());
+                    updatePromise.complete(updateResult.right().getValue());
                 })
         );
     }
@@ -363,22 +366,22 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         if (number > 0) {
             boolean every2Weeks = course.getBoolean("everyTwoWeek", false);
             for (int i = 0; i < number; i = i + (every2Weeks ? 2 : 1)) {
-                Future<JsonObject> createFuture = Future.future();
-                createFutures.add(createFuture);
+                Promise<JsonObject> createPromise = Promise.promise();
+                createFutures.add(createPromise.future());
                 createCourseByWeekNumber(course, createStartCalendar, createEndCalendar,
-                        extremityNumber + (isAddI ? +i : -i), dayOfWeek, newStart, newEnd, createFuture);
+                        extremityNumber + (isAddI ? +i : -i), dayOfWeek, newStart, newEnd, createPromise);
             }
         }
     }
 
     private void createCourseByWeekNumber(JsonObject course, Calendar createStartCalendar, Calendar createEndCalendar,
-                                          int weekNumber, int dayOfWeek, Date newStart, Date newEnd, Future<JsonObject> createFuture) {
+                                          int weekNumber, int dayOfWeek, Date newStart, Date newEnd, Promise<JsonObject> createPromise) {
         createStartCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
         createStartCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
         createEndCalendar.set(Calendar.WEEK_OF_YEAR, weekNumber);
         createEndCalendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
         if (createStartCalendar.getTime().before(newStart) || createEndCalendar.getTime().after(newEnd)) {
-            createFuture.complete();
+            createPromise.complete();
             return;
         }
 
@@ -387,10 +390,10 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
         MongoDb.getInstance().save(collection, course, MongoDbResult.validResultHandler(createResult -> {
             if (createResult.isLeft()) {
-                createFuture.fail(createResult.left().getValue());
+                createPromise.fail(createResult.left().getValue());
                 return;
             }
-            createFuture.complete(createResult.right().getValue());
+            createPromise.complete(createResult.right().getValue());
         }));
     }
 
