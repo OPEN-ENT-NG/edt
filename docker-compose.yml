@@ -1,8 +1,7 @@
-version: "3"
 services:
   maven:
     image: maven:3.8.6-jdk-8
-    user: "$DEFAULT_DOCKER_USER"
+    user: '$DEFAULT_DOCKER_USER'
     working_dir: /usr/src/maven
     volumes:
       - ./:/usr/src/maven
@@ -11,12 +10,9 @@ services:
       MAVEN_CONFIG: /var/maven/.m2
 
   node:
-    image: opendigitaleducation/node:10
+    image: opendigitaleducation/node:18-alpine-pnpm
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app
       - ~/.npm:/.npm
-      - ~/.gitconfig:/home/node/.gitconfig
-      - ~/.npmrc:/home/node/.npmrc
-      - ~/.bowerrc:/home/node/.bowerrc
-      - ~/.gradle:/home/node/.gradle
+      - ../recette:/home/node/recette
