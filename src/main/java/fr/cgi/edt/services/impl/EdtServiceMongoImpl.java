@@ -6,6 +6,7 @@ import fr.cgi.edt.services.EdtService;
 import fr.cgi.edt.utils.DateHelper;
 import fr.cgi.edt.utils.EdtMongoHelper;
 import fr.wseduc.mongodb.MongoDb;
+import fr.wseduc.mongodb.MongoUpdateBuilder;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -278,24 +279,24 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
 
     private void updateOccurrence(JsonObject courseOccurrence, JsonObject creatingCourse, int dayOfWeek, int startHour, int startMinutes, int startSecond,
                                   int endHour, int endMinutes, int endSecond, Date startDate, Date endDate, Calendar calendar, Promise<JsonObject> updatePromise) {
-        JsonObject newCourse = creatingCourse.copy();
-        newCourse.put("_id", courseOccurrence.getString("_id"));
-        newCourse.put("recurrence", creatingCourse.getString("newRecurrence"));
-        newCourse.remove("newRecurrence");
+        MongoUpdateBuilder newCourse = new MongoUpdateBuilder();
+        //newCourse.put("_id", courseOccurrence.getString("_id"));
+        newCourse.set("recurrence", creatingCourse.getString("newRecurrence"));
+        newCourse.unset("newRecurrence");
 
         calendar.setTime(startDate);
         calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
         calendar.set(Calendar.HOUR_OF_DAY, startHour);
         calendar.set(Calendar.MINUTE, startMinutes);
         calendar.set(Calendar.SECOND, startSecond);
-        newCourse.put("startDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
+        newCourse.set("startDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
 
         calendar.setTime(endDate);
         calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
         calendar.set(Calendar.HOUR_OF_DAY, endHour);
         calendar.set(Calendar.MINUTE, endMinutes);
         calendar.set(Calendar.SECOND, endSecond);
-        newCourse.put("endDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
+        newCourse.set("endDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
 
 
         MongoDb.getInstance().update(
@@ -303,7 +304,7 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
                 new JsonObject()
                         .put("_id", courseOccurrence.getString("_id"))
                         .put("startDate", mongoGtNowCondition()),
-                newCourse,
+                newCourse.build(),
                 MongoDbResult.validResultHandler(updateResult -> {
                     if (updateResult.isLeft()) {
                         updatePromise.fail(updateResult.left().getValue());
