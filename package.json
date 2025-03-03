@@ -1,13 +1,13 @@
 {
   "name": "edt",
-  "version": "3.0-SNAPSHOTdev.1",
+  "version": "3.0.2",
   "description": "Gestion d'emplois du temps au sein de l'OPEN-ENT-NG",
   "main": "gulpfile.js",
   "dependencies": {
     "apexcharts": "^3.15.5",
     "axios": "0.21.1",
     "core-js": "2.4.1",
-    "entcore": "dev",
+    "entcore": "4.8.11",
     "entcore-toolkit": "^1.0.1",
     "moment": "^2.21.0",
     "or": "^0.2.0",
