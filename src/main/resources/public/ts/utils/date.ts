@@ -47,6 +47,10 @@ export class DateUtils {
         return (moment(date, format, true).isValid());
     }
 
+    static isBefore(start, end): boolean {
+        return moment(start).isBefore(moment(end));
+    }
+
     static isPeriodValid(startAt: String, endAt: String): boolean {
         return this.isValid(startAt, DATE_FORMAT["YEAR-MONTH-DAY-HOUR-MIN-SEC"])
             && this.isValid(endAt, DATE_FORMAT["YEAR-MONTH-DAY-HOUR-MIN-SEC"])

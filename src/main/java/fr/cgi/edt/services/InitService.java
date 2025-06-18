@@ -8,10 +8,13 @@ public interface InitService {
     /**
      * Script method to initialize all dates to viescolaire table setting period
      *
-     * @param structure         structure identifier
-     * @param zone              school's zone (A, B or C accepted)
-     * @param initSchoolYear    true if we want to initialize school year
-     * @return                  future with json object
+     * @param structure             structure identifier
+     * @param zone                  school's zone (A, B or C accepted)
+     * @param initSchoolYear        true if we want to initialize school year
+     * @param schoolYearStartDate   start date of the school year
+     * @param schoolYearEndDate     end date of the school year
+     * @return                      future with json object
      */
-    Future<JsonObject> init(String structure, String zone, boolean initSchoolYear);
+    Future<JsonObject> init(String structure, String zone, boolean initSchoolYear,
+                            String schoolYearStartDate, String schoolYearEndDate);
 }

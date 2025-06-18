@@ -19,6 +19,8 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
 import org.entcore.common.service.impl.SqlCrudService;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,8 +33,8 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
     private static final String VALUES = "values";
     private static final String ACTION = "action";
     private static final String PREPARED = "prepared";
-    private static final String HOUR_START = "00:00:00";
-    private static final String HOUR_END = "23:59:59";
+    public static final String HOUR_START = "00:00:00";
+    public static final String HOUR_END = "23:59:59";
     private final HolidaysConfig holidaysConfig;
 
 
@@ -45,19 +47,17 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
     }
 
     @Override
-    public Future<JsonObject> init(String structure, String zone, boolean initSchoolYear) {
+    public Future<JsonObject> init(String structure, String zone, boolean initSchoolYear, String schoolYearStartDate,
+                                   String schoolYearEndDate) {
         Promise<JsonObject> promise = Promise.promise();
 
-        InitDateFuture initDateFuture = new InitDateFuture(structure, zone);
+        InitDateFuture initDateFuture = new InitDateFuture(structure, zone, schoolYearStartDate, schoolYearEndDate);
 
         clearDatesFromStructure(initDateFuture, initSchoolYear)
                 .compose(res -> {
                     if (initSchoolYear) {
                         return addSchoolPeriod(res);
                     } else {
-                        int year = Calendar.getInstance().get(Calendar.YEAR);
-                        initDateFuture.setSchoolStartAt(year + "-08-01 " + HOUR_START);
-                        initDateFuture.setSchoolEndAt(year + 1 + "-07-31 " + HOUR_END);
                         return Future.succeededFuture(res);
                     }
                 })
@@ -112,10 +112,6 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
         Promise<InitDateFuture> promise = Promise.promise();
         String query = "INSERT INTO  viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) " +
                 "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?)";
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-        initDateFuture.setSchoolStartAt(year + "-08-01 " + HOUR_START);
-        year++;
-        initDateFuture.setSchoolEndAt(year + "-07-31 " + HOUR_END);
 
         JsonArray params = new JsonArray()
                 .add(initDateFuture.schoolStartAt())
@@ -394,10 +390,12 @@ class InitDateFuture {
 
     private JsonArray statements;
 
-    public InitDateFuture(String structure, String zone) {
+    public InitDateFuture(String structure, String zone, String schoolStartAt, String schoolEndAt) {
         this.structure = structure;
         this.zone = zone;
         this.statements = new JsonArray();
+        this.schoolStartAt = schoolStartAt + " " + DefaultInitImpl.HOUR_START;
+        this.schoolEndAt = schoolEndAt + " " + DefaultInitImpl.HOUR_END;
     }
 
     public String structure() {

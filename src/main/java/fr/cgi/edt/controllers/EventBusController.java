@@ -55,7 +55,9 @@ public class EventBusController extends ControllerHelper {
                 structureId = body.getString(Field.STRUCTUREID);
                 String zone = body.getString(Field.ZONE);
                 boolean initSchoolYear = body.getBoolean(Field.INITSCHOOLYEAR, false);
-                this.initService.init(structureId, zone, initSchoolYear)
+                String schoolYearStartDate = body.getString(Field.SCHOOLYEAR_START_DATE);
+                String schoolYearEndDate = body.getString(Field.SCHOOLYEAR_END_DATE);
+                this.initService.init(structureId, zone, initSchoolYear, schoolYearStartDate, schoolYearEndDate)
                         .onFailure(e -> message.reply(new JsonObject()
                                 .put(Field.STATUS, Field.ERROR)
                                 .put(Field.MESSAGE, e.getMessage())))

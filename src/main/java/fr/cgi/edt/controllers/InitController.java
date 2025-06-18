@@ -11,6 +11,10 @@ import fr.wseduc.security.SecuredAction;
 import io.vertx.core.http.HttpServerRequest;
 import org.entcore.common.controller.ControllerHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class InitController extends ControllerHelper {
 
     private final InitService initService;
@@ -25,9 +29,18 @@ public class InitController extends ControllerHelper {
     public void initPeriod(final HttpServerRequest request) {
         String structure = request.getParam(Field.ID);
         String zone = request.getParam(Field.ZONE);
+        String schoolYearStartDate = request.getParam(Field.SCHOOLYEAR_START_DATE);
+        String schoolYearEndDate = request.getParam(Field.SCHOOLYEAR_END_DATE);
+
+        if (structure == null || zone == null || schoolYearStartDate == null || schoolYearEndDate == null) {
+            badRequest(request);
+            return;
+        }
+
         boolean initSchoolYear = request.getParam(Field.INITSCHOOLYEAR) == null || Boolean.parseBoolean(request.getParam(Field.INITSCHOOLYEAR));
+
         if (Boolean.TRUE.equals(isValidZone(zone))) {
-            initService.init(structure, zone, initSchoolYear)
+            initService.init(structure, zone, initSchoolYear, schoolYearStartDate, schoolYearEndDate)
                     .onFailure(err -> {
                         String message = "[EDT@InitController::initPeriod] Failed to initialize structure ";
                         log.error(message + err.getMessage());

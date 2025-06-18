@@ -15,8 +15,10 @@ describe('structureService', () => {
         const data = { response: true };
         const structureId: string = 'structureId';
         const zone: string = 'A';
+        const schoolYearStartDate = "01/09/2024";
+        const schoolYearEndDate = "01/08/2025";
         mock.onGet(`/edt/init/${structureId}?zone=${zone}`).reply(200, data);
-        structureService.initStructureData(structureId, zone).then((response: AxiosResponse) => {
+        structureService.initStructureData(structureId, zone, schoolYearStartDate, schoolYearEndDate).then((response: AxiosResponse) => {
             expect(response.data).toEqual(data);
         });
         done();
