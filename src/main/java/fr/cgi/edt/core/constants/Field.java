@@ -64,6 +64,8 @@ public class Field {
     public static final String CREATEDAT = "createdAt";
     public static final String SCHOOL_YEAR_FR = "annee_scolaire";
     public static final String INITSCHOOLYEAR = "initSchoolYear";
+    public static final String SCHOOLYEAR_START_DATE = "schoolYearStartDate";
+    public static final String SCHOOLYEAR_END_DATE = "schoolYearEndDate";
     public static final String TIMETABLE = "timetable";
     public static final String USERID = "userId";
 

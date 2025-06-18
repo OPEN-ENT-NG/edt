@@ -39,6 +39,34 @@
         <!-- description -->
         <div class="vertical-spacing-four horizontal-spacing"><i18n>edt.zone.choose.warning</i18n></div>
 
+        <!-- School year -->
+        <div class="vertical-spacing-four horizontal-spacing">
+            <!-- School year start -->
+            <div>
+                <span><i18n>edt.year.start.date</i18n> :</span>
+                <span class="card date-picker">
+                    <date-picker
+                        ng-model="schoolYear.startDate"
+                        placeholder=[[lang.translate('edt.year.start.end.date.placeholder')]]
+                        required
+                    >
+                    </date-picker>
+                </span>
+            </div>
+            <!-- School year end -->
+            <div>
+                <span><i18n>edt.year.end.date</i18n> :</span>
+                <span class="card date-picker">
+                    <date-picker
+                        ng-model="schoolYear.endDate"
+                        placeholder=[[lang.translate('edt.year.start.end.date.placeholder')]]
+                        required
+                    >
+                    </date-picker>
+                </span>
+            </div>
+        </div>
+
         <!-- options radio select export option -->
         <div class="vertical-spacing-four flex-row justify-around">
             <div ng-repeat="zone in zoneTypes">
@@ -56,7 +84,11 @@
         <section>
             <div class="row horizontal-spacing">
                 <div class="twelve cell">
-                    <button class="right-magnet" ng-click="initData()">
+                    <button 
+                        class="right-magnet" 
+                        ng-click="initData()" 
+                        ng-disabled="!isSubmitValid()"
+                    >
                         <i18n>edt.validate</i18n>
                     </button>
                     <button class="right-magnet cancel" ng-click="toggleLightboxState(false)">

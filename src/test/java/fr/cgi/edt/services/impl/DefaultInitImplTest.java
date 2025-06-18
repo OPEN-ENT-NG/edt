@@ -40,13 +40,13 @@ public class DefaultInitImplTest {
     @Before
     public void setUp(TestContext context) {
         this.initService = new DefaultInitImpl("edt", Vertx.vertx(), null);
-        this.initDateFuture = new InitDateFuture("structure", "C");
+        this.initDateFuture = new InitDateFuture("structure", "C", "2024-08-01 00:00:00", "2025-07-31 00:00:00");
     }
 
     @Test
     public void testClearDatesFromStructureShouldCallSQLRequestCorrectly(TestContext ctx) {
         // Arguments
-        InitDateFuture initDateFuture = new InitDateFuture("structure", "C");
+        InitDateFuture initDateFuture = new InitDateFuture("structure", "C", "2024-08-01 00:00:00", "2025-07-31 00:00:00");
 
         // expected data
         String expectedQuery = "DELETE FROM viesco.setting_period WHERE id_structure = ?";
@@ -66,13 +66,10 @@ public class DefaultInitImplTest {
         // expected data
         String expectedQuery = "INSERT INTO  viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) " +
                 "VALUES (to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?)";
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-        String expectedStartAt = year + "-08-01 00:00:00";
-        year++;
-        String expectedEndAt =  year + "-07-31 23:59:59";
+
         JsonArray expectedParams = new JsonArray()
-                .add(expectedStartAt)
-                .add(expectedEndAt)
+                .add(initDateFuture.schoolStartAt())
+                .add(initDateFuture.schoolEndAt())
                 .add("Année scolaire")
                 .add(initDateFuture.structure())
                 .add(true)
@@ -82,8 +79,8 @@ public class DefaultInitImplTest {
             Future<InitDateFuture> res = Whitebox.invokeMethod(initService, "addSchoolPeriod", initDateFuture);
             ctx.assertEquals(res.result().statements().getJsonObject(0).getString("statement"), expectedQuery);
             ctx.assertEquals(res.result().statements().getJsonObject(0).getJsonArray("values"), expectedParams);
-            ctx.assertEquals(res.result().schoolStartAt(), expectedStartAt);
-            ctx.assertEquals(res.result().schoolEndAt(), expectedEndAt);
+            ctx.assertEquals(res.result().schoolStartAt(), initDateFuture.schoolStartAt());
+            ctx.assertEquals(res.result().schoolEndAt(), initDateFuture.schoolEndAt());
         } catch (Exception e) {
             ctx.assertNull(e);
         }

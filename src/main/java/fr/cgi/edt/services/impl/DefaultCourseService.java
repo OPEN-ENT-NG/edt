@@ -253,7 +253,7 @@ public class DefaultCourseService implements CourseService {
     private List<Course> initCourseOccurences(DayOfWeek day, String startTime, String endTime, Date startDate, Date endDate) {
         List<Course> courses = new ArrayList<>();
         String recurrenceId = UUID.randomUUID().toString();
-        for (Date date = DateHelper.goToNextDayOfWeek(DateHelper.addDays(new Date().after(startDate) ? new Date() : startDate, -1), day);
+        for (Date date = DateHelper.goToNextDayOfWeek(DateHelper.addDays(startDate, -1), day);
              endDate.after(date); date = DateHelper.addDays(date, 7)) {
             Course course = new Course();
             course.setRecurrence(recurrenceId);
