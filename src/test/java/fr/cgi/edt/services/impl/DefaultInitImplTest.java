@@ -3,15 +3,23 @@ package fr.cgi.edt.services.impl;
 
 import fr.cgi.edt.core.constants.Field;
 import fr.cgi.edt.models.holiday.HolidayRecord;
+import fr.cgi.edt.models.holiday.HolidaysConfig;
 import fr.cgi.edt.services.InitService;
 import fr.cgi.edt.services.ServiceFactory;
 import fr.wseduc.mongodb.MongoDb;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.codec.BodyCodec;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.sql.Sql;
 import org.junit.Before;
@@ -23,7 +31,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(VertxUnitRunner.class)
@@ -36,11 +46,19 @@ public class DefaultInitImplTest {
     private InitService initService;
     InitDateFuture initDateFuture;
 
+    private DefaultInitImpl defaultInitImpl;
+    private WebClient webClient;
+
 
     @Before
     public void setUp(TestContext context) {
         this.initService = new DefaultInitImpl("edt", Vertx.vertx(), null);
         this.initDateFuture = new InitDateFuture("structure", "C", "2024-08-01 00:00:00", "2025-07-31 00:00:00");
+
+        HolidaysConfig holidaysConfig = mock(HolidaysConfig.class);
+        when(holidaysConfig.schoolHolidaysUrl()).thenReturn("http://mocked-url");
+        defaultInitImpl = new DefaultInitImpl("edt", Vertx.vertx(), holidaysConfig);
+        webClient = mock(WebClient.class);
     }
 
     @Test
@@ -164,4 +182,44 @@ public class DefaultInitImplTest {
         }
     }
 
+    @Test
+    public void testSearchHolidaysDate(TestContext ctx) {
+        // Mock InitDateFuture
+        InitDateFuture initDateFuture = new InitDateFuture("structure", "Zone A", "2024-08-01", "2025-07-31");
+
+        // Mock HTTP response
+        HttpRequest<Buffer> buffer = mock(HttpRequest.class);
+        when(webClient.getAbs(anyString())).thenReturn(buffer);
+        when(buffer.addQueryParam(anyString(), anyString())).thenReturn(buffer);
+
+        HttpRequest<JsonObject> httpRequest = mock(HttpRequest.class);
+        when(buffer.as(BodyCodec.jsonObject())).thenReturn(httpRequest);
+
+        HttpResponse<JsonObject> httpResponse = mock(HttpResponse.class);
+        when(httpResponse.statusCode()).thenReturn(200);
+        when(httpResponse.body()).thenReturn(new JsonObject().put("records", new JsonArray()
+                .add(new JsonObject()
+                        .put("description", "Noel")
+                        .put("start_date", "2021-12-17T23:00:00+00:00")
+                        .put("end_date", "2022-01-02T23:00:00+00:00"))
+                .add(new JsonObject()
+                        .put("description", "Hiver")
+                        .put("start_date", "2022-02-18T23:00:00+00:00")
+                        .put("end_date", "2022-03-06T23:00:00+00:00"))));
+
+        doAnswer(invocation -> {
+            ((Handler<AsyncResult<HttpResponse<JsonObject>>>) invocation.getArgument(0))
+                    .handle(Future.succeededFuture(httpResponse));
+            return null;
+        }).when(httpRequest).send(any());
+
+        // Execute the method
+        this.defaultInitImpl.searchHolidaysDate(initDateFuture).onComplete(res -> {
+            ctx.assertTrue(res.succeeded());
+            List<HolidayRecord> holidayRecords = res.result();
+            ctx.assertEquals(2, holidayRecords.size());
+            ctx.assertEquals("Noel", holidayRecords.get(0).description());
+            ctx.assertEquals("Hiver", holidayRecords.get(1).description());
+        });
+    }
 }
