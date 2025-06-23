@@ -14,6 +14,7 @@ import org.entcore.common.controller.ControllerHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.stream.Stream;
 
 public class InitController extends ControllerHelper {
 
@@ -57,7 +58,7 @@ public class InitController extends ControllerHelper {
     }
 
     private Boolean isValidZone(String zone) {
-        return Zone.A.zone().equals(zone) || Zone.B.zone().equals(zone) || Zone.C.zone().equals(zone);
+        return Stream.of(Zone.values()).anyMatch(z -> z.zone().equals(zone));
     }
 }
 

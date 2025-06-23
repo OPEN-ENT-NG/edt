@@ -40,11 +40,11 @@
         <div class="vertical-spacing-four horizontal-spacing"><i18n>edt.zone.choose.warning</i18n></div>
 
         <!-- School year -->
-        <div class="vertical-spacing-four horizontal-spacing">
+        <div class="horizontal-spacing">
             <!-- School year start -->
             <div>
                 <span><i18n>edt.year.start.date</i18n> :</span>
-                <span class="card date-picker">
+                <span class="date-picker">
                     <date-picker
                         ng-model="schoolYear.startDate"
                         placeholder=[[lang.translate('edt.year.start.end.date.placeholder')]]
@@ -56,7 +56,7 @@
             <!-- School year end -->
             <div>
                 <span><i18n>edt.year.end.date</i18n> :</span>
-                <span class="card date-picker">
+                <span class="date-picker">
                     <date-picker
                         ng-model="schoolYear.endDate"
                         placeholder=[[lang.translate('edt.year.start.end.date.placeholder')]]
@@ -68,16 +68,20 @@
         </div>
 
         <!-- options radio select export option -->
-        <div class="vertical-spacing-four flex-row justify-around">
-            <div ng-repeat="zone in zoneTypes">
-                <input id="radio-[[zone]]"
-                       data-ng-model="initLightbox.zone"
-                       ng-value="zone"
-                       type="radio">
-                <label for="radio-[[zone]]">
-                    <i18n>edt.zone</i18n> [[zone]]
-                </label>
-            </div>
+        <div class="horizontal-spacing pb-8">
+            <label id="zoneSelect">
+                <i18n>edt.zone.select.label</i18n>
+            </label>
+            <select 
+                id="zoneSelect"
+                class="card" 
+                ng-model="initLightbox.zone" 
+                ng-options="zone.value as zone.label for zone in initLightbox.zones"
+            >
+                <option value="" disabled>
+                    <i18n>edt.zone.select.option.default</i18n>
+                </option>
+            </select>
         </div>
 
         <!-- Cancel and submit buttons -->
