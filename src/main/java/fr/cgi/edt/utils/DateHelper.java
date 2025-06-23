@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class DateHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
@@ -35,6 +36,7 @@ public class DateHelper {
     public static final String HOUR_MINUTES = "HH:mm";
     public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
     public static final String YEAR = "yyyy";
+    public static final Pattern SCHOOL_YEAR_PATTERN = Pattern.compile("\\d{4}-\\d{4}");
 
 
     Calendar firstOccurrenceDate(JsonObject course){
@@ -145,6 +147,16 @@ public class DateHelper {
             LOGGER.error("[Edt@DateHelper::getCombineDate] error when casting dates. " + e);
         }
         return date;
+    }
+
+    /**
+     * Get current year as a string
+     * @return current year as a string
+     */
+    public static String getCurrentYear() {
+        Date currentDate = new Date();
+        SimpleDateFormat yearFormat = new SimpleDateFormat(DateHelper.YEAR);
+        return yearFormat.format(currentDate);
     }
 
     /**
@@ -387,5 +399,15 @@ public class DateHelper {
 
 
         return firstDate.after(secondDate);
+    }
+
+    /**
+     * Determines if a given date string matches the "yyyy-yyyy" format.
+     *
+     * @param dateString The date string to validate.
+     * @return true if the date string matches the "yyyy-yyyy" format, false otherwise.
+     */
+    public static boolean isSchoolYearFormat(String dateString) {
+        return dateString != null && SCHOOL_YEAR_PATTERN.matcher(dateString).matches();
     }
 }

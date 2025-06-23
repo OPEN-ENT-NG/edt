@@ -10,10 +10,12 @@ import fr.cgi.edt.utils.DateHelper;
 import fr.cgi.edt.utils.SqlQueryUtils;
 import fr.wseduc.webutils.Either;
 import io.vertx.core.*;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -299,40 +301,94 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
 
      * @return {@link Future} of {@link List<HolidayRecord>} containing a HTTP response
      */
-    private Future<List<HolidayRecord>> searchHolidaysDate(InitDateFuture initDateFuture) {
+    Future<List<HolidayRecord>> searchHolidaysDate(InitDateFuture initDateFuture) {
         Promise<List<HolidayRecord>> promise = Promise.promise();
+
+        // Calculate school year
         String startYear = DateHelper.getDateString(initDateFuture.schoolStartAt(), DateHelper.MONGO_FORMAT, DateHelper.YEAR);
         String endYear = DateHelper.getDateString(initDateFuture.schoolEndAt(), DateHelper.MONGO_FORMAT, DateHelper.YEAR);
         String schoolYear = startYear + "-" + endYear;
-        client.getAbs(holidaysConfig.schoolHolidaysUrl() + SCHOOL_HOLIDAY_ENDPOINT)
-                .addQueryParam("dataset", "fr-en-calendrier-scolaire")
-                .addQueryParam("refine.annee_scolaire", schoolYear)
-                .addQueryParam("facet", "location")
-                .addQueryParam("refine.zones", "Zone " + initDateFuture.zone())
-                .addQueryParam("timezone", "Europe/Paris")
-                .addQueryParam("rows", "1000")
-                .as(BodyCodec.jsonObject())
-                .send(ar -> {
-                    if (ar.failed()) {
-                        String message = String.format("[Edt@%s::searchHolidaysDate] An error has occurred" +
-                                " during HTTP Get: %s", this.getClass().getSimpleName(), ar.cause().getMessage());
-                        log.error(message, ar.cause().getMessage());
-                        promise.fail(ar.cause().getMessage());
-                    } else {
-                        HttpResponse<JsonObject> response = ar.result();
-                        if (response.statusCode() != 200) {
-                            String message = String.format("[Edt@%s::searchHolidaysDate] Response status is not a HTTP 200: [%s] : %s",
-                                    this.getClass().getSimpleName(), response.statusCode(), response.statusMessage());
-                            log.error(message, response.statusMessage());
-                            promise.fail(response.statusMessage());
-                        } else {
-                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(response.body().getJsonArray(Field.RECORDS, new JsonArray()));
+
+        // Fetch Zone Holidays based on zone and school year
+        getZoneHolidaysHttpRequest(initDateFuture.zone(), schoolYear)
+                .send(res -> {
+                    if (res.succeeded() && res.result() != null && res.result().statusCode() == 200) {
+                        // Check if results are not empty
+                        if (res.result().body() != null
+                                && res.result().body().getJsonArray(Field.RECORDS) != null
+                                && !res.result().body().getJsonArray(Field.RECORDS).isEmpty()) {
+                            // OK => Complete promise with results
+                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(
+                                    res.result().body().getJsonArray(Field.RECORDS, new JsonArray()));
                             promise.complete(holidayRecords);
+                        } else {
+                            // If results are empty, try again with currentYear (for example 2025) instead of school year (2024-2025)
+                            // (that case may happen with zone that does not support school year on 2 different years,
+                            // like for example Nouvelle Calédonie and Wallis et Futuna)
+                            String currentYear = DateHelper.getCurrentYear();
+                            getZoneHolidaysHttpRequest(initDateFuture.zone(), currentYear)
+                                    .send(basedOnCurrentYearRes -> {
+                                        if (basedOnCurrentYearRes.succeeded()
+                                                && basedOnCurrentYearRes.result() != null
+                                                && basedOnCurrentYearRes.result().statusCode() == 200
+                                                && basedOnCurrentYearRes.result().body() != null
+                                                && basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS) != null
+                                                && !basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS).isEmpty()) {
+                                            // OK => Complete promise with results
+                                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(
+                                                    basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS, new JsonArray()));
+                                            promise.complete(holidayRecords);
+                                        } else {
+                                            String message = String.format(
+                                                    "[Edt@%s::searchHolidaysDate] Failed to fetch holidays for zone %s and year %s: %s",
+                                                    this.getClass().getSimpleName(),
+                                                    initDateFuture.zone(),
+                                                    currentYear,
+                                                    basedOnCurrentYearRes.cause().getMessage());
+                                            log.error(message, basedOnCurrentYearRes.cause().getMessage());
+                                            promise.fail(basedOnCurrentYearRes.cause().getMessage());
+                                        }
+                                    });
                         }
+                    } else {
+                        String message = String.format(
+                                "[Edt@%s::searchHolidaysDate] Failed to fetch holidays for zone %s and school year %s: %s",
+                                this.getClass().getSimpleName(),
+                                initDateFuture.zone(),
+                                schoolYear,
+                                res.cause().getMessage());
+                        log.error(message, res.cause().getMessage());
+                        promise.fail(res.cause().getMessage());
                     }
                 });
 
         return promise.future();
+    }
+
+    /**
+     * Get the zone holidays Http Request depending on the zone and the schoolYear,
+     * If the schoolYear pattern is a school year pattern (like 2024-2025), it uses the refine.annee_scolaire query param
+     * otherwise it uses the refine.start_date query param
+     *
+     * @param zone the holidays zone (Zone A, Zone B, Zone C, Corse, Guadeloupe, etc...)
+     * @param schoolYear can be the school year (2024-2025) or the current year (2025)
+     * @return the HttpRequest based on zone and schoolYear
+     */
+    private HttpRequest<JsonObject> getZoneHolidaysHttpRequest(String zone, String schoolYear) {
+        HttpRequest<Buffer> buffer = client
+                .getAbs(holidaysConfig.schoolHolidaysUrl() + SCHOOL_HOLIDAY_ENDPOINT)
+                .addQueryParam("dataset", "fr-en-calendrier-scolaire")
+                .addQueryParam("facet", "location")
+                .addQueryParam("refine.zones", zone)
+                .addQueryParam("timezone", "Europe/Paris")
+                .addQueryParam("rows", "1000");
+
+        if (DateHelper.isSchoolYearFormat(schoolYear)) {
+            buffer.addQueryParam("refine.annee_scolaire", schoolYear);
+        } else {
+            buffer.addQueryParam("refine.start_date", schoolYear);
+        }
+        return buffer.as(BodyCodec.jsonObject());
     }
 
     /**
