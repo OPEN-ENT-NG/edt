@@ -3,6 +3,7 @@ import http, {AxiosResponse} from "axios";
 import {toasts} from 'entcore';
 import {structureService} from "../services";
 import {DateUtils} from "../utils/date";
+import { holidaysZoneService } from "../services/holidaysZone.service";
 
 declare let window: any;
 
@@ -16,12 +17,6 @@ interface SchoolYear {
     is_opening: boolean;
 }
 
-enum ZoneType {
-    A = 'A',
-    B = 'B',
-    C = 'C'
-}
-
 export const initData = {
     title: 'Init data edt',
     description: "Permet d'initialiser les données du module edt",
@@ -30,7 +25,6 @@ export const initData = {
         init: async function () {
             this.notifications = [];
             initData.that = this;
-            this.zoneTypes = Object.keys(ZoneType);
 
             // get school year
             const schoolYearRes: AxiosResponse<SchoolYear> = await http.get(`/viescolaire/settings/periode/schoolyear?structureId=${window.model.vieScolaire.structure.id}`);
@@ -43,7 +37,8 @@ export const initData = {
 
             this.initLightbox = {
                 isOpen: false,
-                zone: ZoneType[ZoneType.A]
+                zones: holidaysZoneService.getHolidaysZones(),
+                zone: null
             };
             this.safeApply();
         },
@@ -78,15 +73,12 @@ export const initData = {
             initData.that.initLightbox.isOpen = state;
         },
 
-        switchZoneType: (zone: string): void => {
-            initData.that.initLightbox.zone = ZoneType[ZoneType[zone]];
-        },
-
         isSubmitValid: (): boolean => {
             return initData.that.schoolYear 
                 && initData.that.schoolYear.startDate
                 && initData.that.schoolYear.endDate 
-                && DateUtils.isBefore(initData.that.schoolYear.startDate, initData.that.schoolYear.endDate);
+                && DateUtils.isBefore(initData.that.schoolYear.startDate, initData.that.schoolYear.endDate)
+                && initData.that.initLightbox.zone != null;
         },
 
         initData: async function (): Promise<void> {
@@ -95,12 +87,12 @@ export const initData = {
             let response: AxiosResponse = await structureService.initStructureData(
                 structure_id, 
                 initData.that.initLightbox.zone,
-                DateUtils.getDateFormat(initData.that.schoolYear.startDate),
-                DateUtils.getDateFormat(initData.that.schoolYear.endDate)
+                DateUtils.format(initData.that.schoolYear.startDate, 'YYYY-MM-DD HH:mm:ss'),
+                DateUtils.format(initData.that.schoolYear.endDate, 'YYYY-MM-DD HH:mm:ss')
             );
             this.toggleLightboxState(false);
             this.toastHttpCall(Utils.setToastMessage(response,'edt.data.init.success', 'edt.data.init.error'));
             this.safeApply();
-        }
+        },
     }
 }
