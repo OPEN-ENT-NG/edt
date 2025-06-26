@@ -30,7 +30,8 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
 
     Logger log = LoggerFactory.getLogger(DefaultInitImpl.class);
     public static final String PUBLIC_HOLIDAY_ENDPOINT = "/jours-feries/metropole/";
-    public static final String SCHOOL_HOLIDAY_ENDPOINT = "/api/records/1.0/search/";
+    public static final String SCHOOL_HOLIDAY_DATASET = "fr-en-calendrier-scolaire";
+    public static final String SCHOOL_HOLIDAY_ENDPOINT = "/api/explore/v2.1/catalog/datasets/"+ SCHOOL_HOLIDAY_DATASET + "/exports/json";
     private static final String STATEMENT = "statement";
     private static final String VALUES = "values";
     private static final String ACTION = "action";
@@ -275,7 +276,6 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 })
                 .onFailure(promise::fail);
 
-
         return promise.future();
     }
 
@@ -289,7 +289,8 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
      */
     private List<HolidayRecord> formatDistinctHoliday(List<HolidayRecord> holidays) {
         Set<String> descriptionSet = new HashSet<>();
-        return holidays.stream()
+        return holidays
+                .stream()
                 .filter(e -> descriptionSet.add(e.description()))
                 .collect(Collectors.toList());
     }
@@ -314,36 +315,30 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .send(res -> {
                     if (res.succeeded() && res.result() != null && res.result().statusCode() == 200) {
                         // Check if results are not empty
-                        if (res.result().body() != null
-                                && res.result().body().getJsonArray(Field.RECORDS) != null
-                                && !res.result().body().getJsonArray(Field.RECORDS).isEmpty()) {
+                        if (res.result().body() != null && !res.result().body().isEmpty()) {
                             // OK => Complete promise with results
-                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(
-                                    res.result().body().getJsonArray(Field.RECORDS, new JsonArray()));
+                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(res.result().body());
                             promise.complete(holidayRecords);
                         } else {
-                            // If results are empty, try again with currentYear (for example 2025) instead of school year (2024-2025)
+                            // If results are empty, try again with the endYear, for example 2025 instead of school year 2024-2025
                             // (that case may happen with zone that does not support school year on 2 different years,
                             // like for example Nouvelle Calédonie and Wallis et Futuna)
-                            String currentYear = DateHelper.getCurrentYear();
-                            getZoneHolidaysHttpRequest(initDateFuture.zone(), currentYear)
+                            getZoneHolidaysHttpRequest(initDateFuture.zone(), endYear)
                                     .send(basedOnCurrentYearRes -> {
                                         if (basedOnCurrentYearRes.succeeded()
                                                 && basedOnCurrentYearRes.result() != null
                                                 && basedOnCurrentYearRes.result().statusCode() == 200
                                                 && basedOnCurrentYearRes.result().body() != null
-                                                && basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS) != null
-                                                && !basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS).isEmpty()) {
+                                                && !basedOnCurrentYearRes.result().body().isEmpty()) {
                                             // OK => Complete promise with results
-                                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(
-                                                    basedOnCurrentYearRes.result().body().getJsonArray(Field.RECORDS, new JsonArray()));
+                                            List<HolidayRecord> holidayRecords = HolidayHelper.holidaysRecords(basedOnCurrentYearRes.result().body());
                                             promise.complete(holidayRecords);
                                         } else {
                                             String message = String.format(
                                                     "[Edt@%s::searchHolidaysDate] Failed to fetch holidays for zone %s and year %s: %s",
                                                     this.getClass().getSimpleName(),
                                                     initDateFuture.zone(),
-                                                    currentYear,
+                                                    endYear,
                                                     basedOnCurrentYearRes.cause().getMessage());
                                             log.error(message, basedOnCurrentYearRes.cause().getMessage());
                                             promise.fail(basedOnCurrentYearRes.cause().getMessage());
@@ -371,24 +366,17 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
      * otherwise it uses the refine.start_date query param
      *
      * @param zone the holidays zone (Zone A, Zone B, Zone C, Corse, Guadeloupe, etc...)
-     * @param schoolYear can be the school year (2024-2025) or the current year (2025)
+     * @param schoolYear the school year (2024-2025) or (2025)
      * @return the HttpRequest based on zone and schoolYear
      */
-    private HttpRequest<JsonObject> getZoneHolidaysHttpRequest(String zone, String schoolYear) {
-        HttpRequest<Buffer> buffer = client
+    private HttpRequest<JsonArray> getZoneHolidaysHttpRequest(String zone, String schoolYear) {
+        final HttpRequest<Buffer> buffer = client
                 .getAbs(holidaysConfig.schoolHolidaysUrl() + SCHOOL_HOLIDAY_ENDPOINT)
-                .addQueryParam("dataset", "fr-en-calendrier-scolaire")
-                .addQueryParam("facet", "location")
-                .addQueryParam("refine.zones", zone)
-                .addQueryParam("timezone", "Europe/Paris")
-                .addQueryParam("rows", "1000");
+                .addQueryParam("refine", "zones:" + zone)
+                .addQueryParam("refine", "annee_scolaire:" + schoolYear)
+                .addQueryParam("timezone", "UTC");
 
-        if (DateHelper.isSchoolYearFormat(schoolYear)) {
-            buffer.addQueryParam("refine.annee_scolaire", schoolYear);
-        } else {
-            buffer.addQueryParam("refine.start_date", schoolYear);
-        }
-        return buffer.as(BodyCodec.jsonObject());
+        return buffer.as(BodyCodec.jsonArray());
     }
 
     /**
@@ -398,36 +386,54 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
      * @param holidays              list of holidays fetched {@link List<HolidayRecord>}
      */
     private void insertHolidaysDateStatement(InitDateFuture initDateFuture, List<HolidayRecord> holidays) {
-        if (holidays.isEmpty()) return;
-        JsonArray params = new JsonArray();
-        StringBuilder query = new StringBuilder("INSERT INTO viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) VALUES");
-        for(HolidayRecord holiday : holidays) {
-            String startAt = DateHelper.getDateString(
-                    holiday.startAt(),
-                    DateHelper.SQL_FORMAT,
-                    DateHelper.YEAR_MONTH_DAY
-            );
+        if (holidays.isEmpty()) {
+            return;
+        }
 
-            String endAt = DateHelper.getDateString(
+        JsonArray params = new JsonArray();
+        StringBuilder query = new StringBuilder("INSERT INTO viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) VALUES ");
+
+        // append the values and params for each holiday
+        for (int i = 0; i < holidays.size(); i++) {
+            HolidayRecord holiday = holidays.get(i);
+
+            String formattedStartAt = DateHelper.getDateString(
+                    holiday.startAt(),
+                    DateHelper.DATA_GOUV_API_DATE_FORMAT,
+                    DateHelper.HOLIDAYS_DB_DATE_FORMAT);
+            String formattedEndAt = DateHelper.getDateString(
                     holiday.endAt(),
-                    DateHelper.SQL_FORMAT,
-                    DateHelper.YEAR_MONTH_DAY
-            );
-            query.append("(to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ?, ?, ?, ?),");
-            params.add(startAt + " " + HOUR_START)
-                    .add(endAt + " " + getEndDateHoliday(startAt, endAt))
+                    DateHelper.DATA_GOUV_API_DATE_FORMAT,
+                    DateHelper.HOLIDAYS_DB_DATE_FORMAT);
+            // holidays like Christmas, Toussaint... given by the data.education.gouv API start on Friday at 22:00:00
+            // so we need to insert in the database the date corresponding to the day after => the Saturday 00:00:00
+            String adjustedStartDate = DateHelper.getAdjustedHolidaysStartDate(formattedStartAt, formattedEndAt);
+
+            // values
+            query.append("(")
+                    .append("to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ") // start_date
+                    .append("to_timestamp(?, 'YYYY-MM-DD HH24:MI:SS'), ") // end_date
+                    .append("?, ?, ?, ?") // description, structure_id, is_opening, code
+                    .append(")");
+            // add a comma if not the last element
+            if (i < holidays.size() - 1) {
+                query.append(",");
+            }
+            // params
+            params.add(adjustedStartDate)
+                    .add(formattedEndAt)
                     .add(holiday.description())
                     .add(initDateFuture.structure())
                     .add(false)
                     .add(Field.EXCLUSION);
-
         }
-        query = new StringBuilder(query.substring(0, query.length() - 1));
 
-        initDateFuture.statements().add(new JsonObject()
+        JsonObject statement = new JsonObject()
                 .put(STATEMENT, query.toString())
                 .put(VALUES, params)
-                .put(ACTION, PREPARED));
+                .put(ACTION, PREPARED);
+
+        initDateFuture.statements().add(statement);
     }
 
     private String getEndDateHoliday(String startAt, String endAt) {

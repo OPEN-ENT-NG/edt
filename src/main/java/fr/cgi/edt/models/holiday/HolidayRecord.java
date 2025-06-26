@@ -17,7 +17,7 @@ public class HolidayRecord {
     public HolidayRecord(JsonObject field) {
         this.description = field.getString(Field.DESCRIPTION);
         this.startAt = field.getString(Field.START_DATE);
-        this.endAt = field.getString(Field.END_DATE, startAt);
+        this.endAt = field.getString(Field.END_DATE);
         this.zones = field.getString(Field.ZONES);
         this.schoolYear = field.getString(Field.SCHOOL_YEAR_FR);
         this.location = field.getString(Field.LOCATION);

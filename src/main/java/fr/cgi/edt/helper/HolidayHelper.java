@@ -12,7 +12,11 @@ public class HolidayHelper {
 
     private HolidayHelper() { throw new IllegalStateException("Helper class"); }
 
-    public static List<HolidayRecord> holidaysRecords(JsonArray records) {
-        return records.stream().map(r -> new HolidayRecord(((JsonObject) r).getJsonObject(Field.FIELDS))).collect(Collectors.toList());
+    public static List<HolidayRecord> holidaysRecords(JsonArray holidays) {
+        return holidays
+                .stream()
+                .map(holiday -> (JsonObject) holiday)
+                .map(HolidayRecord::new)
+                .collect(Collectors.toList());
     }
 }
