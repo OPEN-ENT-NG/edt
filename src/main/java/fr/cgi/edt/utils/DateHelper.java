@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +38,8 @@ public class DateHelper {
     public static final String YEAR_MONTH_DAY = "yyyy-MM-dd";
     public static final String YEAR = "yyyy";
     public static final Pattern SCHOOL_YEAR_PATTERN = Pattern.compile("\\d{4}-\\d{4}");
+    public static final String DATA_GOUV_API_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX";
+    public static final String HOLIDAYS_DB_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 
     Calendar firstOccurrenceDate(JsonObject course){
@@ -409,5 +412,36 @@ public class DateHelper {
      */
     public static boolean isSchoolYearFormat(String dateString) {
         return dateString != null && SCHOOL_YEAR_PATTERN.matcher(dateString).matches();
+    }
+
+    /**
+     * Returns an adjusted start date of holidays.
+     * Context: Holidays like Christmas, Toussaint... given by the API start on Friday at 22:00:00
+     * So in this cases we return a start date starting the day after at 00:00:00.
+     *
+     * @param startAt
+     * @param endDate
+     * @return an adjusted start date of holidays
+     */
+    public static String getAdjustedHolidaysStartDate(String startAt, String endDate) {
+        // No transformation needed if start and end dates are the same
+        if (startAt != null && startAt.equals(endDate)) {
+            return startAt;
+        }
+
+        // Define the input and output date format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(HOLIDAYS_DB_DATE_FORMAT);
+
+        // Parse the input date
+        LocalDateTime dateTime = LocalDateTime.parse(startAt, formatter);
+
+        // Check if the time is after 20:00:00 (check after 20:00:00 to be more flexible...)
+        if (dateTime.getHour() >= 20) {
+            dateTime = dateTime.plusDays(1); // Add one day
+            dateTime = dateTime.withHour(0).withMinute(0).withSecond(0); // Set time to 00:00:00
+        }
+
+        // Return the transformed date as a string
+        return dateTime.format(formatter);
     }
 }
