@@ -374,7 +374,7 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 .getAbs(holidaysConfig.schoolHolidaysUrl() + SCHOOL_HOLIDAY_ENDPOINT)
                 .addQueryParam("refine", "zones:" + zone)
                 .addQueryParam("refine", "annee_scolaire:" + schoolYear)
-                .addQueryParam("timezone", "UTC");
+                .addQueryParam("timezone", "Europe/Paris");
 
         return buffer.as(BodyCodec.jsonArray());
     }
@@ -390,24 +390,33 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
             return;
         }
 
-        JsonArray params = new JsonArray();
-        StringBuilder query = new StringBuilder("INSERT INTO viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) VALUES ");
+        final JsonArray params = new JsonArray();
+        final StringBuilder query = new StringBuilder("INSERT INTO viesco.setting_period (start_date, end_date, description, id_structure, is_opening, code) VALUES ");
 
         // append the values and params for each holiday
         for (int i = 0; i < holidays.size(); i++) {
-            HolidayRecord holiday = holidays.get(i);
+            final HolidayRecord holiday = holidays.get(i);
 
-            String formattedStartAt = DateHelper.getDateString(
+            // format start and end dates
+            final String startDateYYYYMMDD = DateHelper.getDateString(
                     holiday.startAt(),
                     DateHelper.DATA_GOUV_API_DATE_FORMAT,
-                    DateHelper.HOLIDAYS_DB_DATE_FORMAT);
-            String formattedEndAt = DateHelper.getDateString(
+                    DateHelper.YEAR_MONTH_DAY);
+            final String endDateYYYYMMDD = DateHelper.getDateString(
                     holiday.endAt(),
                     DateHelper.DATA_GOUV_API_DATE_FORMAT,
-                    DateHelper.HOLIDAYS_DB_DATE_FORMAT);
-            // holidays like Christmas, Toussaint... given by the data.education.gouv API start on Friday at 22:00:00
-            // so we need to insert in the database the date corresponding to the day after => the Saturday 00:00:00
-            String adjustedStartDate = DateHelper.getAdjustedHolidaysStartDate(formattedStartAt, formattedEndAt);
+                    DateHelper.YEAR_MONTH_DAY);
+
+            final String startDateYYYYMMDD_HHMMSS = startDateYYYYMMDD + " " + HOUR_START;
+            String endDateYYYYMMDD_HHMMSS = endDateYYYYMMDD + " " + HOUR_END;
+
+            // Holidays like Christmas, Toussaint... given by the data.education.gouv API ends on Monday,
+            // so we need to insert in the database the date corresponding to the day before => the Sunday
+            if (endDateYYYYMMDD != null && !endDateYYYYMMDD.equals(startDateYYYYMMDD)) {
+                final Date endDate = DateHelper.getDate(endDateYYYYMMDD, DateHelper.YEAR_MONTH_DAY);
+                final Date endDateMinusOneDay = DateHelper.addDays(endDate, -1);
+                endDateYYYYMMDD_HHMMSS = DateHelper.getDateString(endDateMinusOneDay, DateHelper.YEAR_MONTH_DAY) + " " + HOUR_END;
+            }
 
             // values
             query.append("(")
@@ -420,15 +429,15 @@ public class DefaultInitImpl extends SqlCrudService implements InitService {
                 query.append(",");
             }
             // params
-            params.add(adjustedStartDate)
-                    .add(formattedEndAt)
+            params.add(startDateYYYYMMDD_HHMMSS)
+                    .add(endDateYYYYMMDD_HHMMSS)
                     .add(holiday.description())
                     .add(initDateFuture.structure())
                     .add(false)
                     .add(Field.EXCLUSION);
         }
 
-        JsonObject statement = new JsonObject()
+        final JsonObject statement = new JsonObject()
                 .put(STATEMENT, query.toString())
                 .put(VALUES, params)
                 .put(ACTION, PREPARED);
