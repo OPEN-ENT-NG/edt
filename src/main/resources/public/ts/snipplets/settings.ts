@@ -121,8 +121,7 @@ export const SETTINGS_SNIPPLET = {
           this.current.exclusion.description.trim() !== "" &&
           moment(this.current.exclusion.end_date).diff(
             moment(this.current.exclusion.start_date)
-          ) >= 0 &&
-          moment().isBefore(this.current.exclusion.start_date)
+          ) >= 0
         );
       }
     },
