@@ -33,6 +33,11 @@ import static io.vertx.core.Future.future;
 public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtService {
 
     private static final Logger log = LoggerFactory.getLogger(EdtServiceMongoImpl.class);
+    private static final Set<String> UPDATABLE_FIELDS = new HashSet<>(Arrays.asList(
+            "subjectId", "teacherIds", "tagIds", "classes", "classesExternalIds", 
+            "classesIds", "groups", "groupsExternalIds", "groupsIds", "roomLabels", "dayOfWeek", 
+            "manual", "theoretical", "exceptionnal"
+    ));
     private final String collection;
     private final EventBus eb;
     private final DateHelper dateHelper = new DateHelper();
@@ -298,6 +303,12 @@ public class EdtServiceMongoImpl extends MongoDbCrudService implements EdtServic
         calendar.set(Calendar.SECOND, endSecond);
         newCourse.set("endDate", dateHelper.DATE_FORMATTER.format(calendar.getTime()));
 
+        // Update all updatable fields from the course
+        for (String fieldName : creatingCourse.fieldNames()) {
+            if (UPDATABLE_FIELDS.contains(fieldName)) {
+                newCourse.set(fieldName, creatingCourse.getValue(fieldName));
+            }
+        }
 
         MongoDb.getInstance().update(
                 this.collection,

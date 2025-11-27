@@ -265,6 +265,8 @@ export let manageCourseCtrl = ng.controller('manageCourseCtrl',
             if ($scope.course.exceptionnal && $scope.course.subjectId == null) {
                 $scope.isExceptional = true;
             }
+            // if not slots defined, we set free schedule to true
+	        $scope.display.freeSchedule = (!$scope.course.timeSlots.all || $scope.course.timeSlots.all.length === 0);
 
             $scope.setTimeSlotFromCourseOccurrence();
 
