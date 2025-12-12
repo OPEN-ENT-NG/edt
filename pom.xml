@@ -27,7 +27,6 @@
         <powerMockVersion>2.0.2</powerMockVersion>
         <mockitoVersion>[2.0,3.0)</mockitoVersion>
         <entCoreVersion>6.10-zookeeper-SNAPSHOT</entCoreVersion>
-        <gatlingHighchartsVersion>2.2.2</gatlingHighchartsVersion>
         <toolsVersion>2.0.0-final</toolsVersion>
     </properties>
     <dependencies>
