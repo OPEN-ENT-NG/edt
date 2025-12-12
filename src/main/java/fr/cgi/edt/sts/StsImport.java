@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.entcore.common.utils.FileUtils.deleteImportPath;
+import static org.entcore.common.utils.FileUtils.deleteFSImportPath;
 
 
 public class StsImport {
@@ -100,7 +100,7 @@ public class StsImport {
     private Handler<Throwable> getExceptionHandler(final String path, final Handler<AsyncResult> handler) {
         return event -> {
             handler.handle(new DefaultAsyncResult(event));
-            deleteImportPath(vertx, path);
+            deleteFSImportPath(vertx, path);
         };
     }
 
