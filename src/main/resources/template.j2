@@ -2,6 +2,11 @@
   "name": "fr.cgi~edt",
   "config": {
     "main" : "fr.cgi.edt.Edt",
+    "probes": [
+      "org.entcore.common.http.health.Neo4jProbe",
+      "org.entcore.common.http.health.MongoProbe",
+      "org.entcore.common.http.health.PostgresProbe"
+    ],
     "port" : 8168,
     "app-name" : "Edt",
     "app-address" : "/edt",
