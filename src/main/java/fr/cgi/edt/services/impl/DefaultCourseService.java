@@ -98,8 +98,12 @@ public class DefaultCourseService implements CourseService {
         eb.request(Edt.EB_VIESCO_ADDRESS, action, event -> {
             JsonObject body = (JsonObject) event.result().body();
             if (event.succeeded() && "ok".equals(body.getString("status"))) {
-
-                promise.complete(body.getJsonArray("results", new JsonArray()).getList());
+                final JsonArray resultsArray = body.getJsonArray("results", new JsonArray());
+                final List<JsonObject> results = new ArrayList<>();
+                for (int i = 0; i < resultsArray.size(); i++) {
+                    results.add(resultsArray.getJsonObject(i));
+                }
+                promise.complete(results);
             } else {
                 promise.fail(event.cause().getMessage());
             }
