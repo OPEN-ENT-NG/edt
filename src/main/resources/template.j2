@@ -7,6 +7,9 @@
       "org.entcore.common.http.health.MongoProbe",
       "org.entcore.common.http.health.PostgresProbe"
     ],
+    "publicConf": {
+      "screeb-app-id": "{{ screebAppId | default('') }}"
+    },
     "port" : 8168,
     "app-name" : "Edt",
     "app-address" : "/edt",
