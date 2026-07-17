@@ -98,5 +98,24 @@ function watchFiles() {
 
 gulp.task("watch", watchFiles);
 
+// Copie dist/behaviours.js -> public/js/behaviours.js (extrait de build(), sans la copie view)
+function copyBehavioursDev() {
+  return gulp
+    .src("./src/main/resources/public/dist/behaviours.js", { allowEmpty: true })
+    .pipe(gulp.dest("./src/main/resources/public/js"));
+}
+
+// Watch dev local : pas de springboard, pas de gradle.properties.
+// Pas de drop-cache dans la boucle : webpack écrase dist/ en place -> events "change"
+// propres pour l'auto-reload de dev-server.js.
+function watchDev() {
+  gulp.watch(
+    "./src/main/resources/public/ts/**/*.ts",
+    { ignoreInitial: false }, // build initial au lancement
+    gulp.series("build-dev", copyBehavioursDev)
+  );
+}
+gulp.task("watch-dev", gulp.series("drop-cache", watchDev));
+
 exports.watch = gulp.parallel("watch");
 exports.build = gulp.series("drop-cache", "build-dev", "build");
