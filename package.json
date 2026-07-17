@@ -22,11 +22,14 @@
     "@types/node": "14.14.28",
     "awesome-typescript-loader": "3.2.1",
     "axios-mock-adapter": "^1.19.0",
+    "browser-sync": "^3.0.2",
+    "concurrently": "^9.0.0",
     "gulp": "4.0.2",
     "gulp-clean": "0.4.0",
     "gulp-concat": "^2.6.1",
     "gulp-replace": "^1.0.0",
     "gulp-sourcemaps": "^2.6.0",
+    "http-proxy": "^1.18.1",
     "jest": "^22.4.0",
     "jest-environment-node": "^23.0.0",
     "merge2": "^1.1.0",
@@ -39,7 +42,11 @@
   "scripts": {
     "coverage": "./node_modules/.bin/jest --config jest.config.js --forceExit --coverage",
     "clean": "rm -rf build && rm -rf src/main/resources/public/dist && rm -rf coverage && rm -rf src/main/resources/public/js",
-    "test": "npm run clean && npm run coverage"
+    "test": "npm run clean && npm run coverage",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js build",
+    "watch:ts": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js watch-dev",
+    "dev:server": "node dev-server.js",
+    "dev": "concurrently -k -n gulp,serve -c blue,green \"npm run watch:ts\" \"npm run dev:server\""
   },
   "repository": {
     "type": "git",
