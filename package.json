@@ -4,6 +4,7 @@
   "description": "Gestion d'emplois du temps au sein de l'OPEN-ENT-NG",
   "main": "gulpfile.js",
   "dependencies": {
+    "@screeb/sdk-browser": "0.7.0",
     "apexcharts": "^3.15.5",
     "axios": "0.21.1",
     "core-js": "2.4.1",
@@ -46,7 +47,7 @@
     "build": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js build",
     "watch:ts": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js watch-dev",
     "dev:server": "node dev-server.js",
-    "dev": "concurrently -k -n gulp,serve -c blue,green \"npm run watch:ts\" \"npm run dev:server\""
+    "dev": "concurrently -k -n gulp,serve -c blue,green \"yarn run watch:ts\" \"yarn run dev:server\""
   },
   "repository": {
     "type": "git",

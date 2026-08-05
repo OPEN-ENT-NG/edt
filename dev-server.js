@@ -32,13 +32,13 @@ if (!fs.existsSync(envPath)) {
   process.exit(1);
 }
 const env = parseEnvFile(fs.readFileSync(envPath, "utf-8"));
-const { PROXY_RECETTE, PROXY_XSRF_TOKEN, PROXY_ONE_SESSION_ID } = env;
-if (!PROXY_RECETTE) {
-  console.error("PROXY_RECETTE manquant dans .env");
+const { VITE_RECETTE, VITE_XSRF_TOKEN, VITE_ONE_SESSION_ID } = env;
+if (!VITE_RECETTE) {
+  console.error("VITE_RECETTE manquant dans .env");
   process.exit(1);
 }
 
-const cookie = `oneSessionId=${PROXY_ONE_SESSION_ID}; authenticated=true; XSRF-TOKEN=${PROXY_XSRF_TOKEN}`;
+const cookie = `oneSessionId=${VITE_ONE_SESSION_ID}; authenticated=true; XSRF-TOKEN=${VITE_XSRF_TOKEN}`;
 const publicDir = path.resolve(__dirname, "src/main/resources/public");
 
 // Proxy manuel (plutôt que l'option `proxy` de browser-sync) : browser-sync force
@@ -47,7 +47,7 @@ const publicDir = path.resolve(__dirname, "src/main/resources/public");
 // navigateur "connexion non privée". En passant par http-proxy directement dans un
 // middleware, le serveur local reste en http tout en proxifiant vers la recette en https.
 const proxy = httpProxy.createProxyServer({
-  target: PROXY_RECETTE,
+  target: VITE_RECETTE,
   changeOrigin: true,
   secure: false,
   autoRewrite: true,
@@ -56,14 +56,14 @@ const proxy = httpProxy.createProxyServer({
 // Injection de la session recette sur chaque requête sortante (pattern admin)
 proxy.on("proxyReq", (proxyReq) => {
   proxyReq.setHeader("cookie", cookie);
-  proxyReq.setHeader("X-XSRF-TOKEN", PROXY_XSRF_TOKEN || "");
+  proxyReq.setHeader("X-XSRF-TOKEN", VITE_XSRF_TOKEN || "");
 });
 
 // Épinglage du set-cookie en réponse : évite la rotation de session
 proxy.on("proxyRes", (proxyRes) => {
   proxyRes.headers["set-cookie"] = [
-    `oneSessionId=${PROXY_ONE_SESSION_ID}`,
-    `XSRF-TOKEN=${PROXY_XSRF_TOKEN}`,
+    `oneSessionId=${VITE_ONE_SESSION_ID}`,
+    `XSRF-TOKEN=${VITE_XSRF_TOKEN}`,
     "authenticated=true",
   ];
 });
@@ -95,8 +95,14 @@ browserSync.init({
     },
   ],
   middleware: [
-    // Catch-all : tout ce qui n'est pas servi localement part vers la recette
+    // Mock de la conf publique pour tester Screeb en local (pattern admin) ;
+    // le reste part vers la recette via le catch-all.
     (req, res) => {
+      if (env.SCREEB_APP_ID_DEV && req.url.split("?")[0] === "/edt/conf/public") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ "screeb-app-id": env.SCREEB_APP_ID_DEV }));
+        return;
+      }
       proxy.web(req, res);
     },
   ],

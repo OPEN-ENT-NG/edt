@@ -11,7 +11,11 @@
       "jquery",
       "core-js",
       "jest"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@screeb/sdk-browser": ["src/main/resources/public/ts/types/screeb-sdk"]
+    }
   },
   "exclude": [
     "build", "node_modules"
