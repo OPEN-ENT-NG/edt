@@ -116,6 +116,10 @@ export let main = ng.controller("EdtController", [
       },
     };
 
+    // Becomes true once the first course sync has resolved, so isScheduleEmpty()
+    // cannot report a false positive before the initial load has completed.
+    $scope.hasSyncedOnce = false;
+
     /**
      * Synchronize a structure.
      */
@@ -253,6 +257,18 @@ export let main = ng.controller("EdtController", [
     $scope.checkAccess = () => {
       return $scope.isPersonnel() || $scope.isTeacher();
     };
+
+    /**
+     * Returns true once the timetable has been synced at least once and turned out
+     * to have no course at all for the current selection. Drives the
+     * "calendar-empty" class on #calendar-view, used as a Screeb targeting
+     * selector to detect users with no timetable loaded.
+     */
+    $scope.isScheduleEmpty = (): boolean =>
+      $scope.hasSyncedOnce &&
+      !$scope.calendarLoader.show &&
+      !!$scope.structure &&
+      $scope.structure.calendarItems.all.length === 0;
 
     /**
      * Returns student group
@@ -424,6 +440,7 @@ export let main = ng.controller("EdtController", [
       $scheduleItems.mousemove(() => {
         $timeout(() => $scope.safeApply(), 500);
       });
+      $scope.hasSyncedOnce = true;
       Utils.safeApply($scope);
     };
 
