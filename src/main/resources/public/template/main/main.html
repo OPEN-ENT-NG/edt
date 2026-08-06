@@ -14,7 +14,8 @@
              calendar: checkAccess(),
              twelve: !checkAccess(),
              ten: checkAccess(),
-             'no-cursor': !canManage()
+             'no-cursor': !canManage(),
+             'calendar-empty': isScheduleEmpty()
              }">
             <calendar
                     enable-display-modes="true"
