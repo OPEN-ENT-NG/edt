@@ -25,6 +25,8 @@
     "axios-mock-adapter": "^1.19.0",
     "browser-sync": "^3.0.2",
     "concurrently": "^9.0.0",
+    "entcore-css-lib": "npm:ode-csslib@4.0.12",
+    "sass": "^1.49.9",
     "gulp": "4.0.2",
     "gulp-clean": "0.4.0",
     "gulp-concat": "^2.6.1",
@@ -46,8 +48,10 @@
     "test": "npm run clean && npm run coverage",
     "build": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js build",
     "watch:ts": "NODE_OPTIONS=--openssl-legacy-provider node node_modules/gulp/bin/gulp.js watch-dev",
+    "build:sass": "sass --load-path=node_modules/ --no-source-map src/main/resources/public/sass/index.scss src/main/resources/public/css/edt.css",
+    "watch:sass": "node scripts/dev-sass.js",
     "dev:server": "node dev-server.js",
-    "dev": "concurrently -k -n gulp,serve -c blue,green \"yarn run watch:ts\" \"yarn run dev:server\""
+    "dev": "concurrently --kill-others-on-fail -n webpack,sass,serve -c blue,magenta,green \"yarn run watch:ts\" \"yarn run watch:sass\" \"yarn run dev:server\""
   },
   "repository": {
     "type": "git",
