@@ -58,15 +58,13 @@ const proxy = httpProxy.createProxyServer({
   target: recette,
   changeOrigin: true,
   secure: false,
-  autoRewrite: true,
-  // The local server is http, the recette is https. `autoRewrite` rewrites the
-  // HOST of any redirect the recette sends (e.g. to localhost:3000) but keeps its
-  // PROTOCOL. Without this, a redirect (typically /auth/login when the session has
-  // expired) sends the browser to https://localhost:3000 -> "This site can't
-  // provide a secure connection", with no indication of what actually went wrong.
-  protocolRewrite: "http",
   // The HTML document is rewritten to inject the browser-sync client and the local
   // stylesheet (see buildInjection), so we write the response ourselves.
+  //
+  // This also means http-proxy's own outgoing passes never run (they only run
+  // when `!options.selfHandleResponse` — see http-proxy/lib/http-proxy/passes/
+  // web-incoming.js), so `autoRewrite`/`protocolRewrite` would be silently inert
+  // here. Redirects are rewritten by hand instead, see rewriteRedirectLocation.
   selfHandleResponse: true,
 });
 
@@ -83,10 +81,29 @@ proxy.on("proxyReq", (proxyReq, req) => {
   if (wantsHtmlDocument(req)) proxyReq.setHeader("accept-encoding", "identity");
 });
 
+// The local server is http, the recette is https. Without this, a redirect
+// (typically /auth/login when the session has expired) keeps pointing at the
+// remote https origin -> the browser is sent to https://localhost:3000 ->
+// "This site can't provide a secure connection", with no indication of what
+// actually went wrong. Only rewritten when it targets the recette itself, like
+// http-proxy's own (inert here) setRedirectHostRewrite pass would.
+const REDIRECT_STATUS = /^201|30(1|2|7|8)$/;
+function rewriteRedirectLocation(proxyRes, req) {
+  const rawLocation = proxyRes.headers["location"];
+  if (!REDIRECT_STATUS.test(proxyRes.statusCode) || !rawLocation) return;
+  const redirect = new URL(rawLocation, recette);
+  if (redirect.host !== new URL(recette).host) return;
+  redirect.protocol = "http:";
+  redirect.host = req.headers["host"];
+  proxyRes.headers["location"] = redirect.toString();
+}
+
 // A session that has expired shows up ONLY as a redirect to /auth/login — flag it
 // explicitly, otherwise the browser just shows a blank page with no explanation.
 let sessionExpiredLogged = false;
 proxy.on("proxyRes", (proxyRes, req, res) => {
+  rewriteRedirectLocation(proxyRes, req);
+
   const location = proxyRes.headers["location"];
   if (!sessionExpiredLogged && location && location.indexOf("/auth/login") !== -1) {
     sessionExpiredLogged = true;
@@ -125,6 +142,10 @@ proxy.on("proxyRes", (proxyRes, req, res) => {
         : body + injection;
 
     const headers = Object.assign({}, proxyRes.headers);
+    // The rewritten body is sent whole via res.end(), not chunked: keeping
+    // transfer-encoding alongside a new content-length produces an invalid,
+    // ambiguous response (RFC 7230 3.3.3) that some clients reject.
+    delete headers["transfer-encoding"];
     headers["content-length"] = Buffer.byteLength(body);
     res.writeHead(proxyRes.statusCode, headers);
     res.end(body);
