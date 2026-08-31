@@ -24,3 +24,5 @@ coverage/
 target
 dependency-reduced-pom.xml
 edifice
+# Local dev only: the real stylesheet is built in ode-themes
+src/main/resources/public/css/
