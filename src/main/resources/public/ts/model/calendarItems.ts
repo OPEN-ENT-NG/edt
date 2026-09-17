@@ -1,5 +1,5 @@
 import {_, idiom as lang, model, moment} from 'entcore';
-import http, {AxiosPromise, AxiosResponse} from 'axios';
+import {http, HttpPromise, HttpResponse} from 'entcore-toolkit';
 import {Course, Group, ICourse, Structure, Teacher, USER_TYPES, Utils} from './index';
 import {Structures} from './structure';
 import {DateUtils} from '../utils/date';
@@ -88,7 +88,7 @@ export class CalendarItems {
             uri += `&student=${studentId}`;
         }
 
-        let {data}: AxiosResponse = await http.get(uri);
+        let {data}: HttpResponse = await http.get(uri);
 
         if (data.length > 0) {
             this.all = data.map((item) => {
@@ -161,7 +161,7 @@ export class CalendarItems {
 
         if (isAllStructure) {
             let datas: Array<any> = [];
-            let coursePromises: Array<AxiosPromise> = [];
+            let coursePromises: Array<HttpPromise> = [];
             let structurePromises: Array<Promise<any>> = [];
 
             structures.all.map(async (structure: Structure): Promise<void> => {
@@ -171,12 +171,12 @@ export class CalendarItems {
                 }
             });
 
-            const [courseResponse, ]: Array<Array<AxiosResponse>> | Array<Promise<any>> = await Promise.all([
+            const [courseResponse, ]: Array<Array<HttpResponse>> | Array<Promise<any>> = await Promise.all([
                 Promise.all(coursePromises),
                 Promise.all(structurePromises)
             ]);
 
-            courseResponse.forEach((response: AxiosResponse): void => {
+            courseResponse.forEach((response: HttpResponse): void => {
                 datas = datas.concat(response.data);
             });
 
@@ -202,7 +202,7 @@ export class CalendarItems {
             });
         } else {
             let uri: string = `/edt/structures/${structure.id}/common/courses/${firstDate}/${endDate}`;
-            let {data}: AxiosResponse = await http.post(uri, filter);
+            let {data}: HttpResponse = await http.post(uri, filter);
             if (data.length > 0) {
                 this.all = data.map((item: CalendarItem): CalendarItem => {
                     item = new CalendarItem(item, item.startDate, item.endDate);

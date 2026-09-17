@@ -1,6 +1,5 @@
 import { Structure } from './structure';
-import { Mix } from 'entcore-toolkit';
-import http from 'axios';
+import { http, Mix } from 'entcore-toolkit';
 
 export class Teacher {
     id: string;

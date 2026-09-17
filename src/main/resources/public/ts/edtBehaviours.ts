@@ -1,5 +1,5 @@
 import { _ } from 'entcore';
-import http from 'axios';
+import { http } from 'entcore-toolkit';
 import { SETTINGS_SNIPPLET } from './snipplets';
 import { Exclusion, Exclusions } from './model';
 import {initData} from "./snipplets/init_data";

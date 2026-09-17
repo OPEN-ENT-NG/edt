@@ -5,22 +5,26 @@ jest.mock('entcore', () => ({
     ng: {service: jest.fn()}
 }));
 
-import axios, {AxiosResponse} from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+jest.mock('entcore-toolkit', () => Object.assign({}, (jest as any).requireActual('entcore-toolkit'), {
+    http: {get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn(), postFile: jest.fn(), putFile: jest.fn()}
+}));
+
+import { http, HttpResponse } from 'entcore-toolkit';
 import DoneCallback = jest.DoneCallback;
 
 describe('structureService', () => {
     it('should be able to call init structure data',  (done: DoneCallback) => {
-        const mock = new MockAdapter(axios);
         const data = { response: true };
         const structureId: string = 'structureId';
         const zone: string = 'A';
         const schoolYearStartDate = "01/09/2024";
         const schoolYearEndDate = "01/08/2025";
-        mock.onGet(`/edt/init/${structureId}?zone=${zone}`).reply(200, data);
-        structureService.initStructureData(structureId, zone, schoolYearStartDate, schoolYearEndDate).then((response: AxiosResponse) => {
+        const url = `/edt/init/${structureId}?zone=${zone}&schoolYearStartDate=${schoolYearStartDate}&schoolYearEndDate=${schoolYearEndDate}`;
+        (http.get as jest.Mock).mockResolvedValueOnce({data, status: 200, statusText: 'OK', headers: {}, config: {}});
+        structureService.initStructureData(structureId, zone, schoolYearStartDate, schoolYearEndDate).then((response: HttpResponse) => {
             expect(response.data).toEqual(data);
         });
+        expect(http.get).toHaveBeenCalledWith(url);
         done();
     });
 });
