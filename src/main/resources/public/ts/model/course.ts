@@ -1,6 +1,5 @@
 import {_, model, moment, notify} from 'entcore';
-import http from 'axios';
-import {Mix} from 'entcore-toolkit';
+import {http, Mix} from 'entcore-toolkit';
 import {CourseOccurrence, Group, ISubject, Teacher, USER_TYPES, Utils} from './index';
 import {Structure} from './structure';
 import {Moment} from 'moment';

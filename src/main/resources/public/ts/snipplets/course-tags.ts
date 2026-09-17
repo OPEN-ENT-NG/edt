@@ -1,4 +1,4 @@
-import { AxiosError, AxiosResponse } from "axios";
+import { HttpError, HttpResponse } from "entcore-toolkit";
 import { toasts } from "entcore";
 import { CourseTag } from "../model/courseTag";
 import { courseTagService } from "../services";
@@ -61,7 +61,7 @@ const vm: IViewModel = {
   createCourseTag: async (): Promise<void> => {
     courseTagService
       .createCourseTag(window.model.vieScolaire.structure.id, vm.courseTagForm)
-      .then((res: AxiosResponse): void => {
+      .then((res: HttpResponse): void => {
         if (res.status === 200 || res.status === 201) {
           vm.courseTagForm = {
             isPrimary: false,
@@ -75,7 +75,7 @@ const vm: IViewModel = {
           toasts.warning("edt.admin.course.tags.form.create.error");
         }
       })
-      .catch((_: AxiosError): void =>
+      .catch((_: HttpError): void =>
         toasts.warning("edt.admin.course.tags.form.create.error")
       );
   },
@@ -83,7 +83,7 @@ const vm: IViewModel = {
   deleteCourseTag: async (courseTagId: number): Promise<void> => {
     courseTagService
       .deleteCourseTag(window.model.vieScolaire.structure.id, courseTagId)
-      .then((res: AxiosResponse): void => {
+      .then((res: HttpResponse): void => {
         if (res.status === 200 || res.status === 201) {
           vm.courseTagForm = null;
           toasts.confirm("edt.admin.course.tags.form.delete.success");
@@ -92,7 +92,7 @@ const vm: IViewModel = {
           toasts.warning("edt.admin.course.tags.form.delete.error");
         }
       })
-      .catch((_: AxiosError): void =>
+      .catch((_: HttpError): void =>
         toasts.warning("edt.admin.course.tags.form.delete.error")
       );
   },
@@ -100,7 +100,7 @@ const vm: IViewModel = {
   updateCourseTag: async (): Promise<void> => {
     courseTagService
       .updateCourseTag(vm.courseEditTagForm)
-      .then((res: AxiosResponse): void => {
+      .then((res: HttpResponse): void => {
         if (res.status === 200 || res.status === 201) {
           vm.closeCourseTagLightbox();
           toasts.confirm("edt.admin.course.tags.form.edit.success");
@@ -109,7 +109,7 @@ const vm: IViewModel = {
           toasts.warning("edt.admin.course.tags.form.edit.error");
         }
       })
-      .catch((_: AxiosError): void =>
+      .catch((_: HttpError): void =>
         toasts.warning("edt.admin.course.tags.form.edit.error")
       );
   },

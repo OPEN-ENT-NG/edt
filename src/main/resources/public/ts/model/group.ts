@@ -1,6 +1,5 @@
-import {Mix} from 'entcore-toolkit';
+import {http, HttpResponse, Mix} from 'entcore-toolkit';
 import {idiom as lang} from 'entcore';
-import http, {AxiosResponse} from 'axios';
 
 export class Group {
     name: string;
@@ -38,14 +37,14 @@ export class Groups {
     async sync(structureId: string, isTeacher?: boolean) {
         try {
             if (isTeacher) {
-                let teacherGroups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
+                let teacherGroups: HttpResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
                 teacherGroups.data.forEach((group: Group): void => {
                     group.displayName = group.name + ' ' + lang.translate("my.class");
                     group.isInCurrentTeacher = true
                 });
                 this.all = Mix.castArrayAs(Group, teacherGroups.data);
                 let teacherGroupIds: string[] = this.all.map((group: Group) => group.id);
-                let groups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true&&isTeacherEdt=true`);
+                let groups: HttpResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true&&isTeacherEdt=true`);
                 groups.data.forEach((group: Group): void => {
                     if (teacherGroupIds.indexOf(group.id) === -1) {
                         group.displayName = group.name;
@@ -54,7 +53,7 @@ export class Groups {
                 });
 
             } else {
-                let groups: AxiosResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
+                let groups: HttpResponse = await http.get(`/viescolaire/classes?idEtablissement=${structureId}&isEdt=true`);
                 this.all = Mix.castArrayAs(Group, groups.data);
                 this.all.map((g: Group): void => {
                     g.displayName = g.name;

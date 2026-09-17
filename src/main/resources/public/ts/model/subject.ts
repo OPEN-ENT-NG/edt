@@ -1,5 +1,5 @@
 import { notify } from 'entcore';
-import http, {AxiosResponse} from 'axios';
+import { http, HttpResponse } from 'entcore-toolkit';
 
 export class ISubject {
     code?: string;
@@ -43,7 +43,7 @@ export class Subjects {
         try {
             let url : string = `/directory/timetable/subjects/${structureId}`;
             if(teacherIds) url += `?${this.getFilterTeacher(teacherIds)}`;
-            let subjects : AxiosResponse = await http.get(url);
+            let subjects : HttpResponse = await http.get(url);
             this.all = [];
             subjects.data.forEach((subject) => {
                 this.all.push(new Subject(subject.subjectId, subject.subjectLabel, subject.subjectCode, subject.teacherId));

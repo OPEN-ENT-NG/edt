@@ -1,6 +1,5 @@
 import { notify, moment } from 'entcore';
-import http from 'axios';
-import { Mix } from 'entcore-toolkit';
+import { http, Mix } from 'entcore-toolkit';
 
 export class Exclusion {
     id: number;
