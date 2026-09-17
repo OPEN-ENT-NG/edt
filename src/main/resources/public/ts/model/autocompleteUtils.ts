@@ -1,5 +1,4 @@
-import http from "axios";
-import {Mix} from "entcore-toolkit";
+import {http, Mix} from "entcore-toolkit";
 import {Teacher} from "./teacher";
 
 export class AutocompleteUtils {

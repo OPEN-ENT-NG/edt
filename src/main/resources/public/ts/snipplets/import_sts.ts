@@ -1,5 +1,5 @@
-import http from "axios";
 import { idiom as lang, moment, skin, toasts } from "entcore";
+import { http } from 'entcore-toolkit';
 
 declare const model: any;
 

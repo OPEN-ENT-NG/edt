@@ -1,6 +1,5 @@
 import {notify} from 'entcore';
-import http, {AxiosResponse} from 'axios';
-import {Mix} from "entcore-toolkit";
+import {http, HttpResponse, Mix} from "entcore-toolkit";
 
 export class TimeSlot {
     id: string;
@@ -33,7 +32,7 @@ export class TimeSlots {
      */
      syncTimeSlots = async (): Promise<void> => {
         try {
-            let response: AxiosResponse = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
+            let response: HttpResponse = await http.get(`edt/time-slots?structureId=${this.structure_id}`);
             if (response.status === 200) {
                 this.all = Mix.castArrayAs(TimeSlot, response.data);
             }

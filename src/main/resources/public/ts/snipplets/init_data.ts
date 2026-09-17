@@ -1,5 +1,5 @@
 import {Utils} from "../model";
-import http, {AxiosResponse} from "axios";
+import {http, HttpResponse} from "entcore-toolkit";
 import {toasts} from 'entcore';
 import {structureService} from "../services";
 import {DateUtils} from "../utils/date";
@@ -27,7 +27,7 @@ export const initData = {
             initData.that = this;
 
             // get school year
-            const schoolYearRes: AxiosResponse<SchoolYear> = await http.get(`/viescolaire/settings/periode/schoolyear?structureId=${window.model.vieScolaire.structure.id}`);
+            const schoolYearRes: HttpResponse<SchoolYear> = await http.get(`/viescolaire/settings/periode/schoolyear?structureId=${window.model.vieScolaire.structure.id}`);
             const schoolYear: SchoolYear = schoolYearRes.data;
 
             this.schoolYear = {
@@ -84,7 +84,7 @@ export const initData = {
         initData: async function (): Promise<void> {
             let structure_id: string = window.model.vieScolaire.structure.id;
 
-            let response: AxiosResponse = await structureService.initStructureData(
+            let response: HttpResponse = await structureService.initStructureData(
                 structure_id, 
                 initData.that.initLightbox.zone,
                 DateUtils.format(initData.that.schoolYear.startDate, 'YYYY-MM-DD HH:mm:ss'),

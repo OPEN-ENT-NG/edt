@@ -1,5 +1,4 @@
-import http, {AxiosResponse} from 'axios';
-import { Mix } from 'entcore-toolkit';
+import { http, HttpResponse, Mix } from 'entcore-toolkit';
 import {Structure} from "./structure";
 
 export class Student {
@@ -26,7 +25,7 @@ export class Students {
     }
 
     async sync (): Promise<void> {
-        let children: AxiosResponse = await http.get('/edt/user/children');
+        let children: HttpResponse = await http.get('/edt/user/children');
         this.all = Mix.castArrayAs(Student, children.data);
         return;
     }
