@@ -1,14 +1,14 @@
 {
   "name": "edt",
-  "version": "3.2.7",
+  "version": "3.2.7-dev.0",
   "description": "Gestion d'emplois du temps au sein de l'OPEN-ENT-NG",
   "main": "gulpfile.js",
   "dependencies": {
     "@screeb/sdk-browser": "0.7.0",
     "apexcharts": "^3.15.5",
     "core-js": "2.4.1",
-    "entcore": "4.8.20",
-    "entcore-toolkit": "2.0.0",
+    "entcore": "dev",
+    "entcore-toolkit": "dev",
     "moment": "^2.21.0",
     "or": "^0.2.0",
     "underscore": "^1.8.3",
